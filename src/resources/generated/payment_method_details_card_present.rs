@@ -2,7 +2,7 @@
 // This file was automatically generated.
 // ======================================
 
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 /// The resource representing a Stripe "payment_method_details_card_present".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

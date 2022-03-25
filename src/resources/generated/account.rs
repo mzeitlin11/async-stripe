@@ -4,12 +4,14 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, Response};
-use crate::ids::AccountId;
-use crate::params::{Deleted, Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp};
-use crate::resources::{
-    Address, BankAccount, Card, Currency, DelayDays, File, Person, PersonVerificationParams,
-    VerificationDocumentParams,
+use crate::{
+    client::{Client, Response},
+    ids::AccountId,
+    params::{Deleted, Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
+    resources::{
+        Address, BankAccount, Card, Currency, DelayDays, File, Person, PersonVerificationParams,
+        VerificationDocumentParams,
+    },
 };
 
 /// The resource representing a Stripe "Account".

@@ -4,10 +4,12 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, Response};
-use crate::ids::{PriceId, SubscriptionId, SubscriptionItemId};
-use crate::params::{Deleted, Expand, List, Metadata, Object, Timestamp};
-use crate::resources::{Currency, Price, SubscriptionItemBillingThresholds, TaxRate};
+use crate::{
+    client::{Client, Response},
+    ids::{PriceId, SubscriptionId, SubscriptionItemId},
+    params::{Deleted, Expand, List, Metadata, Object, Timestamp},
+    resources::{Currency, Price, SubscriptionItemBillingThresholds, TaxRate},
+};
 
 /// The resource representing a Stripe "SubscriptionItem".
 ///

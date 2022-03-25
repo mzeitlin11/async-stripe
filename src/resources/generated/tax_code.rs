@@ -4,9 +4,11 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, Response};
-use crate::ids::TaxCodeId;
-use crate::params::{Expand, List, Object};
+use crate::{
+    client::{Client, Response},
+    ids::TaxCodeId,
+    params::{Expand, List, Object},
+};
 
 /// The resource representing a Stripe "TaxProductResourceTaxCode".
 ///

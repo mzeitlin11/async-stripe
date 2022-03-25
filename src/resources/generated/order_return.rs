@@ -4,10 +4,12 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, Response};
-use crate::ids::{OrderId, OrderReturnId};
-use crate::params::{Expand, Expandable, List, Object, RangeQuery, Timestamp};
-use crate::resources::{Currency, Order, OrderItem, Refund};
+use crate::{
+    client::{Client, Response},
+    ids::{OrderId, OrderReturnId},
+    params::{Expand, Expandable, List, Object, RangeQuery, Timestamp},
+    resources::{Currency, Order, OrderItem, Refund},
+};
 
 /// The resource representing a Stripe "OrderReturn".
 ///

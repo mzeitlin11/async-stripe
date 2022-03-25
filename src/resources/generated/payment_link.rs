@@ -4,10 +4,12 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, Response};
-use crate::ids::PaymentLinkId;
-use crate::params::{Expand, Expandable, List, Metadata, Object};
-use crate::resources::{Account, CheckoutSessionItem};
+use crate::{
+    client::{Client, Response},
+    ids::PaymentLinkId,
+    params::{Expand, Expandable, List, Metadata, Object},
+    resources::{Account, CheckoutSessionItem},
+};
 
 /// The resource representing a Stripe "PaymentLink".
 ///

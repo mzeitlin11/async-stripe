@@ -4,10 +4,12 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, Response};
-use crate::ids::{ChargeId, PaymentIntentId, RefundId};
-use crate::params::{Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp};
-use crate::resources::{BalanceTransaction, Charge, Currency, PaymentIntent, TransferReversal};
+use crate::{
+    client::{Client, Response},
+    ids::{ChargeId, PaymentIntentId, RefundId},
+    params::{Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
+    resources::{BalanceTransaction, Charge, Currency, PaymentIntent, TransferReversal},
+};
 
 /// The resource representing a Stripe "Refund".
 ///

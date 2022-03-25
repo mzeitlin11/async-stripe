@@ -4,11 +4,13 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, Response};
-use crate::ids::{CustomerId, PaymentMethodId};
-use crate::params::{Expand, Expandable, List, Metadata, Object, Timestamp};
-use crate::resources::{
-    Address, BillingDetails, Charge, Customer, PaymentMethodDetailsCardPresent, SetupAttempt,
+use crate::{
+    client::{Client, Response},
+    ids::{CustomerId, PaymentMethodId},
+    params::{Expand, Expandable, List, Metadata, Object, Timestamp},
+    resources::{
+        Address, BillingDetails, Charge, Customer, PaymentMethodDetailsCardPresent, SetupAttempt,
+    },
 };
 
 /// The resource representing a Stripe "PaymentMethod".

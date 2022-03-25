@@ -4,15 +4,17 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, Response};
-use crate::ids::{
-    AlipayAccountId, BankAccountId, CardId, CouponId, CustomerId, PaymentMethodId, PaymentSourceId,
-    PromotionCodeId,
-};
-use crate::params::{Deleted, Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp};
-use crate::resources::{
-    Address, Currency, Discount, PaymentMethod, PaymentSource, PaymentSourceParams, Scheduled,
-    Shipping, Subscription, TaxId, TestHelpersTestClock,
+use crate::{
+    client::{Client, Response},
+    ids::{
+        AlipayAccountId, BankAccountId, CardId, CouponId, CustomerId, PaymentMethodId,
+        PaymentSourceId, PromotionCodeId,
+    },
+    params::{Deleted, Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
+    resources::{
+        Address, Currency, Discount, PaymentMethod, PaymentSource, PaymentSourceParams, Scheduled,
+        Shipping, Subscription, TaxId, TestHelpersTestClock,
+    },
 };
 
 /// The resource representing a Stripe "Customer".

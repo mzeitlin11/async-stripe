@@ -4,9 +4,11 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, Response};
-use crate::ids::ExchangeRateId;
-use crate::params::{Expand, List, Object};
+use crate::{
+    client::{Client, Response},
+    ids::ExchangeRateId,
+    params::{Expand, List, Object},
+};
 
 /// The resource representing a Stripe "ExchangeRate".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

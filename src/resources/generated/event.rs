@@ -4,10 +4,12 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::client::{Client, Response};
-use crate::ids::EventId;
-use crate::params::{Expand, List, Object, RangeQuery, Timestamp};
-use crate::resources::NotificationEventData;
+use crate::{
+    client::{Client, Response},
+    ids::EventId,
+    params::{Expand, List, Object, RangeQuery, Timestamp},
+    resources::NotificationEventData,
+};
 
 /// The resource representing a Stripe "NotificationEvent".
 ///

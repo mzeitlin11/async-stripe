@@ -4,8 +4,10 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::params::{Expandable, Object};
-use crate::resources::{Currency, Sku};
+use crate::{
+    params::{Expandable, Object},
+    resources::{Currency, Sku},
+};
 
 /// The resource representing a Stripe "OrderItem".
 ///

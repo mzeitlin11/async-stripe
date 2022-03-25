@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
-use crate::error::StripeError;
-use crate::resources::ApiVersion;
 use crate::{
     client::{
         config::{err, ok},
         Client, Response,
     },
+    error::StripeError,
+    resources::ApiVersion,
     AccountId, ApplicationId,
 };
 

@@ -2,14 +2,15 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::IssuingCardId,
     params::{Expandable, Metadata, Object, Timestamp},
-    resources::{
-        Address, CardBrand, Currency, IssuingCardShippingStatus, IssuingCardShippingType,
-        IssuingCardType, IssuingCardholder, MerchantCategory,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    Address, CardBrand, IssuingCardShippingStatus, IssuingCardShippingType, IssuingCardType,
+    IssuingCardholder, MerchantCategory,
 };
 
 /// The resource representing a Stripe "IssuingCard".

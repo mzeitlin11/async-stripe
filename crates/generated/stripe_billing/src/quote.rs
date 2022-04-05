@@ -2,16 +2,16 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{CustomerId, QuoteId},
     params::{Expand, Expandable, List, Metadata, Object, Timestamp},
-    resources::{
-        Account, CheckoutSessionItem, Currency, Customer, Discount, Invoice,
-        QuotesResourceTotalDetails, Subscription, SubscriptionSchedule, TaxRate,
-        TestHelpersTestClock,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    Account, CheckoutSessionItem, Customer, Discount, Invoice, QuotesResourceTotalDetails,
+    Subscription, SubscriptionSchedule, TaxRate, TestHelpersTestClock,
 };
 
 /// The resource representing a Stripe "Quote".

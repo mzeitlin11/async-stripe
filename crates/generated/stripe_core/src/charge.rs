@@ -2,17 +2,18 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{ChargeId, CustomerId, PaymentIntentId},
     params::{Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
-    resources::{
-        Account, Address, Application, ApplicationFee, BalanceTransaction, BillingDetails,
-        ChargeSourceParams, Currency, Customer, Invoice, Mandate, Order, PaymentIntent,
-        PaymentMethod, PaymentMethodDetailsCardInstallmentsPlan, PaymentMethodDetailsCardPresent,
-        Refund, Review, Shipping, ThreeDSecureDetails, Transfer,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    Account, Address, Application, ApplicationFee, BalanceTransaction, BillingDetails,
+    ChargeSourceParams, Customer, Invoice, Mandate, Order, PaymentIntent, PaymentMethod,
+    PaymentMethodDetailsCardInstallmentsPlan, PaymentMethodDetailsCardPresent, Refund, Review,
+    Shipping, ThreeDSecureDetails, Transfer,
 };
 
 /// The resource representing a Stripe "Charge".

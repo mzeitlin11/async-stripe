@@ -2,12 +2,12 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::ChargeId,
     params::{Object, Timestamp},
     resources::Currency,
 };
+use serde::{Deserialize, Serialize};
 
 /// The resource representing a Stripe "SourceTransaction".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

@@ -2,15 +2,15 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{CreditNoteId, CustomerId, InvoiceId, RefundId},
     params::{Expand, Expandable, List, Metadata, Object, Timestamp},
-    resources::{
-        CreditNoteLineItem, Currency, Customer, CustomerBalanceTransaction, Discount, Invoice,
-        Refund, TaxRate,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    CreditNoteLineItem, Customer, CustomerBalanceTransaction, Discount, Invoice, Refund, TaxRate,
 };
 
 /// The resource representing a Stripe "CreditNote".

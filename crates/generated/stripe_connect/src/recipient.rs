@@ -2,13 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::RecipientId,
     params::{Deleted, Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
-    resources::{Account, BankAccount, Card},
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{Account, BankAccount, Card};
 
 /// The resource representing a Stripe "TransferRecipient".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

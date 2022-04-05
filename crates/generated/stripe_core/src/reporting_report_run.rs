@@ -2,12 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::ReportingReportRunId,
     params::{Object, Timestamp},
-    resources::{Currency, File},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::File;
 
 /// The resource representing a Stripe "reporting_report_run".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

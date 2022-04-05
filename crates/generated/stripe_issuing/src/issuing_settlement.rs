@@ -2,12 +2,12 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::IssuingSettlementId,
     params::{Metadata, Object, Timestamp},
     resources::Currency,
 };
+use serde::{Deserialize, Serialize};
 
 /// The resource representing a Stripe "IssuingSettlement".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

@@ -2,15 +2,16 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{CustomerId, SourceId, TokenId},
     params::{Expand, List, Metadata, Object, Timestamp},
-    resources::{
-        Address, BillingDetails, Currency, Shipping, SourceRedirectFlowFailureReason,
-        SourceRedirectFlowStatus, SourceStatus, SourceUsage,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    Address, BillingDetails, Shipping, SourceRedirectFlowFailureReason, SourceRedirectFlowStatus,
+    SourceStatus, SourceUsage,
 };
 
 /// The resource representing a Stripe "Source".

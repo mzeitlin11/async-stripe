@@ -2,13 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::WebhookEndpointId,
     params::{Deleted, Expand, List, Metadata, Object, Timestamp},
-    resources::{ApiVersion, WebhookEndpointStatus},
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{ApiVersion, WebhookEndpointStatus};
 
 /// The resource representing a Stripe "NotificationWebhookEndpoint".
 ///

@@ -2,15 +2,15 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{SetupAttemptId, SetupIntentId},
     params::{Expand, Expandable, List, Object, RangeQuery, Timestamp},
-    resources::{
-        Account, ApiErrors, Application, Customer, Mandate, PaymentMethod, SetupIntent,
-        ThreeDSecureDetails,
-    },
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    Account, ApiErrors, Application, Customer, Mandate, PaymentMethod, SetupIntent,
+    ThreeDSecureDetails,
 };
 
 /// The resource representing a Stripe "PaymentFlowsSetupIntentSetupAttempt".

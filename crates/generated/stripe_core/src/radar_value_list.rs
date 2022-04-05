@@ -2,12 +2,12 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::RadarValueListId,
     params::{List, Metadata, Object, Timestamp},
-    resources::RadarValueListItem,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::RadarValueListItem;
 
 /// The resource representing a Stripe "RadarListList".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

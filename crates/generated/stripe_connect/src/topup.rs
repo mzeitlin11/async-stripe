@@ -2,13 +2,14 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::TopupId,
     params::{Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
-    resources::{BalanceTransaction, Currency, Source},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{BalanceTransaction, Source};
 
 /// The resource representing a Stripe "Topup".
 ///

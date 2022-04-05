@@ -2,15 +2,16 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::AccountId,
     params::{Deleted, Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
-    resources::{
-        Address, BankAccount, Card, Currency, DelayDays, File, Person, PersonVerificationParams,
-        VerificationDocumentParams,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    Address, BankAccount, Card, DelayDays, File, Person, PersonVerificationParams,
+    VerificationDocumentParams,
 };
 
 /// The resource representing a Stripe "Account".

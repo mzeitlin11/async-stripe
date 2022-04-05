@@ -2,20 +2,20 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{CouponId, CustomerId, PriceId, PromotionCodeId, SubscriptionId},
     params::{Deleted, Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
-    resources::{
-        CollectionMethod, Currency, Customer, Discount, Invoice,
-        InvoicePaymentMethodOptionsAcssDebit, InvoicePaymentMethodOptionsBancontact,
-        InvoicePaymentMethodOptionsCustomerBalance, InvoicePaymentMethodOptionsKonbini,
-        InvoicePaymentMethodOptionsUsBankAccount, PaymentMethod, PaymentSource, Scheduled,
-        SetupIntent, SubscriptionBillingThresholds, SubscriptionItem,
-        SubscriptionItemBillingThresholds, SubscriptionSchedule, SubscriptionTransferData, TaxRate,
-        TestHelpersTestClock,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    CollectionMethod, Customer, Discount, Invoice, InvoicePaymentMethodOptionsAcssDebit,
+    InvoicePaymentMethodOptionsBancontact, InvoicePaymentMethodOptionsCustomerBalance,
+    InvoicePaymentMethodOptionsKonbini, InvoicePaymentMethodOptionsUsBankAccount, PaymentMethod,
+    PaymentSource, Scheduled, SetupIntent, SubscriptionBillingThresholds, SubscriptionItem,
+    SubscriptionItemBillingThresholds, SubscriptionSchedule, SubscriptionTransferData, TaxRate,
+    TestHelpersTestClock,
 };
 
 /// The resource representing a Stripe "Subscription".

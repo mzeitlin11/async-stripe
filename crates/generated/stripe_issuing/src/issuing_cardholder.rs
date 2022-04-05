@@ -2,12 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::IssuingCardholderId,
     params::{Expandable, Metadata, Object, Timestamp},
-    resources::{Address, Currency, File, MerchantCategory},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{Address, File, MerchantCategory};
 
 /// The resource representing a Stripe "IssuingCardholder".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

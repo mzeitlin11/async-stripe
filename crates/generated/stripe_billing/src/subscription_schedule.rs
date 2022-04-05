@@ -2,16 +2,17 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{CustomerId, SubscriptionScheduleId},
     params::{Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
-    resources::{
-        CollectionMethod, Coupon, Currency, Customer, PaymentMethod, Price, Scheduled,
-        Subscription, SubscriptionBillingThresholds, SubscriptionItemBillingThresholds,
-        SubscriptionTransferData, TaxRate, TestHelpersTestClock,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    CollectionMethod, Coupon, Customer, PaymentMethod, Price, Scheduled, Subscription,
+    SubscriptionBillingThresholds, SubscriptionItemBillingThresholds, SubscriptionTransferData,
+    TaxRate, TestHelpersTestClock,
 };
 
 /// The resource representing a Stripe "SubscriptionSchedule".

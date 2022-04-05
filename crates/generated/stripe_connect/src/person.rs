@@ -2,12 +2,12 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::PersonId,
     params::{Expandable, Metadata, Object, Timestamp},
-    resources::{Address, File},
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{Address, File};
 
 /// The resource representing a Stripe "Person".
 ///

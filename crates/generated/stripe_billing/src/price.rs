@@ -2,13 +2,15 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::PriceId,
     params::{Expand, Expandable, IdOrCreate, List, Metadata, Object, RangeQuery, Timestamp},
-    resources::{CreateProduct, Currency, Product, UpTo},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{Product, UpTo};
+use stripe_core::resources::CreateProduct;
 
 /// The resource representing a Stripe "Price".
 ///

@@ -2,12 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::BankAccountId,
     params::{Expandable, Metadata, Object},
-    resources::{Account, BankAccountStatus, Currency, Customer},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{Account, BankAccountStatus, Customer};
 
 /// The resource representing a Stripe "BankAccount".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

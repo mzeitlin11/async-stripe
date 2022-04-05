@@ -2,13 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{ProductId, TaxCodeId},
     params::{Deleted, Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
-    resources::{PackageDimensions, TaxCode},
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{PackageDimensions, TaxCode};
 
 /// The resource representing a Stripe "Product".
 ///

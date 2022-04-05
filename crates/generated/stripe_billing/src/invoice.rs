@@ -2,18 +2,19 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{CustomerId, InvoiceId, SubscriptionId},
     params::{Deleted, Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
-    resources::{
-        Account, Address, ApiErrors, Charge, Currency, Customer, Discount, InvoiceLineItem,
-        InvoicePaymentMethodOptionsAcssDebit, InvoicePaymentMethodOptionsBancontact,
-        InvoicePaymentMethodOptionsCustomerBalance, InvoicePaymentMethodOptionsKonbini,
-        InvoicePaymentMethodOptionsUsBankAccount, PaymentIntent, PaymentMethod, PaymentSource,
-        Quote, Shipping, Subscription, TaxId, TaxRate, TestHelpersTestClock,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    Account, Address, ApiErrors, Charge, Customer, Discount, InvoiceLineItem,
+    InvoicePaymentMethodOptionsAcssDebit, InvoicePaymentMethodOptionsBancontact,
+    InvoicePaymentMethodOptionsCustomerBalance, InvoicePaymentMethodOptionsKonbini,
+    InvoicePaymentMethodOptionsUsBankAccount, PaymentIntent, PaymentMethod, PaymentSource, Quote,
+    Shipping, Subscription, TaxId, TaxRate, TestHelpersTestClock,
 };
 
 /// The resource representing a Stripe "Invoice".

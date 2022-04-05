@@ -2,11 +2,11 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::BillingPortalConfigurationId,
     params::{Metadata, Object, Timestamp},
 };
+use serde::{Deserialize, Serialize};
 
 /// The resource representing a Stripe "PortalConfiguration".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

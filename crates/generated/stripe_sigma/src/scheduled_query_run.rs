@@ -2,12 +2,12 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::ScheduledQueryRunId,
     params::{Object, Timestamp},
-    resources::File,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::File;
 
 /// The resource representing a Stripe "ScheduledQueryRun".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

@@ -2,13 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{CustomerId, TokenId},
     params::{Expand, Metadata, Object, Timestamp},
-    resources::{Address, BankAccount, Card, CompanyParams, PersonParams, TokenType},
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{Address, BankAccount, Card, CompanyParams, PersonParams, TokenType};
 
 /// The resource representing a Stripe "Token".
 ///

@@ -2,13 +2,14 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{PriceId, SubscriptionId, SubscriptionItemId},
     params::{Deleted, Expand, List, Metadata, Object, Timestamp},
-    resources::{Currency, Price, SubscriptionItemBillingThresholds, TaxRate},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{Price, SubscriptionItemBillingThresholds, TaxRate};
 
 /// The resource representing a Stripe "SubscriptionItem".
 ///

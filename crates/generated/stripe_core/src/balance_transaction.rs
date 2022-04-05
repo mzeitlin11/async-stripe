@@ -2,17 +2,18 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{BalanceTransactionId, PayoutId, SourceId},
     params::{Expand, Expandable, List, Object, RangeQuery, Timestamp},
-    resources::{
-        ApplicationFee, ApplicationFeeRefund, BalanceTransactionStatus, Charge,
-        ConnectCollectionTransfer, Currency, Dispute, FeeType, IssuingAuthorization,
-        IssuingDispute, IssuingTransaction, Payout, PlatformTaxFee, Refund, ReserveTransaction,
-        TaxDeductedAtSource, Topup, Transfer, TransferReversal,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    ApplicationFee, ApplicationFeeRefund, BalanceTransactionStatus, Charge,
+    ConnectCollectionTransfer, Dispute, FeeType, IssuingAuthorization, IssuingDispute,
+    IssuingTransaction, Payout, PlatformTaxFee, Refund, ReserveTransaction, TaxDeductedAtSource,
+    Topup, Transfer, TransferReversal,
 };
 
 /// The resource representing a Stripe "BalanceTransaction".

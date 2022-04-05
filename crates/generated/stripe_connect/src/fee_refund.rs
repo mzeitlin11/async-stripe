@@ -2,12 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::ApplicationFeeRefundId,
     params::{Expandable, Metadata, Object, Timestamp},
-    resources::{ApplicationFee, BalanceTransaction, Currency},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{ApplicationFee, BalanceTransaction};
 
 /// The resource representing a Stripe "FeeRefund".
 ///

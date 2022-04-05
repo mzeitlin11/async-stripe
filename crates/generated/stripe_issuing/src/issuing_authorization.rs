@@ -2,15 +2,16 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::IssuingAuthorizationId,
     params::{Expandable, Metadata, Object, Timestamp},
-    resources::{
-        BalanceTransaction, Currency, IssuingAuthorizationAmountDetails, IssuingAuthorizationCheck,
-        IssuingAuthorizationMethod, IssuingAuthorizationReason, IssuingCard, IssuingCardholder,
-        IssuingTransaction, MerchantData,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    BalanceTransaction, IssuingAuthorizationAmountDetails, IssuingAuthorizationCheck,
+    IssuingAuthorizationMethod, IssuingAuthorizationReason, IssuingCard, IssuingCardholder,
+    IssuingTransaction, MerchantData,
 };
 
 /// The resource representing a Stripe "IssuingAuthorization".

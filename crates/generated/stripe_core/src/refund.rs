@@ -2,13 +2,14 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{ChargeId, PaymentIntentId, RefundId},
     params::{Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
-    resources::{BalanceTransaction, Charge, Currency, PaymentIntent, TransferReversal},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{BalanceTransaction, Charge, PaymentIntent, TransferReversal};
 
 /// The resource representing a Stripe "Refund".
 ///

@@ -2,12 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::CustomerBalanceTransactionId,
     params::{Expandable, Metadata, Object, Timestamp},
-    resources::{CreditNote, Currency, Customer, Invoice},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{CreditNote, Customer, Invoice};
 
 /// The resource representing a Stripe "CustomerBalanceTransaction".
 ///

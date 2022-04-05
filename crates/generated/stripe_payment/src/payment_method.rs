@@ -2,14 +2,14 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{CustomerId, PaymentMethodId},
     params::{Expand, Expandable, List, Metadata, Object, Timestamp},
-    resources::{
-        Address, BillingDetails, Charge, Customer, PaymentMethodDetailsCardPresent, SetupAttempt,
-    },
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    Address, BillingDetails, Charge, Customer, PaymentMethodDetailsCardPresent, SetupAttempt,
 };
 
 /// The resource representing a Stripe "PaymentMethod".

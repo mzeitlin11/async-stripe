@@ -2,12 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::IssuingDisputeId,
     params::{Expandable, Metadata, Object, Timestamp},
-    resources::{BalanceTransaction, Currency, File, IssuingDisputeStatus, IssuingTransaction},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{BalanceTransaction, File, IssuingDisputeStatus, IssuingTransaction};
 
 /// The resource representing a Stripe "IssuingDispute".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

@@ -2,16 +2,16 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{CustomerId, MandateId, PaymentIntentId, PaymentMethodId},
     params::{Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
-    resources::{
-        Account, ApiErrors, Application, Charge, Currency, Customer, Invoice,
-        PaymentIntentOffSession, PaymentMethod, PaymentMethodDetailsCardInstallmentsPlan, Review,
-        Shipping,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    Account, ApiErrors, Application, Charge, Customer, Invoice, PaymentIntentOffSession,
+    PaymentMethod, PaymentMethodDetailsCardInstallmentsPlan, Review, Shipping,
 };
 
 /// The resource representing a Stripe "PaymentIntent".

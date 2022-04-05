@@ -2,13 +2,14 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{CouponId, CustomerId, OrderId},
     params::{Expand, Expandable, List, Metadata, Object, RangeQuery, Timestamp},
-    resources::{Charge, Currency, Customer, OrderItem, OrderReturn, OrderStatusFilter, Shipping},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{Charge, Customer, OrderItem, OrderReturn, OrderStatusFilter, Shipping};
 
 /// The resource representing a Stripe "Order".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

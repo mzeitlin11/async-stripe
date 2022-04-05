@@ -2,13 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::EventId,
     params::{Expand, List, Object, RangeQuery, Timestamp},
-    resources::NotificationEventData,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::NotificationEventData;
 
 /// The resource representing a Stripe "NotificationEvent".
 ///

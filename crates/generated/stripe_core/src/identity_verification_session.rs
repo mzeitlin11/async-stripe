@@ -2,12 +2,12 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::IdentityVerificationSessionId,
     params::{Expandable, Metadata, Object, Timestamp},
-    resources::{Address, IdentityVerificationReport},
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{Address, IdentityVerificationReport};
 
 /// The resource representing a Stripe "GelatoVerificationSession".
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]

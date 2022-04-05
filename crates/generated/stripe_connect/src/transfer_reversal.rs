@@ -2,12 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     ids::TransferReversalId,
     params::{Expandable, Metadata, Object, Timestamp},
-    resources::{BalanceTransaction, Currency, Refund, Transfer},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{BalanceTransaction, Refund, Transfer};
 
 /// The resource representing a Stripe "TransferReversal".
 ///

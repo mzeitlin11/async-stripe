@@ -2,15 +2,16 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::{CheckoutSessionId, CustomerId, PaymentIntentId, SubscriptionId},
     params::{Expand, Expandable, List, Metadata, Object, Timestamp},
-    resources::{
-        Address, CheckoutSessionItem, Currency, Customer, Discount, PaymentIntent, PaymentLink,
-        SetupIntent, Shipping, ShippingRate, Subscription, TaxRate,
-    },
+    resources::Currency,
+};
+use serde::{Deserialize, Serialize};
+use stripe::resources::{
+    Address, CheckoutSessionItem, Customer, Discount, PaymentIntent, PaymentLink, SetupIntent,
+    Shipping, ShippingRate, Subscription, TaxRate,
 };
 
 /// The resource representing a Stripe "Session".

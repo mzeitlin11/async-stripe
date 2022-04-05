@@ -2,13 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::FileId,
     params::{Expand, List, Object, RangeQuery, Timestamp},
-    resources::FileLink,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::FileLink;
 
 /// The resource representing a Stripe "File".
 ///

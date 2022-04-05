@@ -2,13 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::PaymentLinkId,
     params::{Expand, Expandable, List, Metadata, Object},
-    resources::{Account, CheckoutSessionItem},
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{Account, CheckoutSessionItem};
 
 /// The resource representing a Stripe "PaymentLink".
 ///

@@ -2,13 +2,13 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::CouponId,
     params::{Deleted, Expand, List, Metadata, Object, RangeQuery, Timestamp},
     resources::Currency,
 };
+use serde::{Deserialize, Serialize};
 
 /// The resource representing a Stripe "Coupon".
 ///

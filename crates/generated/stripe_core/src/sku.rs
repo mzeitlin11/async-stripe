@@ -2,13 +2,15 @@
 // This file was automatically generated.
 // ======================================
 
-use serde::{Deserialize, Serialize};
-use stripe::{
+use async_stripe_client::{
     client::{Client, Response},
     ids::SkuId,
     params::{Deleted, Expand, Expandable, IdOrCreate, List, Metadata, Object, Timestamp},
-    resources::{CreateProduct, Currency, PackageDimensions, Product},
+    resources::Currency,
 };
+use serde::{Deserialize, Serialize};
+use stripe::resources::{PackageDimensions, Product};
+use stripe_core::resources::CreateProduct;
 
 /// The resource representing a Stripe "Sku".
 ///

@@ -116,7 +116,7 @@ impl<'a> CreateToken<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateTokenAccount {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub business_type: Option<CreateTokenAccountBusinessType>,
@@ -131,12 +131,12 @@ pub struct CreateTokenAccount {
     pub tos_shown_and_accepted: Option<bool>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateTokenCvcUpdate {
     pub cvc: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateTokenPerson {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<Address>,
@@ -214,7 +214,7 @@ pub struct CreateTokenPerson {
     pub verification: Option<PersonVerificationParams>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateTokenPii {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id_number: Option<String>,

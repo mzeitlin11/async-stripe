@@ -24,11 +24,13 @@ pub struct InferredEnum {
 pub struct InferredUnion {
     pub field: String,
     pub schema_variants: Vec<String>,
+    pub derive_deserialize: bool,
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct InferredStruct {
     pub field: String,
+    pub derive_deserialize: bool,
     pub schema: Value,
 }
 

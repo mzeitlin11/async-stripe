@@ -55,6 +55,10 @@ pub struct Customer {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<Currency>,
 
+    /// The default three-letter [ISO code for the currency](https://stripe.com/docs/currencies) that the customer will be charged in for billing purposes.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default_currency: Option<Currency>,
+
     /// ID of the default payment source for the customer.
     ///
     /// If you are using payment methods created via the PaymentMethods API, see the [invoice_settings.default_payment_method](https://stripe.com/docs/api/customers/object#customer_object-invoice_settings-default_payment_method) field instead.
@@ -84,6 +88,13 @@ pub struct Customer {
     /// The customer's email address.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
+
+    /// The current multi-currency balances, if any, being stored on the customer.If positive in a currency, the customer has a credit to apply to their next invoice denominated in that currency.If negative, the customer has an amount owed that will be added to their next invoice denominated in that currency.
+    ///
+    /// These balances do not refer to any unpaid invoices.They solely track amounts that have yet to be successfully applied to any invoice.
+    /// A balance in a particular currency is only applied to any invoice as an invoice in that currency is finalized.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub invoice_credit_balance: Option<i64>,
 
     /// The prefix for the customer used to generate unique invoice numbers.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -625,13 +636,13 @@ impl<'a> UpdateCustomer<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateCustomerCashBalance {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub settings: Option<CreateCustomerCashBalanceSettings>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateCustomerShipping {
     pub address: CreateCustomerShippingAddress,
 
@@ -641,13 +652,13 @@ pub struct CreateCustomerShipping {
     pub phone: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateCustomerTax {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CustomerInvoiceSettings {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_fields: Option<Vec<CustomerInvoiceSettingsCustomFields>>,
@@ -662,7 +673,7 @@ pub struct CustomerInvoiceSettings {
     pub rendering_options: Option<CustomerInvoiceSettingsRenderingOptions>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct TaxIdData {
     #[serde(rename = "type")]
     pub type_: TaxIdType,
@@ -670,13 +681,13 @@ pub struct TaxIdData {
     pub value: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateCustomerCashBalance {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub settings: Option<UpdateCustomerCashBalanceSettings>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateCustomerShipping {
     pub address: UpdateCustomerShippingAddress,
 
@@ -686,7 +697,7 @@ pub struct UpdateCustomerShipping {
     pub phone: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateCustomerTax {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,

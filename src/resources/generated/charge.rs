@@ -369,6 +369,9 @@ pub struct PaymentMethodDetails {
     pub bancontact: Option<PaymentMethodDetailsBancontact>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub blik: Option<PaymentMethodDetailsBlik>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub boleto: Option<PaymentMethodDetailsBoleto>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -637,6 +640,9 @@ pub struct PaymentMethodDetailsBancontact {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verified_name: Option<String>,
 }
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct PaymentMethodDetailsBlik {}
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct PaymentMethodDetailsBoleto {
@@ -1555,18 +1561,18 @@ impl<'a> UpdateCharge<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateChargeRadarOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub session: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct FraudDetailsParams {
     pub user_report: FraudDetailsParamsUserReport,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct TransferDataParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,

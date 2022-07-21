@@ -232,6 +232,10 @@ pub struct AccountCapabilities {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank_transfer_payments: Option<AccountCapabilitiesBankTransferPayments>,
 
+    /// The status of the blik payments capability of the account, or whether the account can directly process blik charges.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blik_payments: Option<AccountCapabilitiesBlikPayments>,
+
     /// The status of the boleto payments capability of the account, or whether the account can directly process boleto charges.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub boleto_payments: Option<AccountCapabilitiesBoletoPayments>,
@@ -1102,7 +1106,7 @@ impl<'a> UpdateAccount<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct AcceptTos {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub date: Option<Timestamp>,
@@ -1117,7 +1121,7 @@ pub struct AcceptTos {
     pub user_agent: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct AccountSettingsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub branding: Option<BrandingSettingsParams>,
@@ -1138,7 +1142,7 @@ pub struct AccountSettingsParams {
     pub treasury: Option<AccountSettingsParamsTreasury>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CompanyParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<Address>,
@@ -1192,7 +1196,7 @@ pub struct CompanyParams {
     pub verification: Option<CompanyVerificationParams>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateAccountCapabilities {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit_payments: Option<CreateAccountCapabilitiesAcssDebitPayments>,
@@ -1214,6 +1218,9 @@ pub struct CreateAccountCapabilities {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank_transfer_payments: Option<CreateAccountCapabilitiesBankTransferPayments>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blik_payments: Option<CreateAccountCapabilitiesBlikPayments>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub boleto_payments: Option<CreateAccountCapabilitiesBoletoPayments>,
@@ -1291,7 +1298,7 @@ pub struct CreateAccountCapabilities {
     pub us_bank_account_ach_payments: Option<CreateAccountCapabilitiesUsBankAccountAchPayments>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateAccountDocuments {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank_account_ownership_verification:
@@ -1318,7 +1325,7 @@ pub struct CreateAccountDocuments {
     pub proof_of_registration: Option<CreateAccountDocumentsProofOfRegistration>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct PersonParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<Address>,
@@ -1387,7 +1394,7 @@ pub struct PersonParams {
     pub verification: Option<PersonVerificationParams>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateAccountCapabilities {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit_payments: Option<UpdateAccountCapabilitiesAcssDebitPayments>,
@@ -1409,6 +1416,9 @@ pub struct UpdateAccountCapabilities {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank_transfer_payments: Option<UpdateAccountCapabilitiesBankTransferPayments>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blik_payments: Option<UpdateAccountCapabilitiesBlikPayments>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub boleto_payments: Option<UpdateAccountCapabilitiesBoletoPayments>,
@@ -1486,7 +1496,7 @@ pub struct UpdateAccountCapabilities {
     pub us_bank_account_ach_payments: Option<UpdateAccountCapabilitiesUsBankAccountAchPayments>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateAccountDocuments {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank_account_ownership_verification:
@@ -1611,6 +1621,12 @@ pub struct CreateAccountCapabilitiesBancontactPayments {
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct CreateAccountCapabilitiesBankTransferPayments {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub requested: Option<bool>,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct CreateAccountCapabilitiesBlikPayments {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requested: Option<bool>,
 }
@@ -1899,6 +1915,12 @@ pub struct UpdateAccountCapabilitiesBancontactPayments {
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct UpdateAccountCapabilitiesBankTransferPayments {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub requested: Option<bool>,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct UpdateAccountCapabilitiesBlikPayments {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requested: Option<bool>,
 }
@@ -2404,6 +2426,42 @@ impl std::fmt::Display for AccountCapabilitiesBankTransferPayments {
     }
 }
 impl std::default::Default for AccountCapabilitiesBankTransferPayments {
+    fn default() -> Self {
+        Self::Active
+    }
+}
+
+/// An enum representing the possible values of an `AccountCapabilities`'s `blik_payments` field.
+#[derive(Copy, Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum AccountCapabilitiesBlikPayments {
+    Active,
+    Inactive,
+    Pending,
+}
+
+impl AccountCapabilitiesBlikPayments {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            AccountCapabilitiesBlikPayments::Active => "active",
+            AccountCapabilitiesBlikPayments::Inactive => "inactive",
+            AccountCapabilitiesBlikPayments::Pending => "pending",
+        }
+    }
+}
+
+impl AsRef<str> for AccountCapabilitiesBlikPayments {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
+impl std::fmt::Display for AccountCapabilitiesBlikPayments {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        self.as_str().fmt(f)
+    }
+}
+impl std::default::Default for AccountCapabilitiesBlikPayments {
     fn default() -> Self {
         Self::Active
     }

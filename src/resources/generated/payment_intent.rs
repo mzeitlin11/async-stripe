@@ -386,7 +386,7 @@ pub struct PaymentIntentNextActionCardAwaitNotification {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub charge_attempt_at: Option<Timestamp>,
 
-    /// For payments greater than INR 5000, the customer must provide explicit approval of the payment with their bank.
+    /// For payments greater than INR 15000, the customer must provide explicit approval of the payment with their bank.
     ///
     /// For payments of lower amount, no customer action is required.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -728,6 +728,9 @@ pub struct PaymentIntentPaymentMethodOptions {
     pub bancontact: Option<PaymentIntentPaymentMethodOptionsBancontactUnion>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub blik: Option<PaymentIntentPaymentMethodOptionsBlikUnion>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub boleto: Option<PaymentIntentPaymentMethodOptionsBoletoUnion>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -801,6 +804,9 @@ pub struct PaymentIntentPaymentMethodOptionsAuBecsDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<PaymentIntentPaymentMethodOptionsAuBecsDebitSetupFutureUsage>,
 }
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct PaymentIntentPaymentMethodOptionsBlik {}
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct PaymentIntentPaymentMethodOptionsCard {
@@ -909,7 +915,7 @@ pub struct PaymentIntentCardProcessing {
 pub struct PaymentIntentProcessingCustomerNotification {
     /// Whether customer approval has been requested for this payment.
     ///
-    /// For payments greater than INR 5000 or mandate amount, the customer must provide explicit approval of the payment with their bank.
+    /// For payments greater than INR 15000 or mandate amount, the customer must provide explicit approval of the payment with their bank.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub approval_requested: Option<bool>,
 
@@ -1608,17 +1614,17 @@ impl<'a> UpdatePaymentIntent<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentIntentAutomaticPaymentMethods {
     pub enabled: bool,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentIntentMandateData {
     pub customer_acceptance: CreatePaymentIntentMandateDataCustomerAcceptance,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentIntentPaymentMethodData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit: Option<CreatePaymentIntentPaymentMethodDataAcssDebit>,
@@ -1643,6 +1649,9 @@ pub struct CreatePaymentIntentPaymentMethodData {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_details: Option<CreatePaymentIntentPaymentMethodDataBillingDetails>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blik: Option<CreatePaymentIntentPaymentMethodDataBlik>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub boleto: Option<CreatePaymentIntentPaymentMethodDataBoleto>,
@@ -1711,7 +1720,7 @@ pub struct CreatePaymentIntentPaymentMethodData {
     pub wechat_pay: Option<CreatePaymentIntentPaymentMethodDataWechatPay>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit: Option<CreatePaymentIntentPaymentMethodOptionsAcssDebit>,
@@ -1733,6 +1742,9 @@ pub struct CreatePaymentIntentPaymentMethodOptions {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bancontact: Option<CreatePaymentIntentPaymentMethodOptionsBancontact>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blik: Option<CreatePaymentIntentPaymentMethodOptionsBlik>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub boleto: Option<CreatePaymentIntentPaymentMethodOptionsBoleto>,
@@ -1798,13 +1810,13 @@ pub struct CreatePaymentIntentPaymentMethodOptions {
     pub wechat_pay: Option<CreatePaymentIntentPaymentMethodOptionsWechatPay>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentIntentRadarOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub session: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentIntentShipping {
     pub address: CreatePaymentIntentShippingAddress,
 
@@ -1820,7 +1832,7 @@ pub struct CreatePaymentIntentShipping {
     pub tracking_number: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentIntentTransferData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
@@ -1828,7 +1840,7 @@ pub struct CreatePaymentIntentTransferData {
     pub destination: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit: Option<UpdatePaymentIntentPaymentMethodDataAcssDebit>,
@@ -1853,6 +1865,9 @@ pub struct UpdatePaymentIntentPaymentMethodData {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_details: Option<UpdatePaymentIntentPaymentMethodDataBillingDetails>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blik: Option<UpdatePaymentIntentPaymentMethodDataBlik>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub boleto: Option<UpdatePaymentIntentPaymentMethodDataBoleto>,
@@ -1921,7 +1936,7 @@ pub struct UpdatePaymentIntentPaymentMethodData {
     pub wechat_pay: Option<UpdatePaymentIntentPaymentMethodDataWechatPay>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit: Option<UpdatePaymentIntentPaymentMethodOptionsAcssDebit>,
@@ -1943,6 +1958,9 @@ pub struct UpdatePaymentIntentPaymentMethodOptions {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bancontact: Option<UpdatePaymentIntentPaymentMethodOptionsBancontact>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blik: Option<UpdatePaymentIntentPaymentMethodOptionsBlik>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub boleto: Option<UpdatePaymentIntentPaymentMethodOptionsBoleto>,
@@ -2008,7 +2026,7 @@ pub struct UpdatePaymentIntentPaymentMethodOptions {
     pub wechat_pay: Option<UpdatePaymentIntentPaymentMethodOptionsWechatPay>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePaymentIntentShipping {
     pub address: UpdatePaymentIntentShippingAddress,
 
@@ -2024,7 +2042,7 @@ pub struct UpdatePaymentIntentShipping {
     pub tracking_number: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePaymentIntentTransferData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
@@ -2096,6 +2114,9 @@ pub struct CreatePaymentIntentPaymentMethodDataBillingDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone: Option<String>,
 }
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct CreatePaymentIntentPaymentMethodDataBlik {}
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct CreatePaymentIntentPaymentMethodDataBoleto {
@@ -2262,6 +2283,12 @@ pub struct CreatePaymentIntentPaymentMethodOptionsBancontact {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreatePaymentIntentPaymentMethodOptionsBancontactSetupFutureUsage>,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct CreatePaymentIntentPaymentMethodOptionsBlik {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code: Option<String>,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -2555,6 +2582,9 @@ pub struct UpdatePaymentIntentPaymentMethodDataBillingDetails {
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct UpdatePaymentIntentPaymentMethodDataBlik {}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodDataBoleto {
     pub tax_id: String,
 }
@@ -2719,6 +2749,12 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsBancontact {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdatePaymentIntentPaymentMethodOptionsBancontactSetupFutureUsage>,
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct UpdatePaymentIntentPaymentMethodOptionsBlik {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub code: Option<String>,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
@@ -3341,6 +3377,21 @@ pub enum PaymentIntentPaymentMethodOptionsBancontactUnion {
 impl std::default::Default for PaymentIntentPaymentMethodOptionsBancontactUnion {
     fn default() -> Self {
         Self::PaymentMethodOptionsBancontact(Default::default())
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(untagged, rename_all = "snake_case")]
+pub enum PaymentIntentPaymentMethodOptionsBlikUnion {
+    PaymentIntentPaymentMethodOptionsBlik(PaymentIntentPaymentMethodOptionsBlik),
+    #[serde(rename = "PaymentIntentTypeSpecificPaymentMethodOptionsClient")]
+    PaymentIntentTypeSpecificPaymentMethodOptionsClient(
+        PaymentIntentTypeSpecificPaymentMethodOptionsClient,
+    ),
+}
+impl std::default::Default for PaymentIntentPaymentMethodOptionsBlikUnion {
+    fn default() -> Self {
+        Self::PaymentIntentPaymentMethodOptionsBlik(Default::default())
     }
 }
 
@@ -4078,6 +4129,7 @@ pub enum CreatePaymentIntentPaymentMethodDataType {
     AuBecsDebit,
     BacsDebit,
     Bancontact,
+    Blik,
     Boleto,
     CustomerBalance,
     Eps,
@@ -4108,6 +4160,7 @@ impl CreatePaymentIntentPaymentMethodDataType {
             CreatePaymentIntentPaymentMethodDataType::AuBecsDebit => "au_becs_debit",
             CreatePaymentIntentPaymentMethodDataType::BacsDebit => "bacs_debit",
             CreatePaymentIntentPaymentMethodDataType::Bancontact => "bancontact",
+            CreatePaymentIntentPaymentMethodDataType::Blik => "blik",
             CreatePaymentIntentPaymentMethodDataType::Boleto => "boleto",
             CreatePaymentIntentPaymentMethodDataType::CustomerBalance => "customer_balance",
             CreatePaymentIntentPaymentMethodDataType::Eps => "eps",
@@ -7874,6 +7927,7 @@ pub enum UpdatePaymentIntentPaymentMethodDataType {
     AuBecsDebit,
     BacsDebit,
     Bancontact,
+    Blik,
     Boleto,
     CustomerBalance,
     Eps,
@@ -7904,6 +7958,7 @@ impl UpdatePaymentIntentPaymentMethodDataType {
             UpdatePaymentIntentPaymentMethodDataType::AuBecsDebit => "au_becs_debit",
             UpdatePaymentIntentPaymentMethodDataType::BacsDebit => "bacs_debit",
             UpdatePaymentIntentPaymentMethodDataType::Bancontact => "bancontact",
+            UpdatePaymentIntentPaymentMethodDataType::Blik => "blik",
             UpdatePaymentIntentPaymentMethodDataType::Boleto => "boleto",
             UpdatePaymentIntentPaymentMethodDataType::CustomerBalance => "customer_balance",
             UpdatePaymentIntentPaymentMethodDataType::Eps => "eps",

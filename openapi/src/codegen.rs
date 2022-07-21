@@ -652,6 +652,7 @@ pub fn gen_inferred_params(
                             &param["schema"],
                             required,
                             false,
+                            false,
                             shared_objects,
                         );
                         initializers.push((param_rename.into(), rust_type.clone(), required));
@@ -766,7 +767,11 @@ pub fn gen_emitted_structs(
                 }
             };
             out.push('\n');
-            out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
+            if struct_.derive_deserialize {
+                out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
+            } else {
+                out.push_str("#[derive(Clone, Debug, Default, Serialize)]\n");
+            }
             out.push_str("pub struct ");
             out.push_str(&struct_name.to_camel_case());
             out.push_str(" {\n");
@@ -798,7 +803,11 @@ pub fn gen_unions(out: &mut String, state: &mut FileGenerator, meta: &Metadata) 
         log::trace!("union {} {{ ... }}", union_name);
 
         out.push('\n');
-        out.push_str("#[derive(Clone, Debug, Deserialize, Serialize)]\n");
+        if union_.derive_deserialize {
+            out.push_str("#[derive(Clone, Debug, Deserialize, Serialize)]\n");
+        } else {
+            out.push_str("#[derive(Clone, Debug, Serialize)]\n");
+        }
         out.push_str("#[serde(untagged, rename_all = \"snake_case\")]\n");
         out.push_str("pub enum ");
         out.push_str(&union_name.to_camel_case());
@@ -1117,6 +1126,7 @@ pub fn gen_field(
         field,
         required,
         default,
+        true,
         shared_objects,
     );
     if !required {
@@ -1143,6 +1153,7 @@ fn gen_field_type(
     field: &Value,
     required: bool,
     default: bool,
+    derive_deserialize: bool,
     shared_objects: &mut BTreeSet<FileGenerator>,
 ) -> String {
     let ty = match field["type"].as_str() {
@@ -1182,6 +1193,7 @@ fn gen_field_type(
                 element,
                 true,
                 false,
+                derive_deserialize,
                 shared_objects,
             );
             format!("Vec<{}>", element_type)
@@ -1205,6 +1217,7 @@ fn gen_field_type(
                     element,
                     true,
                     false,
+                    derive_deserialize,
                     shared_objects,
                 );
 
@@ -1221,13 +1234,18 @@ fn gen_field_type(
                     &field["additionalProperties"],
                     required,
                     default,
+                    derive_deserialize,
                     shared_objects,
                 );
             }
 
             let struct_schema = meta.schema_field(object, field_name);
             let struct_name = meta.schema_to_rust_type(&struct_schema);
-            let struct_ = InferredStruct { field: field_name.into(), schema: field.clone() };
+            let struct_ = InferredStruct {
+                field: field_name.into(),
+                schema: field.clone(),
+                derive_deserialize,
+            };
             state.insert_struct(struct_name.clone(), struct_);
             struct_name
         }
@@ -1260,6 +1278,7 @@ fn gen_field_type(
                         &any_of[0],
                         true,
                         false,
+                        derive_deserialize,
                         shared_objects,
                     )
                 } else if field["x-expansionResources"].is_object() {
@@ -1277,6 +1296,7 @@ fn gen_field_type(
                         }),
                         true,
                         false,
+                        derive_deserialize,
                         shared_objects,
                     );
                     state.use_params.insert("Expandable");
@@ -1294,8 +1314,10 @@ fn gen_field_type(
                     log::trace!("union_schema: {}, union_name: {}", union_schema, union_name);
                     let union_ = InferredUnion {
                         field: field_name.into(),
+                        derive_deserialize,
                         schema_variants: any_of
                             .iter()
+                            .filter(|x| x["$ref"].as_str().is_some())
                             .map(|x| {
                                 let schema_name = x["$ref"]
                                     .as_str()
@@ -1343,6 +1365,7 @@ pub fn gen_field_rust_type(
     field: &Value,
     required: bool,
     default: bool,
+    derive_deserialize: bool,
     shared_objects: &mut BTreeSet<FileGenerator>,
 ) -> String {
     if let Some((use_path, rust_type)) = meta.field_to_rust_type(object, field_name) {
@@ -1378,8 +1401,17 @@ pub fn gen_field_rust_type(
         }
     }
 
-    let ty =
-        gen_field_type(state, meta, object, field_name, field, required, default, shared_objects);
+    let ty = gen_field_type(
+        state,
+        meta,
+        object,
+        field_name,
+        field,
+        required,
+        default,
+        derive_deserialize,
+        shared_objects,
+    );
     if ty == "bool" && default {
         // N.B. return immediately; if we want to use `Default` for bool rather than `Option`
         // Not sure why this is here, but we want to preserve it for now

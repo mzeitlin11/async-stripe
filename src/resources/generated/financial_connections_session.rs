@@ -111,7 +111,7 @@ impl<'a> CreateFinancialConnectionsSession<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateFinancialConnectionsSessionAccountHolder {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account: Option<String>,
@@ -123,7 +123,7 @@ pub struct CreateFinancialConnectionsSessionAccountHolder {
     pub type_: CreateFinancialConnectionsSessionAccountHolderType,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateFinancialConnectionsSessionFilters {
     pub countries: Vec<String>,
 }

@@ -131,3 +131,111 @@
  0.1%   0.2%  5.4KiB    stripe <serde::private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct::h3ec3975e0934c9e3
  0.1%   0.2%  5.4KiB    stripe <serde::private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct::he286aba8fb1ada9d
  0.1%   0.2%  5.4KiB        h2 h2::hpack::table::Table::index::h052b9de240fdc713
+
+
+
+runtime-blocking = ["async-stripe/runtime-blocking"]
+ File  .text    Size     Crate Name
+ 0.6%   1.0% 74.0KiB    stripe <stripe::resources::generated::issuing::issuing_cardholder::_::<impl serde::de::Deserialize for stripe::resources::generated::issuing::issuing_cardholder::IssuingCardholderSpendingLimitCategories>::deserialize::__FieldVisitor as serde::de::Visitor>::visit_bytes
+ 0.6%   1.0% 73.3KiB    stripe <stripe::resources::issuing::issuing_merchant_data::_::<impl serde::de::Deserialize for stripe::resources::issuing::issuing_merchant_data::MerchantCategory>::deserialize::__FieldVisitor as serde::de::Visitor>::visit_bytes
+ 0.3%   0.5% 34.9KiB   stripe? <stripe::resources::generated::billing::invoice::_::<impl serde::de::Deserialize for stripe::resources::generated::billing::invoice::Invoice>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.3%   0.4% 33.0KiB   stripe? <stripe::resources::generated::core::charge::_::<impl serde::de::Deserialize for stripe::resources::generated::core::charge::Charge>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.2%   0.4% 28.5KiB   stripe? <stripe::resources::generated::core::charge::_::<impl serde::de::Deserialize for stripe::resources::generated::core::charge::Charge>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.2%   0.3% 22.3KiB   stripe? <stripe::resources::generated::billing::subscription::_::<impl serde::de::Deserialize for stripe::resources::generated::billing::subscription::Subscription>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.2%   0.3% 21.2KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.2%   0.3% 20.7KiB    stripe <serde::__private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.2%   0.3% 20.7KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.2%   0.3% 20.5KiB   stripe? <stripe::resources::generated::billing::quote::_::<impl serde::de::Deserialize for stripe::resources::generated::billing::quote::Quote>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.2%   0.3% 20.0KiB    stripe <serde::__private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.2%   0.3% 19.9KiB        h2 h2::codec::framed_read::decode_frame
+ 0.2%   0.3% 19.9KiB       std addr2line::ResDwarf<R>::parse
+ 0.2%   0.3% 19.8KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.2%   0.3% 19.1KiB   stripe? <stripe::resources::generated::core::payment_intent::_::<impl serde::de::Deserialize for stripe::resources::generated::core::payment_intent::PaymentIntent>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.1%   0.3% 18.8KiB   stripe? <stripe::resources::generated::billing::subscription::_::<impl serde::de::Deserialize for stripe::resources::generated::billing::subscription::Subscription>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.1%   0.3% 18.5KiB   stripe? <stripe::resources::generated::payment::source::_::<impl serde::de::Deserialize for stripe::resources::generated::payment::source::Source>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.1%   0.2% 18.3KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 17.9KiB   stripe? <stripe::resources::generated::core::charge::_::<impl serde::de::Deserialize for stripe::resources::generated::core::charge::PaymentMethodDetails>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.1%   0.2% 17.7KiB    stripe <serde::__private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 17.4KiB    stripe <&mut serde_json::de::Deserializer<R> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 17.2KiB    stripe <stripe::resources::generated::issuing::issuing_cardholder::_::<impl serde::de::Deserialize for stripe::resources::generated::issuing::issuing_cardholder::IssuingCardholderSpendingLimitCategories>::deserialize::__FieldVisitor as serde::de::Visitor>::visit_str
+ 0.1%   0.2% 17.1KiB    stripe h2::proto::connection::Connection<T,P,B>::poll
+ 0.1%   0.2% 16.6KiB    stripe <stripe::resources::issuing::issuing_merchant_data::_::<impl serde::de::Deserialize for stripe::resources::issuing::issuing_merchant_data::MerchantCategory>::deserialize::__FieldVisitor as serde::de::Visitor>::visit_str
+ 0.1%   0.2% 16.4KiB   stripe? <stripe::resources::generated::payment::source::_::<impl serde::de::Deserialize for stripe::resources::generated::payment::source::Source>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.1%   0.2% 16.3KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 16.2KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 15.5KiB    stripe <serde::__private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 15.4KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 15.2KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 14.9KiB   stripe? <stripe::resources::generated::core::dispute::_::<impl serde::de::Deserialize for stripe::resources::generated::core::dispute::DisputeEvidence>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.1%   0.2% 14.6KiB   stripe? <stripe::resources::generated::payment::card::_::<impl serde::de::Deserialize for stripe::resources::generated::payment::card::Card>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.1%   0.2% 14.4KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 14.3KiB    stripe <serde::__private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 14.3KiB   stripe? <stripe::resources::generated::core::customer::_::<impl serde::de::Deserialize for stripe::resources::generated::core::customer::Customer>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.1%   0.2% 14.2KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 14.1KiB    stripe <&mut serde_json::de::Deserializer<R> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 14.0KiB    stripe <&mut serde_json::de::Deserializer<R> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 13.6KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 13.4KiB   stripe? <stripe::resources::generated::core::charge::_::<impl serde::de::Deserialize for stripe::resources::generated::core::charge::PaymentMethodDetails>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.1%   0.2% 13.2KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 13.1KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 12.9KiB    stripe <serde::__private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 12.8KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 12.7KiB    stripe <serde::__private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 12.5KiB [Unknown] __mh_execute_header
+ 0.1%   0.2% 12.2KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 12.0KiB   stripe? <stripe::resources::generated::payment::source::_::<impl serde::de::Deserialize for stripe::resources::generated::payment::source::SourceTypeKlarna>::deserialize::__Visitor as serde::de::Visitor>::visit_map
+ 0.1%   0.2% 11.9KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 11.8KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 11.8KiB       std addr2line::Context<R>::find_frames
+ 0.1%   0.2% 11.5KiB    stripe hyper::proto::h1::dispatch::Dispatcher<D,Bs,I,T>::poll_catch
+ 0.1%   0.2% 11.5KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 11.4KiB    stripe <stripe::resources::generated::connect::account::_::<impl serde::de::Deserialize for stripe::resources::generated::connect::account::AccountRequirementsErrorCode>::deserialize::__FieldVisitor as serde::de::Visitor>::visit_bytes
+ 0.1%   0.2% 11.4KiB    stripe <stripe::resources::generated::connect::person::_::<impl serde::de::Deserialize for stripe::resources::generated::connect::person::AccountRequirementsErrorCode>::deserialize::__FieldVisitor as serde::de::Visitor>::visit_bytes
+ 0.1%   0.2% 11.4KiB    stripe <serde::__private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 11.2KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 11.2KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.2% 11.1KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 11.0KiB    stripe <&mut serde_json::de::Deserializer<R> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 11.0KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 11.0KiB    stripe <serde::__private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.9KiB    stripe <&mut serde_json::de::Deserializer<R> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.9KiB        h2 h2::frame::headers::HeaderBlock::load::{{closure}}
+ 0.1%   0.1% 10.8KiB      http http::header::name::StandardHeader::from_bytes
+ 0.1%   0.1% 10.7KiB       std std::backtrace_rs::symbolize::gimli::resolve
+ 0.1%   0.1% 10.6KiB    stripe <core::future::from_generator::GenFuture<T> as core::future::future::Future>::poll
+ 0.1%   0.1% 10.5KiB    stripe <&mut serde_json::de::Deserializer<R> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.5KiB    stripe <serde::__private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.5KiB    stripe <serde::__private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.4KiB    stripe <&mut serde_json::de::Deserializer<R> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.4KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.4KiB    stripe <serde::__private::de::content::ContentDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.3KiB    stripe <&mut serde_json::de::Deserializer<R> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.2KiB    stripe <stripe::resources::generated::billing::invoice::_::<impl serde::de::Deserialize for stripe::resources::generated::billing::invoice::Invoice>::deserialize::__FieldVisitor as serde::de::Visitor>::visit_bytes
+ 0.1%   0.1% 10.2KiB    stripe <&mut serde_json::de::Deserializer<R> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.2KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.1KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.0KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1% 10.0KiB       std addr2line::ResUnit<R>::parse_lines
+ 0.1%   0.1% 10.0KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1%  9.7KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1%  9.7KiB    stripe h2::proto::streams::prioritize::Prioritize::poll_complete
+ 0.1%   0.1%  9.6KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1%  9.4KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1%  9.4KiB     hyper <hyper::proto::h1::role::Client as hyper::proto::h1::Http1Transaction>::parse
+ 0.1%   0.1%  9.3KiB    stripe <stripe::resources::generated::issuing::issuing_cardholder::_::<impl serde::de::Deserialize for stripe::resources::generated::issuing::issuing_cardholder::IssuingCardholderSpendingLimitCategories>::deserialize::__Visitor as serde::de::Visitor>::visit_enum
+ 0.1%   0.1%  9.3KiB    stripe <stripe::resources::generated::issuing::issuing_card::_::<impl serde::de::Deserialize for stripe::resources::generated::issuing::issuing_card::IssuingCardSpendingLimitCategories>::deserialize::__Visitor as serde::de::Visitor>::visit_enum
+ 0.1%   0.1%  9.2KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1%  9.2KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1%  9.2KiB    stripe <stripe::resources::issuing::issuing_merchant_data::_::<impl serde::de::Deserialize for stripe::resources::issuing::issuing_merchant_data::MerchantCategory>::deserialize::__Visitor as serde::de::Visitor>::visit_enum
+ 0.1%   0.1%  9.1KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1%  9.1KiB    stripe <stripe::resources::currency::_::<impl serde::de::Deserialize for stripe::resources::currency::Currency>::deserialize::__Visitor as serde::de::Visitor>::visit_enum
+ 0.1%   0.1%  9.0KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1%  9.0KiB        h2 <h2::server::Peer as h2::proto::peer::Peer>::convert_poll_message
+ 0.1%   0.1%  9.0KiB    stripe <&mut serde_json::de::Deserializer<R> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1%  8.9KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1%  8.8KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1%  8.8KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+ 0.1%   0.1%  8.8KiB    stripe <serde::__private::de::content::ContentRefDeserializer<E> as serde::de::Deserializer>::deserialize_struct
+46.7%  80.2%  5.8MiB           And 16993 smaller methods. Use -n N to show more.
+58.2% 100.0%  7.2MiB           .text section size, the file size is 12.4MiB
+

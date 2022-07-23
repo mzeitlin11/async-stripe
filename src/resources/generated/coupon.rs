@@ -334,18 +334,18 @@ impl<'a> UpdateCoupon<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateCouponAppliesTo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub products: Option<Vec<String>>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateCouponCurrencyOptions {
     pub amount_off: i64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateCouponCurrencyOptions {
     pub amount_off: i64,
 }

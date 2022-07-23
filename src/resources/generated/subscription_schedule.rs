@@ -528,7 +528,7 @@ impl<'a> UpdateSubscriptionSchedule<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSubscriptionSchedulePhases {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub add_invoice_items: Option<Vec<AddInvoiceItems>>,
@@ -587,7 +587,7 @@ pub struct CreateSubscriptionSchedulePhases {
     pub trial_end: Option<Scheduled>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct SubscriptionScheduleDefaultSettingsParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub application_fee_percent: Option<f64>,
@@ -614,7 +614,7 @@ pub struct SubscriptionScheduleDefaultSettingsParams {
     pub transfer_data: Option<SubscriptionScheduleDefaultSettingsParamsTransferData>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSubscriptionSchedulePhases {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub add_invoice_items: Option<Vec<AddInvoiceItems>>,
@@ -676,7 +676,7 @@ pub struct UpdateSubscriptionSchedulePhases {
     pub trial_end: Option<Scheduled>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct AddInvoiceItems {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price: Option<String>,
@@ -691,12 +691,12 @@ pub struct AddInvoiceItems {
     pub tax_rates: Option<Vec<String>>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSubscriptionSchedulePhasesAutomaticTax {
     pub enabled: bool,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSubscriptionSchedulePhasesItems {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_thresholds: Option<CreateSubscriptionSchedulePhasesItemsBillingThresholds>,
@@ -714,7 +714,7 @@ pub struct CreateSubscriptionSchedulePhasesItems {
     pub tax_rates: Option<Vec<String>>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSubscriptionSchedulePhasesTransferData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount_percent: Option<f64>,
@@ -722,7 +722,7 @@ pub struct CreateSubscriptionSchedulePhasesTransferData {
     pub destination: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct SubscriptionScheduleBillingThresholds {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount_gte: Option<i64>,
@@ -731,12 +731,12 @@ pub struct SubscriptionScheduleBillingThresholds {
     pub reset_billing_cycle_anchor: Option<bool>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct SubscriptionScheduleDefaultSettingsParamsAutomaticTax {
     pub enabled: bool,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct SubscriptionScheduleDefaultSettingsParamsTransferData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount_percent: Option<f64>,
@@ -744,18 +744,18 @@ pub struct SubscriptionScheduleDefaultSettingsParamsTransferData {
     pub destination: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct SubscriptionScheduleInvoiceSettings {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub days_until_due: Option<u32>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesAutomaticTax {
     pub enabled: bool,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesItems {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_thresholds: Option<UpdateSubscriptionSchedulePhasesItemsBillingThresholds>,
@@ -773,7 +773,7 @@ pub struct UpdateSubscriptionSchedulePhasesItems {
     pub tax_rates: Option<Vec<String>>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesTransferData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount_percent: Option<f64>,
@@ -781,12 +781,12 @@ pub struct UpdateSubscriptionSchedulePhasesTransferData {
     pub destination: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSubscriptionSchedulePhasesItemsBillingThresholds {
     pub usage_gte: i64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSubscriptionSchedulePhasesItemsPriceData {
     pub currency: Currency,
 
@@ -804,7 +804,7 @@ pub struct CreateSubscriptionSchedulePhasesItemsPriceData {
     pub unit_amount_decimal: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct InvoiceItemPriceData {
     pub currency: Currency,
 
@@ -820,12 +820,12 @@ pub struct InvoiceItemPriceData {
     pub unit_amount_decimal: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesItemsBillingThresholds {
     pub usage_gte: i64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesItemsPriceData {
     pub currency: Currency,
 
@@ -843,7 +843,7 @@ pub struct UpdateSubscriptionSchedulePhasesItemsPriceData {
     pub unit_amount_decimal: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSubscriptionSchedulePhasesItemsPriceDataRecurring {
     pub interval: CreateSubscriptionSchedulePhasesItemsPriceDataRecurringInterval,
 
@@ -851,7 +851,7 @@ pub struct CreateSubscriptionSchedulePhasesItemsPriceDataRecurring {
     pub interval_count: Option<u64>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesItemsPriceDataRecurring {
     pub interval: UpdateSubscriptionSchedulePhasesItemsPriceDataRecurringInterval,
 

@@ -685,12 +685,12 @@ impl<'a> UpdateSetupIntent<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentMandateData {
     pub customer_acceptance: CreateSetupIntentMandateDataCustomerAcceptance,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit: Option<CreateSetupIntentPaymentMethodDataAcssDebit>,
@@ -786,7 +786,7 @@ pub struct CreateSetupIntentPaymentMethodData {
     pub wechat_pay: Option<CreateSetupIntentPaymentMethodDataWechatPay>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit: Option<CreateSetupIntentPaymentMethodOptionsAcssDebit>,
@@ -807,14 +807,14 @@ pub struct CreateSetupIntentPaymentMethodOptions {
     pub us_bank_account: Option<CreateSetupIntentPaymentMethodOptionsUsBankAccount>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentSingleUse {
     pub amount: i64,
 
     pub currency: Currency,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit: Option<UpdateSetupIntentPaymentMethodDataAcssDebit>,
@@ -910,7 +910,7 @@ pub struct UpdateSetupIntentPaymentMethodData {
     pub wechat_pay: Option<UpdateSetupIntentPaymentMethodDataWechatPay>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit: Option<UpdateSetupIntentPaymentMethodOptionsAcssDebit>,
@@ -931,7 +931,7 @@ pub struct UpdateSetupIntentPaymentMethodOptions {
     pub us_bank_account: Option<UpdateSetupIntentPaymentMethodOptionsUsBankAccount>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentMandateDataCustomerAcceptance {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub accepted_at: Option<Timestamp>,
@@ -946,7 +946,7 @@ pub struct CreateSetupIntentMandateDataCustomerAcceptance {
     pub type_: CreateSetupIntentMandateDataCustomerAcceptanceType,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataAcssDebit {
     pub account_number: String,
 
@@ -955,23 +955,23 @@ pub struct CreateSetupIntentPaymentMethodDataAcssDebit {
     pub transit_number: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataAffirm {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataAfterpayClearpay {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataAlipay {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataAuBecsDebit {
     pub account_number: String,
 
     pub bsb_number: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataBacsDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_number: Option<String>,
@@ -980,10 +980,10 @@ pub struct CreateSetupIntentPaymentMethodDataBacsDebit {
     pub sort_code: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataBancontact {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataBillingDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<CreateSetupIntentPaymentMethodDataBillingDetailsAddress>,
@@ -998,87 +998,87 @@ pub struct CreateSetupIntentPaymentMethodDataBillingDetails {
     pub phone: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataBlik {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataBoleto {
     pub tax_id: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataCustomerBalance {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataEps {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank: Option<CreateSetupIntentPaymentMethodDataEpsBank>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataFpx {
     pub bank: CreateSetupIntentPaymentMethodDataFpxBank,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataGiropay {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataGrabpay {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataIdeal {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank: Option<CreateSetupIntentPaymentMethodDataIdealBank>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataInteracPresent {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataKlarna {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dob: Option<CreateSetupIntentPaymentMethodDataKlarnaDob>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataKonbini {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataLink {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataOxxo {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataP24 {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank: Option<CreateSetupIntentPaymentMethodDataP24Bank>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataPaynow {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataPromptpay {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataRadarOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub session: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataSepaDebit {
     pub iban: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataSofort {
     pub country: CreateSetupIntentPaymentMethodDataSofortCountry,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataUsBankAccount {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_type:
@@ -1097,10 +1097,10 @@ pub struct CreateSetupIntentPaymentMethodDataUsBankAccount {
     pub routing_number: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataWechatPay {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodOptionsAcssDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<Currency>,
@@ -1113,13 +1113,13 @@ pub struct CreateSetupIntentPaymentMethodOptionsAcssDebit {
         Option<CreateSetupIntentPaymentMethodOptionsAcssDebitVerificationMethod>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodOptionsBlik {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodOptionsCard {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options: Option<CreateSetupIntentPaymentMethodOptionsCardMandateOptions>,
@@ -1129,19 +1129,19 @@ pub struct CreateSetupIntentPaymentMethodOptionsCard {
         Option<CreateSetupIntentPaymentMethodOptionsCardRequestThreeDSecure>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodOptionsLink {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub persistent_token: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodOptionsSepaDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options: Option<CreateSetupIntentPaymentMethodOptionsSepaDebitMandateOptions>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodOptionsUsBankAccount {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_connections:
@@ -1155,7 +1155,7 @@ pub struct CreateSetupIntentPaymentMethodOptionsUsBankAccount {
         Option<CreateSetupIntentPaymentMethodOptionsUsBankAccountVerificationMethod>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataAcssDebit {
     pub account_number: String,
 
@@ -1164,23 +1164,23 @@ pub struct UpdateSetupIntentPaymentMethodDataAcssDebit {
     pub transit_number: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataAffirm {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataAfterpayClearpay {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataAlipay {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataAuBecsDebit {
     pub account_number: String,
 
     pub bsb_number: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataBacsDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_number: Option<String>,
@@ -1189,10 +1189,10 @@ pub struct UpdateSetupIntentPaymentMethodDataBacsDebit {
     pub sort_code: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataBancontact {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataBillingDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<UpdateSetupIntentPaymentMethodDataBillingDetailsAddress>,
@@ -1207,87 +1207,87 @@ pub struct UpdateSetupIntentPaymentMethodDataBillingDetails {
     pub phone: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataBlik {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataBoleto {
     pub tax_id: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataCustomerBalance {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataEps {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank: Option<UpdateSetupIntentPaymentMethodDataEpsBank>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataFpx {
     pub bank: UpdateSetupIntentPaymentMethodDataFpxBank,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataGiropay {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataGrabpay {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataIdeal {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank: Option<UpdateSetupIntentPaymentMethodDataIdealBank>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataInteracPresent {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataKlarna {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dob: Option<UpdateSetupIntentPaymentMethodDataKlarnaDob>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataKonbini {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataLink {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataOxxo {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataP24 {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank: Option<UpdateSetupIntentPaymentMethodDataP24Bank>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataPaynow {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataPromptpay {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataRadarOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub session: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataSepaDebit {
     pub iban: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataSofort {
     pub country: UpdateSetupIntentPaymentMethodDataSofortCountry,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataUsBankAccount {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_type:
@@ -1306,10 +1306,10 @@ pub struct UpdateSetupIntentPaymentMethodDataUsBankAccount {
     pub routing_number: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataWechatPay {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodOptionsAcssDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<Currency>,
@@ -1322,13 +1322,13 @@ pub struct UpdateSetupIntentPaymentMethodOptionsAcssDebit {
         Option<UpdateSetupIntentPaymentMethodOptionsAcssDebitVerificationMethod>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodOptionsBlik {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodOptionsCard {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options: Option<UpdateSetupIntentPaymentMethodOptionsCardMandateOptions>,
@@ -1338,19 +1338,19 @@ pub struct UpdateSetupIntentPaymentMethodOptionsCard {
         Option<UpdateSetupIntentPaymentMethodOptionsCardRequestThreeDSecure>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodOptionsLink {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub persistent_token: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodOptionsSepaDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options: Option<UpdateSetupIntentPaymentMethodOptionsSepaDebitMandateOptions>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodOptionsUsBankAccount {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_connections:
@@ -1364,17 +1364,17 @@ pub struct UpdateSetupIntentPaymentMethodOptionsUsBankAccount {
         Option<UpdateSetupIntentPaymentMethodOptionsUsBankAccountVerificationMethod>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentMandateDataCustomerAcceptanceOffline {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentMandateDataCustomerAcceptanceOnline {
     pub ip_address: String,
 
     pub user_agent: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataBillingDetailsAddress {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
@@ -1395,7 +1395,7 @@ pub struct CreateSetupIntentPaymentMethodDataBillingDetailsAddress {
     pub state: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodDataKlarnaDob {
     pub day: i64,
 
@@ -1404,7 +1404,7 @@ pub struct CreateSetupIntentPaymentMethodDataKlarnaDob {
     pub year: i64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodOptionsAcssDebitMandateOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_mandate_url: Option<String>,
@@ -1425,7 +1425,7 @@ pub struct CreateSetupIntentPaymentMethodOptionsAcssDebitMandateOptions {
         Option<CreateSetupIntentPaymentMethodOptionsAcssDebitMandateOptionsTransactionType>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodOptionsCardMandateOptions {
     pub amount: i64,
 
@@ -1453,10 +1453,10 @@ pub struct CreateSetupIntentPaymentMethodOptionsCardMandateOptions {
         Option<Vec<CreateSetupIntentPaymentMethodOptionsCardMandateOptionsSupportedTypes>>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodOptionsSepaDebitMandateOptions {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodOptionsUsBankAccountFinancialConnections {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions: Option<
@@ -1467,13 +1467,13 @@ pub struct CreateSetupIntentPaymentMethodOptionsUsBankAccountFinancialConnection
     pub return_url: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSetupIntentPaymentMethodOptionsUsBankAccountNetworks {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requested: Option<Vec<CreateSetupIntentPaymentMethodOptionsUsBankAccountNetworksRequested>>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataBillingDetailsAddress {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
@@ -1494,7 +1494,7 @@ pub struct UpdateSetupIntentPaymentMethodDataBillingDetailsAddress {
     pub state: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodDataKlarnaDob {
     pub day: i64,
 
@@ -1503,7 +1503,7 @@ pub struct UpdateSetupIntentPaymentMethodDataKlarnaDob {
     pub year: i64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodOptionsAcssDebitMandateOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_mandate_url: Option<String>,
@@ -1524,7 +1524,7 @@ pub struct UpdateSetupIntentPaymentMethodOptionsAcssDebitMandateOptions {
         Option<UpdateSetupIntentPaymentMethodOptionsAcssDebitMandateOptionsTransactionType>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodOptionsCardMandateOptions {
     pub amount: i64,
 
@@ -1552,10 +1552,10 @@ pub struct UpdateSetupIntentPaymentMethodOptionsCardMandateOptions {
         Option<Vec<UpdateSetupIntentPaymentMethodOptionsCardMandateOptionsSupportedTypes>>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodOptionsSepaDebitMandateOptions {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodOptionsUsBankAccountFinancialConnections {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions: Option<
@@ -1566,7 +1566,7 @@ pub struct UpdateSetupIntentPaymentMethodOptionsUsBankAccountFinancialConnection
     pub return_url: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSetupIntentPaymentMethodOptionsUsBankAccountNetworks {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requested: Option<Vec<UpdateSetupIntentPaymentMethodOptionsUsBankAccountNetworksRequested>>,

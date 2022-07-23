@@ -540,7 +540,7 @@ impl<'a> UpdatePrice<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePriceCurrencyOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_unit_amount: Option<CreatePriceCurrencyOptionsCustomUnitAmount>,
@@ -558,7 +558,7 @@ pub struct CreatePriceCurrencyOptions {
     pub unit_amount_decimal: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePriceCustomUnitAmount {
     pub enabled: bool,
 
@@ -572,7 +572,7 @@ pub struct CreatePriceCustomUnitAmount {
     pub preset: Option<i64>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePriceProductData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
@@ -595,7 +595,7 @@ pub struct CreatePriceProductData {
     pub unit_label: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePriceRecurring {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub aggregate_usage: Option<CreatePriceRecurringAggregateUsage>,
@@ -609,7 +609,7 @@ pub struct CreatePriceRecurring {
     pub usage_type: Option<CreatePriceRecurringUsageType>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePriceTiers {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flat_amount: Option<i64>,
@@ -626,14 +626,14 @@ pub struct CreatePriceTiers {
     pub up_to: Option<UpTo>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePriceTransformQuantity {
     pub divide_by: i64,
 
     pub round: CreatePriceTransformQuantityRound,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct ListPricesRecurring {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interval: Option<ListPricesRecurringInterval>,
@@ -642,7 +642,7 @@ pub struct ListPricesRecurring {
     pub usage_type: Option<ListPricesRecurringUsageType>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePriceCurrencyOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_unit_amount: Option<UpdatePriceCurrencyOptionsCustomUnitAmount>,
@@ -660,7 +660,7 @@ pub struct UpdatePriceCurrencyOptions {
     pub unit_amount_decimal: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePriceCurrencyOptionsCustomUnitAmount {
     pub enabled: bool,
 
@@ -674,7 +674,7 @@ pub struct CreatePriceCurrencyOptionsCustomUnitAmount {
     pub preset: Option<i64>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePriceCurrencyOptionsTiers {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flat_amount: Option<i64>,
@@ -691,7 +691,7 @@ pub struct CreatePriceCurrencyOptionsTiers {
     pub up_to: Option<UpTo>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePriceCurrencyOptionsCustomUnitAmount {
     pub enabled: bool,
 
@@ -705,7 +705,7 @@ pub struct UpdatePriceCurrencyOptionsCustomUnitAmount {
     pub preset: Option<i64>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePriceCurrencyOptionsTiers {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flat_amount: Option<i64>,

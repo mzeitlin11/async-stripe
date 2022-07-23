@@ -234,13 +234,13 @@ impl<'a> UpdatePromotionCode<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePromotionCodeRestrictions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency_options: Option<UpdatePromotionCodeRestrictionsCurrencyOptions>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePromotionCodeRestrictionsCurrencyOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub minimum_amount: Option<i64>,

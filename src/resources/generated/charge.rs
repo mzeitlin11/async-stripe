@@ -1561,18 +1561,18 @@ impl<'a> UpdateCharge<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateChargeRadarOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub session: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct FraudDetailsParams {
     pub user_report: FraudDetailsParamsUserReport,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct TransferDataParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,

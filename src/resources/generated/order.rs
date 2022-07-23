@@ -699,12 +699,12 @@ impl<'a> UpdateOrder<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderAutomaticTax {
     pub enabled: bool,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderBillingDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<CreateOrderBillingDetailsAddress>,
@@ -719,7 +719,7 @@ pub struct CreateOrderBillingDetails {
     pub phone: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderDiscounts {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub coupon: Option<String>,
@@ -731,7 +731,7 @@ pub struct CreateOrderDiscounts {
     pub promotion_code: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderLineItems {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
@@ -758,12 +758,12 @@ pub struct CreateOrderLineItems {
     pub tax_rates: Option<Vec<String>>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPayment {
     pub settings: CreateOrderPaymentSettings,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderShippingCost {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_rate: Option<String>,
@@ -772,7 +772,7 @@ pub struct CreateOrderShippingCost {
     pub shipping_rate_data: Option<CreateOrderShippingCostShippingRateData>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderShippingDetails {
     pub address: CreateOrderShippingDetailsAddress,
 
@@ -782,7 +782,7 @@ pub struct CreateOrderShippingDetails {
     pub phone: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderTaxDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_exempt: Option<CreateOrderTaxDetailsTaxExempt>,
@@ -791,12 +791,12 @@ pub struct CreateOrderTaxDetails {
     pub tax_ids: Option<Vec<CreateOrderTaxDetailsTaxIds>>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderAutomaticTax {
     pub enabled: bool,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderBillingDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<UpdateOrderBillingDetailsAddress>,
@@ -811,7 +811,7 @@ pub struct UpdateOrderBillingDetails {
     pub phone: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderDiscounts {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub coupon: Option<String>,
@@ -823,7 +823,7 @@ pub struct UpdateOrderDiscounts {
     pub promotion_code: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderLineItems {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
@@ -853,12 +853,12 @@ pub struct UpdateOrderLineItems {
     pub tax_rates: Option<Vec<String>>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPayment {
     pub settings: UpdateOrderPaymentSettings,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderShippingCost {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_rate: Option<String>,
@@ -867,7 +867,7 @@ pub struct UpdateOrderShippingCost {
     pub shipping_rate_data: Option<UpdateOrderShippingCostShippingRateData>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderShippingDetails {
     pub address: UpdateOrderShippingDetailsAddress,
 
@@ -877,7 +877,7 @@ pub struct UpdateOrderShippingDetails {
     pub phone: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderTaxDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_exempt: Option<UpdateOrderTaxDetailsTaxExempt>,
@@ -886,7 +886,7 @@ pub struct UpdateOrderTaxDetails {
     pub tax_ids: Option<Vec<UpdateOrderTaxDetailsTaxIds>>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderBillingDetailsAddress {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
@@ -907,7 +907,7 @@ pub struct CreateOrderBillingDetailsAddress {
     pub state: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderLineItemsDiscounts {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub coupon: Option<String>,
@@ -916,7 +916,7 @@ pub struct CreateOrderLineItemsDiscounts {
     pub discount: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderLineItemsPriceData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<Currency>,
@@ -934,7 +934,7 @@ pub struct CreateOrderLineItemsPriceData {
     pub unit_amount_decimal: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderLineItemsProductData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
@@ -962,7 +962,7 @@ pub struct CreateOrderLineItemsProductData {
     pub url: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettings {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub application_fee_amount: Option<i64>,
@@ -986,7 +986,7 @@ pub struct CreateOrderPaymentSettings {
     pub transfer_data: Option<CreateOrderPaymentSettingsTransferData>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderShippingCostShippingRateData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delivery_estimate: Option<CreateOrderShippingCostShippingRateDataDeliveryEstimate>,
@@ -1010,7 +1010,7 @@ pub struct CreateOrderShippingCostShippingRateData {
     pub type_: Option<CreateOrderShippingCostShippingRateDataType>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderShippingDetailsAddress {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
@@ -1031,7 +1031,7 @@ pub struct CreateOrderShippingDetailsAddress {
     pub state: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderTaxDetailsTaxIds {
     #[serde(rename = "type")]
     pub type_: CreateOrderTaxDetailsTaxIdsType,
@@ -1039,7 +1039,7 @@ pub struct CreateOrderTaxDetailsTaxIds {
     pub value: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderBillingDetailsAddress {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
@@ -1060,7 +1060,7 @@ pub struct UpdateOrderBillingDetailsAddress {
     pub state: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderLineItemsDiscounts {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub coupon: Option<String>,
@@ -1069,7 +1069,7 @@ pub struct UpdateOrderLineItemsDiscounts {
     pub discount: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderLineItemsPriceData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<Currency>,
@@ -1087,7 +1087,7 @@ pub struct UpdateOrderLineItemsPriceData {
     pub unit_amount_decimal: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderLineItemsProductData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
@@ -1115,7 +1115,7 @@ pub struct UpdateOrderLineItemsProductData {
     pub url: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettings {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub application_fee_amount: Option<i64>,
@@ -1139,7 +1139,7 @@ pub struct UpdateOrderPaymentSettings {
     pub transfer_data: Option<UpdateOrderPaymentSettingsTransferData>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderShippingCostShippingRateData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delivery_estimate: Option<UpdateOrderShippingCostShippingRateDataDeliveryEstimate>,
@@ -1163,7 +1163,7 @@ pub struct UpdateOrderShippingCostShippingRateData {
     pub type_: Option<UpdateOrderShippingCostShippingRateDataType>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderShippingDetailsAddress {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
@@ -1184,7 +1184,7 @@ pub struct UpdateOrderShippingDetailsAddress {
     pub state: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderTaxDetailsTaxIds {
     #[serde(rename = "type")]
     pub type_: UpdateOrderTaxDetailsTaxIdsType,
@@ -1192,7 +1192,7 @@ pub struct UpdateOrderTaxDetailsTaxIds {
     pub value: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderLineItemsProductDataPackageDimensions {
     pub height: f64,
 
@@ -1203,7 +1203,7 @@ pub struct CreateOrderLineItemsProductDataPackageDimensions {
     pub width: f64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit: Option<CreateOrderPaymentSettingsPaymentMethodOptionsAcssDebit>,
@@ -1248,7 +1248,7 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptions {
     pub wechat_pay: Option<CreateOrderPaymentSettingsPaymentMethodOptionsWechatPay>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsTransferData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
@@ -1256,7 +1256,7 @@ pub struct CreateOrderPaymentSettingsTransferData {
     pub destination: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderShippingCostShippingRateDataDeliveryEstimate {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<CreateOrderShippingCostShippingRateDataDeliveryEstimateMaximum>,
@@ -1265,7 +1265,7 @@ pub struct CreateOrderShippingCostShippingRateDataDeliveryEstimate {
     pub minimum: Option<CreateOrderShippingCostShippingRateDataDeliveryEstimateMinimum>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderShippingCostShippingRateDataFixedAmount {
     pub amount: i64,
 
@@ -1275,7 +1275,7 @@ pub struct CreateOrderShippingCostShippingRateDataFixedAmount {
     pub currency_options: Option<CreateOrderShippingCostShippingRateDataFixedAmountCurrencyOptions>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderLineItemsProductDataPackageDimensions {
     pub height: f64,
 
@@ -1286,7 +1286,7 @@ pub struct UpdateOrderLineItemsProductDataPackageDimensions {
     pub width: f64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit: Option<UpdateOrderPaymentSettingsPaymentMethodOptionsAcssDebit>,
@@ -1331,7 +1331,7 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptions {
     pub wechat_pay: Option<UpdateOrderPaymentSettingsPaymentMethodOptionsWechatPay>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsTransferData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
@@ -1339,7 +1339,7 @@ pub struct UpdateOrderPaymentSettingsTransferData {
     pub destination: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderShippingCostShippingRateDataDeliveryEstimate {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<UpdateOrderShippingCostShippingRateDataDeliveryEstimateMaximum>,
@@ -1348,7 +1348,7 @@ pub struct UpdateOrderShippingCostShippingRateDataDeliveryEstimate {
     pub minimum: Option<UpdateOrderShippingCostShippingRateDataDeliveryEstimateMinimum>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderShippingCostShippingRateDataFixedAmount {
     pub amount: i64,
 
@@ -1358,7 +1358,7 @@ pub struct UpdateOrderShippingCostShippingRateDataFixedAmount {
     pub currency_options: Option<UpdateOrderShippingCostShippingRateDataFixedAmountCurrencyOptions>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsAcssDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options:
@@ -1373,7 +1373,7 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsAcssDebit {
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsAfterpayClearpay {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method:
@@ -1387,14 +1387,14 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsAfterpayClearpay {
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsAfterpayClearpaySetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsAlipay {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsAlipaySetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsBancontact {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_language:
@@ -1405,7 +1405,7 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsBancontact {
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsBancontactSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsCard {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<CreateOrderPaymentSettingsPaymentMethodOptionsCardCaptureMethod>,
@@ -1415,7 +1415,7 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsCard {
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsCardSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsCustomerBalance {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank_transfer:
@@ -1430,14 +1430,14 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsCustomerBalance {
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsCustomerBalanceSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsIdeal {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsIdealSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsKlarna {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<CreateOrderPaymentSettingsPaymentMethodOptionsKlarnaCaptureMethod>,
@@ -1451,7 +1451,7 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsKlarna {
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsKlarnaSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsLink {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<CreateOrderPaymentSettingsPaymentMethodOptionsLinkCaptureMethod>,
@@ -1464,7 +1464,7 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsLink {
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsLinkSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsOxxo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
@@ -1474,7 +1474,7 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsOxxo {
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsOxxoSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsP24 {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
@@ -1484,7 +1484,7 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsP24 {
     pub tos_shown_and_accepted: Option<bool>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsSepaDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options:
@@ -1495,7 +1495,7 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsSepaDebit {
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsSepaDebitSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsSofort {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_language:
@@ -1506,7 +1506,7 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsSofort {
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsSofortSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsWechatPay {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub app_id: Option<String>,
@@ -1518,21 +1518,21 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsWechatPay {
         Option<CreateOrderPaymentSettingsPaymentMethodOptionsWechatPaySetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderShippingCostShippingRateDataDeliveryEstimateMaximum {
     pub unit: CreateOrderShippingCostShippingRateDataDeliveryEstimateMaximumUnit,
 
     pub value: i64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderShippingCostShippingRateDataDeliveryEstimateMinimum {
     pub unit: CreateOrderShippingCostShippingRateDataDeliveryEstimateMinimumUnit,
 
     pub value: i64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderShippingCostShippingRateDataFixedAmountCurrencyOptions {
     pub amount: i64,
 
@@ -1541,7 +1541,7 @@ pub struct CreateOrderShippingCostShippingRateDataFixedAmountCurrencyOptions {
         Option<CreateOrderShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsAcssDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options:
@@ -1556,7 +1556,7 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsAcssDebit {
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsAfterpayClearpay {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method:
@@ -1570,14 +1570,14 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsAfterpayClearpay {
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsAfterpayClearpaySetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsAlipay {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsAlipaySetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsBancontact {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_language:
@@ -1588,7 +1588,7 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsBancontact {
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsBancontactSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsCard {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<UpdateOrderPaymentSettingsPaymentMethodOptionsCardCaptureMethod>,
@@ -1598,7 +1598,7 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsCard {
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsCardSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsCustomerBalance {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank_transfer:
@@ -1613,14 +1613,14 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsCustomerBalance {
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsCustomerBalanceSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsIdeal {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsIdealSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsKlarna {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<UpdateOrderPaymentSettingsPaymentMethodOptionsKlarnaCaptureMethod>,
@@ -1634,7 +1634,7 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsKlarna {
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsKlarnaSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsLink {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<UpdateOrderPaymentSettingsPaymentMethodOptionsLinkCaptureMethod>,
@@ -1647,7 +1647,7 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsLink {
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsLinkSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsOxxo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
@@ -1657,7 +1657,7 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsOxxo {
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsOxxoSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsP24 {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
@@ -1667,7 +1667,7 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsP24 {
     pub tos_shown_and_accepted: Option<bool>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsSepaDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options:
@@ -1678,7 +1678,7 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsSepaDebit {
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsSepaDebitSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsSofort {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_language:
@@ -1689,7 +1689,7 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsSofort {
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsSofortSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsWechatPay {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub app_id: Option<String>,
@@ -1701,21 +1701,21 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsWechatPay {
         Option<UpdateOrderPaymentSettingsPaymentMethodOptionsWechatPaySetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderShippingCostShippingRateDataDeliveryEstimateMaximum {
     pub unit: UpdateOrderShippingCostShippingRateDataDeliveryEstimateMaximumUnit,
 
     pub value: i64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderShippingCostShippingRateDataDeliveryEstimateMinimum {
     pub unit: UpdateOrderShippingCostShippingRateDataDeliveryEstimateMinimumUnit,
 
     pub value: i64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderShippingCostShippingRateDataFixedAmountCurrencyOptions {
     pub amount: i64,
 
@@ -1724,7 +1724,7 @@ pub struct UpdateOrderShippingCostShippingRateDataFixedAmountCurrencyOptions {
         Option<UpdateOrderShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsAcssDebitMandateOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_mandate_url: Option<String>,
@@ -1743,7 +1743,7 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsAcssDebitMandateOptions
     >,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransfer {
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1756,10 +1756,10 @@ pub struct CreateOrderPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTran
     pub type_: CreateOrderPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransferType,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsSepaDebitMandateOptions {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsAcssDebitMandateOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_mandate_url: Option<String>,
@@ -1778,7 +1778,7 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsAcssDebitMandateOptions
     >,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransfer {
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1791,15 +1791,15 @@ pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTran
     pub type_: UpdateOrderPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransferType,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsSepaDebitMandateOptions {}
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateOrderPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer {
     pub country: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateOrderPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer {
     pub country: String,
 }

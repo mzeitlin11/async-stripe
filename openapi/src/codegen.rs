@@ -100,6 +100,7 @@ pub fn gen_struct(
             field,
             required && !force_optional,
             false,
+            true,
             shared_objects,
         ));
     }
@@ -206,6 +207,7 @@ pub fn gen_generated_schemas(
                 &field,
                 required,
                 false,
+                true,
                 shared_objects,
             ));
         }
@@ -770,7 +772,7 @@ pub fn gen_emitted_structs(
             if struct_.derive_deserialize {
                 out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
             } else {
-                out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
+                out.push_str("#[derive(Clone, Debug, Default, Serialize)]\n");
             }
             out.push_str("pub struct ");
             out.push_str(&struct_name.to_camel_case());
@@ -789,6 +791,7 @@ pub fn gen_emitted_structs(
                     field,
                     required,
                     false,
+                    struct_.derive_deserialize,
                     shared_objects,
                 ));
             }
@@ -1103,6 +1106,7 @@ pub fn gen_field(
     field: &Value,
     required: bool,
     default: bool,
+    derive_deserialize: bool,
     shared_objects: &mut BTreeSet<FileGenerator>,
 ) -> String {
     let mut out = String::new();
@@ -1126,7 +1130,7 @@ pub fn gen_field(
         field,
         required,
         default,
-        true,
+        derive_deserialize,
         shared_objects,
     );
     if !required {

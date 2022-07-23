@@ -338,7 +338,7 @@ impl<'a> UpdateSubscriptionItem<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct SubscriptionItemPriceData {
     pub currency: Currency,
 
@@ -356,7 +356,7 @@ pub struct SubscriptionItemPriceData {
     pub unit_amount_decimal: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct SubscriptionItemPriceDataRecurring {
     pub interval: PlanInterval,
 

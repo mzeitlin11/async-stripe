@@ -1082,18 +1082,18 @@ impl<'a> UpdateSource<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSourceReceiver {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refund_attributes_method: Option<SourceRefundNotificationMethod>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSourceRedirect {
     pub return_url: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSourceSourceOrder {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub items: Option<Vec<CreateSourceSourceOrderItems>>,
@@ -1102,7 +1102,7 @@ pub struct CreateSourceSourceOrder {
     pub shipping: Option<CreateSourceSourceOrderShipping>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct SourceMandateParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acceptance: Option<SourceAcceptanceParams>,
@@ -1120,7 +1120,7 @@ pub struct SourceMandateParams {
     pub notification_method: Option<SourceMandateNotificationMethod>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSourceSourceOrder {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub items: Option<Vec<UpdateSourceSourceOrderItems>>,
@@ -1129,7 +1129,7 @@ pub struct UpdateSourceSourceOrder {
     pub shipping: Option<UpdateSourceSourceOrderShipping>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSourceSourceOrderItems {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
@@ -1151,7 +1151,7 @@ pub struct CreateSourceSourceOrderItems {
     pub type_: Option<CreateSourceSourceOrderItemsType>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSourceSourceOrderShipping {
     pub address: CreateSourceSourceOrderShippingAddress,
 
@@ -1168,7 +1168,7 @@ pub struct CreateSourceSourceOrderShipping {
     pub tracking_number: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct SourceAcceptanceParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub date: Option<Timestamp>,
@@ -1192,7 +1192,7 @@ pub struct SourceAcceptanceParams {
     pub user_agent: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSourceSourceOrderItems {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
@@ -1214,7 +1214,7 @@ pub struct UpdateSourceSourceOrderItems {
     pub type_: Option<UpdateSourceSourceOrderItemsType>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSourceSourceOrderShipping {
     pub address: UpdateSourceSourceOrderShippingAddress,
 
@@ -1231,7 +1231,7 @@ pub struct UpdateSourceSourceOrderShipping {
     pub tracking_number: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateSourceSourceOrderShippingAddress {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
@@ -1251,12 +1251,12 @@ pub struct CreateSourceSourceOrderShippingAddress {
     pub state: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct SourceAcceptanceOfflineParams {
     pub contact_email: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct SourceAcceptanceOnlineParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub date: Option<Timestamp>,
@@ -1268,7 +1268,7 @@ pub struct SourceAcceptanceOnlineParams {
     pub user_agent: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateSourceSourceOrderShippingAddress {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,

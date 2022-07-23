@@ -334,7 +334,7 @@ impl<'a> UpdateCreditNote<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateCreditNoteLines {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,

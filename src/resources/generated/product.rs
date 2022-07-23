@@ -399,7 +399,7 @@ impl<'a> UpdateProduct<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateProductDefaultPriceData {
     pub currency: Currency,
 
@@ -419,7 +419,7 @@ pub struct CreateProductDefaultPriceData {
     pub unit_amount_decimal: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateProductDefaultPriceDataCurrencyOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_unit_amount: Option<CreateProductDefaultPriceDataCurrencyOptionsCustomUnitAmount>,
@@ -437,7 +437,7 @@ pub struct CreateProductDefaultPriceDataCurrencyOptions {
     pub unit_amount_decimal: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateProductDefaultPriceDataRecurring {
     pub interval: CreateProductDefaultPriceDataRecurringInterval,
 
@@ -445,7 +445,7 @@ pub struct CreateProductDefaultPriceDataRecurring {
     pub interval_count: Option<u64>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateProductDefaultPriceDataCurrencyOptionsCustomUnitAmount {
     pub enabled: bool,
 
@@ -459,7 +459,7 @@ pub struct CreateProductDefaultPriceDataCurrencyOptionsCustomUnitAmount {
     pub preset: Option<i64>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateProductDefaultPriceDataCurrencyOptionsTiers {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flat_amount: Option<i64>,

@@ -507,7 +507,7 @@ impl<'a> UpdatePaymentLink<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkAfterCompletion {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hosted_confirmation: Option<CreatePaymentLinkAfterCompletionHostedConfirmation>,
@@ -519,18 +519,18 @@ pub struct CreatePaymentLinkAfterCompletion {
     pub type_: CreatePaymentLinkAfterCompletionType,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkAutomaticTax {
     pub enabled: bool,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkConsentCollection {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub promotions: Option<CreatePaymentLinkConsentCollectionPromotions>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkLineItems {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub adjustable_quantity: Option<CreatePaymentLinkLineItemsAdjustableQuantity>,
@@ -540,7 +540,7 @@ pub struct CreatePaymentLinkLineItems {
     pub quantity: u64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkPaymentIntentData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<CreatePaymentLinkPaymentIntentDataCaptureMethod>,
@@ -549,34 +549,34 @@ pub struct CreatePaymentLinkPaymentIntentData {
     pub setup_future_usage: Option<CreatePaymentLinkPaymentIntentDataSetupFutureUsage>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkPhoneNumberCollection {
     pub enabled: bool,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkShippingAddressCollection {
     pub allowed_countries: Vec<CreatePaymentLinkShippingAddressCollectionAllowedCountries>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkShippingOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_rate: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkSubscriptionData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trial_period_days: Option<u32>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkTaxIdCollection {
     pub enabled: bool,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkTransferData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
@@ -584,7 +584,7 @@ pub struct CreatePaymentLinkTransferData {
     pub destination: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePaymentLinkAfterCompletion {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub hosted_confirmation: Option<UpdatePaymentLinkAfterCompletionHostedConfirmation>,
@@ -596,12 +596,12 @@ pub struct UpdatePaymentLinkAfterCompletion {
     pub type_: UpdatePaymentLinkAfterCompletionType,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePaymentLinkAutomaticTax {
     pub enabled: bool,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePaymentLinkLineItems {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub adjustable_quantity: Option<UpdatePaymentLinkLineItemsAdjustableQuantity>,
@@ -612,23 +612,23 @@ pub struct UpdatePaymentLinkLineItems {
     pub quantity: Option<u64>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePaymentLinkShippingAddressCollection {
     pub allowed_countries: Vec<UpdatePaymentLinkShippingAddressCollectionAllowedCountries>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkAfterCompletionHostedConfirmation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_message: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkAfterCompletionRedirect {
     pub url: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreatePaymentLinkLineItemsAdjustableQuantity {
     pub enabled: bool,
 
@@ -639,18 +639,18 @@ pub struct CreatePaymentLinkLineItemsAdjustableQuantity {
     pub minimum: Option<i64>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePaymentLinkAfterCompletionHostedConfirmation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_message: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePaymentLinkAfterCompletionRedirect {
     pub url: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdatePaymentLinkLineItemsAdjustableQuantity {
     pub enabled: bool,
 

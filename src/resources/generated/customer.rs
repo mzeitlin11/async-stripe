@@ -636,13 +636,13 @@ impl<'a> UpdateCustomer<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateCustomerCashBalance {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub settings: Option<CreateCustomerCashBalanceSettings>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateCustomerShipping {
     pub address: CreateCustomerShippingAddress,
 
@@ -652,13 +652,13 @@ pub struct CreateCustomerShipping {
     pub phone: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateCustomerTax {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CustomerInvoiceSettings {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_fields: Option<Vec<CustomerInvoiceSettingsCustomFields>>,
@@ -673,7 +673,7 @@ pub struct CustomerInvoiceSettings {
     pub rendering_options: Option<CustomerInvoiceSettingsRenderingOptions>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct TaxIdData {
     #[serde(rename = "type")]
     pub type_: TaxIdType,
@@ -681,13 +681,13 @@ pub struct TaxIdData {
     pub value: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateCustomerCashBalance {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub settings: Option<UpdateCustomerCashBalanceSettings>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateCustomerShipping {
     pub address: UpdateCustomerShippingAddress,
 
@@ -697,19 +697,19 @@ pub struct UpdateCustomerShipping {
     pub phone: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateCustomerTax {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateCustomerCashBalanceSettings {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reconciliation_mode: Option<CreateCustomerCashBalanceSettingsReconciliationMode>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateCustomerShippingAddress {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
@@ -730,26 +730,26 @@ pub struct CreateCustomerShippingAddress {
     pub state: Option<String>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CustomerInvoiceSettingsCustomFields {
     pub name: String,
 
     pub value: String,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CustomerInvoiceSettingsRenderingOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount_tax_display: Option<CustomerInvoiceSettingsRenderingOptionsAmountTaxDisplay>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateCustomerCashBalanceSettings {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reconciliation_mode: Option<UpdateCustomerCashBalanceSettingsReconciliationMode>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateCustomerShippingAddress {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,

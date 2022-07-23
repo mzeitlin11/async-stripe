@@ -335,7 +335,7 @@ impl<'a> UpdateShippingRate<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateShippingRateDeliveryEstimate {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<CreateShippingRateDeliveryEstimateMaximum>,
@@ -344,7 +344,7 @@ pub struct CreateShippingRateDeliveryEstimate {
     pub minimum: Option<CreateShippingRateDeliveryEstimateMinimum>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateShippingRateFixedAmount {
     pub amount: i64,
 
@@ -354,27 +354,27 @@ pub struct CreateShippingRateFixedAmount {
     pub currency_options: Option<CreateShippingRateFixedAmountCurrencyOptions>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateShippingRateFixedAmount {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency_options: Option<UpdateShippingRateFixedAmountCurrencyOptions>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateShippingRateDeliveryEstimateMaximum {
     pub unit: CreateShippingRateDeliveryEstimateMaximumUnit,
 
     pub value: i64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateShippingRateDeliveryEstimateMinimum {
     pub unit: CreateShippingRateDeliveryEstimateMinimumUnit,
 
     pub value: i64,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct CreateShippingRateFixedAmountCurrencyOptions {
     pub amount: i64,
 
@@ -382,7 +382,7 @@ pub struct CreateShippingRateFixedAmountCurrencyOptions {
     pub tax_behavior: Option<CreateShippingRateFixedAmountCurrencyOptionsTaxBehavior>,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Serialize)]
 pub struct UpdateShippingRateFixedAmountCurrencyOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,

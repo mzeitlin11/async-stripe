@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fs::write;
 use std::path::Path;
 
-use heck::{CamelCase, SnakeCase};
+use heck::{ToPascalCase, ToSnakeCase};
 use serde_json::Value;
 
 use crate::{
@@ -61,7 +61,7 @@ impl<'a> Metadata<'a> {
                         .get(&schema_name)
                         .unwrap_or(&schema_name)
                         .replace('.', "_")
-                        .to_camel_case()
+                        .to_pascal_case()
                         + "Id";
 
                     id_mappings.insert(
@@ -152,9 +152,9 @@ impl<'a> Metadata<'a> {
     pub fn schema_to_rust_type(&self, schema: &str) -> String {
         let schema = schema.replace('.', "_");
         if let Some(rename) = self.object_mappings.get(schema.as_str()) {
-            rename.to_camel_case()
+            rename.to_pascal_case()
         } else {
-            schema.to_camel_case()
+            schema.to_pascal_case()
         }
     }
 

@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
-use heck::SnakeCase;
+use heck::ToSnakeCase;
 
 use crate::{
     codegen::gen_emitted_structs,

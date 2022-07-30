@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
-use heck::{CamelCase, SnakeCase};
+use heck::{ToPascalCase, ToSnakeCase};
 use serde_json::{json, Value};
 
 use crate::{
@@ -255,8 +255,8 @@ pub fn gen_multitype_params(
         }
         Err(TypeError::IsObject) => {
             let new_type_name =
-                member_schema["title"].as_str().map(|s| s.to_camel_case()).unwrap_or_else(|| {
-                    format!("{}{}Info", parent_struct_rust_type, param_name.to_camel_case())
+                member_schema["title"].as_str().map(|s| s.to_pascal_case()).unwrap_or_else(|| {
+                    format!("{}{}Info", parent_struct_rust_type, param_name.to_pascal_case())
                 });
 
             let inferred_object = InferredObject {
@@ -768,7 +768,7 @@ pub fn gen_emitted_structs(
             out.push('\n');
             out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
             out.push_str("pub struct ");
-            out.push_str(&struct_name.to_camel_case());
+            out.push_str(&struct_name.to_pascal_case());
             out.push_str(" {\n");
             for (key, field) in fields {
                 let required = struct_.schema["required"]
@@ -801,7 +801,7 @@ pub fn gen_unions(out: &mut String, state: &mut FileGenerator, meta: &Metadata) 
         out.push_str("#[derive(Clone, Debug, Deserialize, Serialize)]\n");
         out.push_str("#[serde(untagged, rename_all = \"snake_case\")]\n");
         out.push_str("pub enum ");
-        out.push_str(&union_name.to_camel_case());
+        out.push_str(&union_name.to_pascal_case());
         out.push_str(" {\n");
         for variant_schema in &union_.schema_variants {
             let object_name = meta.spec["components"]["schemas"][&variant_schema]["properties"]
@@ -836,7 +836,7 @@ pub fn gen_unions(out: &mut String, state: &mut FileGenerator, meta: &Metadata) 
             .next()
         {
             out.push_str("impl std::default::Default for ");
-            out.push_str(&union_name.to_camel_case());
+            out.push_str(&union_name.to_pascal_case());
             out.push_str(" {\n");
             out.push_str("    fn default() -> Self {\n");
             out.push_str(&format!("        Self::{}(Default::default())\n", first));
@@ -1023,7 +1023,7 @@ pub fn gen_objects(out: &mut String, state: &mut FileGenerator) {
                                     write_out_field(out, member_name, &normal_var, is_required)
                                 }
                                 Err(TypeError::IsObject) => {
-                                    let rust_type = member_name.to_camel_case();
+                                    let rust_type = member_name.to_pascal_case();
                                     write_out_field(out, member_name, &rust_type, is_required);
                                     let new_params = InferredObject {
                                         rust_type: rust_type.clone(),
@@ -1054,7 +1054,7 @@ pub fn gen_objects(out: &mut String, state: &mut FileGenerator) {
 
             for value in array {
                 let type_name = gen_member_variable_string(value).unwrap_or_else(|_| {
-                    let type_name = value["title"].as_str().unwrap().to_camel_case();
+                    let type_name = value["title"].as_str().unwrap().to_pascal_case();
 
                     generated_objects.insert(
                         type_name.clone(),
@@ -1068,7 +1068,7 @@ pub fn gen_objects(out: &mut String, state: &mut FileGenerator) {
                 // should have the same name as the type it contains
                 // with an optional suffix if there are clashes
                 let variant_name =
-                    value["title"].as_str().map(|s| s.to_camel_case()).unwrap_or_else(|| {
+                    value["title"].as_str().map(|s| s.to_pascal_case()).unwrap_or_else(|| {
                         let count = variants.entry(type_name.clone()).or_insert(0);
                         let suffix = if *count == 0 { "".to_string() } else { count.to_string() };
                         *count += 1;

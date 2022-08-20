@@ -39,6 +39,7 @@ pub fn gen_struct(
     log::trace!("struct {} {{...}}", struct_name);
 
     // Generate the struct type
+
     out.push_str("/// The resource representing a Stripe \"");
     out.push_str(schema_title);
     out.push_str("\".\n");

@@ -1,6 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use heck::{CamelCase, SnakeCase};
+use openapiv3::{AdditionalProperties, ReferenceOr, Schema, SchemaKind, Type};
 
 use crate::schema::{Parameter, Schema};
 use crate::util::print_doc_from_schema;
@@ -1069,7 +1070,7 @@ pub fn gen_field(
     shared_objects: &mut BTreeSet<FileGenerator>,
 ) -> String {
     let mut out = String::new();
-    if let Some(doc) = field.description.as_ref() {
+    if let Some(doc) = field.description() {
         print_doc_comment(&mut out, doc, 1);
     }
     let mut field_rename = field_name.to_snake_case();
@@ -1106,19 +1107,68 @@ pub fn gen_field(
     out
 }
 
+fn gen_schema_ref(
+    state: &mut FileGenerator,
+    meta: &Metadata,
+    object: &str,
+    path: &str,
+    shared_objects: &mut BTreeSet<FileGenerator>,
+) -> String {
+    let schema_name = path.trim_start_matches("#/components/schemas/");
+    let type_name = meta.schema_to_rust_type(schema_name);
+    if schema_name != object {
+        if meta.objects.contains(schema_name) {
+            state.use_resources.insert(type_name.clone());
+        } else if meta.dependents.get(schema_name).map(|x| x.len()).unwrap_or(0) > 1 {
+            state.use_resources.insert(type_name.clone());
+            shared_objects.insert(FileGenerator::new(schema_name.to_string()));
+        } else if !state.generated_schemas.contains_key(schema_name) {
+            state.generated_schemas.insert(schema_name.into(), false);
+        }
+    }
+    type_name
+}
+
+fn gen_schema_or_ref_type(
+    state: &mut FileGenerator,
+    meta: &Metadata,
+    object: &str,
+    field_name: &str,
+    field: &ReferenceOr<openapiv3::Schema>,
+    required: bool,
+    default: bool,
+    shared_objects: &mut BTreeSet<FileGenerator>,
+) -> String {
+    match field {
+        ReferenceOr::Reference { reference } => {
+            gen_schema_ref(state, meta, object, reference, shared_objects)
+        }
+        ReferenceOr::Item(schema) => gen_field_type(
+            state,
+            meta,
+            object,
+            field_name,
+            schema,
+            required,
+            default,
+            shared_objects,
+        ),
+    }
+}
+
 #[tracing::instrument(skip_all)]
 fn gen_field_type(
     state: &mut FileGenerator,
     meta: &Metadata,
     object: &str,
     field_name: &str,
-    field: &Schema,
+    field: &openapiv3::Schema,
     required: bool,
     default: bool,
     shared_objects: &mut BTreeSet<FileGenerator>,
 ) -> String {
-    let ty = match field.get_type() {
-        Some("boolean") => {
+    let ty = match &field.schema_kind {
+        SchemaKind::Type(Type::Boolean {}) => {
             if default {
                 // N.B. return immediately; if we want to use `Default` for bool rather than `Option`
                 return "bool".into();
@@ -1126,10 +1176,11 @@ fn gen_field_type(
                 "bool".into()
             }
         }
-        Some("number") => "f64".into(),
-        Some("integer") => infer_integer_type(state, field_name, field.format()),
-        Some("string") => {
-            if let Some(variants) = field.get_enum_strings() {
+        SchemaKind::Type(Type::Number(_)) => "f64".into(),
+        SchemaKind::Type(Type::Integer(format)) => infer_integer_type(state, field_name, todo!()),
+        SchemaKind::Type(Type::String(typ)) => {
+            let variants = typ.enumeration.iter().flatten().cloned().collect::<Vec<_>>();
+            if !variants.is_empty() {
                 let enum_schema = meta.schema_field(object, field_name);
                 let enum_name = meta.schema_to_rust_type(&enum_schema);
                 let parent_type = meta.schema_to_rust_type(object);
@@ -1144,7 +1195,7 @@ fn gen_field_type(
                 "String".into()
             }
         }
-        Some("array") => {
+        SchemaKind::Type(Type::Array(typ)) => {
             let element = field.items.as_ref().unwrap();
             let element_type = gen_field_rust_type(
                 state,
@@ -1158,7 +1209,7 @@ fn gen_field_type(
             );
             format!("Vec<{}>", element_type)
         }
-        Some("object") => {
+        SchemaKind::Type(Type::Object(typ)) => {
             if field.get_object_enum_name() == Some("list") {
                 state.use_params.insert("List");
                 let element = field.get_data_items_schema();
@@ -1184,8 +1235,8 @@ fn gen_field_type(
                 return format!("List<{}>", element_type);
             }
 
-            if let Some(additional) = field.additional_properties() {
-                return gen_field_type(
+            if let Some(AdditionalProperties::Schema(additional)) = &typ.additional_properties {
+                return gen_schema_or_ref_type(
                     state,
                     meta,
                     object,
@@ -1203,116 +1254,99 @@ fn gen_field_type(
             state.insert_struct(struct_name.clone(), struct_);
             struct_name
         }
-        _ => {
-            if let Some(path) = field.path_ref() {
-                let schema_name = path.trim_start_matches("#/components/schemas/");
-                let type_name = meta.schema_to_rust_type(schema_name);
-                if schema_name != object {
-                    if meta.objects.contains(schema_name) {
-                        state.use_resources.insert(type_name.clone());
-                    } else if meta.dependents.get(schema_name).map(|x| x.len()).unwrap_or(0) > 1 {
-                        state.use_resources.insert(type_name.clone());
-                        shared_objects.insert(FileGenerator::new(schema_name.to_string()));
-                    } else if !state.generated_schemas.contains_key(schema_name) {
-                        state.generated_schemas.insert(schema_name.into(), false);
-                    }
-                }
-                type_name
-            } else if let Some(any_of) = field.any_of().or_else(|| field.one_of()) {
-                if any_of.len() == 1
-                    || (any_of.len() == 2
-                        && any_of[1]
-                            .get_first_enum_value()
-                            .map(|v| v.is_empty())
-                            .unwrap_or_default())
-                {
-                    gen_field_rust_type(
-                        state,
-                        meta,
-                        object,
-                        field_name,
-                        &any_of[0],
-                        true,
-                        false,
-                        shared_objects,
-                    )
-                } else if let Some(resources) = &field.expansion_resources {
-                    let schema = Schema::with_one_of(
-                        resources
-                            .one_of
-                            .as_ref()
-                            .unwrap()
-                            .iter()
-                            .filter(|v| {
-                                !v.path_ref().unwrap().starts_with("#/components/schemas/deleted_")
-                            })
-                            .cloned()
-                            .collect(),
-                    );
+        SchemaKind::AllOf { .. } | SchemaKind::OneOf { .. } => {
+            let any_of = match field.kind() {
+                SchemaKind::AllOf { all_of } => all_of,
+                SchemaKind::OneOf { one_of } => one_of,
+                _ => unreachable!(),
+            };
+            if any_of.len() == 1
+                || (any_of.len() == 2
+                    && any_of[1].get_first_enum_value().map(|v| v.is_empty()).unwrap_or_default())
+            {
+                gen_field_rust_type(
+                    state,
+                    meta,
+                    object,
+                    field_name,
+                    &any_of[0],
+                    true,
+                    false,
+                    shared_objects,
+                )
+            } else if let Some(resources) = &field.expansion_resources {
+                let schema = Schema::with_one_of(
+                    resources
+                        .one_of
+                        .as_ref()
+                        .unwrap()
+                        .iter()
+                        .filter(|v| {
+                            !v.path_ref().unwrap().starts_with("#/components/schemas/deleted_")
+                        })
+                        .cloned()
+                        .collect(),
+                );
 
-                    let ty_ = gen_field_rust_type(
-                        state,
-                        meta,
-                        object,
-                        field_name,
-                        &schema,
-                        true,
-                        false,
-                        shared_objects,
-                    );
-                    state.use_params.insert("Expandable");
-                    format!("Expandable<{}>", ty_)
-                } else if any_of[0].title() == Some("range_query_specs") {
-                    state.use_params.insert("RangeQuery");
-                    state.use_params.insert("Timestamp");
-                    "RangeQuery<Timestamp>".into()
-                } else {
-                    log::trace!("object: {}, field_name: {}", object, field_name);
-                    let mut union_addition = field_name.to_owned();
-                    union_addition.push_str("_union");
-                    let union_schema = meta.schema_field(object, &union_addition);
-                    let union_name = meta.schema_to_rust_type(&union_schema);
-                    log::trace!("union_schema: {}, union_name: {}", union_schema, union_name);
-                    let union_ = InferredUnion {
-                        field: field_name.into(),
-                        schema_variants: any_of
-                            .iter()
-                            .map(|x| {
-                                let schema_name = x
-                                    .path_ref()
-                                    .unwrap_or_else(|| {
-                                        panic!(
-                                            "invalid union for `{}.{}`:  {:#?}",
-                                            object, field_name, field
-                                        )
-                                    })
-                                    .trim_start_matches("#/components/schemas/");
-                                let type_name = meta.schema_to_rust_type(schema_name);
-                                if meta.objects.contains(schema_name)
-                                    || meta
-                                        .dependents
-                                        .get(schema_name)
-                                        .map(|x| x.len())
-                                        .unwrap_or(0)
-                                        > 1
-                                {
-                                    state.use_resources.insert(type_name);
-                                } else if !state.generated_schemas.contains_key(schema_name) {
-                                    state.generated_schemas.insert(schema_name.into(), false);
-                                }
-                                schema_name.into()
-                            })
-                            .collect(),
-                    };
-                    state.inferred_unions.insert(union_name.clone(), union_);
-                    union_name
-                }
+                let ty_ = gen_field_rust_type(
+                    state,
+                    meta,
+                    object,
+                    field_name,
+                    &schema,
+                    true,
+                    false,
+                    shared_objects,
+                );
+                state.use_params.insert("Expandable");
+                format!("Expandable<{}>", ty_)
+            } else if any_of[0].title() == Some("range_query_specs") {
+                state.use_params.insert("RangeQuery");
+                state.use_params.insert("Timestamp");
+                "RangeQuery<Timestamp>".into()
             } else {
-                panic!("unhandled field type for `{}.{}`: {:#?}\n", object, field_name, field)
+                log::trace!("object: {}, field_name: {}", object, field_name);
+                let mut union_addition = field_name.to_owned();
+                union_addition.push_str("_union");
+                let union_schema = meta.schema_field(object, &union_addition);
+                let union_name = meta.schema_to_rust_type(&union_schema);
+                log::trace!("union_schema: {}, union_name: {}", union_schema, union_name);
+                let union_ = InferredUnion {
+                    field: field_name.into(),
+                    schema_variants: any_of
+                        .iter()
+                        .map(|x| {
+                            let schema_name = x
+                                .path_ref()
+                                .unwrap_or_else(|| {
+                                    panic!(
+                                        "invalid union for `{}.{}`:  {:#?}",
+                                        object, field_name, field
+                                    )
+                                })
+                                .trim_start_matches("#/components/schemas/");
+                            let type_name = meta.schema_to_rust_type(schema_name);
+                            if meta.objects.contains(schema_name)
+                                || meta.dependents.get(schema_name).map(|x| x.len()).unwrap_or(0)
+                                    > 1
+                            {
+                                state.use_resources.insert(type_name);
+                            } else if !state.generated_schemas.contains_key(schema_name) {
+                                state.generated_schemas.insert(schema_name.into(), false);
+                            }
+                            schema_name.into()
+                        })
+                        .collect(),
+                };
+                state.inferred_unions.insert(union_name.clone(), union_);
+                union_name
             }
         }
+        _ => {
+            panic!("unhandled field type for `{}.{}`: {:#?}\n", object, field_name, field)
+        }
     };
-    return ty;
+    ty
 }
 
 #[tracing::instrument(skip_all)]
@@ -1345,14 +1379,14 @@ pub fn gen_field_rust_type(
         && field.get_type() == Some("string")
     {
         state.use_resources.insert("Currency".into());
-        return if !required || field.nullable {
+        return if !required || field.nullable() {
             "Option<Currency>".into()
         } else {
             "Currency".into()
         };
     } else if field_name == "created" {
         state.use_params.insert("Timestamp");
-        return if !required || field.nullable {
+        return if !required || field.nullable() {
             "Option<Timestamp>".into()
         } else {
             "Timestamp".into()
@@ -1371,7 +1405,7 @@ pub fn gen_field_rust_type(
         return ty;
     }
 
-    let optional = !required || field.nullable;
+    let optional = !required || field.nullable();
     let should_box = ty.as_str() == "ApiErrors";
 
     match (optional, should_box) {

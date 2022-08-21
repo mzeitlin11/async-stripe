@@ -1,5 +1,3 @@
-use crate::schema::{Parameter, Schema};
-
 #[derive(Clone, Copy, Debug)]
 pub enum CopyOrClone {
     Copy,
@@ -29,7 +27,7 @@ pub struct InferredUnion {
 #[derive(Clone, Debug, PartialEq)]
 pub struct InferredStruct {
     pub field: String,
-    pub schema: Schema,
+    pub schema: openapiv3::Schema,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -42,7 +40,7 @@ pub struct InferredParams {
 #[derive(Clone, Debug, PartialEq)]
 pub struct InferredObject {
     pub rust_type: String,
-    pub schema: Schema,
+    pub schema: openapiv3::Schema,
 }
 
 #[derive(Eq, PartialEq, Hash, PartialOrd, Ord, Debug)]

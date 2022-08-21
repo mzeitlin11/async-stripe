@@ -1,9 +1,9 @@
 use heck::SnakeCase;
 use lazy_static::lazy_static;
+use openapiv3::Schema;
 use regex::Regex;
 
 use crate::file_generator::FileGenerator;
-use crate::schema::Schema;
 
 pub fn write_out_field(out: &mut String, var_name: &str, var_type: &str, required: bool) {
     if required {
@@ -15,7 +15,7 @@ pub fn write_out_field(out: &mut String, var_name: &str, var_type: &str, require
 }
 
 pub fn print_doc_from_schema(out: &mut String, schema: &Schema, print_level: u8) {
-    if let Some(description) = &schema.description {
+    if let Some(description) = &schema.schema_data.description {
         print_doc_comment(out, description, print_level);
     }
 }

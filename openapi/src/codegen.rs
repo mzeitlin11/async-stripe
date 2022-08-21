@@ -1,8 +1,11 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::fmt::Write as _;
 
 use heck::{CamelCase, SnakeCase};
+use indoc::writedoc;
 use serde_json::{json, Value};
 
+use crate::util::write_serde_rename;
 use crate::{
     file_generator::FileGenerator,
     metadata::Metadata,
@@ -305,9 +308,7 @@ pub fn gen_inferred_params(
             out.push_str("#[derive(Clone, Debug, Serialize)]\n");
         }
 
-        out.push_str("pub struct ");
-        out.push_str(&params.rust_type);
-        out.push_str("<'a> {\n");
+        writeln!(out, "pub struct {}<'a> {{", params.rust_type).unwrap();
         let mut initializers: Vec<(String, String, bool)> = Vec::new();
         for param in parameters {
             match param["in"].as_str() {
@@ -326,7 +327,7 @@ pub fn gen_inferred_params(
                     print_doc_comment(out, doc, 1);
                 }
                 if param_rename != param_name {
-                    out.push_str(&format!("    #[serde(rename = \"{}\")]\n", param_name));
+                    write_serde_rename(out, param_name);
                 }
             };
             let required = param["required"].as_bool() == Some(true);
@@ -369,25 +370,13 @@ pub fn gen_inferred_params(
                     ));
                     state.use_params.insert("IdOrCreate");
                     state.use_resources.insert("CreateProduct".to_owned());
-                    if required {
-                        out.push_str("    pub product: IdOrCreate<'a, CreateProduct<'a>>,\n");
-                    } else {
-                        out.push_str("    #[serde(skip_serializing_if = \"Option::is_none\")]\n");
-                        out.push_str(
-                            "    pub product: Option<IdOrCreate<'a, CreateProduct<'a>>>,\n",
-                        );
-                    }
+                    write_out_field(out, "product", "IdOrCreate<'a, CreateProduct<'a>>", required);
                 }
                 "metadata" => {
                     print_doc(out);
                     initializers.push(("metadata".into(), "Metadata".into(), required));
                     state.use_params.insert("Metadata");
-                    if required {
-                        out.push_str("    pub metadata: Metadata,\n");
-                    } else {
-                        out.push_str("    #[serde(skip_serializing_if = \"Option::is_none\")]\n");
-                        out.push_str("    pub metadata: Option<Metadata>,\n");
-                    }
+                    write_out_field(out, "metadata", "Metadata", required);
                 }
                 "expand" => {
                     print_doc(out);
@@ -399,12 +388,7 @@ pub fn gen_inferred_params(
                 "limit" => {
                     print_doc(out);
                     initializers.push(("limit".into(), "u64".into(), false));
-                    if required {
-                        out.push_str("    pub limit: u64,\n");
-                    } else {
-                        out.push_str("    #[serde(skip_serializing_if = \"Option::is_none\")]\n");
-                        out.push_str("    pub limit: Option<u64>,\n");
-                    }
+                    write_out_field(out, "limit", "u64", required);
                 }
                 "ending_before" => {
                     print_doc(out);
@@ -414,10 +398,7 @@ pub fn gen_inferred_params(
                     if required {
                         panic!("unexpected \"required\" `ending_before` parameter");
                     } else {
-                        out.push_str("    #[serde(skip_serializing_if = \"Option::is_none\")]\n");
-                        out.push_str("    pub ending_before: Option<");
-                        out.push_str(cursor_type);
-                        out.push_str(">,\n");
+                        write_out_field(out, "ending_before", cursor_type, false);
                     }
                 }
                 "starting_after" => {
@@ -428,10 +409,7 @@ pub fn gen_inferred_params(
                     if required {
                         panic!("unexpected \"required\" `starting_after` parameter");
                     } else {
-                        out.push_str("    #[serde(skip_serializing_if = \"Option::is_none\")]\n");
-                        out.push_str("    pub starting_after: Option<");
-                        out.push_str(cursor_type);
-                        out.push_str(">,\n");
+                        write_out_field(out, "starting_after", cursor_type, false);
                     }
                 }
                 _ => {
@@ -457,11 +435,7 @@ pub fn gen_inferred_params(
                                 "    #[serde(skip_serializing_if = \"Option::is_none\")]\n",
                             );
                         }
-                        out.push_str("    pub ");
-                        out.push_str(param_rename);
-                        out.push_str(": ");
-                        out.push_str(rust_type);
-                        out.push_str(",\n");
+                        write_out_field(out, param_rename, rust_type, true);
                     } else if meta.schema_to_id_type(param_name).is_some()
                         && param["schema"]["type"].as_str() == Some("string")
                         && param_name != "tax_id"
@@ -470,37 +444,11 @@ pub fn gen_inferred_params(
                         print_doc(out);
                         initializers.push((param_name.into(), id_type.clone(), required));
                         state.use_ids.insert(id_type.clone());
-                        if required {
-                            out.push_str("    pub ");
-                            out.push_str(param_name);
-                            out.push_str(": ");
-                            out.push_str(&id_type);
-                            out.push_str(",\n");
-                        } else {
-                            out.push_str(
-                                "    #[serde(skip_serializing_if = \"Option::is_none\")]\n",
-                            );
-                            out.push_str("    pub ");
-                            out.push_str(param_name);
-                            out.push_str(": Option<");
-                            out.push_str(&id_type);
-                            out.push_str(">,\n");
-                        }
+                        write_out_field(out, param_rename, &id_type, required);
                     } else if param["schema"]["type"].as_str() == Some("boolean") {
                         print_doc(out);
                         initializers.push((param_rename.into(), "bool".into(), false));
-                        if required {
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": bool,\n");
-                        } else {
-                            out.push_str(
-                                "    #[serde(skip_serializing_if = \"Option::is_none\")]\n",
-                            );
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": Option<bool>,\n");
-                        }
+                        write_out_field(out, param_rename, "bool", required);
                     } else if param["schema"]["type"].as_str() == Some("integer") {
                         let rust_type = infer_integer_type(
                             state,
@@ -510,37 +458,11 @@ pub fn gen_inferred_params(
 
                         print_doc(out);
                         initializers.push((param_rename.into(), rust_type.clone(), required));
-                        if required {
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": ");
-                            out.push_str(&rust_type);
-                            out.push_str(",\n");
-                        } else {
-                            out.push_str(
-                                "    #[serde(skip_serializing_if = \"Option::is_none\")]\n",
-                            );
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": Option<");
-                            out.push_str(&rust_type);
-                            out.push_str(">,\n");
-                        }
+                        write_out_field(out, param_rename, &rust_type, required);
                     } else if param["schema"]["type"].as_str() == Some("number") {
                         print_doc(out);
                         initializers.push((param_rename.into(), "f64".into(), required));
-                        if required {
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": f64,\n");
-                        } else {
-                            out.push_str(
-                                "    #[serde(skip_serializing_if = \"Option::is_none\")]\n",
-                            );
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": Option<f64>,\n");
-                        }
+                        write_out_field(out, param_rename, "f64", required);
                     } else if param["schema"]["anyOf"][0]["title"].as_str()
                         == Some("range_query_specs")
                     {
@@ -552,18 +474,7 @@ pub fn gen_inferred_params(
                         ));
                         state.use_params.insert("RangeQuery");
                         state.use_params.insert("Timestamp");
-                        if required {
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": RangeQuery<Timestamp>,\n");
-                        } else {
-                            out.push_str(
-                                "    #[serde(skip_serializing_if = \"Option::is_none\")]\n",
-                            );
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": Option<RangeQuery<Timestamp>>,\n");
-                        }
+                        write_out_field(out, param_rename, "RangeQuery<Timestamp>", required);
                     } else if param["schema"]["type"].as_str() == Some("string")
                         && param["schema"]["enum"].is_array()
                     {
@@ -591,55 +502,18 @@ pub fn gen_inferred_params(
 
                         print_doc(out);
                         initializers.push((param_rename.into(), enum_name.clone(), required));
-                        if required {
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": ");
-                            out.push_str(&enum_name);
-                            out.push_str(",\n");
-                        } else {
-                            out.push_str(
-                                "    #[serde(skip_serializing_if = \"Option::is_none\")]\n",
-                            );
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": Option<");
-                            out.push_str(&enum_name);
-                            out.push_str(">,\n");
-                        }
+                        write_out_field(out, param_rename, &enum_name, required);
                     } else if (param_name == "currency" || param_name.ends_with("_currency"))
                         && param["schema"]["type"].as_str() == Some("string")
                     {
                         print_doc(out);
                         initializers.push((param_rename.into(), "Currency".into(), required));
                         state.use_resources.insert("Currency".into());
-                        if required {
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": Currency,\n");
-                        } else {
-                            out.push_str(
-                                "    #[serde(skip_serializing_if = \"Option::is_none\")]\n",
-                            );
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": Option<Currency>,\n");
-                        }
+                        write_out_field(out, param_rename, "Currency", required);
                     } else if param["schema"]["type"].as_str() == Some("string") {
                         print_doc(out);
                         initializers.push((param_rename.into(), "&'a str".into(), required));
-                        if required {
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": &'a str,\n");
-                        } else {
-                            out.push_str(
-                                "    #[serde(skip_serializing_if = \"Option::is_none\")]\n",
-                            );
-                            out.push_str("    pub ");
-                            out.push_str(param_rename);
-                            out.push_str(": Option<&'a str>,\n");
-                        }
+                        write_out_field(out, param_rename, "&'a str", required);
                     } else if param["schema"]["type"].as_str() == Some("object")
                         || param["schema"]["type"].as_str() == Some("array")
                         || param["schema"]["$ref"].is_string()
@@ -663,11 +537,7 @@ pub fn gen_inferred_params(
                                 "    #[serde(skip_serializing_if = \"Option::is_none\")]\n",
                             );
                         }
-                        out.push_str("    pub ");
-                        out.push_str(param_rename);
-                        out.push_str(": ");
-                        out.push_str(&rust_type);
-                        out.push_str(",\n");
+                        writeln!(out, "pub {param_rename}: {rust_type},").unwrap();
                     } else if required {
                         panic!(
                             "error: skipped required parameter: {} => {:?}",
@@ -717,19 +587,20 @@ pub fn gen_inferred_params(
         // we implement paginate on lists that have an Id
         if let ("list", Some(_)) = (params.method.as_str(), &id_type) {
             state.use_params.insert("Paginable");
+            let typ = &params.rust_type;
+            writedoc!(
+                out,
+                r#"
+                impl Paginable for {typ}<'_> {{
+                    type O = {struct_name};
 
-            out.push_str("impl Paginable for ");
-            out.push_str(&params.rust_type);
-            out.push_str("<'_> {\n");
-            out.push_str("    type O = ");
-            out.push_str(&struct_name);
-            out.push_str(";\n");
-            out.push_str(
-                "    fn set_last(&mut self, item: Self::O) {
-                self.starting_after = Some(item.id());
-            }",
-            );
-            out.push_str("}");
+                    fn set_last(&mut self, item: Self::O) {{ 
+                        self.starting_after = Some(item.id());
+                    }}
+                }}
+                "#
+            )
+            .unwrap();
         }
     }
 }
@@ -814,9 +685,7 @@ pub fn gen_unions(out: &mut String, state: &mut FileGenerator, meta: &Metadata) 
             let variant_name = meta.schema_to_rust_type(object_name);
             let type_name = meta.schema_to_rust_type(variant_schema);
             if variant_name.to_snake_case() != object_name {
-                out.push_str("    #[serde(rename = \"");
-                out.push_str(object_name);
-                out.push_str("\")]\n");
+                write_serde_rename(out, object_name);
             }
             out.push_str("    ");
             out.push_str(&variant_name);
@@ -836,13 +705,18 @@ pub fn gen_unions(out: &mut String, state: &mut FileGenerator, meta: &Metadata) 
             .map(|s| gen_variant_name(s, meta))
             .next()
         {
-            out.push_str("impl std::default::Default for ");
-            out.push_str(&union_name.to_camel_case());
-            out.push_str(" {\n");
-            out.push_str("    fn default() -> Self {\n");
-            out.push_str(&format!("        Self::{}(Default::default())\n", first));
-            out.push_str("    }\n");
-            out.push_str("}\n");
+            let struct_name = union_name.to_camel_case();
+            writedoc!(
+                out,
+                "
+                impl std::default::Default for {struct_name} {{
+                    fn default() -> Self {{
+                        Self::{first}(Default::default())
+                    }}
+                }}
+                "
+            )
+            .unwrap();
         }
     }
 }
@@ -866,16 +740,19 @@ pub fn gen_enums(out: &mut String, state: &mut FileGenerator, meta: &Metadata) {
     for (enum_name, enum_) in &state.inferred_enums {
         log::trace!("enum {} {{ ... }}", enum_name);
 
-        out.push('\n');
-        out.push_str(&format!(
-            "/// An enum representing the possible values of an `{}`'s `{}` field.\n",
-            enum_.parent, enum_.field
-        ));
-        out.push_str("#[derive(Copy, Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]\n");
-        out.push_str("#[serde(rename_all = \"snake_case\")]\n");
-        out.push_str("pub enum ");
-        out.push_str(enum_name);
-        out.push_str(" {\n");
+        let parent = &enum_.parent;
+        let field = &enum_.field;
+        writedoc!(
+            out,
+            r#"
+                /// An enum representing the possible values of an `{parent}`'s `{field}` field.
+                #[derive(Copy, Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
+                #[serde(rename_all = "snake_case")]
+                pub enum {enum_name} {{
+
+                "#
+        )
+        .unwrap();
         for wire_name in &enum_.options {
             if wire_name.trim().is_empty() {
                 continue;
@@ -885,9 +762,7 @@ pub fn gen_enums(out: &mut String, state: &mut FileGenerator, meta: &Metadata) {
                 panic!("unhandled enum variant: {:?}", wire_name)
             }
             if &variant_name.to_snake_case() != wire_name {
-                out.push_str("    #[serde(rename = \"");
-                out.push_str(wire_name);
-                out.push_str("\")]\n");
+                write_serde_rename(out, wire_name);
             }
             out.push_str("    ");
             out.push_str(&variant_name);
@@ -905,33 +780,29 @@ pub fn gen_enums(out: &mut String, state: &mut FileGenerator, meta: &Metadata) {
                 continue;
             }
             let variant_name = gen_variant_name(wire_name.as_str(), meta);
-            out.push_str("            ");
-            out.push_str(enum_name);
-            out.push_str("::");
-            out.push_str(&variant_name);
-            out.push_str(" => ");
-            out.push_str(&format!("{:?}", wire_name));
-            out.push_str(",\n");
+            writeln!(out, "{enum_name}::{variant_name} => {wire_name},").unwrap();
         }
         out.push_str("        }\n");
         out.push_str("    }\n");
         out.push_str("}\n");
         out.push('\n');
-        out.push_str("impl AsRef<str> for ");
-        out.push_str(enum_name);
-        out.push_str(" {\n");
-        out.push_str("    fn as_ref(&self) -> &str {\n");
-        out.push_str("        self.as_str()\n");
-        out.push_str("    }\n");
-        out.push_str("}\n");
-        out.push('\n');
-        out.push_str("impl std::fmt::Display for ");
-        out.push_str(enum_name);
-        out.push_str(" {\n");
-        out.push_str("    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {\n");
-        out.push_str("        self.as_str().fmt(f)\n");
-        out.push_str("    }\n");
-        out.push_str("}\n");
+        writedoc!(
+            out,
+            "
+            impl AsRef<str> for {enum_name} {{
+               fn as_ref(&self) -> &str {{
+                   self.as_str()
+               }}
+            }}
+
+            impl std::fmt::Display for {enum_name} {{
+                fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {{
+                    self.as_str().fmt(f) 
+                }}
+            }}
+            "
+        )
+        .unwrap();
 
         if let Some(first) = enum_
             .options
@@ -943,13 +814,17 @@ pub fn gen_enums(out: &mut String, state: &mut FileGenerator, meta: &Metadata) {
             .map(|s| gen_variant_name(s, meta))
             .next()
         {
-            out.push_str("impl std::default::Default for ");
-            out.push_str(enum_name);
-            out.push_str(" {\n");
-            out.push_str("    fn default() -> Self {\n");
-            out.push_str(&format!("        Self::{}\n", first));
-            out.push_str("    }\n");
-            out.push_str("}\n");
+            writedoc!(
+                out,
+                "
+            impl std::default::Default for {enum_name} {{
+               fn default() -> Self {{
+                   Self::{first}
+               }}
+            }}
+            "
+            )
+            .unwrap();
         }
     }
 }
@@ -1050,6 +925,15 @@ pub fn gen_objects(out: &mut String, state: &mut FileGenerator) {
             out.push_str("#[derive(Clone, Debug, Deserialize, Serialize)]\n");
             out.push_str("#[serde(untagged, rename_all = \"snake_case\")]\n");
             out.push_str(&format!("pub enum {} {{\n", key_str));
+            writedoc!(
+                out,
+                r#"
+                #[derive(Clone, Debug, Deserialize, Serialize)]
+                #[serde(untagged, rename_all = "snake_case")]
+                pub enum {key_str} {{
+                "#
+            )
+            .unwrap();
 
             let mut variants = HashMap::new();
 
@@ -1077,7 +961,7 @@ pub fn gen_objects(out: &mut String, state: &mut FileGenerator) {
                         format!("{}{}", type_name, suffix)
                     });
 
-                out.push_str(&format!("    pub {}({}),\n", variant_name, type_name));
+                writeln!(out, "pub {variant_name}({type_name}),").unwrap();
             }
             out.push_str("}\n");
         }
@@ -1106,9 +990,7 @@ pub fn gen_field(
         field_rename = "type_".into();
     }
     if field_rename != field_name {
-        out.push_str("    #[serde(rename = \"");
-        out.push_str(field_name);
-        out.push_str("\")]\n");
+        write_serde_rename(&mut out, field_name);
     }
     let rust_type = gen_field_rust_type(
         state,
@@ -1127,11 +1009,7 @@ pub fn gen_field(
             out.push_str("    #[serde(skip_serializing_if = \"Option::is_none\")]\n");
         }
     }
-    out.push_str("    pub ");
-    out.push_str(&field_rename);
-    out.push_str(": ");
-    out.push_str(&rust_type);
-    out.push_str(",\n");
+    write_out_field(&mut out, &field_rename, &rust_type, true);
     out
 }
 
@@ -1419,6 +1297,7 @@ pub fn gen_impl_requests(
     for path in requests {
         let request = &meta.spec["paths"][path];
         let segments = path.trim_start_matches("/v1/").split('/').collect::<Vec<_>>();
+        let req_path = segments.join("/");
 
         if let Some(get_request) = &request["get"].as_object() {
             let ok_schema =
@@ -1450,15 +1329,15 @@ pub fn gen_impl_requests(
                 let mut out = String::new();
                 out.push('\n');
                 print_doc_comment(&mut out, doc_comment, 1);
-                out.push_str("    pub fn list(client: &Client, params: &");
-                out.push_str(&params_name);
-                out.push_str("<'_>) -> Response<List<");
-                out.push_str(&rust_struct);
-                out.push_str(">> {\n");
-                out.push_str("        client.get_query(\"/");
-                out.push_str(&segments.join("/"));
-                out.push_str("\", &params)\n");
-                out.push_str("    }");
+                writedoc!(
+                    out,
+                    r#"
+                pub fn list(client: &Client, params: &{params_name}<'_> -> Response<List<{rust_struct}>> {{
+                    client.get_query("/{req_path}, &params) 
+                }}
+                "#
+                )
+                .unwrap();
                 methods.insert(MethodTypes::List, out);
             } else if segments.len() == 2 && !methods.contains_key(&MethodTypes::Retrieve) {
                 let id_param = get_request["parameters"]

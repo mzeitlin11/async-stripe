@@ -4,6 +4,11 @@ RUST_FILES = { glob = "./**/*.rs", include_files = true, include_dirs = false, i
 [tasks.openapi-delete]
 cwd = "openapi"
 command = "rm"
+args = ["-rf", "out"]
+
+[tasks.openapi-delete-all]
+cwd = "openapi"
+command = "rm"
 args = ["-rf", "spec3.json", "out"]
 
 # verifies if all the apis are exported, and reports which are missing
@@ -28,17 +33,23 @@ rg -N --no-filename -i '^pub (struct|enum) ([A-Z][a-zA-z0-9]+).*?$'  src/resourc
  | uniq -cd
 '''
 
+[tasks.openapi-generate-no-fetch]
+cwd = "openapi"
+command = "cargo"
+args = ["run", "spec3.json"]
+dependencies = ["openapi-delete"]
+
 [tasks.openapi-generate]
 cwd = "openapi"
 command = "cargo"
 args = ["run", "spec3.json", "--fetch", "current"]
-dependencies = ["openapi-delete"]
+dependencies = ["openapi-delete-all"]
 
 [tasks.openapi-generate-latest]
 cwd = "openapi"
 command = "cargo"
 args = ["run", "spec3.json", "--fetch", "latest"]
-dependencies = ["openapi-delete"]
+dependencies = ["openapi-delete-all"]
 
 [tasks.openapi-copy]
 cwd = "openapi"
@@ -62,6 +73,9 @@ dependencies = ["openapi-generate", "openapi-copy", "fmt"]
 
 [tasks.openapi-install-latest]
 dependencies = ["openapi-generate-latest", "openapi-copy", "fmt"]
+
+[tasks.openapi-install-no-fetch]
+dependencies = ["openapi-generate-no-fetch", "openapi-copy", "fmt"]
 
 [config]
 default_to_workspace = false

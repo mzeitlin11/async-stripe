@@ -591,12 +591,10 @@ pub fn gen_inferred_params(
                 r#"
                 impl Paginable for {typ}<'_> {{
                     type O = {struct_name};
-
                     fn set_last(&mut self, item: Self::O) {{ 
                         self.starting_after = Some(item.id());
                     }}
-                }}
-                "#
+                }}"#
             )
             .unwrap();
         }
@@ -760,32 +758,42 @@ pub fn gen_enums(out: &mut String, state: &mut FileGenerator, meta: &Metadata) {
                 continue;
             }
             let variant_name = gen_variant_name(wire_name, meta);
-            writeln!(variant_matches, "{enum_name}::{variant_name} => {wire_name},").unwrap();
+            writeln!(
+                variant_matches,
+                r#"            {enum_name}::{variant_name} => "{wire_name}","#
+            )
+            .unwrap();
         }
+        // Remove trailing newline from matches
+        variant_matches.pop();
         writedoc!(
             out,
             r#"
+            
             /// An enum representing the possible values of an `{parent}`'s `{field}` field.
             #[derive(Copy, Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
             #[serde(rename_all = "snake_case")]
             pub enum {enum_name} {{
                 {enum_body}
             }}
-            impl as_str(self) -> &'static str {{
-               match self {{
-                   {variant_matches}
-               }}
+            
+            impl {enum_name} {{
+                pub fn as_str(self) -> &'static str {{
+                    match self {{
+            {variant_matches}
+                    }}
+                }}
             }}
 
             impl AsRef<str> for {enum_name} {{
-               fn as_ref(&self) -> &str {{
-                   self.as_str()
-               }}
+                fn as_ref(&self) -> &str {{
+                    self.as_str()
+                }}
             }}
 
             impl std::fmt::Display for {enum_name} {{
                 fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {{
-                    self.as_str().fmt(f) 
+                    self.as_str().fmt(f)
                 }}
             }}
             "#
@@ -806,9 +814,9 @@ pub fn gen_enums(out: &mut String, state: &mut FileGenerator, meta: &Metadata) {
                 out,
                 "
             impl std::default::Default for {enum_name} {{
-               fn default() -> Self {{
-                   Self::{first}
-               }}
+                fn default() -> Self {{
+                    Self::{first}
+                }}
             }}
             "
             )
@@ -1316,7 +1324,7 @@ pub fn gen_impl_requests(
                 writedoc!(
                     out,
                     r#"
-                pub fn list(client: &Client, params: &{params_name}<'_> -> Response<List<{rust_struct}>> {{
+                pub fn list(client: &Client, params: &{params_name}<'_>) -> Response<List<{rust_struct}>> {{
                     client.get_query("/{req_path}", &params) 
                 }}
                 "#
@@ -1359,7 +1367,7 @@ pub fn gen_impl_requests(
                         out.push_str(&format!("&format!(\"/{}/{{}}\", id)", segments[0]));
                         out.push_str(")\n");
                     }
-                    out.push_str("    }");
+                    out.push_str("    }\n");
                     methods.insert(MethodTypes::Retrieve, out);
                 }
             }
@@ -1435,7 +1443,7 @@ pub fn gen_impl_requests(
                 writedoc!(
                     out,
                     r#"
-                pub fn create(client: &Client, params: {params_name}<'_> -> Response<{return_type}> {{
+                pub fn create(client: &Client, params: {params_name}<'_>) -> Response<{return_type}> {{
                     client.post_form("/{req_path}", &params) 
                 }}
                 "#
@@ -1481,7 +1489,6 @@ pub fn gen_impl_requests(
                     assert_eq!(id_param["style"].as_str(), Some("simple"));
 
                     let mut out = String::new();
-                    out.push('\n');
                     print_doc_comment(&mut out, doc_comment, 1);
                     out.push_str("    pub fn update(client: &Client, id: &");
                     out.push_str(id_type);

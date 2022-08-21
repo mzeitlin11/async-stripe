@@ -9,15 +9,15 @@ use crate::file_generator::FileGenerator;
 
 pub fn write_out_field(out: &mut String, var_name: &str, var_type: &str, required: bool) {
     if required {
-        writeln!(out, "pub {var_name}: {var_type},").unwrap();
+        writeln!(out, "    pub {var_name}: {var_type},").unwrap();
     } else {
         out.push_str("#[serde(skip_serializing_if = \"Option::is_none\")]\n");
-        writeln!(out, "pub {var_name}: Option<{var_type}>,").unwrap();
+        writeln!(out, "    pub {var_name}: Option<{var_type}>,").unwrap();
     }
 }
 
 pub fn write_serde_rename(out: &mut String, rename: &str) {
-    writeln!(out, "#[serde(rename = {rename})]").unwrap();
+    writeln!(out, r#"    #[serde(rename = "{rename}")]"#).unwrap();
 }
 
 pub fn print_doc_from_schema(out: &mut String, schema: &Value, print_level: u8) {

@@ -8,7 +8,6 @@ use serde_json::Value;
 use crate::{
     file_generator::FileGenerator,
     mappings::{self, FieldMap, ObjectMap},
-    metadata,
     types::CopyOrClone,
 };
 
@@ -42,7 +41,7 @@ impl<'a> Metadata<'a> {
         let id_renames = mappings::id_renames();
         let object_mappings = mappings::object_mappings();
         let field_mappings = mappings::field_mappings();
-        let feature_groups = metadata::feature_groups();
+        let feature_groups = feature_groups();
 
         let mut objects = BTreeSet::new();
         let mut dependents: BTreeMap<_, BTreeSet<_>> = BTreeMap::new();

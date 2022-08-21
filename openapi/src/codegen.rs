@@ -171,8 +171,7 @@ pub fn gen_prelude(state: &FileGenerator, meta: &Metadata) -> String {
         }
         prelude.push_str("};\n");
     }
-    prelude.push_str("use serde::{Deserialize, Serialize};\n");
-    prelude.push('\n');
+    prelude.push_str("use serde::{Deserialize, Serialize};\n\n");
     prelude
 }
 
@@ -241,8 +240,7 @@ pub fn gen_multitype_params(
             //Weird case, found with anyOf so only case we are handling
             //at the current moment
             if member_schema["anyOf"].as_array().is_some() {
-                let mut union_addition = param_name.to_owned();
-                union_addition.push_str("_union");
+                let union_addition = format!("{param_name}_union");
                 let mut new_type_name = parent_struct_rust_type.to_owned();
                 new_type_name.push_str(&meta.schema_to_rust_type(&union_addition));
 
@@ -742,17 +740,7 @@ pub fn gen_enums(out: &mut String, state: &mut FileGenerator, meta: &Metadata) {
 
         let parent = &enum_.parent;
         let field = &enum_.field;
-        writedoc!(
-            out,
-            r#"
-                /// An enum representing the possible values of an `{parent}`'s `{field}` field.
-                #[derive(Copy, Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
-                #[serde(rename_all = "snake_case")]
-                pub enum {enum_name} {{
-
-                "#
-        )
-        .unwrap();
+        let mut enum_body = String::new();
         for wire_name in &enum_.options {
             if wire_name.trim().is_empty() {
                 continue;
@@ -762,33 +750,33 @@ pub fn gen_enums(out: &mut String, state: &mut FileGenerator, meta: &Metadata) {
                 panic!("unhandled enum variant: {:?}", wire_name)
             }
             if &variant_name.to_snake_case() != wire_name {
-                write_serde_rename(out, wire_name);
+                write_serde_rename(&mut enum_body, wire_name);
             }
-            out.push_str("    ");
-            out.push_str(&variant_name);
-            out.push_str(",\n");
+            writeln!(enum_body, "{variant_name},").unwrap();
         }
-        out.push_str("}\n");
-        out.push('\n');
-        out.push_str("impl ");
-        out.push_str(enum_name);
-        out.push_str(" {\n");
-        out.push_str("    pub fn as_str(self) -> &'static str {\n");
-        out.push_str("        match self {\n");
+        let mut variant_matches = String::new();
         for wire_name in &enum_.options {
             if wire_name.trim().is_empty() {
                 continue;
             }
-            let variant_name = gen_variant_name(wire_name.as_str(), meta);
-            writeln!(out, "{enum_name}::{variant_name} => {wire_name},").unwrap();
+            let variant_name = gen_variant_name(wire_name, meta);
+            writeln!(variant_matches, "{enum_name}::{variant_name} => {wire_name},").unwrap();
         }
-        out.push_str("        }\n");
-        out.push_str("    }\n");
-        out.push_str("}\n");
-        out.push('\n');
         writedoc!(
             out,
-            "
+            r#"
+            /// An enum representing the possible values of an `{parent}`'s `{field}` field.
+            #[derive(Copy, Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
+            #[serde(rename_all = "snake_case")]
+            pub enum {enum_name} {{
+                {enum_body}
+            }}
+            impl as_str(self) -> &'static str {{
+               match self {{
+                   {variant_matches}
+               }}
+            }}
+
             impl AsRef<str> for {enum_name} {{
                fn as_ref(&self) -> &str {{
                    self.as_str()
@@ -800,7 +788,7 @@ pub fn gen_enums(out: &mut String, state: &mut FileGenerator, meta: &Metadata) {
                     self.as_str().fmt(f) 
                 }}
             }}
-            "
+            "#
         )
         .unwrap();
 
@@ -876,7 +864,7 @@ pub fn gen_objects(out: &mut String, state: &mut FileGenerator) {
             match type_ {
                 "object" => {
                     out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
-                    out.push_str(&format!("pub struct {} {{\n", key_str));
+                    writeln!(out, "pub struct {key_str} {{").unwrap();
                     if let Some(prop_map) = schema["properties"].as_object() {
                         let empty_vec = vec![];
                         let required = schema["required"].as_array().unwrap_or(&empty_vec);
@@ -922,9 +910,6 @@ pub fn gen_objects(out: &mut String, state: &mut FileGenerator) {
         };
 
         if let Some(array) = schema["anyOf"].as_array() {
-            out.push_str("#[derive(Clone, Debug, Deserialize, Serialize)]\n");
-            out.push_str("#[serde(untagged, rename_all = \"snake_case\")]\n");
-            out.push_str(&format!("pub enum {} {{\n", key_str));
             writedoc!(
                 out,
                 r#"
@@ -1166,8 +1151,7 @@ fn gen_field_type(
                     "RangeQuery<Timestamp>".into()
                 } else {
                     log::trace!("object: {}, field_name: {}", object, field_name);
-                    let mut union_addition = field_name.to_owned();
-                    union_addition.push_str("_union");
+                    let union_addition = format!("{field_name}_union");
                     let union_schema = meta.schema_field(object, &union_addition);
                     let union_name = meta.schema_to_rust_type(&union_schema);
                     log::trace!("union_schema: {}, union_name: {}", union_schema, union_name);
@@ -1333,11 +1317,10 @@ pub fn gen_impl_requests(
                     out,
                     r#"
                 pub fn list(client: &Client, params: &{params_name}<'_> -> Response<List<{rust_struct}>> {{
-                    client.get_query("/{req_path}, &params) 
+                    client.get_query("/{req_path}", &params) 
                 }}
                 "#
-                )
-                .unwrap();
+                ).unwrap();
                 methods.insert(MethodTypes::List, out);
             } else if segments.len() == 2 && !methods.contains_key(&MethodTypes::Retrieve) {
                 let id_param = get_request["parameters"]
@@ -1449,15 +1432,14 @@ pub fn gen_impl_requests(
                 let mut out = String::new();
                 out.push('\n');
                 print_doc_comment(&mut out, doc_comment, 1);
-                out.push_str("    pub fn create(client: &Client, params: ");
-                out.push_str(&params_name);
-                out.push_str("<'_>) -> Response<");
-                out.push_str(&return_type);
-                out.push_str("> {\n");
-                out.push_str("        client.post_form(\"/");
-                out.push_str(&segments.join("/"));
-                out.push_str("\", &params)\n");
-                out.push_str("    }");
+                writedoc!(
+                    out,
+                    r#"
+                pub fn create(client: &Client, params: {params_name}<'_> -> Response<{return_type}> {{
+                    client.post_form("/{req_path}", &params) 
+                }}
+                "#
+                ).unwrap();
                 methods.insert(MethodTypes::Create, out);
             } else if !methods.contains_key(&MethodTypes::Update) && parameter_count == 1 && update
             {

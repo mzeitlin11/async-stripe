@@ -1,7 +1,10 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use heck::{CamelCase, SnakeCase};
-use openapiv3::{AdditionalProperties, ReferenceOr, Schema, SchemaKind, Type};
+use openapiv3::{
+    AdditionalProperties, IntegerFormat, ReferenceOr, Schema, SchemaKind, Type,
+    VariantOrUnknownOrEmpty,
+};
 
 use crate::schema::{Parameter, Schema};
 use crate::util::print_doc_from_schema;
@@ -1070,7 +1073,7 @@ pub fn gen_field(
     shared_objects: &mut BTreeSet<FileGenerator>,
 ) -> String {
     let mut out = String::new();
-    if let Some(doc) = field.description() {
+    if let Some(doc) = &field.schema_data.description {
         print_doc_comment(&mut out, doc, 1);
     }
     let mut field_rename = field_name.to_snake_case();
@@ -1167,7 +1170,7 @@ fn gen_field_type(
     default: bool,
     shared_objects: &mut BTreeSet<FileGenerator>,
 ) -> String {
-    let ty = match &field.schema_kind {
+    match &field.schema_kind {
         SchemaKind::Type(Type::Boolean {}) => {
             if default {
                 // N.B. return immediately; if we want to use `Default` for bool rather than `Option`
@@ -1177,7 +1180,13 @@ fn gen_field_type(
             }
         }
         SchemaKind::Type(Type::Number(_)) => "f64".into(),
-        SchemaKind::Type(Type::Integer(format)) => infer_integer_type(state, field_name, todo!()),
+        SchemaKind::Type(Type::Integer(format)) => {
+            let is_unix_time_fmt = match &format.format {
+                VariantOrUnknownOrEmpty::Unknown(val) => val == "unix-time",
+                _ => false,
+            };
+            infer_integer_type(state, field_name, is_unix_time_fmt)
+        }
         SchemaKind::Type(Type::String(typ)) => {
             let variants = typ.enumeration.iter().flatten().cloned().collect::<Vec<_>>();
             if !variants.is_empty() {
@@ -1255,7 +1264,7 @@ fn gen_field_type(
             struct_name
         }
         SchemaKind::AllOf { .. } | SchemaKind::OneOf { .. } => {
-            let any_of = match field.kind() {
+            let any_of = match &field.schema_kind {
                 SchemaKind::AllOf { all_of } => all_of,
                 SchemaKind::OneOf { one_of } => one_of,
                 _ => unreachable!(),
@@ -1345,8 +1354,7 @@ fn gen_field_type(
         _ => {
             panic!("unhandled field type for `{}.{}`: {:#?}\n", object, field_name, field)
         }
-    };
-    ty
+    }
 }
 
 #[tracing::instrument(skip_all)]
@@ -1355,7 +1363,7 @@ pub fn gen_field_rust_type(
     meta: &Metadata,
     object: &str,
     field_name: &str,
-    field: &Schema,
+    field: &ReferenceOr<Schema>,
     required: bool,
     default: bool,
     shared_objects: &mut BTreeSet<FileGenerator>,
@@ -1376,25 +1384,33 @@ pub fn gen_field_rust_type(
         state.use_params.insert("Metadata");
         return "Metadata".into();
     } else if (field_name == "currency" || field_name.ends_with("_currency"))
-        && field.get_type() == Some("string")
+        && matches!(field.schema_kind, SchemaKind::Type(Type::String(_)))
     {
         state.use_resources.insert("Currency".into());
-        return if !required || field.nullable() {
+        return if !required || field.schema_data.nullable {
             "Option<Currency>".into()
         } else {
             "Currency".into()
         };
     } else if field_name == "created" {
         state.use_params.insert("Timestamp");
-        return if !required || field.nullable() {
+        return if !required || field.schema_data.nullable {
             "Option<Timestamp>".into()
         } else {
             "Timestamp".into()
         };
     }
 
-    let ty =
-        gen_field_type(state, meta, object, field_name, field, required, default, shared_objects);
+    let ty = gen_schema_or_ref_type(
+        state,
+        meta,
+        object,
+        field_name,
+        field,
+        required,
+        default,
+        shared_objects,
+    );
     if ty == "bool" && default {
         // N.B. return immediately; if we want to use `Default` for bool rather than `Option`
         // Not sure why this is here, but we want to preserve it for now
@@ -1405,7 +1421,7 @@ pub fn gen_field_rust_type(
         return ty;
     }
 
-    let optional = !required || field.nullable();
+    let optional = !required || field.schema_data.nullable;
     let should_box = ty.as_str() == "ApiErrors";
 
     match (optional, should_box) {

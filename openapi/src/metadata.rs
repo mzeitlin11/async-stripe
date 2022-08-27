@@ -3,6 +3,7 @@ use std::fs::write;
 use std::path::Path;
 
 use heck::{CamelCase, SnakeCase};
+use openapiv3::{ReferenceOr, Schema};
 
 use crate::spec::Spec;
 use crate::{
@@ -50,9 +51,9 @@ impl<'a> Metadata<'a> {
 
         for (key, schema) in spec.component_schemas() {
             let schema_name = key.as_str();
-            let props = match schema.properties() {
-                Some(p) => p,
-                None => continue,
+            let props = match schema {
+                ReferenceOr::Reference { .. } => continue,
+                ReferenceOr::Item(schema) => todo!(),
             };
             if props.get_field("object").is_some() {
                 objects.insert(schema_name);

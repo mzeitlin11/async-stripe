@@ -3,6 +3,7 @@ use std::{collections::BTreeSet, fs};
 use anyhow::{Context, Result};
 use structopt::StructOpt;
 
+use crate::spec::Spec;
 use crate::spec_fetch::fetch_spec;
 use crate::{metadata::Metadata, url_finder::UrlFinder};
 
@@ -44,10 +45,10 @@ fn main() -> Result<()> {
 
     let spec = if let Some(version) = args.fetch {
         let raw = fetch_spec(version, &in_path)?;
-        serde_json::from_value(raw)?
+        Spec::new(serde_json::from_value(raw)?)
     } else {
         let raw = fs::File::open(in_path).context("failed to load the specfile. does it exist?")?;
-        serde_json::from_reader(&raw).context("failed to read json from specfile")?
+        Spec::new(serde_json::from_reader(&raw).context("failed to read json from specfile")?)
     };
 
     let meta = Metadata::from_spec(&spec);

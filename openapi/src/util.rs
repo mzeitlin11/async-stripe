@@ -96,10 +96,10 @@ fn format_doc_comment(doc: &str) -> String {
     doc.trim().into()
 }
 
-pub fn infer_integer_type(state: &mut FileGenerator, name: &str, format: Option<&str>) -> String {
+pub fn infer_integer_type(state: &mut FileGenerator, name: &str, is_unix_time_fmt: bool) -> String {
     let name_snake = name.to_snake_case();
     let name_words = name_snake.split('_').collect::<Vec<_>>();
-    if format == Some("unix-time") || name_words.contains(&"date") {
+    if is_unix_time_fmt || name_words.contains(&"date") {
         state.use_params.insert("Timestamp");
         "Timestamp".into()
     } else if name == "monthly_anchor" {

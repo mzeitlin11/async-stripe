@@ -6,7 +6,6 @@ use openapiv3::{
     VariantOrUnknownOrEmpty,
 };
 
-use crate::schema::{Parameter, Schema};
 use crate::util::print_doc_from_schema;
 use crate::{
     file_generator::FileGenerator,

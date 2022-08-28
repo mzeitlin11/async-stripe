@@ -3,7 +3,7 @@ use std::fs::write;
 use std::path::Path;
 
 use heck::{CamelCase, SnakeCase};
-use openapiv3::{ReferenceOr, Schema};
+use openapiv3::{ReferenceOr, Schema, SchemaKind, Type};
 
 use crate::spec::Spec;
 use crate::{
@@ -49,15 +49,19 @@ impl<'a> Metadata<'a> {
         let mut dependents: BTreeMap<_, BTreeSet<_>> = BTreeMap::new();
         let mut id_mappings = BTreeMap::new();
 
-        for (key, schema) in spec.component_schemas() {
+        for (key, ref_or_schema) in spec.component_schemas() {
             let schema_name = key.as_str();
-            let props = match schema {
+            let schema = match ref_or_schema {
                 ReferenceOr::Reference { .. } => continue,
-                ReferenceOr::Item(schema) => todo!(),
+                ReferenceOr::Item(schema) => schema,
             };
-            if props.get_field("object").is_some() {
+            let properties = match &schema.schema_kind {
+                SchemaKind::Type(Type::Object(obj)) => &obj.properties,
+                _ => continue,
+            };
+            if properties.contains_key("object") {
                 objects.insert(schema_name);
-                if schema.get_id_schema().is_some() {
+                if properties.contains_key("id") {
                     let id_type = id_renames
                         .get(&schema_name)
                         .unwrap_or(&schema_name)
@@ -71,16 +75,20 @@ impl<'a> Metadata<'a> {
                     );
                 }
             }
-            for field in props.get_fields().values() {
-                if let Some(path) = field.path_ref() {
-                    let dep = path.trim_start_matches("#/components/schemas/");
-                    dependents.entry(dep).or_default().insert(schema_name);
-                }
-                if let Some(any_of) = field.any_of() {
-                    for ty in any_of {
-                        if let Some(path) = ty.path_ref() {
-                            let dep = path.trim_start_matches("#/components/schemas/");
-                            dependents.entry(dep).or_default().insert(schema_name);
+            for schema_or_ref in properties.values() {
+                match schema_or_ref {
+                    ReferenceOr::Reference { reference } => {
+                        let dep = reference.trim_start_matches("#/components/schemas/");
+                        dependents.entry(dep).or_default().insert(schema_name);
+                    }
+                    ReferenceOr::Item(schema) => {
+                        if let SchemaKind::AnyOf { any_of } = &schema.schema_kind {
+                            for ty in any_of {
+                                if let Some(ReferenceOr::Reference { reference }) = ty {
+                                    let dep = reference.trim_start_matches("#/components/schemas/");
+                                    dependents.entry(dep).or_default().insert(schema_name);
+                                }
+                            }
                         }
                     }
                 }

@@ -14,6 +14,10 @@ pub fn write_out_field(out: &mut String, var_name: &str, var_type: &str, require
     }
 }
 
+pub fn write_serde_rename(out: &mut String, rename: &str) {
+    writeln!(out, r#"    #[serde(rename = "{rename}")]"#).unwrap();
+}
+
 pub fn print_doc_from_schema(out: &mut String, schema: &Schema, print_level: u8) {
     if let Some(description) = &schema.schema_data.description {
         print_doc_comment(out, description, print_level);

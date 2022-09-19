@@ -938,16 +938,20 @@ pub fn gen_enums(out: &mut String, enums: &BTreeMap<String, InferredEnum>, meta:
 
 #[tracing::instrument(skip_all)]
 pub fn gen_member_variable_string(schema: &Schema) -> Result<String, TypeError> {
-    if let Some(type_) = schema.get_type() {
-        match type_ {
-            "integer" => Ok("i32".into()),
-            "string" => Ok("String".into()),
-            "boolean" => Ok("bool".into()),
-            "array" => Ok(format!(
+    if let SchemaKind::Type(typ) = &schema.schema_kind {
+        match typ {
+            Type::String(_) => Ok("String".into()),
+            Type::Number(_) => Ok("i32".into()),
+            Type::Boolean { .. } => Ok("bool".into()),
+            Type::Array(arr) => Ok(format!(
                 "Vec<{}>",
-                gen_member_variable_string(schema.items.as_ref().unwrap()).unwrap()
+                gen_member_variable_string(arr.items.as_ref().unwrap()).unwrap()
             )),
-            "object" => Err(TypeError::IsObject),
+            Type::Object(_) => Err(TypeError::IsObject),
+            SchemaKind::Type(Type::String(_)) => Ok("String".into()),
+            SchemaKind::Type(Type::String(_)) => Ok("String".into()),
+            SchemaKind::Type(Type::String(_)) => Ok("String".into()),
+            SchemaKind::Type(Type::String(_)) => Ok("String".into()),
             _ => Err(TypeError::Unhandled),
         }
     } else {
@@ -980,82 +984,81 @@ pub fn gen_objects(out: &mut String, objects: &BTreeMap<String, InferredObject>)
         out.push('\n');
         print_doc_from_schema(out, &schema, 0);
 
-        if let Some(type_) = schema.get_type() {
-            match type_ {
-                "object" => {
-                    out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
-                    out.push_str(&format!("pub struct {} {{\n", key_str));
-                    let prop_map = match schema.properties() {
-                        None => panic!("Object has no properties: {:#?}", schema),
-                        Some(p) => p,
-                    };
-                    let required = schema.required.clone().unwrap_or_default();
-
-                    for (member_name, member_schema) in prop_map.get_fields() {
-                        let mut is_required = false;
-                        if required.iter().any(|val| val == member_name) {
-                            is_required = true;
+        match schema.schema_kind {
+            SchemaKind::Type(Type::Object(obj)) => {
+                out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
+                out.push_str(&format!("pub struct {} {{\n", key_str));
+                let props = obj.properties.iter().flat_map(|(name, schema_or)| match schema_or {
+                    ReferenceOr::Reference { .. } => None,
+                    ReferenceOr::Item(schema) => Some((name, schema)),
+                });
+                for (member_name, member_schema) in props {
+                    let mut is_required = false;
+                    if obj.required.iter().any(|val| val == member_name) {
+                        is_required = true;
+                    }
+                    print_doc_from_schema(out, member_schema, 1);
+                    match gen_member_variable_string(member_schema) {
+                        Ok(normal_var) => {
+                            write_out_field(out, member_name, &normal_var, is_required)
                         }
-                        print_doc_from_schema(out, member_schema, 1);
-                        match gen_member_variable_string(member_schema) {
-                            Ok(normal_var) => {
-                                write_out_field(out, member_name, &normal_var, is_required)
-                            }
-                            Err(TypeError::IsObject) => {
-                                let rust_type = member_name.to_camel_case();
-                                write_out_field(out, member_name, &rust_type, is_required);
-                                let new_params = InferredObject {
-                                    rust_type: rust_type.clone(),
-                                    schema: member_schema.clone(),
-                                };
-                                generated_objects.insert(rust_type, new_params);
-                            }
-                            _ => {
-                                panic!("Unhandled case, inspect: {:#?}", member_schema);
-                            }
+                        Err(TypeError::IsObject) => {
+                            let rust_type = member_name.to_camel_case();
+                            write_out_field(out, member_name, &rust_type, is_required);
+                            let new_params = InferredObject {
+                                rust_type: rust_type.clone(),
+                                schema: member_schema.clone(),
+                            };
+                            generated_objects.insert(rust_type, new_params);
+                        }
+                        _ => {
+                            panic!("Unhandled case, inspect: {:#?}", member_schema);
                         }
                     }
-                    out.push_str("}\n");
                 }
-                other => panic!("Expected an object here got: {}", other),
+                out.push_str("}\n");
             }
-        };
+            SchemaKind::AnyOf { any_of } => {
+                out.push_str("#[derive(Clone, Debug, Deserialize, Serialize)]\n");
+                out.push_str("#[serde(untagged, rename_all = \"snake_case\")]\n");
+                out.push_str(&format!("pub enum {} {{\n", key_str));
 
-        if let Some(array) = schema.any_of() {
-            out.push_str("#[derive(Clone, Debug, Deserialize, Serialize)]\n");
-            out.push_str("#[serde(untagged, rename_all = \"snake_case\")]\n");
-            out.push_str(&format!("pub enum {} {{\n", key_str));
+                let mut variants = HashMap::new();
 
-            let mut variants = HashMap::new();
+                for value in any_of.iter().flat_map(|a| match a {
+                    ReferenceOr::Reference { .. } => None,
+                    ReferenceOr::Item(s) => Some(s),
+                }) {
+                    let type_name = gen_member_variable_string(value).unwrap_or_else(|_| {
+                        let type_name = value.title().unwrap().to_camel_case();
 
-            for value in array {
-                let type_name = gen_member_variable_string(value).unwrap_or_else(|_| {
-                    let type_name = value.title().unwrap().to_camel_case();
+                        generated_objects.insert(
+                            type_name.clone(),
+                            InferredObject { rust_type: type_name.clone(), schema: value.clone() },
+                        );
 
-                    generated_objects.insert(
-                        type_name.clone(),
-                        InferredObject { rust_type: type_name.clone(), schema: value.clone() },
-                    );
+                        type_name
+                    });
 
-                    type_name
-                });
+                    // if the title is not provided, the variant
+                    // should have the same name as the type it contains
+                    // with an optional suffix if there are clashes
+                    let variant_name =
+                        value.title().map(|s| s.to_camel_case()).unwrap_or_else(|| {
+                            let count = variants.entry(type_name.clone()).or_insert(0);
+                            let suffix =
+                                if *count == 0 { "".to_string() } else { count.to_string() };
+                            *count += 1;
 
-                // if the title is not provided, the variant
-                // should have the same name as the type it contains
-                // with an optional suffix if there are clashes
-                let variant_name = value.title().map(|s| s.to_camel_case()).unwrap_or_else(|| {
-                    let count = variants.entry(type_name.clone()).or_insert(0);
-                    let suffix = if *count == 0 { "".to_string() } else { count.to_string() };
-                    *count += 1;
+                            format!("{}{}", type_name, suffix)
+                        });
 
-                    format!("{}{}", type_name, suffix)
-                });
-
-                out.push_str(&format!("    pub {}({}),\n", variant_name, type_name));
+                    out.push_str(&format!("    pub {}({}),\n", variant_name, type_name));
+                }
+                out.push_str("}\n");
             }
-            out.push_str("}\n");
+            other => panic!("Expected an object here got: {:?}", other),
         }
-
         generated_objects.remove(&key_str);
     }
 }
@@ -1136,7 +1139,7 @@ fn gen_schema_or_ref_type(
     meta: &Metadata,
     object: &str,
     field_name: &str,
-    field: &ReferenceOr<openapiv3::Schema>,
+    field: &ReferenceOr<Schema>,
     required: bool,
     default: bool,
     shared_objects: &mut BTreeSet<FileGenerator>,

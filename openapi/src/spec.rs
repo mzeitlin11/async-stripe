@@ -130,8 +130,6 @@
 use indexmap::IndexMap;
 use openapiv3::{Components, OpenAPI, ReferenceOr};
 
-use crate::schema::Schema;
-
 #[derive(Debug, Clone)]
 pub struct Spec(OpenAPI);
 

@@ -6,7 +6,6 @@ use openapiv3::{
     VariantOrUnknownOrEmpty,
 };
 
-use crate::util::print_doc_from_schema;
 use crate::{
     file_generator::FileGenerator,
     metadata::Metadata,
@@ -440,10 +439,10 @@ pub fn gen_inferred_params(
                     } else if param.schema_type() == Some("integer") {
                         let rust_type =
                             infer_integer_type(state, param_name, param.schema().format());
-
                         print_doc(out);
                         initializers.push((param_rename.into(), rust_type.clone(), required));
                         write_out_field(out, param_rename, &rust_type, required);
+<<<<<<< HEAD
                     } else if param.schema_type() == Some("number") {
                         print_doc(out);
                         initializers.push((param_rename.into(), "f64".into(), required));
@@ -453,6 +452,13 @@ pub fn gen_inferred_params(
                         .any_of()
                         .and_then(|schemas| schemas.first())
                         .and_then(|schema| schema.title())
+=======
+                    } else if param["schema"]["type"].as_str() == Some("number") {
+                        print_doc(out);
+                        initializers.push((param_rename.into(), "f64".into(), required));
+                        write_out_field(out, param_rename, "f64", required);
+                    } else if param["schema"]["anyOf"][0]["title"].as_str()
+>>>>>>> upstream/master
                         == Some("range_query_specs")
                     {
                         print_doc(out);
@@ -1145,6 +1151,7 @@ fn gen_field_type(
                 || (any_of.len() == 2
                     && any_of[1].get_first_enum_value().map(|v| v.is_empty()).unwrap_or_default())
             {
+<<<<<<< HEAD
                 gen_field_rust_type(
                     state,
                     meta,

@@ -1,3 +1,5 @@
+use std::fmt::Write as _;
+
 use heck::SnakeCase;
 use lazy_static::lazy_static;
 use openapiv3::Schema;
@@ -7,10 +9,10 @@ use crate::file_generator::FileGenerator;
 
 pub fn write_out_field(out: &mut String, var_name: &str, var_type: &str, required: bool) {
     if required {
-        out.push_str(&format!("    pub {}: {},\n", var_name, var_type));
+        writeln!(out, "    pub {var_name}: {var_type},").unwrap();
     } else {
         out.push_str("    #[serde(skip_serializing_if = \"Option::is_none\")]\n");
-        out.push_str(&format!("    pub {}: Option<{}>,\n", var_name, var_type));
+        writeln!(out, "    pub {var_name}: Option<{var_type}>,").unwrap();
     }
 }
 

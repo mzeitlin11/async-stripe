@@ -150,4 +150,11 @@ impl Spec {
     pub fn component_schemas(&self) -> &IndexMap<String, ReferenceOr<openapiv3::Schema>> {
         &self.components().schemas
     }
+
+    pub fn get_schema_unchecked(&self, name: &str) -> &ReferenceOr<openapiv3::Schema> {
+        self.component_schemas()
+            .get(name)
+            .as_ref()
+            .expect(&format!("Expected to find a schema with name = {name}"))
+    }
 }

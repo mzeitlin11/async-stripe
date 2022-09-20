@@ -1,3 +1,5 @@
+use openapiv3::Parameter;
+
 #[derive(Clone, Copy, Debug)]
 pub enum CopyOrClone {
     Copy,

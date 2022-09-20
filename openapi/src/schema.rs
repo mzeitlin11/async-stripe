@@ -1,3 +1,65 @@
+use indexmap::IndexMap;
+use openapiv3::{ObjectType, ReferenceOr, Schema, SchemaKind, Type};
+
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, Eq, PartialEq)]
+pub struct ExpansionResources {
+    #[serde(rename = "oneOf")]
+    pub one_of: Vec<PathRef>,
+}
+
+#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, Eq, PartialEq)]
+pub struct PathRef {
+    #[serde(rename = "$ref")]
+    pub reference: String,
+}
+
+pub fn as_object_type(schema: &Schema) -> Option<&ObjectType> {
+    match &schema.schema_kind {
+        SchemaKind::Type(Type::Object(obj)) => Some(obj),
+        _ => None,
+    }
+}
+
+pub fn as_array_item_schema(schema: &Schema) -> Option<&Schema> {
+    let arr = if let SchemaKind::Type(Type::Array(typ)) = &schema.schema_kind {
+        typ
+    } else {
+        return None;
+    };
+    arr.items.and_then(|s| s.as_item().map(|s| s.as_ref()))
+}
+
+pub fn as_object_properties(
+    schema: &Schema,
+) -> Option<&IndexMap<String, ReferenceOr<Box<Schema>>>> {
+    as_object_type(schema).map(|o| &o.properties)
+}
+
+pub fn as_object_enum_name(schema: &Schema) -> Option<&str> {
+    as_object_properties(schema)
+        .and_then(|s| s.get("object"))
+        .and_then(|s| s.as_item())
+        .and_then(|s| as_first_enum_value(s))
+}
+
+pub fn as_enum_strings(schema: &Schema) -> Option<Vec<String>> {
+    match &schema.schema_kind {
+        SchemaKind::Type(Type::String(typ)) => {
+            let variants = typ.enumeration.into_iter().flatten().collect::<Vec<_>>();
+            if variants.is_empty() {
+                None
+            } else {
+                Some(variants)
+            }
+        }
+        _ => None,
+    }
+}
+
+pub fn as_first_enum_value(schema: &Schema) -> Option<&str> {
+    as_enum_strings(schema).and_then(|s| s.first()).map(|s| s.as_str())
+}
+
 // use std::collections::BTreeMap;
 //
 // /// Stripe equivalent of https://spec.openapis.org/oas/v3.1.0#schema-object

@@ -2,7 +2,7 @@ use std::fmt::Write as _;
 
 use heck::SnakeCase;
 use lazy_static::lazy_static;
-use openapiv3::Schema;
+use openapiv3::{IntegerFormat, Schema, VariantOrUnknownOrEmpty};
 use regex::Regex;
 
 use crate::file_generator::FileGenerator;
@@ -102,7 +102,15 @@ fn format_doc_comment(doc: &str) -> String {
     doc.trim().into()
 }
 
-pub fn infer_integer_type(state: &mut FileGenerator, name: &str, is_unix_time_fmt: bool) -> String {
+pub fn infer_integer_type(
+    state: &mut FileGenerator,
+    name: &str,
+    int_fmt: &VariantOrUnknownOrEmpty<IntegerFormat>,
+) -> String {
+    let is_unix_time_fmt = match int_fmt {
+        VariantOrUnknownOrEmpty::Unknown(val) => val == "unix-time",
+        _ => false,
+    };
     let name_snake = name.to_snake_case();
     let name_words = name_snake.split('_').collect::<Vec<_>>();
     if is_unix_time_fmt || name_words.contains(&"date") {

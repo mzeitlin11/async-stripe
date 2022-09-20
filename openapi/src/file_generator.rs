@@ -6,9 +6,10 @@ use std::{
 
 use anyhow::{anyhow, Result};
 use heck::SnakeCase;
-use openapiv3::{ReferenceOr, Schema, SchemaKind, Type};
+use openapiv3::{ReferenceOr, SchemaKind, Type};
 
 use crate::codegen::{gen_enums, gen_objects, gen_prelude, gen_unions};
+use crate::schema::as_first_enum_value;
 use crate::{
     codegen::gen_emitted_structs,
     codegen::gen_generated_schemas,
@@ -107,7 +108,7 @@ impl FileGenerator {
         gen_struct(&mut out, self, meta, &mut shared_objects, url_finder);
 
         if let Some(object_literal) =
-            properties.get("object").and_then(|o| o.get_first_enum_value())
+            properties.get("object").and_then(|o| o.as_item()).and_then(|o| as_first_enum_value(o))
         {
             self.gen_object_trait(meta, id_type, &mut out, struct_name, object_literal);
         }
@@ -202,11 +203,6 @@ impl FileGenerator {
         if let Entry::Vacant(e) = self.inferred_structs.entry(name.clone()) {
             e.insert(struct_);
             return Ok(());
-        }
-        if let Some(other) = self.inferred_structs.get(&name) {
-            if !struct_.schema.equal_without_title_desc(&other.schema) {
-                return Err(other);
-            }
         }
         Ok(())
     }

@@ -3,7 +3,7 @@ use std::fs::write;
 use std::path::Path;
 
 use heck::{CamelCase, SnakeCase};
-use openapiv3::{ReferenceOr, Schema, SchemaKind, Type};
+use openapiv3::{ReferenceOr, SchemaKind, Type};
 
 use crate::spec::Spec;
 use crate::{
@@ -84,7 +84,7 @@ impl<'a> Metadata<'a> {
                     ReferenceOr::Item(schema) => {
                         if let SchemaKind::AnyOf { any_of } = &schema.schema_kind {
                             for ty in any_of {
-                                if let Some(ReferenceOr::Reference { reference }) = ty {
+                                if let ReferenceOr::Reference { reference } = ty {
                                     let dep = reference.trim_start_matches("#/components/schemas/");
                                     dependents.entry(dep).or_default().insert(schema_name);
                                 }

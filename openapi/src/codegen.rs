@@ -3,8 +3,8 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use heck::{CamelCase, SnakeCase};
 use openapiv3::{
-    AdditionalProperties, Parameter, ParameterSchemaOrContent, ReferenceOr, Schema, SchemaKind,
-    Type,
+    AdditionalProperties, Parameter, ParameterSchemaOrContent, PathStyle, ReferenceOr, Schema,
+    SchemaKind, Type,
 };
 
 use crate::schema::{
@@ -39,10 +39,7 @@ pub fn gen_struct(
 
     let id_type = meta.schema_to_id_type(object);
     let struct_name = meta.schema_to_rust_type(object);
-    let schema = match meta.spec.get_schema_unchecked(object) {
-        ReferenceOr::Reference { .. } => panic!("Unexpected reference"),
-        ReferenceOr::Item(s) => s,
-    };
+    let schema = meta.spec.get_schema_unchecked(object).as_item().expect("Expected item");
     let obj = as_object_type(schema).expect("Expected object type");
     let schema_title = schema.schema_data.title.as_ref().expect("No title found");
     let deleted_schema = meta.spec.component_schemas().get(&format!("deleted_{}", object));
@@ -68,7 +65,7 @@ pub fn gen_struct(
         if let Some(doc) = obj
             .properties
             .get("id")
-            .and_then(|id| id.as_item().and_then(|i| i.schema_data.description.as_deref()))
+            .and_then(|id| id.as_item().and_then(|i| i.schema_data.description.as_ref()))
         {
             print_doc_comment(out, doc, 1);
         }
@@ -239,7 +236,7 @@ pub fn gen_multitype_params(
 ) {
     let member_schema = match &param.parameter_data_ref().format {
         ParameterSchemaOrContent::Schema(ReferenceOr::Item(s)) => s,
-        _ => panic!("Unexpected"),
+        _ => panic!("Expected schema content"),
     };
     match gen_member_variable_string(member_schema) {
         Ok(type_) => {
@@ -296,11 +293,10 @@ pub fn gen_inferred_params(
 
     for (_, params) in state.inferred_parameters.clone() {
         let params_schema = params.rust_type.to_snake_case();
-        let parameters = &params.parameters;
 
         // Derive Default when no param is required
         let can_derive_default =
-            parameters.iter().all(|param| !param.parameter_data_ref().required);
+            params.parameters.iter().all(|param| !param.parameter_data_ref().required);
 
         out.push('\n');
         out.push_str(&format!("/// The parameters for `{}::{}`.\n", struct_name, params.method));
@@ -315,10 +311,7 @@ pub fn gen_inferred_params(
         out.push_str(&params.rust_type);
         out.push_str("<'a> {\n");
         let mut initializers: Vec<(String, String, bool)> = Vec::new();
-        for param in parameters {
-            if !matches!(param, Parameter::Query { .. }) {
-                continue;
-            }
+        for param in params.parameters.iter().filter(|p| !matches!(p, Parameter::Query { .. })) {
             let param_name = param.parameter_data_ref().name.as_str();
             let param_rename = match param_name {
                 "type" => "type_",
@@ -649,9 +642,8 @@ pub fn gen_emitted_structs(
             out.push_str(&struct_name.to_camel_case());
             out.push_str(" {\n");
 
-            let required_arr = &obj.required;
             for (key, field) in &obj.properties {
-                let required = required_arr.contains(key);
+                let required = obj.required.contains(key);
                 out.push('\n');
                 out.push_str(&gen_field(
                     state,
@@ -1398,10 +1390,7 @@ pub fn gen_impl_requests(
                 let expand_param = find_param_by_name(get_request, "expand");
                 if let Some(id_type) = &object_id {
                     assert!(id_param.parameter_data_ref().required);
-                    assert!(matches!(
-                        id_param,
-                        Parameter::Path { style: openapiv3::PathStyle::Simple, .. }
-                    ));
+                    assert!(matches!(id_param, Parameter::Path { style: PathStyle::Simple, .. }));
 
                     let mut out = String::new();
                     out.push('\n');
@@ -1501,10 +1490,7 @@ pub fn gen_impl_requests(
 
                 if let Some(id_type) = &object_id {
                     assert!(id_param.parameter_data_ref().required);
-                    assert!(matches!(
-                        id_param,
-                        Parameter::Path { style: openapiv3::PathStyle::Simple, .. }
-                    ));
+                    assert!(matches!(id_param, Parameter::Path { style: PathStyle::Simple, .. }));
 
                     let mut out = String::new();
                     out.push('\n');
@@ -1554,10 +1540,7 @@ pub fn gen_impl_requests(
                 if let Some(id_type) = &object_id {
                     state.use_params.insert("Deleted");
                     assert!(id_param.parameter_data_ref().required);
-                    assert!(matches!(
-                        id_param,
-                        Parameter::Path { style: openapiv3::PathStyle::Simple, .. }
-                    ));
+                    assert!(matches!(id_param, Parameter::Path { style: PathStyle::Simple, .. }));
 
                     let mut out = String::new();
                     out.push('\n');

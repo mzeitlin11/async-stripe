@@ -50,6 +50,7 @@ fn main() -> Result<()> {
         let raw = fs::File::open(in_path).context("failed to load the specfile. does it exist?")?;
         Spec::new(serde_json::from_reader(&raw).context("failed to read json from specfile")?)
     };
+    log::info!("Finished parsing spec");
 
     let meta = Metadata::from_spec(&spec);
     let url_finder = UrlFinder::new().context("couldn't initialize url finder")?;

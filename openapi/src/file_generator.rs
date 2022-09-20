@@ -110,7 +110,7 @@ impl FileGenerator {
         if let Some(object_literal) =
             properties.get("object").and_then(|o| o.as_item()).and_then(|o| as_first_enum_value(o))
         {
-            self.gen_object_trait(meta, id_type, &mut out, struct_name, object_literal);
+            self.gen_object_trait(meta, id_type, &mut out, struct_name, &object_literal);
         }
 
         gen_generated_schemas(&mut out, self, meta, &mut shared_objects);
@@ -200,7 +200,7 @@ impl FileGenerator {
         struct_: InferredStruct,
     ) -> Result<(), &InferredStruct> {
         let name = name.into();
-        if let Entry::Vacant(e) = self.inferred_structs.entry(name.clone()) {
+        if let Entry::Vacant(e) = self.inferred_structs.entry(name) {
             e.insert(struct_);
             return Ok(());
         }

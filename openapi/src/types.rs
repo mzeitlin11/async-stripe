@@ -36,7 +36,7 @@ pub struct InferredStruct {
 pub struct InferredParams {
     pub method: String,
     pub rust_type: String,
-    pub parameters: Option<Vec<Parameter>>,
+    pub parameters: Vec<Parameter>,
 }
 
 #[derive(Clone, Debug, PartialEq)]

@@ -311,7 +311,7 @@ pub fn gen_inferred_params(
         out.push_str(&params.rust_type);
         out.push_str("<'a> {\n");
         let mut initializers: Vec<(String, String, bool)> = Vec::new();
-        for param in params.parameters.iter().filter(|p| !matches!(p, Parameter::Query { .. })) {
+        for param in params.parameters.iter().filter(|p| matches!(p, Parameter::Query { .. })) {
             let param_name = param.parameter_data_ref().name.as_str();
             let param_rename = match param_name {
                 "type" => "type_",
@@ -395,14 +395,12 @@ pub fn gen_inferred_params(
                     }
                 }
                 _ => {
-                    let maybe_schema = match &param.parameter_data_ref().format {
-                        ParameterSchemaOrContent::Schema(s) => Some(s),
-                        ParameterSchemaOrContent::Content(_) => None,
+                    let schema = match &param.parameter_data_ref().format {
+                        ParameterSchemaOrContent::Schema(s) => s,
+                        ParameterSchemaOrContent::Content(_) => panic!("Expected schema"),
                     };
-                    let maybe_schema_typ =
-                        maybe_schema.and_then(|s| s.as_item()).map(|s| &s.schema_kind);
-                    let is_string_schema =
-                        matches!(maybe_schema_typ, Some(SchemaKind::Type(Type::String(_))));
+                    let kind = schema.as_item().map(|s| &s.schema_kind);
+                    let is_string_schema = matches!(kind, Some(SchemaKind::Type(Type::String(_))));
                     if let Some((use_path, rust_type)) =
                         meta.field_to_rust_type(params_schema.as_str(), param_name)
                     {
@@ -439,26 +437,20 @@ pub fn gen_inferred_params(
                         initializers.push((param_name.into(), id_type.clone(), required));
                         state.use_ids.insert(id_type.clone());
                         write_out_field(out, param_rename, &id_type, required);
-                    } else if matches!(
-                        maybe_schema_typ,
-                        Some(SchemaKind::Type(Type::Boolean { .. }))
-                    ) {
+                    } else if matches!(kind, Some(SchemaKind::Type(Type::Boolean { .. }))) {
                         print_doc(out);
                         initializers.push((param_rename.into(), "bool".into(), false));
                         write_out_field(out, param_rename, "bool", required);
-                    } else if let Some(SchemaKind::Type(Type::Integer(int_type))) = maybe_schema_typ
-                    {
+                    } else if let Some(SchemaKind::Type(Type::Integer(int_type))) = kind {
                         let rust_type = infer_integer_type(state, param_name, &int_type.format);
                         print_doc(out);
                         initializers.push((param_rename.into(), rust_type.clone(), required));
                         write_out_field(out, param_rename, &rust_type, required);
-                    } else if matches!(maybe_schema_typ, Some(SchemaKind::Type(Type::Number(_)))) {
+                    } else if matches!(kind, Some(SchemaKind::Type(Type::Number(_)))) {
                         print_doc(out);
                         initializers.push((param_rename.into(), "f64".into(), required));
                         write_out_field(out, param_rename, "f64", required);
-                    } else if maybe_schema
-                        .and_then(|s| s.as_item())
-                        .and_then(as_any_of_first_item_title)
+                    } else if schema.as_item().and_then(as_any_of_first_item_title)
                         == Some("range_query_specs")
                     {
                         print_doc(out);
@@ -470,9 +462,7 @@ pub fn gen_inferred_params(
                         state.use_params.insert("RangeQuery");
                         state.use_params.insert("Timestamp");
                         write_out_field(out, param_rename, "RangeQuery<Timestamp>", required);
-                    } else if let Some(enum_strings) =
-                        maybe_schema.and_then(|s| s.as_item()).and_then(as_enum_strings)
-                    {
+                    } else if let Some(enum_strings) = schema.as_item().and_then(as_enum_strings) {
                         let enum_schema = meta.schema_field(&object, param_rename);
                         let enum_name = meta.schema_to_rust_type(&enum_schema);
                         let enum_ = InferredEnum {
@@ -504,9 +494,9 @@ pub fn gen_inferred_params(
                         print_doc(out);
                         initializers.push((param_rename.into(), "&'a str".into(), required));
                         write_out_field(out, param_rename, "&'a str", required);
-                    } else if maybe_schema.and_then(|s| s.as_item()).is_none()
+                    } else if schema.as_item().is_none()
                         || matches!(
-                            maybe_schema_typ,
+                            kind,
                             Some(
                                 SchemaKind::AnyOf { .. }
                                     | SchemaKind::Type(Type::Object(_))
@@ -519,7 +509,7 @@ pub fn gen_inferred_params(
                             meta,
                             &params.rust_type.to_snake_case(),
                             param_rename,
-                            maybe_schema.unwrap(),
+                            schema,
                             required,
                             false,
                             shared_objects,
@@ -538,10 +528,7 @@ pub fn gen_inferred_params(
                         out.push_str(&rust_type);
                         out.push_str(",\n");
                     } else if required {
-                        panic!(
-                            "error: skipped required parameter: {} => {:?}",
-                            param_name, maybe_schema
-                        );
+                        panic!("error: skipped required parameter: {} => {:?}", param_name, schema);
                     } else {
                         log::warn!("skipping optional parameter: {}", param_name);
                     }

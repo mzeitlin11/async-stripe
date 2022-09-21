@@ -1,16 +1,30 @@
+use anyhow::Context;
 use indexmap::IndexMap;
 use openapiv3::{
     ObjectType, Operation, Parameter, ParameterData, ParameterSchemaOrContent, QueryStyle,
     ReferenceOr, Response, Schema, SchemaKind, StatusCode, Type,
 };
 
-#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, Eq, PartialEq)]
+#[derive(Debug, Clone, serde::Deserialize)]
 pub struct ExpansionResources {
     #[serde(rename = "oneOf")]
     pub one_of: Vec<PathRef>,
 }
 
-#[derive(Debug, Clone, serde::Deserialize, serde::Serialize, Eq, PartialEq)]
+impl ExpansionResources {
+    pub fn into_schema_kind(self) -> SchemaKind {
+        SchemaKind::OneOf {
+            one_of: self
+                .one_of
+                .into_iter()
+                .filter(|r| !r.reference.starts_with("#/components/schemas/deleted_"))
+                .map(|r| ReferenceOr::Reference { reference: r.reference })
+                .collect(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, serde::Deserialize)]
 pub struct PathRef {
     #[serde(rename = "$ref")]
     pub reference: String,
@@ -35,14 +49,11 @@ pub fn as_data_array_item(obj: &ObjectType) -> Option<&ReferenceOr<Box<Schema>>>
 pub fn as_object_properties(
     schema: &Schema,
 ) -> Option<&IndexMap<String, ReferenceOr<Box<Schema>>>> {
-    as_object_type(schema).map(|o| &o.properties)
+    Some(&as_object_type(schema)?.properties)
 }
 
 pub fn as_object_enum_name(schema: &Schema) -> Option<String> {
-    as_object_properties(schema)
-        .and_then(|s| s.get("object"))
-        .and_then(|s| s.as_item())
-        .and_then(|s| as_first_enum_value(s))
+    as_first_enum_value(as_object_properties(schema)?.get("object")?.as_item()?)
 }
 
 pub fn as_enum_strings(schema: &Schema) -> Option<Vec<String>> {
@@ -96,24 +107,24 @@ pub fn non_path_ref_params(operation: &Operation) -> Vec<Parameter> {
     operation.parameters.iter().flat_map(|p| p.as_item()).cloned().collect()
 }
 
-pub fn get_request_form_parameters(operation: &Operation) -> Vec<Parameter> {
+pub fn get_request_form_parameters(operation: &Operation) -> anyhow::Result<Vec<Parameter>> {
     let form_schema = operation
         .request_body
         .as_ref()
-        .expect("No request body")
+        .context("No request body")?
         .as_item()
-        .expect("Expected item")
+        .context("Expected item")?
         .content
         .get("application/x-www-form-urlencoded")
-        .expect("No form content found")
+        .context("No form content found")?
         .schema
         .as_ref()
-        .expect("No request schema")
+        .context("No request schema")?
         .as_item()
-        .expect("Expected item");
-    let obj_type = as_object_type(form_schema).expect("Expected object type schema");
+        .context("Expected item")?;
+    let obj_type = as_object_type(form_schema).context("Expected object type schema")?;
     let properties = &obj_type.properties;
-    properties
+    Ok(properties
         .iter()
         .map(|(key, value)| {
             let maybe_item = value.as_item();
@@ -134,7 +145,7 @@ pub fn get_request_form_parameters(operation: &Operation) -> Vec<Parameter> {
                 allow_empty_value: None,
             }
         })
-        .collect()
+        .collect())
 }
 
 pub fn find_param_by_name<'a>(operation: &'a Operation, name: &str) -> Option<&'a Parameter> {

@@ -1142,28 +1142,19 @@ fn gen_field_type(
                 )
             } else if let Some(resources) = field.schema_data.extensions.get("x-expansionResources")
             {
-                let expansion_resources: ExpansionResources =
-                    serde_json::from_value(resources.clone())
+                let expansion_resources =
+                    serde_json::from_value::<ExpansionResources>(resources.clone())
                         .expect("Could not deserialize expansion resources");
-                let kind = SchemaKind::OneOf {
-                    one_of: expansion_resources
-                        .one_of
-                        .into_iter()
-                        .filter(|r| !r.reference.starts_with("#/components/schemas/deleted_"))
-                        .map(|r| ReferenceOr::Reference { reference: r.reference })
-                        .collect(),
-                };
-                let schema = ReferenceOr::Item(Schema {
-                    schema_data: Default::default(),
-                    schema_kind: kind,
-                });
 
                 let ty_ = gen_field_rust_type(
                     state,
                     meta,
                     object,
                     field_name,
-                    &schema,
+                    &ReferenceOr::Item(Schema {
+                        schema_data: Default::default(),
+                        schema_kind: expansion_resources.into_schema_kind(),
+                    }),
                     true,
                     false,
                     shared_objects,
@@ -1408,20 +1399,16 @@ pub fn gen_impl_requests(
         }
 
         if let Some(post_request) = &request.post {
-            let ok_resp_schema = match get_ok_response_schema(post_request) {
-                None => continue,
-                Some(s) => s,
+            let return_type = match get_ok_response_schema(post_request) {
+                Some(ReferenceOr::Reference { reference }) => {
+                    let schema = reference.trim_start_matches("#/components/schemas/");
+                    meta.schema_to_rust_type(schema)
+                }
+                _ => continue,
             };
             if !err_schema_expected(post_request) {
                 continue; // skip generating this unusual request (for now...)
             }
-            let return_type = match ok_resp_schema {
-                ReferenceOr::Reference { reference } => {
-                    let schema = reference.trim_start_matches("#/components/schemas/");
-                    meta.schema_to_rust_type(schema)
-                }
-                ReferenceOr::Item(_) => continue,
-            };
             let doc_comment =
                 post_request.description.as_ref().expect("No description for POST request");
             let parameter_count = post_request.parameters.len();
@@ -1435,7 +1422,10 @@ pub fn gen_impl_requests(
 
             if !methods.contains_key(&MethodTypes::Create) && parameter_count == 0 && create {
                 // Construct `parameters` from the request body schema
-                let create_parameters = get_request_form_parameters(post_request);
+                let create_parameters =
+                    get_request_form_parameters(post_request).unwrap_or_else(|err| {
+                        panic!("Could not extract create parameters due to error {}", err)
+                    });
                 let params_name = format!("Create{}", rust_struct);
                 let params = InferredParams {
                     method: "create".into(),
@@ -1466,7 +1456,10 @@ pub fn gen_impl_requests(
                 };
 
                 // Construct `parameters` from the request body schema
-                let update_parameters = get_request_form_parameters(post_request);
+                let update_parameters =
+                    get_request_form_parameters(post_request).unwrap_or_else(|err| {
+                        panic!("Could not extract update parameters due to error {}", err)
+                    });
                 let params_name = format!("Update{}", rust_struct);
                 let params = InferredParams {
                     method: "update".into(),
@@ -1518,7 +1511,7 @@ pub fn gen_impl_requests(
             }
 
             let doc_comment =
-                delete_request.description.as_ref().expect("No description in DELETE requestion");
+                delete_request.description.as_ref().expect("Missing DELETE description");
             if segments.len() == 2 && !methods.contains_key(&MethodTypes::Delete) {
                 let id_param = match get_id_param(&delete_request.parameters) {
                     Some(p) => p,

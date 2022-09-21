@@ -4,12 +4,12 @@ use std::{
     path::Path,
 };
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use heck::SnakeCase;
 use openapiv3::{ReferenceOr, SchemaKind, Type};
 
 use crate::codegen::{gen_enums, gen_objects, gen_prelude, gen_unions};
-use crate::schema::as_first_enum_value;
+use crate::schema::{as_first_enum_value, as_object_properties};
 use crate::{
     codegen::gen_emitted_structs,
     codegen::gen_generated_schemas,
@@ -95,20 +95,18 @@ impl FileGenerator {
 
         let id_type = meta.schema_to_id_type(&self.name);
         let struct_name = meta.schema_to_rust_type(&self.name);
-        let properties = match meta.spec.component_schemas().get(&self.name) {
-            Some(ReferenceOr::Reference { .. }) | None => {
-                return Err(anyhow!("Unexpected reference with name {}", self.name));
-            }
-            Some(ReferenceOr::Item(schema)) => match &schema.schema_kind {
-                SchemaKind::Type(Type::Object(obj)) => &obj.properties,
-                _ => return Err(anyhow!("Unexpected reference with name {}", self.name)),
-            },
-        };
+        let properties = meta
+            .spec
+            .component_schemas()
+            .get(&self.name)
+            .and_then(|s| s.as_item())
+            .and_then(as_object_properties)
+            .context("No properties")?;
 
         gen_struct(&mut out, self, meta, &mut shared_objects, url_finder);
 
         if let Some(object_literal) =
-            properties.get("object").and_then(|o| o.as_item()).and_then(|o| as_first_enum_value(o))
+            properties.get("object").and_then(|o| o.as_item()).and_then(as_first_enum_value)
         {
             self.gen_object_trait(meta, id_type, &mut out, struct_name, &object_literal);
         }

@@ -11,7 +11,6 @@ mod codegen;
 mod file_generator;
 mod mappings;
 mod metadata;
-mod schema;
 mod spec;
 mod spec_fetch;
 mod types;

@@ -7,7 +7,7 @@ use openapiv3::{
     SchemaKind, Type,
 };
 
-use crate::schema::{
+use crate::spec::{
     as_any_of_first_item_title, as_data_array_item, as_enum_strings, as_first_enum_value,
     as_object_enum_name, as_object_properties, as_object_type, err_schema_expected,
     find_param_by_name, get_id_param, get_ok_response, get_ok_response_schema,
@@ -39,7 +39,7 @@ pub fn gen_struct(
 
     let id_type = meta.schema_to_id_type(object);
     let struct_name = meta.schema_to_rust_type(object);
-    let schema = meta.spec.get_schema_unchecked(object).as_item().expect("Expected item");
+    let schema = meta.spec.get_schema_unwrapped(object).as_item().expect("Expected item");
     let obj = as_object_type(schema).expect("Expected object type");
     let schema_title = schema.schema_data.title.as_ref().expect("No title found");
     let deleted_schema = meta.spec.component_schemas().get(&format!("deleted_{}", object));
@@ -200,7 +200,7 @@ pub fn gen_generated_schemas(
         out.push_str(&struct_name);
         out.push_str(" {\n");
 
-        let schema = meta.spec.get_schema_unchecked(&schema_name).as_item().expect("Expected item");
+        let schema = meta.spec.get_schema_unwrapped(&schema_name).as_item().expect("Expected item");
         let obj_type = as_object_type(schema).expect("Expected object type schema");
         for (key, field) in &obj_type.properties {
             let required = obj_type.required.contains(key);
@@ -661,7 +661,7 @@ pub fn gen_unions(out: &mut String, unions: &BTreeMap<String, InferredUnion>, me
         out.push_str(" {\n");
         for variant_schema in &union_.schema_variants {
             let schema =
-                meta.spec.get_schema_unchecked(variant_schema).as_item().expect("Expected an item");
+                meta.spec.get_schema_unwrapped(variant_schema).as_item().expect("Expected an item");
             let object_name = as_object_enum_name(schema)
                 .unwrap_or_else(|| schema.schema_data.title.clone().unwrap());
             let variant_name = meta.schema_to_rust_type(&object_name);
@@ -1304,11 +1304,11 @@ pub fn gen_impl_requests(
     let mut methods = BTreeMap::new();
 
     for path in requests {
-        // Unchecked is safe here to avoid dealing with an `Option` since these paths come
+        // Unwrapped is safe here to avoid dealing with an `Option` since these paths come
         // from the spec already
         let request = meta
             .spec
-            .get_request_unchecked(*path)
+            .get_request_unwrapped(*path)
             .as_item()
             .expect("Expected item, not path reference");
         let segments = path.trim_start_matches("/v1/").split('/').collect::<Vec<_>>();

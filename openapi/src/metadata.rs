@@ -3,9 +3,9 @@ use std::fs::write;
 use std::path::Path;
 
 use heck::{CamelCase, SnakeCase};
-use openapiv3::{ReferenceOr, SchemaKind, Type};
+use openapiv3::{ReferenceOr, SchemaKind};
 
-use crate::spec::Spec;
+use crate::spec::{as_object_properties, Spec};
 use crate::{
     file_generator::FileGenerator,
     mappings::{self, FieldMap, ObjectMap},
@@ -51,13 +51,9 @@ impl<'a> Metadata<'a> {
 
         for (key, ref_or_schema) in spec.component_schemas() {
             let schema_name = key.as_str();
-            let schema = match ref_or_schema {
-                ReferenceOr::Reference { .. } => continue,
-                ReferenceOr::Item(schema) => schema,
-            };
-            let properties = match &schema.schema_kind {
-                SchemaKind::Type(Type::Object(obj)) => &obj.properties,
-                _ => continue,
+            let properties = match ref_or_schema.as_item().and_then(as_object_properties) {
+                Some(props) => props,
+                None => continue,
             };
             if properties.contains_key("object") {
                 objects.insert(schema_name);

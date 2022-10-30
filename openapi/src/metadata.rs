@@ -6,6 +6,7 @@ use heck::{CamelCase, SnakeCase};
 use openapiv3::{ReferenceOr, SchemaKind};
 
 use crate::spec::{as_object_properties, Spec};
+use crate::types::IdType;
 use crate::{
     file_generator::FileGenerator,
     mappings::{self, FieldMap, ObjectMap},
@@ -18,7 +19,7 @@ use crate::{
 pub struct Metadata<'a> {
     pub spec: &'a Spec,
     /// A map of `objects` to their rust id type
-    pub id_mappings: BTreeMap<String, (String, CopyOrClone)>,
+    pub id_mappings: BTreeMap<String, (IdType, CopyOrClone)>,
 
     pub feature_groups: BTreeMap<&'a str, &'a str>,
 
@@ -58,12 +59,14 @@ impl<'a> Metadata<'a> {
             if properties.contains_key("object") {
                 objects.insert(schema_name);
                 if properties.contains_key("id") {
-                    let id_type = id_renames
-                        .get(&schema_name)
-                        .unwrap_or(&schema_name)
-                        .replace('.', "_")
-                        .to_camel_case()
-                        + "Id";
+                    let id_type = IdType::new(
+                        id_renames
+                            .get(&schema_name)
+                            .unwrap_or(&schema_name)
+                            .replace('.', "_")
+                            .to_camel_case()
+                            + "Id",
+                    );
 
                     id_mappings.insert(
                         schema_name.replace('.', "_").to_owned(),
@@ -115,17 +118,18 @@ impl<'a> Metadata<'a> {
 
         for (schema, feature) in self.feature_groups.iter() {
             out.push('\n');
-            let (id_type, c_c) =
-                self.schema_to_id_type(schema).unwrap_or_else(|| ("()".into(), CopyOrClone::Copy));
+            let id_info = self.schema_to_id_type(schema);
+            let id_field = id_info.as_ref().map(|m| m.0.as_ref()).unwrap_or("()");
+            let c_c = id_info.as_ref().map(|m| m.1).unwrap_or(CopyOrClone::Copy);
             let struct_type = self.schema_to_rust_type(schema);
             out.push_str(&format!("#[cfg(not(feature = \"{}\"))]\n", feature));
             out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
             out.push_str(&format!("pub struct {} {{\n", struct_type));
-            out.push_str(&format!("\tpub id: {},\n", id_type));
+            out.push_str(&format!("\tpub id: {},\n", id_field));
             out.push_str("}\n\n");
             out.push_str(&format!("#[cfg(not(feature = \"{}\"))]\n", feature));
             out.push_str(&format!("impl Object for {} {{\n", struct_type));
-            out.push_str(&format!("\ttype Id = {};\n", id_type));
+            out.push_str(&format!("\ttype Id = {};\n", id_field));
             out.push_str(&format!(
                 "\tfn id(&self) -> Self::Id {{ self.id{} }}\n",
                 match c_c {
@@ -149,7 +153,7 @@ impl<'a> Metadata<'a> {
             .collect()
     }
 
-    pub fn schema_to_id_type(&self, schema: &str) -> Option<(String, CopyOrClone)> {
+    pub fn schema_to_id_type(&self, schema: &str) -> Option<(IdType, CopyOrClone)> {
         let schema = schema.replace('.', "_");
         self.id_mappings.get(schema.as_str()).map(ToOwned::to_owned)
     }

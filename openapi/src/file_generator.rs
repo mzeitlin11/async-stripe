@@ -9,6 +9,7 @@ use heck::SnakeCase;
 
 use crate::codegen::{gen_enums, gen_objects, gen_prelude, gen_unions};
 use crate::spec::{as_first_enum_value, as_object_properties};
+use crate::types::{IdType, UseConfig, UseParams};
 use crate::{
     codegen::gen_emitted_structs,
     codegen::gen_generated_schemas,
@@ -30,11 +31,11 @@ pub struct FileGenerator {
     pub name: String,
 
     /// The ids that must be imported in this file.
-    pub use_ids: BTreeSet<String>,
+    pub use_ids: BTreeSet<IdType>,
     /// The config that must be imported in this file.
-    pub use_config: BTreeSet<&'static str>,
+    pub use_config: BTreeSet<UseConfig>,
     /// The params that must be imported in this file.
-    pub use_params: BTreeSet<&'static str>,
+    pub use_params: BTreeSet<UseParams>,
     /// The resources that must be imported in this file.
     pub use_resources: BTreeSet<String>,
     /// Extra (simple) enums that were / will be generated in this file.
@@ -128,25 +129,25 @@ impl FileGenerator {
     fn gen_object_trait(
         &mut self,
         meta: &Metadata,
-        id_type: Option<(String, CopyOrClone)>,
+        id_type: Option<(IdType, CopyOrClone)>,
         out: &mut String,
         struct_name: String,
         object_literal: &str,
     ) {
         if let Some(impls) =
-            gen_impl_requests(self, meta, id_type.as_ref().map(|(x, _)| x.as_str()))
+            gen_impl_requests(self, meta, id_type.as_ref().map(|(x, _)| x.as_ref()))
         {
             out.push('\n');
             out.push_str(&impls);
         }
-        self.use_params.insert("Object");
+        self.use_params.insert(UseParams::Object);
         out.push('\n');
         out.push_str("impl Object for ");
         out.push_str(&struct_name);
         out.push_str(" {\n");
         out.push_str("    type Id = ");
         if let Some((id_type, _)) = &id_type {
-            out.push_str(id_type);
+            out.push_str(id_type.as_ref());
             out.push_str(";\n");
             out.push_str("    fn id(&self) -> Self::Id {\n        self.id.clone()\n    }\n");
         } else {

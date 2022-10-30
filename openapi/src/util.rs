@@ -6,6 +6,7 @@ use openapiv3::{IntegerFormat, Schema, VariantOrUnknownOrEmpty};
 use regex::Regex;
 
 use crate::file_generator::FileGenerator;
+use crate::types::UseParams;
 
 pub fn write_out_field(out: &mut String, var_name: &str, var_type: &str, required: bool) {
     if required {
@@ -114,7 +115,7 @@ pub fn infer_integer_type(
     let name_snake = name.to_snake_case();
     let name_words = name_snake.split('_').collect::<Vec<_>>();
     if is_unix_time_fmt || name_words.contains(&"date") {
-        state.use_params.insert("Timestamp");
+        state.use_params.insert(UseParams::Timestamp);
         "Timestamp".into()
     } else if name == "monthly_anchor" {
         "u8".into()

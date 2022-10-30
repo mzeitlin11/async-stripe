@@ -13,6 +13,8 @@ use crate::spec::{
     find_param_by_name, get_id_param, get_ok_response, get_ok_response_schema,
     get_request_form_parameters, non_path_ref_params, ExpansionResources,
 };
+use crate::types::UseParams::Paginable;
+use crate::types::{IdType, UseConfig, UseParams};
 use crate::util::{print_doc_from_schema, write_serde_rename};
 use crate::{
     file_generator::FileGenerator,
@@ -69,11 +71,11 @@ pub fn gen_struct(
         {
             print_doc_comment(out, doc, 1);
         }
-        if id_type == "InvoiceId" {
+        if id_type.as_ref() == "InvoiceId" {
             out.push_str("    #[serde(default = \"InvoiceId::none\")]");
         }
         out.push_str("    pub id: ");
-        out.push_str(id_type);
+        out.push_str(id_type.as_ref());
         out.push_str(",\n");
     }
     let mut did_emit_deleted = false;
@@ -132,7 +134,7 @@ pub fn gen_prelude(state: &FileGenerator, meta: &Metadata) -> String {
             if n > 0 {
                 prelude.push_str(", ");
             }
-            prelude.push_str(type_);
+            prelude.push_str(type_.as_str());
         }
         prelude.push_str("};\n");
     }
@@ -142,7 +144,7 @@ pub fn gen_prelude(state: &FileGenerator, meta: &Metadata) -> String {
             if n > 0 {
                 prelude.push_str(", ");
             }
-            prelude.push_str(type_);
+            prelude.push_str(type_.as_ref());
         }
         prelude.push_str("};\n");
     }
@@ -152,7 +154,7 @@ pub fn gen_prelude(state: &FileGenerator, meta: &Metadata) -> String {
             if n > 0 {
                 prelude.push_str(", ");
             }
-            prelude.push_str(type_);
+            prelude.push_str(type_.as_str());
         }
         prelude.push_str("};\n");
     }
@@ -350,20 +352,20 @@ pub fn gen_inferred_params(
                         "IdOrCreate<'a, CreateProduct<'a>>".into(),
                         required,
                     ));
-                    state.use_params.insert("IdOrCreate");
+                    state.use_params.insert(UseParams::IdOrCreate);
                     state.use_resources.insert("CreateProduct".to_owned());
                     write_out_field(out, "product", "IdOrCreate<'a, CreateProduct<'a>>", required);
                 }
                 "metadata" => {
                     print_doc(out);
                     initializers.push(("metadata".into(), "Metadata".into(), required));
-                    state.use_params.insert("Metadata");
+                    state.use_params.insert(UseParams::Metadata);
                     write_out_field(out, "metadata", "Metadata", required);
                 }
                 "expand" => {
                     print_doc(out);
                     initializers.push(("expand".into(), "&'a [&'a str]".into(), false));
-                    state.use_params.insert("Expand");
+                    state.use_params.insert(UseParams::Expand);
                     out.push_str("    #[serde(skip_serializing_if = \"Expand::is_empty\")]\n");
                     out.push_str("    pub expand: &'a [&'a str],\n");
                 }
@@ -375,7 +377,7 @@ pub fn gen_inferred_params(
                 "ending_before" => {
                     print_doc(out);
                     let cursor_type =
-                        id_type.as_ref().map(|(x, _)| x.as_str()).unwrap_or("&'a str");
+                        id_type.as_ref().map(|(x, _)| x.as_ref()).unwrap_or("&'a str");
                     initializers.push(("ending_before".into(), cursor_type.into(), false));
                     if required {
                         panic!("unexpected \"required\" `ending_before` parameter");
@@ -386,7 +388,7 @@ pub fn gen_inferred_params(
                 "starting_after" => {
                     print_doc(out);
                     let cursor_type =
-                        id_type.as_ref().map(|(x, _)| x.as_str()).unwrap_or("&'a str");
+                        id_type.as_ref().map(|(x, _)| x.as_ref()).unwrap_or("&'a str");
                     initializers.push(("starting_after".into(), cursor_type.into(), false));
                     if required {
                         panic!("unexpected \"required\" `starting_after` parameter");
@@ -409,10 +411,10 @@ pub fn gen_inferred_params(
                         match use_path {
                             "" | "String" => {}
                             "Metadata" => {
-                                state.use_params.insert("Metadata");
+                                state.use_params.insert(UseParams::Metadata);
                             }
                             path if path.ends_with("Id") && path != "TaxId" => {
-                                state.use_ids.insert(path.into());
+                                state.use_ids.insert(IdType::new(path.to_string()));
                             }
                             path => {
                                 state.use_resources.insert(path.into());
@@ -434,9 +436,13 @@ pub fn gen_inferred_params(
                     {
                         let (id_type, _) = meta.schema_to_id_type(param_name).unwrap();
                         print_doc(out);
-                        initializers.push((param_name.into(), id_type.clone(), required));
+                        initializers.push((
+                            param_name.into(),
+                            id_type.as_ref().to_string(),
+                            required,
+                        ));
                         state.use_ids.insert(id_type.clone());
-                        write_out_field(out, param_rename, &id_type, required);
+                        write_out_field(out, param_rename, id_type.as_ref(), required);
                     } else if matches!(kind, Some(SchemaKind::Type(Type::Boolean { .. }))) {
                         print_doc(out);
                         initializers.push((param_rename.into(), "bool".into(), false));
@@ -459,8 +465,8 @@ pub fn gen_inferred_params(
                             "RangeQuery<Timestamp>".into(),
                             required,
                         ));
-                        state.use_params.insert("RangeQuery");
-                        state.use_params.insert("Timestamp");
+                        state.use_params.insert(UseParams::RangeQuery);
+                        state.use_params.insert(UseParams::Timestamp);
                         write_out_field(out, param_rename, "RangeQuery<Timestamp>", required);
                     } else if let Some(enum_strings) = schema.as_item().and_then(as_enum_strings) {
                         let enum_schema = meta.schema_field(&object, param_rename);
@@ -572,7 +578,7 @@ pub fn gen_inferred_params(
 
         // we implement paginate on lists that have an Id
         if let ("list", Some(_)) = (params.method.as_str(), &id_type) {
-            state.use_params.insert("Paginable");
+            state.use_params.insert(Paginable);
 
             out.push_str("impl Paginable for ");
             out.push_str(&params.rust_type);
@@ -1071,7 +1077,7 @@ fn gen_field_type(
         }
         SchemaKind::Type(Type::Object(typ)) => {
             if as_object_enum_name(field).as_deref() == Some("list") {
-                state.use_params.insert("List");
+                state.use_params.insert(UseParams::List);
                 let element = as_data_array_item(typ).unwrap_or_else(|| {
                     panic!("Expected to find array item but found {:?}", field.schema_kind)
                 });
@@ -1159,13 +1165,13 @@ fn gen_field_type(
                     false,
                     shared_objects,
                 );
-                state.use_params.insert("Expandable");
+                state.use_params.insert(UseParams::Expandable);
                 format!("Expandable<{}>", ty_)
             } else if any_of[0].as_item().and_then(|s| s.schema_data.title.as_deref())
                 == Some("range_query_specs")
             {
-                state.use_params.insert("RangeQuery");
-                state.use_params.insert("Timestamp");
+                state.use_params.insert(UseParams::RangeQuery);
+                state.use_params.insert(UseParams::Timestamp);
                 "RangeQuery<Timestamp>".into()
             } else {
                 log::trace!("object: {}, field_name: {}", object, field_name);
@@ -1229,7 +1235,7 @@ pub fn gen_field_rust_type<T: Borrow<Schema>>(
         match use_path {
             "" | "String" => (),
             "Metadata" => {
-                state.use_params.insert("Metadata");
+                state.use_params.insert(UseParams::Metadata);
             }
             _ => {
                 state.use_resources.insert(use_path.into());
@@ -1238,7 +1244,7 @@ pub fn gen_field_rust_type<T: Borrow<Schema>>(
         return rust_type.into();
     }
     if field_name == "metadata" {
-        state.use_params.insert("Metadata");
+        state.use_params.insert(UseParams::Metadata);
         return "Metadata".into();
     } else if (field_name == "currency" || field_name.ends_with("_currency"))
         && matches!(maybe_schema.map(|s| &s.schema_kind), Some(SchemaKind::Type(Type::String(_))))
@@ -1250,7 +1256,7 @@ pub fn gen_field_rust_type<T: Borrow<Schema>>(
             "Currency".into()
         };
     } else if field_name == "created" {
-        state.use_params.insert("Timestamp");
+        state.use_params.insert(UseParams::Timestamp);
         return if !required || is_nullable {
             "Option<Timestamp>".into()
         } else {
@@ -1345,7 +1351,7 @@ pub fn gen_impl_requests(
                     parameters: non_path_ref_params(get_request),
                 };
                 state.inferred_parameters.insert(params_name.to_snake_case(), params);
-                state.use_params.insert("List");
+                state.use_params.insert(UseParams::List);
 
                 let mut out = String::new();
                 out.push('\n');
@@ -1376,7 +1382,7 @@ pub fn gen_impl_requests(
                     out.push_str("    pub fn retrieve(client: &Client, id: &");
                     out.push_str(id_type);
                     if let Some(param) = expand_param {
-                        state.use_params.insert("Expand");
+                        state.use_params.insert(UseParams::Expand);
                         assert!(matches!(param, Parameter::Query { .. }));
                         out.push_str(", expand: &[&str]) -> Response<");
                         out.push_str(&rust_struct);
@@ -1518,7 +1524,7 @@ pub fn gen_impl_requests(
                     None => continue,
                 };
                 if let Some(id_type) = &object_id {
-                    state.use_params.insert("Deleted");
+                    state.use_params.insert(UseParams::Deleted);
                     assert!(id_param.parameter_data_ref().required);
                     assert!(matches!(id_param, Parameter::Path { style: PathStyle::Simple, .. }));
 
@@ -1546,8 +1552,8 @@ pub fn gen_impl_requests(
         None
     } else {
         // Add imports
-        state.use_config.insert("Client");
-        state.use_config.insert("Response");
+        state.use_config.insert(UseConfig::Client);
+        state.use_config.insert(UseConfig::Response);
 
         // Output the impl block
         Some(format!(

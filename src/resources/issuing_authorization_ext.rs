@@ -9,7 +9,7 @@ pub enum IssuingAuthorizationCheck {
     NotProvided,
 }
 
-impl std::default::Default for IssuingAuthorizationCheck {
+impl Default for IssuingAuthorizationCheck {
     fn default() -> Self {
         Self::NotProvided
     }
@@ -26,7 +26,7 @@ pub enum IssuingAuthorizationMethod {
     Online,
 }
 
-impl std::default::Default for IssuingAuthorizationMethod {
+impl Default for IssuingAuthorizationMethod {
     fn default() -> Self {
         Self::Online
     }

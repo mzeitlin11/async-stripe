@@ -62,7 +62,7 @@ impl std::fmt::Display for IssuingDisputeStatus {
     }
 }
 
-impl std::default::Default for IssuingDisputeStatus {
+impl Default for IssuingDisputeStatus {
     fn default() -> Self {
         Self::Unsubmitted
     }

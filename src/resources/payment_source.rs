@@ -11,7 +11,7 @@ use crate::resources::{Account, BankAccount, Card, Currency, Source};
 ///
 /// Not to be confused with `SourceParams` which is used by `Source::create`
 /// to create a source that is not necessarily attached to a customer.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum PaymentSourceParams {
     /// Creates a payment method (e.g. card or bank account) from tokenized data,
@@ -58,7 +58,7 @@ impl Object for PaymentSource {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize)]
+#[derive(Clone, Debug, Default)]
 pub struct BankAccountParams<'a> {
     pub country: &'a str,
     pub currency: Currency,
@@ -84,7 +84,7 @@ impl<'a> serde::ser::Serialize for BankAccountParams<'a> {
     }
 }
 
-#[derive(Clone, Debug, Default, Deserialize)]
+#[derive(Clone, Debug, Default)]
 pub struct CardParams<'a> {
     pub exp_month: &'a str, // eg. "12"
     pub exp_year: &'a str,  // eg. "17" or 2017"

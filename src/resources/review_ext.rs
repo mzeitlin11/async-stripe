@@ -37,7 +37,7 @@ impl std::fmt::Display for ReviewReason {
     }
 }
 
-impl std::default::Default for ReviewReason {
+impl Default for ReviewReason {
     fn default() -> Self {
         Self::Approved
     }

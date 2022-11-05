@@ -175,7 +175,6 @@ pub struct RequestError {
 
     /// A human-readable message providing more details about the error.
     /// For card errors, these messages can be shown to end users.
-    #[serde(default)]
     pub message: Option<String>,
 
     /// For card errors, a value describing the kind of card error that occured.

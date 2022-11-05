@@ -2171,7 +2171,8 @@ pub enum ExternalAccount {
     BankAccount(BankAccount),
     Card(Card),
 }
-impl std::default::Default for ExternalAccount {
+
+impl Default for ExternalAccount {
     fn default() -> Self {
         Self::BankAccount(Default::default())
     }

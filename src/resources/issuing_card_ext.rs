@@ -95,7 +95,7 @@ impl std::fmt::Display for IssuingCardShippingType {
     }
 }
 
-impl std::default::Default for IssuingCardShippingType {
+impl Default for IssuingCardShippingType {
     fn default() -> Self {
         Self::Individual
     }
@@ -130,7 +130,7 @@ impl std::fmt::Display for IssuingCardType {
     }
 }
 
-impl std::default::Default for IssuingCardType {
+impl Default for IssuingCardType {
     fn default() -> Self {
         Self::Physical
     }

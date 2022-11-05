@@ -82,7 +82,7 @@ impl std::fmt::Display for BalanceTransactionStatus {
     }
 }
 
-impl std::default::Default for BalanceTransactionStatus {
+impl Default for BalanceTransactionStatus {
     fn default() -> Self {
         Self::Pending
     }
@@ -119,7 +119,7 @@ impl std::fmt::Display for FeeType {
     }
 }
 
-impl std::default::Default for FeeType {
+impl Default for FeeType {
     fn default() -> Self {
         FeeType::ApplicationFee
     }

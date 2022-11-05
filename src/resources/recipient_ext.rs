@@ -33,7 +33,7 @@ impl std::fmt::Display for RecipientType {
         self.as_str().fmt(f)
     }
 }
-impl std::default::Default for RecipientType {
+impl Default for RecipientType {
     fn default() -> Self {
         Self::Corporation
     }

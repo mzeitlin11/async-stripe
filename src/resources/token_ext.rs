@@ -33,7 +33,7 @@ impl std::fmt::Display for TokenType {
     }
 }
 
-impl std::default::Default for TokenType {
+impl Default for TokenType {
     fn default() -> Self {
         Self::Account
     }

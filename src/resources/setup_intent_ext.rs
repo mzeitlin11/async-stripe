@@ -50,6 +50,3 @@ impl SetupIntent {
         client.post_form(&format!("/setup_intents/{}/cancel", setup_id), params)
     }
 }
-
-#[cfg(test)]
-mod test {}

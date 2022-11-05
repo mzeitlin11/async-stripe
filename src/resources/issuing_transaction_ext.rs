@@ -37,7 +37,7 @@ impl std::fmt::Display for IssuingTransactionType {
     }
 }
 
-impl std::default::Default for IssuingTransactionType {
+impl Default for IssuingTransactionType {
     fn default() -> Self {
         Self::Capture
     }

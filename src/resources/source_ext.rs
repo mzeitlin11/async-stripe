@@ -35,7 +35,7 @@ impl std::fmt::Display for SourceStatus {
     }
 }
 
-impl std::default::Default for SourceStatus {
+impl Default for SourceStatus {
     fn default() -> Self {
         Self::Pending
     }
@@ -101,7 +101,7 @@ impl std::fmt::Display for SourceRedirectFlowFailureReason {
     }
 }
 
-impl std::default::Default for SourceRedirectFlowFailureReason {
+impl Default for SourceRedirectFlowFailureReason {
     fn default() -> Self {
         Self::Declined
     }
@@ -140,7 +140,7 @@ impl std::fmt::Display for SourceRedirectFlowStatus {
     }
 }
 
-impl std::default::Default for SourceRedirectFlowStatus {
+impl Default for SourceRedirectFlowStatus {
     fn default() -> Self {
         Self::Pending
     }

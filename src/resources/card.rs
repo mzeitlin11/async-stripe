@@ -25,7 +25,7 @@ pub enum CardBrand {
     Unknown,
 }
 
-impl std::default::Default for CardBrand {
+impl Default for CardBrand {
     fn default() -> Self {
         Self::Unknown
     }
@@ -48,7 +48,7 @@ pub enum CardType {
     Unknown,
 }
 
-impl std::default::Default for CardType {
+impl Default for CardType {
     fn default() -> Self {
         Self::Unknown
     }

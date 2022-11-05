@@ -366,7 +366,7 @@ where
 pub type Metadata = HashMap<String, String>;
 pub type Timestamp = i64;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub struct RangeBounds<T> {
     pub gt: Option<T>,
@@ -383,7 +383,7 @@ impl<T> Default for RangeBounds<T> {
 
 /// A set of generic request parameters that can be used on
 /// list endpoints to filter their results by some timestamp.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Serialize)]
 #[serde(untagged)]
 pub enum RangeQuery<T> {
     Exact(T),

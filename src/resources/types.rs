@@ -368,14 +368,14 @@ impl UpTo {
     }
 }
 
-#[derive(Copy, Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Serialize, Eq, PartialEq)]
 #[serde(untagged)]
 pub enum PaymentIntentOffSession {
     Exists(bool),
     Other(OffSessionOther),
 }
 
-#[derive(Copy, Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Serialize, Eq, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum OffSessionOther {
     #[serde(rename = "one_off")]

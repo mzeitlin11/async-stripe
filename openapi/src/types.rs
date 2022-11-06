@@ -34,7 +34,7 @@ pub struct InferredStruct {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct InferredParams {
-    pub method: String,
+    pub method: MethodTypes,
     pub rust_type: String,
     pub parameters: Vec<Parameter>,
 }
@@ -45,7 +45,7 @@ pub struct InferredObject {
     pub schema: openapiv3::Schema,
 }
 
-#[derive(Eq, PartialEq, Hash, PartialOrd, Ord, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash, PartialOrd, Ord, Debug)]
 pub enum MethodTypes {
     List,
     Create,
@@ -54,6 +54,19 @@ pub enum MethodTypes {
     Delete,
 }
 
+impl MethodTypes {
+    pub fn as_method_name(&self) -> &'static str {
+        match self {
+            MethodTypes::List => "list",
+            MethodTypes::Create => "create",
+            MethodTypes::Retrieve => "retrieve",
+            MethodTypes::Update => "update",
+            MethodTypes::Delete => "delete",
+        }
+    }
+}
+
+/// Items that can be imported from crate::params
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub enum UseParams {
     IdOrCreate,
@@ -85,6 +98,7 @@ impl UseParams {
     }
 }
 
+/// Items that can be imported from crate::client
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub enum UseConfig {
     Client,
@@ -105,7 +119,12 @@ pub struct IdType(String);
 
 impl IdType {
     pub fn new(id_typ: String) -> Self {
-        Self(id_typ)
+        // Sanity check to ensure we've not mistakenly using a non-id value here
+        if id_typ.ends_with("Id") {
+            Self(id_typ)
+        } else {
+            panic!("Expected string with Id, found {}", id_typ);
+        }
     }
 }
 

@@ -5,14 +5,10 @@ use std::path::Path;
 use heck::{CamelCase, SnakeCase};
 use openapiv3::{ReferenceOr, SchemaKind};
 
+use crate::mappings::{FIELD_MAPPINGS, OBJECT_MAPPINGS};
 use crate::spec::{as_object_properties, Spec};
 use crate::types::IdType;
-use crate::{
-    file_generator::FileGenerator,
-    mappings::{self, FieldMap, ObjectMap},
-    metadata,
-    types::CopyOrClone,
-};
+use crate::{file_generator::FileGenerator, mappings, types::CopyOrClone};
 
 /// Global metadata for the entire codegen process.
 #[derive(Debug)]
@@ -21,17 +17,11 @@ pub struct Metadata<'a> {
     /// A map of `objects` to their rust id type
     pub id_mappings: BTreeMap<String, (IdType, CopyOrClone)>,
 
-    pub feature_groups: BTreeMap<&'a str, &'a str>,
-
     /// The set of schemas which should implement `Object`.
-    /// These have both an `id` property and on `object` property.
+    /// These have both an `id` property and an `object` property.
     pub objects: BTreeSet<&'a str>,
     /// A one to many map of schema to depending types.
     pub dependents: BTreeMap<&'a str, BTreeSet<&'a str>>,
-    /// How a particular schema should be renamed.
-    pub object_mappings: ObjectMap,
-    /// An override for the rust-type of a particular object/field pair.
-    pub field_mappings: FieldMap,
     /// A one to many map of _objects_ to requests which should be
     /// implemented for that object.
     ///
@@ -42,9 +32,6 @@ pub struct Metadata<'a> {
 impl<'a> Metadata<'a> {
     pub fn from_spec(spec: &'a Spec) -> Self {
         let id_renames = mappings::id_renames();
-        let object_mappings = mappings::object_mappings();
-        let field_mappings = mappings::field_mappings();
-        let feature_groups = metadata::feature_groups();
 
         let mut objects = BTreeSet::new();
         let mut dependents: BTreeMap<_, BTreeSet<_>> = BTreeMap::new();
@@ -94,16 +81,7 @@ impl<'a> Metadata<'a> {
             }
         }
 
-        Self {
-            spec,
-            requests: metadata_requests(spec, &objects),
-            objects,
-            dependents,
-            id_mappings,
-            object_mappings,
-            field_mappings,
-            feature_groups,
-        }
+        Self { spec, requests: metadata_requests(spec, &objects), objects, dependents, id_mappings }
     }
 
     /// generate placeholder types with stubs for potentially missing features
@@ -116,12 +94,14 @@ impl<'a> Metadata<'a> {
         out.push_str("use crate::params::Object;\n");
         out.push_str("use serde::{Deserialize, Serialize};\n");
 
-        for (schema, feature) in self.feature_groups.iter() {
+        let feature_groups = feature_groups();
+
+        for (schema, feature) in feature_groups.iter() {
             out.push('\n');
             let id_info = self.schema_to_id_type(schema);
             let id_field = id_info.as_ref().map(|m| m.0.as_ref()).unwrap_or("()");
             let c_c = id_info.as_ref().map(|m| m.1).unwrap_or(CopyOrClone::Copy);
-            let struct_type = self.schema_to_rust_type(schema);
+            let struct_type = schema_to_rust_type(schema);
             out.push_str(&format!("#[cfg(not(feature = \"{}\"))]\n", feature));
             out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
             out.push_str(&format!("pub struct {} {{\n", struct_type));
@@ -157,29 +137,25 @@ impl<'a> Metadata<'a> {
         let schema = schema.replace('.', "_");
         self.id_mappings.get(schema.as_str()).map(ToOwned::to_owned)
     }
+}
 
-    pub fn schema_to_rust_type(&self, schema: &str) -> String {
-        let schema = schema.replace('.', "_");
-        if let Some(rename) = self.object_mappings.get(schema.as_str()) {
-            rename.to_camel_case()
-        } else {
-            schema.to_camel_case()
-        }
-    }
+pub fn field_to_rust_type(schema: &str, field: &str) -> Option<(&'static str, &'static str)> {
+    let schema = schema.replace('.', "_");
+    FIELD_MAPPINGS.get(&(schema.as_str(), field)).copied()
+}
 
-    pub fn field_to_rust_type(
-        &self,
-        schema: &str,
-        field: &str,
-    ) -> Option<(&'static str, &'static str)> {
-        let schema = schema.replace('.', "_");
-        self.field_mappings.get(&(schema.as_str(), field)).copied()
+pub fn schema_to_rust_type(schema: &str) -> String {
+    let schema = schema.replace('.', "_");
+    if let Some(rename) = OBJECT_MAPPINGS.get(schema.as_str()) {
+        rename.to_camel_case()
+    } else {
+        schema.to_camel_case()
     }
+}
 
-    pub fn schema_field(&self, parent: &str, field: &str) -> String {
-        let parent_type = self.schema_to_rust_type(parent);
-        format!("{}_{}", parent_type, field).to_snake_case()
-    }
+pub fn schema_field(parent: &str, field: &str) -> String {
+    let parent_type = schema_to_rust_type(parent);
+    format!("{}_{}", parent_type, field).to_snake_case()
 }
 
 /// given a spec and a set of objects in that spec, metadatas a
@@ -222,7 +198,7 @@ pub fn metadata_requests<'a>(
 }
 
 #[rustfmt::skip]
-pub fn feature_groups() -> BTreeMap<&'static str, &'static str> {
+fn feature_groups() -> BTreeMap<&'static str, &'static str> {
    [
 		// N.B. For now both `core` and `payment-methods` are always enabled.
 		/*

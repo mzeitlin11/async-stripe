@@ -8,6 +8,7 @@ use anyhow::{Context, Result};
 use heck::SnakeCase;
 
 use crate::codegen::{gen_enums, gen_objects, gen_prelude, gen_unions};
+use crate::metadata::schema_to_rust_type;
 use crate::spec::{as_first_enum_value, as_object_properties};
 use crate::types::{IdType, UseConfig, UseParams};
 use crate::{
@@ -94,7 +95,7 @@ impl FileGenerator {
         let mut shared_objects = BTreeSet::<FileGenerator>::new();
 
         let id_type = meta.schema_to_id_type(&self.name);
-        let struct_name = meta.schema_to_rust_type(&self.name);
+        let struct_name = schema_to_rust_type(&self.name);
         let properties = meta
             .spec
             .component_schemas()
@@ -119,11 +120,11 @@ impl FileGenerator {
 
         gen_unions(&mut out, &self.inferred_unions, meta);
 
-        gen_enums(&mut out, &self.inferred_enums, meta);
+        gen_enums(&mut out, &self.inferred_enums);
 
         gen_objects(&mut out, &self.generated_objects);
 
-        Ok((gen_prelude(self, meta) + &out, shared_objects))
+        Ok((gen_prelude(self) + &out, shared_objects))
     }
 
     fn gen_object_trait(
@@ -192,7 +193,7 @@ impl FileGenerator {
         }
     }
 
-    pub fn try_insert_struct(
+    fn try_insert_struct(
         &mut self,
         name: impl Into<String>,
         struct_: InferredStruct,

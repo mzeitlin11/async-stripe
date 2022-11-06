@@ -7,6 +7,7 @@ use openapiv3::{
     SchemaKind, Type,
 };
 
+use crate::metadata::{field_to_rust_type, schema_field, schema_to_rust_type};
 use crate::spec::{
     as_any_of_first_item_title, as_data_array_item, as_enum_strings, as_first_enum_value,
     as_object_enum_name, as_object_properties, as_object_type, err_schema_expected,
@@ -40,7 +41,7 @@ pub fn gen_struct(
     let object = &name;
 
     let id_type = meta.schema_to_id_type(object);
-    let struct_name = meta.schema_to_rust_type(object);
+    let struct_name = schema_to_rust_type(object);
     let schema = meta.spec.get_schema_unwrapped(object).as_item().expect("Expected item");
     let obj = as_object_type(schema).expect("Expected object type");
     let schema_title = schema.schema_data.title.as_ref().expect("No title found");
@@ -120,7 +121,7 @@ pub fn gen_struct(
 }
 
 #[tracing::instrument(skip_all)]
-pub fn gen_prelude(state: &FileGenerator, meta: &Metadata) -> String {
+pub fn gen_prelude(state: &FileGenerator) -> String {
     let name = state.name.clone();
     let object = &name;
 
@@ -164,12 +165,12 @@ pub fn gen_prelude(state: &FileGenerator, meta: &Metadata) -> String {
             .use_resources
             .iter()
             .filter(|&x| {
-                state.generated_schemas.keys().all(|sch| x != &meta.schema_to_rust_type(sch))
+                state.generated_schemas.keys().all(|sch| x != &schema_to_rust_type(sch))
                     && !state.inferred_parameters.contains_key(x)
                     && !state.inferred_structs.contains_key(x)
                     && !state.inferred_unions.contains_key(x)
                     && !state.inferred_enums.contains_key(x)
-                    && x != &meta.schema_to_rust_type(object)
+                    && x != &schema_to_rust_type(object)
             })
             .enumerate()
         {
@@ -195,7 +196,7 @@ pub fn gen_generated_schemas(
     while let Some(schema_name) =
         state.generated_schemas.iter().find_map(|(k, &v)| if !v { Some(k) } else { None }).cloned()
     {
-        let struct_name = meta.schema_to_rust_type(&schema_name);
+        let struct_name = schema_to_rust_type(&schema_name);
         out.push('\n');
         out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
         out.push_str("pub struct ");
@@ -233,7 +234,6 @@ pub fn gen_multitype_params(
     initializers: &mut Vec<(String, String, bool)>,
     required: bool,
     state: &mut FileGenerator,
-    meta: &Metadata,
     out: &mut String,
 ) {
     let member_schema = match &param.parameter_data_ref().format {
@@ -251,7 +251,7 @@ pub fn gen_multitype_params(
             if let SchemaKind::AnyOf { .. } = &member_schema.schema_kind {
                 let union_addition = format!("{param_name}_union");
                 let mut new_type_name = parent_struct_rust_type.to_owned();
-                new_type_name.push_str(&meta.schema_to_rust_type(&union_addition));
+                new_type_name.push_str(&schema_to_rust_type(&union_addition));
 
                 let inferred_object = InferredObject {
                     rust_type: new_type_name.clone(),
@@ -291,7 +291,7 @@ pub fn gen_inferred_params(
 ) {
     let object = state.name.clone();
     let id_type = meta.schema_to_id_type(&object);
-    let struct_name = meta.schema_to_rust_type(&object);
+    let struct_name = schema_to_rust_type(&object);
 
     for (_, params) in state.inferred_parameters.clone() {
         let params_schema = params.rust_type.to_snake_case();
@@ -301,7 +301,11 @@ pub fn gen_inferred_params(
             params.parameters.iter().all(|param| !param.parameter_data_ref().required);
 
         out.push('\n');
-        out.push_str(&format!("/// The parameters for `{}::{}`.\n", struct_name, params.method));
+        out.push_str(&format!(
+            "/// The parameters for `{}::{}`.\n",
+            struct_name,
+            params.method.as_method_name()
+        ));
 
         if can_derive_default {
             out.push_str("#[derive(Clone, Debug, Serialize, Default)]\n");
@@ -341,7 +345,6 @@ pub fn gen_inferred_params(
                         &mut initializers,
                         required,
                         state,
-                        meta,
                         out,
                     );
                 }
@@ -404,7 +407,7 @@ pub fn gen_inferred_params(
                     let kind = schema.as_item().map(|s| &s.schema_kind);
                     let is_string_schema = matches!(kind, Some(SchemaKind::Type(Type::String(_))));
                     if let Some((use_path, rust_type)) =
-                        meta.field_to_rust_type(params_schema.as_str(), param_name)
+                        field_to_rust_type(params_schema.as_str(), param_name)
                     {
                         print_doc(out);
                         initializers.push((param_rename.into(), rust_type.to_string(), required));
@@ -469,8 +472,8 @@ pub fn gen_inferred_params(
                         state.use_params.insert(UseParams::Timestamp);
                         write_out_field(out, param_rename, "RangeQuery<Timestamp>", required);
                     } else if let Some(enum_strings) = schema.as_item().and_then(as_enum_strings) {
-                        let enum_schema = meta.schema_field(&object, param_rename);
-                        let enum_name = meta.schema_to_rust_type(&enum_schema);
+                        let enum_schema = schema_field(&object, param_rename);
+                        let enum_name = schema_to_rust_type(&enum_schema);
                         let enum_ = InferredEnum {
                             parent: params.rust_type.clone(),
                             field: param_rename.into(),
@@ -479,7 +482,7 @@ pub fn gen_inferred_params(
                         let inserted = state.try_insert_enum(enum_name.clone(), enum_.clone());
                         let enum_name = if inserted.is_err() {
                             let enum_schema = format!("{}_filter", enum_schema);
-                            let enum_name = meta.schema_to_rust_type(&enum_schema);
+                            let enum_name = schema_to_rust_type(&enum_schema);
                             state.insert_enum(enum_name.clone(), enum_);
                             enum_name
                         } else {
@@ -577,7 +580,7 @@ pub fn gen_inferred_params(
         out.push_str("}\n");
 
         // we implement paginate on lists that have an Id
-        if let ("list", Some(_)) = (params.method.as_str(), &id_type) {
+        if let (MethodTypes::List, Some(_)) = (params.method, &id_type) {
             state.use_params.insert(Paginable);
 
             out.push_str("impl Paginable for ");
@@ -670,8 +673,8 @@ pub fn gen_unions(out: &mut String, unions: &BTreeMap<String, InferredUnion>, me
                 meta.spec.get_schema_unwrapped(variant_schema).as_item().expect("Expected an item");
             let object_name = as_object_enum_name(schema)
                 .unwrap_or_else(|| schema.schema_data.title.clone().unwrap());
-            let variant_name = meta.schema_to_rust_type(&object_name);
-            let type_name = meta.schema_to_rust_type(variant_schema);
+            let variant_name = schema_to_rust_type(&object_name);
+            let type_name = schema_to_rust_type(variant_schema);
             if variant_name.to_snake_case() != object_name {
                 write_serde_rename(out, &object_name);
             }
@@ -690,7 +693,7 @@ pub fn gen_unions(out: &mut String, unions: &BTreeMap<String, InferredUnion>, me
                 "" => None,
                 n => Some(n),
             })
-            .map(|s| gen_variant_name(s, meta))
+            .map(gen_variant_name)
             .next()
         {
             out.push_str("impl std::default::Default for ");
@@ -705,21 +708,21 @@ pub fn gen_unions(out: &mut String, unions: &BTreeMap<String, InferredUnion>, me
 }
 
 #[tracing::instrument(skip_all)]
-pub fn gen_variant_name(wire_name: &str, meta: &Metadata) -> String {
+pub fn gen_variant_name(wire_name: &str) -> String {
     match wire_name {
         "*" => "All".to_string(),
         n => {
             if n.chars().next().unwrap().is_digit(10) {
                 format!("V{}", n.to_string().replace('-', "_").replace('.', "_"))
             } else {
-                meta.schema_to_rust_type(wire_name)
+                schema_to_rust_type(wire_name)
             }
         }
     }
 }
 
 #[tracing::instrument(skip_all)]
-pub fn gen_enums(out: &mut String, enums: &BTreeMap<String, InferredEnum>, meta: &Metadata) {
+pub fn gen_enums(out: &mut String, enums: &BTreeMap<String, InferredEnum>) {
     for (enum_name, enum_) in enums {
         log::trace!("enum {} {{ ... }}", enum_name);
 
@@ -737,7 +740,7 @@ pub fn gen_enums(out: &mut String, enums: &BTreeMap<String, InferredEnum>, meta:
             if wire_name.trim().is_empty() {
                 continue;
             }
-            let variant_name = gen_variant_name(wire_name.as_str(), meta);
+            let variant_name = gen_variant_name(wire_name.as_str());
             if variant_name.trim().is_empty() {
                 panic!("unhandled enum variant: {:?}", wire_name)
             }
@@ -759,7 +762,7 @@ pub fn gen_enums(out: &mut String, enums: &BTreeMap<String, InferredEnum>, meta:
             if wire_name.trim().is_empty() {
                 continue;
             }
-            let variant_name = gen_variant_name(wire_name.as_str(), meta);
+            let variant_name = gen_variant_name(wire_name.as_str());
             out.push_str("            ");
             out.push_str(enum_name);
             out.push_str("::");
@@ -795,7 +798,7 @@ pub fn gen_enums(out: &mut String, enums: &BTreeMap<String, InferredEnum>, meta:
                 "" => None,
                 n => Some(n),
             })
-            .map(|s| gen_variant_name(s, meta))
+            .map(gen_variant_name)
             .next()
         {
             out.push_str("impl std::default::Default for ");
@@ -985,7 +988,7 @@ fn gen_schema_ref(
     shared_objects: &mut BTreeSet<FileGenerator>,
 ) -> String {
     let schema_name = path.trim_start_matches("#/components/schemas/");
-    let type_name = meta.schema_to_rust_type(schema_name);
+    let type_name = schema_to_rust_type(schema_name);
     if schema_name != object {
         if meta.objects.contains(schema_name) {
             state.use_resources.insert(type_name.clone());
@@ -1047,9 +1050,9 @@ fn gen_field_type(
         SchemaKind::Type(Type::String(typ)) => {
             let variants = typ.enumeration.iter().flatten().cloned().collect::<Vec<_>>();
             if !variants.is_empty() {
-                let enum_schema = meta.schema_field(object, field_name);
-                let enum_name = meta.schema_to_rust_type(&enum_schema);
-                let parent_type = meta.schema_to_rust_type(object);
+                let enum_schema = schema_field(object, field_name);
+                let enum_name = schema_to_rust_type(&enum_schema);
+                let parent_type = schema_to_rust_type(object);
                 let enum_ = InferredEnum {
                     parent: parent_type,
                     field: field_name.into(),
@@ -1116,8 +1119,8 @@ fn gen_field_type(
                 );
             }
 
-            let struct_schema = meta.schema_field(object, field_name);
-            let struct_name = meta.schema_to_rust_type(&struct_schema);
+            let struct_schema = schema_field(object, field_name);
+            let struct_name = schema_to_rust_type(&struct_schema);
             let struct_ = InferredStruct { field: field_name.into(), schema: field.clone() };
             state.insert_struct(struct_name.clone(), struct_);
             struct_name
@@ -1176,8 +1179,8 @@ fn gen_field_type(
             } else {
                 log::trace!("object: {}, field_name: {}", object, field_name);
                 let union_addition = format!("{field_name}_union");
-                let union_schema = meta.schema_field(object, &union_addition);
-                let union_name = meta.schema_to_rust_type(&union_schema);
+                let union_schema = schema_field(object, &union_addition);
+                let union_name = schema_to_rust_type(&union_schema);
                 log::trace!("union_schema: {}, union_name: {}", union_schema, union_name);
                 let union_ = InferredUnion {
                     field: field_name.into(),
@@ -1195,7 +1198,7 @@ fn gen_field_type(
                                     )
                                 }
                             };
-                            let type_name = meta.schema_to_rust_type(schema_name);
+                            let type_name = schema_to_rust_type(schema_name);
                             if meta.objects.contains(schema_name)
                                 || meta.dependents.get(schema_name).map(|x| x.len()).unwrap_or(0)
                                     > 1
@@ -1231,7 +1234,7 @@ pub fn gen_field_rust_type<T: Borrow<Schema>>(
 ) -> String {
     let maybe_schema = field.as_item().map(|s| s.borrow());
     let is_nullable = maybe_schema.map(|s| s.schema_data.nullable).unwrap_or_default();
-    if let Some((use_path, rust_type)) = meta.field_to_rust_type(object, field_name) {
+    if let Some((use_path, rust_type)) = field_to_rust_type(object, field_name) {
         match use_path {
             "" | "String" => (),
             "Metadata" => {
@@ -1304,7 +1307,7 @@ pub fn gen_impl_requests(
     let name = state.name.clone();
     let object = &name;
     let requests = meta.requests.get(object)?;
-    let rust_struct = meta.schema_to_rust_type(object);
+    let rust_struct = schema_to_rust_type(object);
     log::trace!("impl {} {{ ... }}", rust_struct);
 
     let mut methods = BTreeMap::new();
@@ -1346,7 +1349,7 @@ pub fn gen_impl_requests(
                     format!("List{}s", rust_struct)
                 };
                 let params = InferredParams {
-                    method: "list".into(),
+                    method: MethodTypes::List,
                     rust_type: params_name.clone(),
                     parameters: non_path_ref_params(get_request),
                 };
@@ -1408,7 +1411,7 @@ pub fn gen_impl_requests(
             let return_type = match get_ok_response_schema(post_request) {
                 Some(ReferenceOr::Reference { reference }) => {
                     let schema = reference.trim_start_matches("#/components/schemas/");
-                    meta.schema_to_rust_type(schema)
+                    schema_to_rust_type(schema)
                 }
                 _ => continue,
             };
@@ -1434,7 +1437,7 @@ pub fn gen_impl_requests(
                     });
                 let params_name = format!("Create{}", rust_struct);
                 let params = InferredParams {
-                    method: "create".into(),
+                    method: MethodTypes::Create,
                     rust_type: params_name.clone(),
                     parameters: create_parameters,
                 };
@@ -1468,7 +1471,7 @@ pub fn gen_impl_requests(
                     });
                 let params_name = format!("Update{}", rust_struct);
                 let params = InferredParams {
-                    method: "update".into(),
+                    method: MethodTypes::Update,
                     rust_type: params_name.clone(),
                     parameters: update_parameters,
                 };

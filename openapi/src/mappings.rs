@@ -1,5 +1,11 @@
 use std::collections::BTreeMap;
 
+use lazy_static::lazy_static;
+lazy_static! {
+    pub static ref FIELD_MAPPINGS: FieldMap = field_mappings();
+    pub static ref OBJECT_MAPPINGS: ObjectMap = object_mappings();
+}
+
 pub fn id_renames() -> BTreeMap<&'static str, &'static str> {
     BTreeMap::from([
         ("fee_refund", "application_fee_refund"),
@@ -10,10 +16,10 @@ pub fn id_renames() -> BTreeMap<&'static str, &'static str> {
     ])
 }
 
-pub type ObjectMap = BTreeMap<&'static str, &'static str>;
+type ObjectMap = BTreeMap<&'static str, &'static str>;
 
 #[rustfmt::skip]
-pub fn object_mappings() -> ObjectMap {
+fn object_mappings() -> ObjectMap {
     BTreeMap::from([
         // Config for object types
         ("account_business_profile", "business_profile"),
@@ -179,18 +185,18 @@ pub fn object_mappings() -> ObjectMap {
     ])
 }
 
-pub type FieldMap = BTreeMap<FieldSpec, ImportSpec>;
-pub type FieldSpec = (
+type FieldMap = BTreeMap<FieldSpec, ImportSpec>;
+type FieldSpec = (
     &'static str, // schema name
     &'static str, // field name
 );
-pub type ImportSpec = (
+type ImportSpec = (
     &'static str, // "use" name
     &'static str, // field type
 );
 
 #[rustfmt::skip]
-pub fn field_mappings() -> FieldMap {
+fn field_mappings() -> FieldMap {
     BTreeMap::from([
         // Config for object types
         (("account", "type"), ("AccountType", "Option<AccountType>")),

@@ -120,11 +120,8 @@ pub struct IdType(String);
 impl IdType {
     pub fn new(id_typ: String) -> Self {
         // Sanity check to ensure we've not mistakenly using a non-id value here
-        if id_typ.ends_with("Id") {
-            Self(id_typ)
-        } else {
-            panic!("Expected string with Id, found {}", id_typ);
-        }
+        debug_assert!(id_typ.ends_with("Id"), "Expected string with Id, found {}", id_typ);
+        Self(id_typ)
     }
 }
 

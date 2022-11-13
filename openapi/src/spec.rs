@@ -5,6 +5,8 @@ use openapiv3::{
     PathItem, QueryStyle, ReferenceOr, Response, Schema, SchemaKind, StatusCode, Type,
 };
 
+use crate::types::SchemaName;
+
 #[derive(Debug, Clone)]
 pub struct Spec(OpenAPI);
 
@@ -26,9 +28,9 @@ impl Spec {
         &self.components().schemas
     }
 
-    pub fn get_schema_unwrapped(&self, name: &str) -> &ReferenceOr<Schema> {
+    pub fn get_schema_unwrapped(&self, name: &SchemaName) -> &ReferenceOr<Schema> {
         self.component_schemas()
-            .get(name)
+            .get(name.as_ref())
             .as_ref()
             .unwrap_or_else(|| panic!("Expected to find a schema with name = {}", name))
     }

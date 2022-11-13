@@ -7,7 +7,9 @@ use openapiv3::{ReferenceOr, SchemaKind};
 
 use crate::mappings::{FIELD_MAPPINGS, OBJECT_MAPPINGS};
 use crate::spec::{as_object_properties, Spec};
-use crate::types::IdType;
+use crate::types::{
+    EnumVariantName, FeatureGroups, IdType, RustObjectTypeName, RustType, SchemaName,
+};
 use crate::{file_generator::FileGenerator, mappings, types::CopyOrClone};
 
 /// Global metadata for the entire codegen process.
@@ -96,18 +98,18 @@ impl<'a> Metadata<'a> {
 
         let feature_groups = feature_groups();
 
-        for (schema, feature) in feature_groups.iter() {
+        for (schema, feature) in feature_groups {
             out.push('\n');
-            let id_info = self.schema_to_id_type(schema);
+            let id_info = self.schema_to_id_type(&schema);
             let id_field = id_info.as_ref().map(|m| m.0.as_ref()).unwrap_or("()");
             let c_c = id_info.as_ref().map(|m| m.1).unwrap_or(CopyOrClone::Copy);
-            let struct_type = schema_to_rust_type(schema);
-            out.push_str(&format!("#[cfg(not(feature = \"{}\"))]\n", feature));
+            let struct_type = schema_to_rust_type(&schema);
+            out.push_str(&format!("#[cfg(not(feature = \"{}\"))]\n", feature.as_str()));
             out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
             out.push_str(&format!("pub struct {} {{\n", struct_type));
             out.push_str(&format!("\tpub id: {},\n", id_field));
             out.push_str("}\n\n");
-            out.push_str(&format!("#[cfg(not(feature = \"{}\"))]\n", feature));
+            out.push_str(&format!("#[cfg(not(feature = \"{}\"))]\n", feature.as_str()));
             out.push_str(&format!("impl Object for {} {{\n", struct_type));
             out.push_str(&format!("\ttype Id = {};\n", id_field));
             out.push_str(&format!(
@@ -133,18 +135,18 @@ impl<'a> Metadata<'a> {
             .collect()
     }
 
-    pub fn schema_to_id_type(&self, schema: &str) -> Option<(IdType, CopyOrClone)> {
+    pub fn schema_to_id_type(&self, schema: &SchemaName) -> Option<(IdType, CopyOrClone)> {
         let schema = schema.replace('.', "_");
         self.id_mappings.get(schema.as_str()).map(ToOwned::to_owned)
     }
 }
 
-pub fn field_to_rust_type(schema: &str, field: &str) -> Option<(&'static str, &'static str)> {
+pub fn field_to_rust_type(schema: &SchemaName, field: &str) -> Option<RustType> {
     let schema = schema.replace('.', "_");
-    FIELD_MAPPINGS.get(&(schema.as_str(), field)).copied()
+    FIELD_MAPPINGS.get(&(schema.as_str(), field)).cloned()
 }
 
-pub fn schema_to_rust_type(schema: &str) -> String {
+pub fn schema_to_rust_object_name(schema: &SchemaName) -> RustObjectTypeName {
     let schema = schema.replace('.', "_");
     if let Some(rename) = OBJECT_MAPPINGS.get(schema.as_str()) {
         rename.to_camel_case()
@@ -153,9 +155,22 @@ pub fn schema_to_rust_type(schema: &str) -> String {
     }
 }
 
-pub fn schema_field(parent: &str, field: &str) -> String {
-    let parent_type = schema_to_rust_type(parent);
+pub fn schema_field(parent: &SchemaName, field: &str) -> String {
+    let parent_type = schema_to_rust_object_name(parent);
     format!("{}_{}", parent_type, field).to_snake_case()
+}
+
+pub fn gen_variant_name(wire_name: &SchemaName) -> EnumVariantName {
+    match wire_name.as_ref() {
+        "*" => EnumVariantName::All,
+        n => {
+            if n.chars().next().unwrap().is_digit(10) {
+                format!("V{}", n.to_string().replace('-', "_").replace('.', "_"))
+            } else {
+                EnumVariantName::ObjectName(schema_to_rust_type(wire_name))
+            }
+        }
+    }
 }
 
 /// given a spec and a set of objects in that spec, metadatas a
@@ -198,7 +213,7 @@ pub fn metadata_requests<'a>(
 }
 
 #[rustfmt::skip]
-fn feature_groups() -> BTreeMap<&'static str, &'static str> {
+fn feature_groups() -> BTreeMap<SchemaName, FeatureGroups> {
    [
 		// N.B. For now both `core` and `payment-methods` are always enabled.
 		/*
@@ -225,56 +240,55 @@ fn feature_groups() -> BTreeMap<&'static str, &'static str> {
 		*/
 
 		// Checkout
-		("checkout_session", "checkout"),
+		("checkout_session", FeatureGroups::Checkout),
 
 		// Billing (aka. Subscriptions)
-		("coupon", "billing"),
-		("discount", "billing"),
-		("invoice", "billing"),
-		("invoiceitem", "billing"),
-        ("line_item", "billing"),
-		("plan", "billing"),
-		("subscription", "billing"),
-		("subscription_item", "billing"),
-		("subscription_schedule", "billing"),
- 		("subscription_schedule_revision", "billing"),
-        ("tax_id", "billing"),
-		("tax_rate", "billing"),
+		("coupon", FeatureGroups::Billing),
+		("discount", FeatureGroups::Billing),
+		("invoice", FeatureGroups::Billing),
+		("invoiceitem", FeatureGroups::Billing),
+        ("line_item", FeatureGroups::Billing),
+		("plan", FeatureGroups::Billing),
+		("subscription", FeatureGroups::Billing),
+		("subscription_item", FeatureGroups::Billing),
+		("subscription_schedule", FeatureGroups::Billing),
+ 		("subscription_schedule_revision", FeatureGroups::Billing),
+        ("tax_id", FeatureGroups::Billing),
+		("tax_rate", FeatureGroups::Billing),
 
 		// Connect
-		("account", "connect"),
-		("application", "connect"),
-		("application_fee", "connect"),
-		("connect_collection_transfer", "connect"),
-		("fee_refund", "connect"),
-		("person", "connect"),
-		("topup", "connect"),
-		("transfer", "connect"),
-		("transfer_reversal", "connect"),
+		("account", FeatureGroups::Connect),
+		("application", FeatureGroups::Connect),
+		("application_fee", FeatureGroups::Connect),
+		("connect_collection_transfer", FeatureGroups::Connect),
+		("fee_refund", FeatureGroups::Connect),
+		("person", FeatureGroups::Connect),
+		("topup", FeatureGroups::Connect),
+		("transfer", FeatureGroups::Connect),
+		("transfer_reversal", FeatureGroups::Connect),
 
 		// Fraud
-		("review", "fraud"),
+		("review", FeatureGroups::Fraud),
 
 		// Issuing
-		("issuing.authorization", "issuing"),
-		("issuing.card", "issuing"),
-		("issuing.cardholder", "issuing"),
-		("issuing.dispute", "issuing"),
-		("issuing.transaction", "issuing"),
+		("issuing.authorization", FeatureGroups::Issuing),
+		("issuing.card", FeatureGroups::Issuing),
+		("issuing.cardholder", FeatureGroups::Issuing),
+		("issuing.dispute", FeatureGroups::Issuing),
+		("issuing.transaction", FeatureGroups::Issuing),
 
 		// Orders
-		("order", "orders"),
-		("order_item", "orders"),
-		("order_return", "orders"),
-		("sku", "orders"),
+		("order", FeatureGroups::Orders),
+		("order_item", FeatureGroups::Orders),
+		("order_return", FeatureGroups::Orders),
+		("sku", FeatureGroups::Orders),
 
 		// Sigma
-		("scheduled_query_run", "sigma"),
+		("scheduled_query_run", FeatureGroups::Sigma),
 
 		// Webhooks Endpoints
-		("webhook_endpoint", "webhook-endpoints"),
+		("webhook_endpoint", FeatureGroups::WebhookEndpoints),
 	]
-	.iter()
-	.copied()
+	.iter().map(|(s, feature)| (SchemaName::new(s.to_string()), *feature))
 	.collect() 
 }

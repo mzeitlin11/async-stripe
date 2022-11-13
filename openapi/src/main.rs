@@ -8,6 +8,7 @@ use crate::spec_fetch::fetch_spec;
 use crate::{metadata::Metadata, url_finder::UrlFinder};
 
 mod codegen;
+mod enums;
 mod file_generator;
 mod mappings;
 mod metadata;

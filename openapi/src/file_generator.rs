@@ -7,10 +7,11 @@ use std::{
 use anyhow::{Context, Result};
 use heck::SnakeCase;
 
-use crate::codegen::{gen_enums, gen_objects, gen_prelude, gen_unions};
+use crate::codegen::{gen_objects, gen_prelude, gen_unions};
+use crate::enums::gen_enums;
 use crate::metadata::schema_to_rust_type;
 use crate::spec::{as_first_enum_value, as_object_properties};
-use crate::types::{IdType, UseConfig, UseParams};
+use crate::types::{IdType, RustObjectTypeName, SchemaName, UseConfig, UseParams, UseResources};
 use crate::{
     codegen::gen_emitted_structs,
     codegen::gen_generated_schemas,
@@ -29,7 +30,7 @@ use crate::{
 ///
 #[derive(Default, Debug)]
 pub struct FileGenerator {
-    pub name: String,
+    pub name: SchemaName,
 
     /// The ids that must be imported in this file.
     pub use_ids: BTreeSet<IdType>,
@@ -38,13 +39,13 @@ pub struct FileGenerator {
     /// The params that must be imported in this file.
     pub use_params: BTreeSet<UseParams>,
     /// The resources that must be imported in this file.
-    pub use_resources: BTreeSet<String>,
+    pub use_resources: BTreeSet<UseResources>,
     /// Extra (simple) enums that were / will be generated in this file.
-    pub inferred_enums: BTreeMap<String, InferredEnum>,
+    pub inferred_enums: BTreeMap<RustObjectTypeName, InferredEnum>,
     /// Extra (complex) enums that were / will be generated in this file.
-    pub inferred_unions: BTreeMap<String, InferredUnion>,
+    pub inferred_unions: BTreeMap<RustObjectTypeName, InferredUnion>,
     /// Extra structs that were / will be generated in this file.
-    pub inferred_structs: BTreeMap<String, InferredStruct>,
+    pub inferred_structs: BTreeMap<RustObjectTypeName, InferredStruct>,
     /// The request parameter structs that were / will be generated in this file.
     pub inferred_parameters: BTreeMap<String, InferredParams>,
     /// The schemas that were / will be generated in this file.
@@ -55,7 +56,7 @@ pub struct FileGenerator {
 }
 
 impl FileGenerator {
-    pub fn new(object_name: String) -> Self {
+    pub fn new(object_name: SchemaName) -> Self {
         Self { name: object_name, ..Default::default() }
     }
 
@@ -161,7 +162,7 @@ impl FileGenerator {
         out.push_str("}\n");
     }
 
-    pub fn insert_enum(&mut self, name: impl Into<String>, enum_: InferredEnum) {
+    pub fn insert_enum(&mut self, name: RustObjectTypeName, enum_: InferredEnum) {
         if let Err(other) = self.try_insert_enum(name, enum_.clone()) {
             panic!("conflicting enums are not compatible:\n\t{:?}\n\t!=\n\t{:?}", enum_, other);
         }
@@ -169,7 +170,7 @@ impl FileGenerator {
 
     pub fn try_insert_enum(
         &mut self,
-        name: impl Into<String>,
+        name: RustObjectTypeName,
         enum_: InferredEnum,
     ) -> Result<(), &InferredEnum> {
         let name = name.into();
@@ -187,7 +188,7 @@ impl FileGenerator {
         Ok(())
     }
 
-    pub fn insert_struct(&mut self, name: impl Into<String>, struct_: InferredStruct) {
+    pub fn insert_struct(&mut self, name: RustObjectTypeName, struct_: InferredStruct) {
         if let Err(other) = self.try_insert_struct(name, struct_.clone()) {
             panic!("conflicting structs are not compatible:\n\t{:?}\n\t!=\n\t{:?}", struct_, other);
         }
@@ -195,7 +196,7 @@ impl FileGenerator {
 
     fn try_insert_struct(
         &mut self,
-        name: impl Into<String>,
+        name: RustObjectTypeName,
         struct_: InferredStruct,
     ) -> Result<(), &InferredStruct> {
         let name = name.into();

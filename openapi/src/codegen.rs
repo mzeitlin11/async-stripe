@@ -9,15 +9,18 @@ use openapiv3::{
     SchemaKind, Type,
 };
 
-use crate::metadata::{field_to_rust_type, schema_field, schema_to_rust_type};
+use crate::metadata::{
+    field_to_rust_type, gen_variant_name, schema_field, schema_to_rust_object_name,
+};
 use crate::spec::{
     as_any_of_first_item_title, as_data_array_item, as_enum_strings, as_first_enum_value,
     as_object_enum_name, as_object_properties, as_object_type, err_schema_expected,
     find_param_by_name, get_id_param, get_ok_response, get_ok_response_schema,
     get_request_form_parameters, non_path_ref_params, ExpansionResources,
 };
-use crate::types::UseParams::Paginable;
-use crate::types::{IdType, UseConfig, UseParams};
+use crate::types::{
+    FieldName, IdType, RustObjectTypeName, RustType, SchemaName, UseConfig, UseParams, UseResources,
+};
 use crate::util::{print_doc_from_schema, write_serde_rename};
 use crate::{
     file_generator::FileGenerator,
@@ -43,7 +46,7 @@ pub fn gen_struct(
     let object = &name;
 
     let id_type = meta.schema_to_id_type(object);
-    let struct_name = schema_to_rust_type(object);
+    let struct_name = schema_to_rust_object_name(object);
     let schema = meta.spec.get_schema_unwrapped(object).as_item().expect("Expected item");
     let obj = as_object_type(schema).expect("Expected object type");
     let schema_title = schema.schema_data.title.as_ref().expect("No title found");
@@ -167,12 +170,12 @@ pub fn gen_prelude(state: &FileGenerator) -> String {
             .use_resources
             .iter()
             .filter(|&x| {
-                state.generated_schemas.keys().all(|sch| x != &schema_to_rust_type(sch))
+                state.generated_schemas.keys().all(|sch| x != &schema_to_rust_object_name(sch))
                     && !state.inferred_parameters.contains_key(x)
                     && !state.inferred_structs.contains_key(x)
                     && !state.inferred_unions.contains_key(x)
                     && !state.inferred_enums.contains_key(x)
-                    && x != &schema_to_rust_type(object)
+                    && x != &schema_to_rust_object_name(object)
             })
             .enumerate()
         {
@@ -198,7 +201,7 @@ pub fn gen_generated_schemas(
     while let Some(schema_name) =
         state.generated_schemas.iter().find_map(|(k, &v)| if !v { Some(k) } else { None }).cloned()
     {
-        let struct_name = schema_to_rust_type(&schema_name);
+        let struct_name = schema_to_rust_object_name(&schema_name);
         out.push('\n');
         out.push_str("#[derive(Clone, Debug, Default, Deserialize, Serialize)]\n");
         out.push_str("pub struct ");
@@ -253,7 +256,7 @@ pub fn gen_multitype_params(
             if let SchemaKind::AnyOf { .. } = &member_schema.schema_kind {
                 let union_addition = format!("{param_name}_union");
                 let mut new_type_name = parent_struct_rust_type.to_owned();
-                new_type_name.push_str(&schema_to_rust_type(&union_addition));
+                new_type_name.push_str(&schema_to_rust_object_name(&union_addition));
 
                 let inferred_object = InferredObject {
                     rust_type: new_type_name.clone(),
@@ -293,7 +296,7 @@ pub fn gen_inferred_params(
 ) {
     let object = state.name.clone();
     let id_type = meta.schema_to_id_type(&object);
-    let struct_name = schema_to_rust_type(&object);
+    let struct_name = schema_to_rust_object_name(&object);
 
     for (_, params) in state.inferred_parameters.clone() {
         let params_schema = params.rust_type.to_snake_case();
@@ -358,7 +361,7 @@ pub fn gen_inferred_params(
                         required,
                     ));
                     state.use_params.insert(UseParams::IdOrCreate);
-                    state.use_resources.insert("CreateProduct".to_owned());
+                    state.use_resources.insert(UseResources::CreateProduct);
                     write_out_field(out, "product", "IdOrCreate<'a, CreateProduct<'a>>", required);
                 }
                 "metadata" => {
@@ -475,16 +478,16 @@ pub fn gen_inferred_params(
                         write_out_field(out, param_rename, "RangeQuery<Timestamp>", required);
                     } else if let Some(enum_strings) = schema.as_item().and_then(as_enum_strings) {
                         let enum_schema = schema_field(&object, param_rename);
-                        let enum_name = schema_to_rust_type(&enum_schema);
+                        let enum_name = schema_to_rust_object_name(&enum_schema);
                         let enum_ = InferredEnum {
                             parent: params.rust_type.clone(),
-                            field: param_rename.into(),
+                            field: FieldName::new(param_rename.into()),
                             options: enum_strings,
                         };
                         let inserted = state.try_insert_enum(enum_name.clone(), enum_.clone());
                         let enum_name = if inserted.is_err() {
                             let enum_schema = format!("{}_filter", enum_schema);
-                            let enum_name = schema_to_rust_type(&enum_schema);
+                            let enum_name = schema_to_rust_object_name(&enum_schema);
                             state.insert_enum(enum_name.clone(), enum_);
                             enum_name
                         } else {
@@ -499,7 +502,7 @@ pub fn gen_inferred_params(
                     {
                         print_doc(out);
                         initializers.push((param_rename.into(), "Currency".into(), required));
-                        state.use_resources.insert("Currency".into());
+                        state.use_resources.insert(UseResources::Currency);
                         write_out_field(out, param_rename, "Currency", required);
                     } else if is_string_schema {
                         print_doc(out);
@@ -583,7 +586,7 @@ pub fn gen_inferred_params(
 
         // we implement paginate on lists that have an Id
         if let (MethodTypes::List, Some(_)) = (params.method, &id_type) {
-            state.use_params.insert(Paginable);
+            state.use_params.insert(UseParams::Paginable);
 
             out.push_str("impl Paginable for ");
             out.push_str(&params.rust_type);
@@ -660,7 +663,11 @@ pub fn gen_emitted_structs(
 }
 
 #[tracing::instrument(skip_all)]
-pub fn gen_unions(out: &mut String, unions: &BTreeMap<String, InferredUnion>, meta: &Metadata) {
+pub fn gen_unions(
+    out: &mut String,
+    unions: &BTreeMap<RustObjectTypeName, InferredUnion>,
+    meta: &Metadata,
+) {
     for (union_name, union_) in unions {
         log::trace!("union {} {{ ... }}", union_name);
 
@@ -675,8 +682,8 @@ pub fn gen_unions(out: &mut String, unions: &BTreeMap<String, InferredUnion>, me
                 meta.spec.get_schema_unwrapped(variant_schema).as_item().expect("Expected an item");
             let object_name = as_object_enum_name(schema)
                 .unwrap_or_else(|| schema.schema_data.title.clone().unwrap());
-            let variant_name = schema_to_rust_type(&object_name);
-            let type_name = schema_to_rust_type(variant_schema);
+            let variant_name = schema_to_rust_object_name(&object_name);
+            let type_name = schema_to_rust_object_name(variant_schema);
             if variant_name.to_snake_case() != object_name {
                 write_serde_rename(out, &object_name);
             }
@@ -710,112 +717,6 @@ pub fn gen_unions(out: &mut String, unions: &BTreeMap<String, InferredUnion>, me
                 "
             )
             .unwrap();
-        }
-    }
-}
-
-#[tracing::instrument(skip_all)]
-pub fn gen_variant_name(wire_name: &str) -> String {
-    match wire_name {
-        "*" => "All".to_string(),
-        n => {
-            if n.chars().next().unwrap().is_digit(10) {
-                format!("V{}", n.to_string().replace('-', "_").replace('.', "_"))
-            } else {
-                schema_to_rust_type(wire_name)
-            }
-        }
-    }
-}
-
-#[tracing::instrument(skip_all)]
-pub fn gen_enums(out: &mut String, enums: &BTreeMap<String, InferredEnum>) {
-    for (enum_name, enum_) in enums {
-        log::trace!("enum {} {{ ... }}", enum_name);
-
-        out.push('\n');
-        out.push_str(&format!(
-            "/// An enum representing the possible values of an `{}`'s `{}` field.\n",
-            enum_.parent, enum_.field
-        ));
-        out.push_str("#[derive(Copy, Clone, Debug, Deserialize, Serialize, Eq, PartialEq)]\n");
-        out.push_str("#[serde(rename_all = \"snake_case\")]\n");
-        out.push_str("pub enum ");
-        out.push_str(enum_name);
-        out.push_str(" {\n");
-        for wire_name in &enum_.options {
-            if wire_name.trim().is_empty() {
-                continue;
-            }
-            let variant_name = gen_variant_name(wire_name.as_str());
-            if variant_name.trim().is_empty() {
-                panic!("unhandled enum variant: {:?}", wire_name)
-            }
-            if &variant_name.to_snake_case() != wire_name {
-                write_serde_rename(out, wire_name);
-            }
-            out.push_str("    ");
-            out.push_str(&variant_name);
-            out.push_str(",\n");
-        }
-        out.push_str("}\n");
-        out.push('\n');
-        out.push_str("impl ");
-        out.push_str(enum_name);
-        out.push_str(" {\n");
-        out.push_str("    pub fn as_str(self) -> &'static str {\n");
-        out.push_str("        match self {\n");
-        for wire_name in &enum_.options {
-            if wire_name.trim().is_empty() {
-                continue;
-            }
-            let variant_name = gen_variant_name(wire_name.as_str());
-            out.push_str("            ");
-            out.push_str(enum_name);
-            out.push_str("::");
-            out.push_str(&variant_name);
-            out.push_str(" => ");
-            out.push_str(&format!("{:?}", wire_name));
-            out.push_str(",\n");
-        }
-        out.push_str("        }\n");
-        out.push_str("    }\n");
-        out.push_str("}\n");
-        out.push('\n');
-        writedoc!(
-            out,
-            r"
-        impl AsRef<str> for {enum_name} {{
-            fn as_ref(&self) -> &str {{
-                self.as_str()
-            }}
-        }}
-        
-        impl std::fmt::Display for {enum_name} {{
-            fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {{
-                self.as_str().fmt(f)
-            }}
-        }}
-        "
-        )
-        .unwrap();
-        if let Some(first) = enum_
-            .options
-            .iter()
-            .filter_map(|var| match var.trim() {
-                "" => None,
-                n => Some(n),
-            })
-            .map(gen_variant_name)
-            .next()
-        {
-            out.push_str("impl std::default::Default for ");
-            out.push_str(enum_name);
-            out.push_str(" {\n");
-            out.push_str("    fn default() -> Self {\n");
-            out.push_str(&format!("        Self::{}\n", first));
-            out.push_str("    }\n");
-            out.push_str("}\n");
         }
     }
 }
@@ -991,17 +892,17 @@ pub fn gen_field<T: Borrow<Schema>>(
 fn gen_schema_ref(
     state: &mut FileGenerator,
     meta: &Metadata,
-    object: &str,
+    object: &SchemaName,
     path: &str,
     shared_objects: &mut BTreeSet<FileGenerator>,
-) -> String {
+) -> RustObjectTypeName {
     let schema_name = path.trim_start_matches("#/components/schemas/");
-    let type_name = schema_to_rust_type(schema_name);
+    let type_name = schema_to_rust_object_name(schema_name);
     if schema_name != object {
         if meta.objects.contains(schema_name) {
-            state.use_resources.insert(type_name.clone());
+            state.use_resources.insert(UseResources::Object(type_name.clone()));
         } else if meta.dependents.get(schema_name).map(|x| x.len()).unwrap_or(0) > 1 {
-            state.use_resources.insert(type_name.clone());
+            state.use_resources.insert(UseResources::Object(type_name.clone()));
             shared_objects.insert(FileGenerator::new(schema_name.to_string()));
         } else if !state.generated_schemas.contains_key(schema_name) {
             state.generated_schemas.insert(schema_name.into(), false);
@@ -1013,16 +914,16 @@ fn gen_schema_ref(
 fn gen_schema_or_ref_type<T: Borrow<Schema>>(
     state: &mut FileGenerator,
     meta: &Metadata,
-    object: &str,
+    object: &SchemaName,
     field_name: &str,
     field: &ReferenceOr<T>,
     required: bool,
     default: bool,
     shared_objects: &mut BTreeSet<FileGenerator>,
-) -> String {
+) -> RustType {
     match field {
         ReferenceOr::Reference { reference } => {
-            gen_schema_ref(state, meta, object, reference, shared_objects)
+            RustType::Object(gen_schema_ref(state, meta, object, reference, shared_objects))
         }
         ReferenceOr::Item(schema) => gen_field_type(
             state,
@@ -1041,17 +942,17 @@ fn gen_schema_or_ref_type<T: Borrow<Schema>>(
 fn gen_field_type(
     state: &mut FileGenerator,
     meta: &Metadata,
-    object: &str,
+    object: &SchemaName,
     field_name: &str,
     field: &Schema,
     required: bool,
     default: bool,
     shared_objects: &mut BTreeSet<FileGenerator>,
-) -> String {
+) -> RustType {
     match &field.schema_kind {
         // N.B. return immediately; if we want to use `Default` for bool rather than `Option`
-        SchemaKind::Type(Type::Boolean {}) => "bool".into(),
-        SchemaKind::Type(Type::Number(_)) => "f64".into(),
+        SchemaKind::Type(Type::Boolean {}) => RustType::Bool,
+        SchemaKind::Type(Type::Number(_)) => RustType::Float,
         SchemaKind::Type(Type::Integer(format)) => {
             infer_integer_type(state, field_name, &format.format)
         }
@@ -1059,17 +960,17 @@ fn gen_field_type(
             let variants = typ.enumeration.iter().flatten().cloned().collect::<Vec<_>>();
             if !variants.is_empty() {
                 let enum_schema = schema_field(object, field_name);
-                let enum_name = schema_to_rust_type(&enum_schema);
-                let parent_type = schema_to_rust_type(object);
+                let enum_name = schema_to_rust_object_name(&enum_schema);
+                let parent_type = schema_to_rust_object_name(object);
                 let enum_ = InferredEnum {
                     parent: parent_type,
-                    field: field_name.into(),
+                    field: FieldName::new(field_name.into()),
                     options: variants,
                 };
                 state.insert_enum(enum_name.clone(), enum_);
-                enum_name
+                RustType::Object(enum_name)
             } else {
-                "String".into()
+                RustType::String
             }
         }
         SchemaKind::Type(Type::Array(typ)) => {
@@ -1128,8 +1029,9 @@ fn gen_field_type(
             }
 
             let struct_schema = schema_field(object, field_name);
-            let struct_name = schema_to_rust_type(&struct_schema);
-            let struct_ = InferredStruct { field: field_name.into(), schema: field.clone() };
+            let struct_name = schema_to_rust_object_name(&struct_schema);
+            let struct_ =
+                InferredStruct { field: FieldName::new(field_name.into()), schema: field.clone() };
             state.insert_struct(struct_name.clone(), struct_);
             struct_name
         }
@@ -1188,10 +1090,10 @@ fn gen_field_type(
                 log::trace!("object: {}, field_name: {}", object, field_name);
                 let union_addition = format!("{field_name}_union");
                 let union_schema = schema_field(object, &union_addition);
-                let union_name = schema_to_rust_type(&union_schema);
+                let union_name = schema_to_rust_object_name(&union_schema);
                 log::trace!("union_schema: {}, union_name: {}", union_schema, union_name);
                 let union_ = InferredUnion {
-                    field: field_name.into(),
+                    field: FieldName::new(field_name.into()),
                     schema_variants: any_of
                         .iter()
                         .map(|x| {
@@ -1206,12 +1108,12 @@ fn gen_field_type(
                                     )
                                 }
                             };
-                            let type_name = schema_to_rust_type(schema_name);
+                            let type_name = schema_to_rust_object_name(schema_name);
                             if meta.objects.contains(schema_name)
                                 || meta.dependents.get(schema_name).map(|x| x.len()).unwrap_or(0)
                                     > 1
                             {
-                                state.use_resources.insert(type_name);
+                                state.use_resources.insert(UseResources::Object(type_name));
                             } else if !state.generated_schemas.contains_key(schema_name) {
                                 state.generated_schemas.insert(schema_name.into(), false);
                             }
@@ -1233,45 +1135,45 @@ fn gen_field_type(
 pub fn gen_field_rust_type<T: Borrow<Schema>>(
     state: &mut FileGenerator,
     meta: &Metadata,
-    object: &str,
+    object: &SchemaName,
     field_name: &str,
     field: &ReferenceOr<T>,
     required: bool,
     default: bool,
     shared_objects: &mut BTreeSet<FileGenerator>,
-) -> String {
+) -> RustType {
     let maybe_schema = field.as_item().map(|s| s.borrow());
     let is_nullable = maybe_schema.map(|s| s.schema_data.nullable).unwrap_or_default();
-    if let Some((use_path, rust_type)) = field_to_rust_type(object, field_name) {
+    if let Some(rust_type) = field_to_rust_type(object, field_name) {
         match use_path {
             "" | "String" => (),
             "Metadata" => {
                 state.use_params.insert(UseParams::Metadata);
             }
             _ => {
-                state.use_resources.insert(use_path.into());
+                state.use_resources.insert(UseResources::Object(use_path));
             }
         }
-        return rust_type.into();
+        return rust_type;
     }
     if field_name == "metadata" {
         state.use_params.insert(UseParams::Metadata);
-        return "Metadata".into();
+        return RustType::Metadata;
     } else if (field_name == "currency" || field_name.ends_with("_currency"))
         && matches!(maybe_schema.map(|s| &s.schema_kind), Some(SchemaKind::Type(Type::String(_))))
     {
-        state.use_resources.insert("Currency".into());
+        state.use_resources.insert(UseResources::Currency);
         return if !required || is_nullable {
-            "Option<Currency>".into()
+            RustType::option(RustType::Currency)
         } else {
-            "Currency".into()
+            RustType::Currency
         };
     } else if field_name == "created" {
         state.use_params.insert(UseParams::Timestamp);
         return if !required || is_nullable {
-            "Option<Timestamp>".into()
+            RustType::option(RustType::Timestamp)
         } else {
-            "Timestamp".into()
+            RustType::Timestamp
         };
     }
 
@@ -1285,12 +1187,12 @@ pub fn gen_field_rust_type<T: Borrow<Schema>>(
         default,
         shared_objects,
     );
-    if ty == "bool" && default {
+    if ty.is_bool() {
         // N.B. return immediately; if we want to use `Default` for bool rather than `Option`
         // Not sure why this is here, but we want to preserve it for now
-        return "bool".into();
+        return ty;
     }
-    if ty.contains("List<") {
+    if ty.is_list() {
         // N.B. return immediately; we use `Default` for list rather than `Option`
         return ty;
     }
@@ -1315,7 +1217,7 @@ pub fn gen_impl_requests(
     let name = state.name.clone();
     let object = &name;
     let requests = meta.requests.get(object)?;
-    let rust_struct = schema_to_rust_type(object);
+    let rust_struct = schema_to_rust_object_name(object);
     log::trace!("impl {} {{ ... }}", rust_struct);
 
     let mut methods = BTreeMap::new();
@@ -1417,7 +1319,7 @@ pub fn gen_impl_requests(
             let return_type = match get_ok_response_schema(post_request) {
                 Some(ReferenceOr::Reference { reference }) => {
                     let schema = reference.trim_start_matches("#/components/schemas/");
-                    schema_to_rust_type(schema)
+                    schema_to_rust_object_name(schema)
                 }
                 _ => continue,
             };

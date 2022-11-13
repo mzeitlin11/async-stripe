@@ -1,6 +1,8 @@
 use std::collections::BTreeMap;
 
 use lazy_static::lazy_static;
+
+use crate::types::RustType;
 lazy_static! {
     pub static ref FIELD_MAPPINGS: FieldMap = field_mappings();
     pub static ref OBJECT_MAPPINGS: ObjectMap = object_mappings();
@@ -181,14 +183,10 @@ fn object_mappings() -> ObjectMap {
     ])
 }
 
-type FieldMap = BTreeMap<FieldSpec, ImportSpec>;
+type FieldMap = BTreeMap<FieldSpec, RustType>;
 type FieldSpec = (
     &'static str, // schema name
     &'static str, // field name
-);
-type ImportSpec = (
-    &'static str, // "use" name
-    &'static str, // field type
 );
 
 #[rustfmt::skip]
@@ -370,7 +368,7 @@ fn field_mappings() -> FieldMap {
         (("update_customer", "default_source"), ("PaymentSourceId", "Option<PaymentSourceId>")),
         (("create_customer", "source"), ("PaymentSourceParams", "Option<PaymentSourceParams>")),
         (("update_customer", "source"), ("PaymentSourceParams", "Option<PaymentSourceParams>")),
-        (("update_customer", "trial_end"), ("Scheduled", "Option<Scheduled>")),
+        (("update_customer", "trial_end"), RustType::option(RustType::Scheduled)),
 
         // Config for `invoice` params
         (("list_invoices", "billing"), ("", "Option<CollectionMethod>")),
@@ -385,18 +383,18 @@ fn field_mappings() -> FieldMap {
 
         // Config for `payment_intent` params
         (("payment_intent", "source"), ("PaymentSource", "Option<Expandable<PaymentSource>>")),
-        (("payment_intent_next_action", "use_stripe_sdk"), ("", "Option<serde_json::Value>")),
+        (("payment_intent_next_action", "use_stripe_sdk"),RustType::option(RustType::JSONValue)),
         (
             ("create_payment_intent", "off_session"),
             ("PaymentIntentOffSession", "Option<PaymentIntentOffSession>"),
         ),
         (("create_setup_intent", "usage"), ("", "Option<SetupIntentUsage>")),
-        (("setup_intent_next_action", "use_stripe_sdk"), ("", "Option<serde_json::Value>")),
+        (("setup_intent_next_action", "use_stripe_sdk"), RustType::option(RustType::JSONValue)),
 
         // Config for `sku` params
-        (("list_skus", "attributes"), ("Metadata", "Option<Metadata>")),
-        (("create_sku", "attributes"), ("Metadata", "Option<Metadata>")),
-        (("update_sku", "attributes"), ("Metadata", "Option<Metadata>")),
+        (("list_skus", "attributes"), RustType::option(RustType::Metadata)),
+        (("create_sku", "attributes"), RustType::option(RustType::Metadata)),
+        (("update_sku", "attributes"), RustType::option(RustType::Metadata)),
         (("create_sku", "inventory"), ("SkuInventory", "Option<SkuInventory>")),
         (("update_sku", "inventory"), ("SkuInventory", "Option<SkuInventory>")),
         (("create_sku", "package_dimensions"), ("PackageDimensions", "Option<PackageDimensions>")),
@@ -455,14 +453,14 @@ fn field_mappings() -> FieldMap {
             ("update_subscription", "collection_method"),
             ("CollectionMethod", "Option<CollectionMethod>"),
         ),
-        (("create_subscription", "trial_end"), ("Scheduled", "Option<Scheduled>")),
-        (("update_subscription", "trial_end"), ("Scheduled", "Option<Scheduled>")),
+        (("create_subscription", "trial_end"), RustType::option(RustType::Scheduled)),
+        (("update_subscription", "trial_end"), RustType::option(RustType::Scheduled)),
 
         // Config for `subscription_schedule` params
         (("create_subscription_schedule", "collection_method"), ("CollectionMethod", "Option<CollectionMethod>")),
         (("update_subscription_schedule", "collection_method"), ("CollectionMethod", "Option<CollectionMethod>")),
-        (("create_subscription_schedule", "start_date"), ("Scheduled", "Option<Scheduled>")),
-        (("update_subscription_schedule", "start_date"), ("Scheduled", "Option<Scheduled>")),
+        (("create_subscription_schedule", "start_date"), RustType::option(RustType::Scheduled)),
+        (("update_subscription_schedule", "start_date"), RustType::option(RustType::Scheduled)),
         (
             ("create_subscription_schedule", "billing_thresholds"),
             ("SubscriptionBillingThresholds", "Option<SubscriptionBillingThresholds>"),
@@ -495,12 +493,12 @@ fn field_mappings() -> FieldMap {
             ("update_subscription_schedule_phases", "collection_method"),
             ("CollectionMethod", "Option<CollectionMethod>"),
         ),
-        (("create_subscription_schedule_phases", "start_date"), ("Scheduled", "Option<Scheduled>")),
-        (("update_subscription_schedule_phases", "start_date"), ("Scheduled", "Option<Scheduled>")),
-        (("create_subscription_schedule_phases", "end_date"), ("Scheduled", "Option<Scheduled>")),
-        (("update_subscription_schedule_phases", "end_date"), ("Scheduled", "Option<Scheduled>")),
-        (("create_subscription_schedule_phases", "trial_end"), ("Scheduled", "Option<Scheduled>")),
-        (("update_subscription_schedule_phases", "trial_end"), ("Scheduled", "Option<Scheduled>")),
+        (("create_subscription_schedule_phases", "start_date"), RustType::option(RustType::Scheduled)),
+        (("update_subscription_schedule_phases", "start_date"), RustType::option(RustType::Scheduled)),
+        (("create_subscription_schedule_phases", "end_date"), RustType::option(RustType::Scheduled)),
+        (("update_subscription_schedule_phases", "end_date"), RustType::option(RustType::Scheduled)),
+        (("create_subscription_schedule_phases", "trial_end"), RustType::option(RustType::Scheduled)),
+        (("update_subscription_schedule_phases", "trial_end"), RustType::option(RustType::Scheduled)),
         (
             ("subscription_schedule_renewal_interval_params", "interval"),
             ("PlanInterval", "PlanInterval"),
@@ -529,7 +527,7 @@ fn field_mappings() -> FieldMap {
         (("create_price_currency_options_tiers", "up_to"), ("UpTo", "Option<UpTo>")),
         (("update_price_currency_options_tiers", "up_to"), ("UpTo", "Option<UpTo>")),
         (("create_product_default_price_data_currency_options_tiers", "up_to"), ("UpTo", "Option<UpTo>")),
-        (("update_file_link", "expires_at"), ("Scheduled", "Option<Scheduled>")),
+        (("update_file_link", "expires_at"), RustType::option(RustType::Scheduled)),
         (("create_token_account", "company"), ("CompanyParams", "Option<CompanyParams>")),
         (("create_token_account", "individual"), ("PersonParams", "Option<PersonParams>")),
 

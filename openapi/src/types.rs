@@ -1,4 +1,7 @@
+use std::fmt::{Display, Formatter};
+
 use openapiv3::Parameter;
+use {derive_more::AsRef, derive_more::Display};
 
 #[derive(Clone, Copy, Debug)]
 pub enum CopyOrClone {
@@ -15,20 +18,20 @@ pub enum TypeError {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct InferredEnum {
-    pub parent: String,
-    pub field: String,
-    pub options: Vec<String>,
+    pub parent: RustObjectTypeName,
+    pub field: FieldName,
+    pub options: Vec<EnumVariantName>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct InferredUnion {
-    pub field: String,
-    pub schema_variants: Vec<String>,
+    pub field: FieldName,
+    pub schema_variants: Vec<SchemaName>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct InferredStruct {
-    pub field: String,
+    pub field: FieldName,
     pub schema: openapiv3::Schema,
 }
 
@@ -63,6 +66,34 @@ impl MethodTypes {
             MethodTypes::Update => "update",
             MethodTypes::Delete => "delete",
         }
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, AsRef, Display, Ord, PartialOrd)]
+pub struct SchemaName(String);
+
+impl SchemaName {
+    // TODO: assert snakecase
+    pub fn new(name: String) -> Self {
+        Self(name)
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, AsRef, Display, Ord, PartialOrd)]
+pub struct RustObjectTypeName(String);
+
+impl RustObjectTypeName {
+    pub fn new<T: ToString>(name: T) -> Self {
+        Self(name.to_string())
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash, AsRef, Display)]
+pub struct FieldName(String);
+
+impl FieldName {
+    pub fn new(name: String) -> Self {
+        Self(name)
     }
 }
 
@@ -128,5 +159,100 @@ impl IdType {
 impl AsRef<str> for IdType {
     fn as_ref(&self) -> &str {
         &self.0
+    }
+}
+
+#[derive(Copy, Clone)]
+pub enum FeatureGroups {
+    Checkout,
+    Billing,
+    Connect,
+    Fraud,
+    Issuing,
+    Orders,
+    Sigma,
+    WebhookEndpoints,
+}
+
+impl FeatureGroups {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            FeatureGroups::Checkout => "checkout",
+            FeatureGroups::Billing => "billing",
+            FeatureGroups::Connect => "connect",
+            FeatureGroups::Fraud => "fraud",
+            FeatureGroups::Issuing => "issuing",
+            FeatureGroups::Orders => "orders",
+            FeatureGroups::Sigma => "sigma",
+            FeatureGroups::WebhookEndpoints => "webhook-endpoints",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum EnumVariantName {
+    All,
+    APIVersion(usize),
+    ObjectName(RustObjectTypeName),
+}
+
+impl Display for EnumVariantName {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            EnumVariantName::All => write!(f, "All"),
+            EnumVariantName::APIVersion(version) => write!(f, "V{}", version),
+            EnumVariantName::ObjectName(name) => write!(f, "{}", name),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum UseResources {
+    Object(RustObjectTypeName),
+    Currency,
+    Timestamp,
+    CreateProduct,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum RustType {
+    Object(RustObjectTypeName),
+    Bool,
+    Float,
+    String,
+    Metadata,
+    Currency,
+    Timestamp,
+    JSONValue,
+    Scheduled,
+    Expandable(Box<RustType>),
+    Option(Box<RustType>),
+    List(Box<RustType>),
+    Vec(Box<RustType>),
+}
+
+impl RustType {
+    pub fn option(typ: RustType) -> Self {
+        Self::Option(Box::new(typ))
+    }
+
+    pub fn list(typ: RustType) -> Self {
+        Self::List(Box::new(typ))
+    }
+
+    pub fn vec(typ: RustType) -> Self {
+        Self::Vec(Box::new(typ))
+    }
+
+    pub fn expandable(typ: RustType) -> Self {
+        Self::Expandable(Box::new(typ))
+    }
+
+    pub fn is_bool(&self) -> bool {
+        matches!(self, Self::Bool)
+    }
+
+    pub fn is_list(&self) -> bool {
+        matches!(self, Self::List(_))
     }
 }

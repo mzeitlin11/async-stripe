@@ -6,9 +6,14 @@ use openapiv3::{IntegerFormat, Schema, VariantOrUnknownOrEmpty};
 use regex::Regex;
 
 use crate::file_generator::FileGenerator;
-use crate::types::UseParams;
+use crate::types::{FieldName, IntTypes, RustType, UseParams};
 
-pub fn write_out_field(out: &mut String, var_name: &str, var_type: &str, required: bool) {
+pub fn write_out_field(
+    out: &mut String,
+    var_name: &FieldName,
+    var_type: &RustType,
+    required: bool,
+) {
     if required {
         writeln!(out, "    pub {var_name}: {var_type},").unwrap();
     } else {
@@ -107,7 +112,7 @@ pub fn infer_integer_type(
     state: &mut FileGenerator,
     name: &str,
     int_fmt: &VariantOrUnknownOrEmpty<IntegerFormat>,
-) -> String {
+) -> RustType {
     let is_unix_time_fmt = match int_fmt {
         VariantOrUnknownOrEmpty::Unknown(val) => val == "unix-time",
         _ => false,
@@ -116,17 +121,17 @@ pub fn infer_integer_type(
     let name_words = name_snake.split('_').collect::<Vec<_>>();
     if is_unix_time_fmt || name_words.contains(&"date") {
         state.use_params.insert(UseParams::Timestamp);
-        "Timestamp".into()
+        RustType::Timestamp
     } else if name == "monthly_anchor" {
-        "u8".into()
+        RustType::Int(IntTypes::U8)
     } else if name_words.contains(&"days") {
-        "u32".into()
+        RustType::Int(IntTypes::U32)
     } else if name_words.contains(&"count")
         || name_words.contains(&"size")
         || name_words.contains(&"quantity")
     {
-        "u64".into()
+        RustType::Int(IntTypes::U64)
     } else {
-        "i64".into()
+        RustType::Int(IntTypes::I64)
     }
 }

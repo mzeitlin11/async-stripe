@@ -21,14 +21,14 @@ pub struct Metadata<'a> {
 
     /// The set of schemas which should implement `Object`.
     /// These have both an `id` property and an `object` property.
-    pub objects: BTreeSet<&'a str>,
+    pub objects: BTreeSet<SchemaName>,
     /// A one to many map of schema to depending types.
     pub dependents: BTreeMap<&'a str, BTreeSet<&'a str>>,
     /// A one to many map of _objects_ to requests which should be
     /// implemented for that object.
     ///
     /// This is typically determined by the first segment in the path.
-    pub requests: BTreeMap<String, BTreeSet<&'a str>>,
+    pub requests: BTreeMap<SchemaName, BTreeSet<&'a str>>,
 }
 
 impl<'a> Metadata<'a> {
@@ -131,7 +131,7 @@ impl<'a> Metadata<'a> {
         self.objects
             .iter()
             .filter(|o| !o.starts_with("deleted_"))
-            .map(|o| FileGenerator::new(o.to_string()))
+            .map(|o| FileGenerator::new(o.clone()))
             .collect()
     }
 
@@ -155,20 +155,24 @@ pub fn schema_to_rust_object_name(schema: &SchemaName) -> RustObjectTypeName {
     }
 }
 
-pub fn schema_field(parent: &SchemaName, field: &str) -> String {
+pub fn schema_field(parent: &SchemaName, field: &str) -> SchemaName {
     let parent_type = schema_to_rust_object_name(parent);
     format!("{}_{}", parent_type, field).to_snake_case()
 }
 
 pub fn gen_variant_name(wire_name: &SchemaName) -> EnumVariantName {
-    match wire_name.as_ref() {
+    match wire_name.as_str() {
         "*" => EnumVariantName::All,
-        n => {
-            if n.chars().next().unwrap().is_digit(10) {
-                format!("V{}", n.to_string().replace('-', "_").replace('.', "_"))
+        name => {
+            let object_name = if n.chars().next().unwrap().is_digit(10) {
+                RustObjectTypeName::new(format!(
+                    "V{}",
+                    name.to_string().replace('-', "_").replace('.', "_")
+                ))
             } else {
-                EnumVariantName::ObjectName(schema_to_rust_type(wire_name))
-            }
+                schema_to_rust_object_name(wire_name)
+            };
+            EnumVariantName::ObjectName(object_name)
         }
     }
 }
@@ -178,8 +182,8 @@ pub fn gen_variant_name(wire_name: &SchemaName) -> EnumVariantName {
 pub fn metadata_requests<'a>(
     spec: &'a Spec,
     objects: &BTreeSet<&'a str>,
-) -> BTreeMap<String, BTreeSet<&'a str>> {
-    let mut requests = BTreeMap::<String, BTreeSet<_>>::new();
+) -> BTreeMap<SchemaName, BTreeSet<&'a str>> {
+    let mut requests = BTreeMap::<SchemaName, BTreeSet<_>>::new();
     for path in spec.paths() {
         let mut seg_iterator = path.trim_start_matches("/v1/").split('/');
         let object = match (seg_iterator.next(), seg_iterator.next(), seg_iterator.next()) {

@@ -9,7 +9,7 @@ use heck::SnakeCase;
 
 use crate::codegen::{gen_objects, gen_prelude, gen_unions};
 use crate::enums::gen_enums;
-use crate::metadata::schema_to_rust_type;
+use crate::metadata::schema_to_rust_object_name;
 use crate::spec::{as_first_enum_value, as_object_properties};
 use crate::types::{IdType, RustObjectTypeName, SchemaName, UseConfig, UseParams, UseResources};
 use crate::{
@@ -27,8 +27,7 @@ use crate::{
     url_finder::UrlFinder,
 };
 
-///
-#[derive(Default, Debug)]
+#[derive(Debug)]
 pub struct FileGenerator {
     pub name: SchemaName,
 
@@ -57,7 +56,19 @@ pub struct FileGenerator {
 
 impl FileGenerator {
     pub fn new(object_name: SchemaName) -> Self {
-        Self { name: object_name, ..Default::default() }
+        Self {
+            name: object_name,
+            use_ids: Default::default(),
+            use_config: Default::default(),
+            use_params: Default::default(),
+            use_resources: Default::default(),
+            inferred_enums: Default::default(),
+            inferred_unions: Default::default(),
+            inferred_structs: Default::default(),
+            inferred_parameters: Default::default(),
+            generated_schemas: Default::default(),
+            generated_objects: Default::default(),
+        }
     }
 
     fn get_path(&self) -> String {
@@ -96,11 +107,10 @@ impl FileGenerator {
         let mut shared_objects = BTreeSet::<FileGenerator>::new();
 
         let id_type = meta.schema_to_id_type(&self.name);
-        let struct_name = schema_to_rust_type(&self.name);
+        let struct_name = schema_to_rust_object_name(&self.name);
         let properties = meta
             .spec
-            .component_schemas()
-            .get(&self.name)
+            .get_schema(&self.name)
             .and_then(|s| s.as_item())
             .and_then(as_object_properties)
             .context("No properties")?;
@@ -110,7 +120,7 @@ impl FileGenerator {
         if let Some(object_literal) =
             properties.get("object").and_then(|o| o.as_item()).and_then(|s| as_first_enum_value(s))
         {
-            self.gen_object_trait(meta, id_type, &mut out, struct_name, &object_literal);
+            self.gen_object_trait(meta, id_type, &mut out, &struct_name, &object_literal);
         }
 
         gen_generated_schemas(&mut out, self, meta, &mut shared_objects);
@@ -133,7 +143,7 @@ impl FileGenerator {
         meta: &Metadata,
         id_type: Option<(IdType, CopyOrClone)>,
         out: &mut String,
-        struct_name: String,
+        struct_name: &RustObjectTypeName,
         object_literal: &str,
     ) {
         if let Some(impls) =

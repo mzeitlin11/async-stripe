@@ -19,7 +19,8 @@ use crate::spec::{
     get_request_form_parameters, non_path_ref_params, ExpansionResources,
 };
 use crate::types::{
-    FieldName, IdType, RustObjectTypeName, RustType, SchemaName, UseConfig, UseParams, UseResources,
+    FieldName, IdType, IntTypes, RustObjectTypeName, RustType, SchemaName, UseConfig, UseParams,
+    UseResources,
 };
 use crate::util::{print_doc_from_schema, write_serde_rename};
 use crate::{
@@ -236,14 +237,14 @@ pub fn gen_multitype_params(
     parent_struct_rust_type: &str,
     param_name: &str,
     param: &Parameter,
-    initializers: &mut Vec<(String, String, bool)>,
+    initializers: &mut Vec<(String, RustType, bool)>,
     required: bool,
     state: &mut FileGenerator,
     out: &mut String,
 ) {
     let member_schema = match &param.parameter_data_ref().format {
         ParameterSchemaOrContent::Schema(ReferenceOr::Item(s)) => s,
-        _ => panic!("Expected schema content"),
+        _ => unreachable!("Expected schema content"),
     };
     match gen_member_variable_string(member_schema) {
         Ok(type_) => {
@@ -282,7 +283,7 @@ pub fn gen_multitype_params(
             write_out_field(out, param_name, &new_type_name, required);
         }
         _ => {
-            panic!("Don't recognize this: {:#?}", member_schema);
+            unreachable!("Don't recognize this: {:#?}", member_schema);
         }
     }
 }
@@ -321,7 +322,7 @@ pub fn gen_inferred_params(
         out.push_str("pub struct ");
         out.push_str(&params.rust_type);
         out.push_str("<'a> {\n");
-        let mut initializers: Vec<(String, String, bool)> = Vec::new();
+        let mut initializers: Vec<(String, RustType, bool)> = Vec::new();
         for param in params.parameters.iter().filter(|p| matches!(p, Parameter::Query { .. })) {
             let param_name = param.parameter_data_ref().name.as_str();
             let param_rename = match param_name {
@@ -355,20 +356,17 @@ pub fn gen_inferred_params(
                 }
                 "product" => {
                     print_doc(out);
-                    initializers.push((
-                        "product".into(),
-                        "IdOrCreate<'a, CreateProduct<'a>>".into(),
-                        required,
-                    ));
+                    let rust_typ = RustType::IdOrCreate;
+                    initializers.push(("product".into(), rust_typ, required));
                     state.use_params.insert(UseParams::IdOrCreate);
                     state.use_resources.insert(UseResources::CreateProduct);
-                    write_out_field(out, "product", "IdOrCreate<'a, CreateProduct<'a>>", required);
+                    write_out_field(out, "product", &rust_typ, required);
                 }
                 "metadata" => {
                     print_doc(out);
-                    initializers.push(("metadata".into(), "Metadata".into(), required));
+                    initializers.push(("metadata".into(), RustType::Metadata, required));
                     state.use_params.insert(UseParams::Metadata);
-                    write_out_field(out, "metadata", "Metadata", required);
+                    write_out_field(out, "metadata", &RustType::Metadata, required);
                 }
                 "expand" => {
                     print_doc(out);
@@ -379,35 +377,29 @@ pub fn gen_inferred_params(
                 }
                 "limit" => {
                     print_doc(out);
-                    initializers.push(("limit".into(), "u64".into(), false));
-                    write_out_field(out, "limit", "u64", required);
+                    initializers.push(("limit".into(), RustType::Int(IntTypes::U64), false));
+                    write_out_field(out, "limit", &RustType::Int(IntTypes::U64), required);
                 }
                 "ending_before" => {
                     print_doc(out);
                     let cursor_type =
                         id_type.as_ref().map(|(x, _)| x.as_ref()).unwrap_or("&'a str");
                     initializers.push(("ending_before".into(), cursor_type.into(), false));
-                    if required {
-                        panic!("unexpected \"required\" `ending_before` parameter");
-                    } else {
-                        write_out_field(out, "ending_before", cursor_type, false);
-                    }
+                    assert!(!required, "unexpected \"required\" `ending_before` parameter");
+                    write_out_field(out, "ending_before", cursor_type, false);
                 }
                 "starting_after" => {
                     print_doc(out);
                     let cursor_type =
                         id_type.as_ref().map(|(x, _)| x.as_ref()).unwrap_or("&'a str");
                     initializers.push(("starting_after".into(), cursor_type.into(), false));
-                    if required {
-                        panic!("unexpected \"required\" `starting_after` parameter");
-                    } else {
-                        write_out_field(out, "starting_after", cursor_type, false);
-                    }
+                    assert!(!required, "unexpected \"required\" `starting_after` parameter");
+                    write_out_field(out, "starting_after", cursor_type, false);
                 }
                 _ => {
                     let schema = match &param.parameter_data_ref().format {
                         ParameterSchemaOrContent::Schema(s) => s,
-                        ParameterSchemaOrContent::Content(_) => panic!("Expected schema"),
+                        ParameterSchemaOrContent::Content(_) => unreachable!("Expected schema"),
                     };
                     let kind = schema.as_item().map(|s| &s.schema_kind);
                     let is_string_schema = matches!(kind, Some(SchemaKind::Type(Type::String(_))));
@@ -453,8 +445,8 @@ pub fn gen_inferred_params(
                         write_out_field(out, param_rename, id_type.as_ref(), required);
                     } else if matches!(kind, Some(SchemaKind::Type(Type::Boolean { .. }))) {
                         print_doc(out);
-                        initializers.push((param_rename.into(), "bool".into(), false));
-                        write_out_field(out, param_rename, "bool", required);
+                        initializers.push((param_rename.into(), RustType::Bool, false));
+                        write_out_field(out, param_rename, &RustType::Bool, required);
                     } else if let Some(SchemaKind::Type(Type::Integer(int_type))) = kind {
                         let rust_type = infer_integer_type(state, param_name, &int_type.format);
                         print_doc(out);
@@ -462,20 +454,16 @@ pub fn gen_inferred_params(
                         write_out_field(out, param_rename, &rust_type, required);
                     } else if matches!(kind, Some(SchemaKind::Type(Type::Number(_)))) {
                         print_doc(out);
-                        initializers.push((param_rename.into(), "f64".into(), required));
-                        write_out_field(out, param_rename, "f64", required);
+                        initializers.push((param_rename.into(), RustType::Float, required));
+                        write_out_field(out, param_rename, &RustType::Float, required);
                     } else if schema.as_item().and_then(as_any_of_first_item_title)
                         == Some("range_query_specs")
                     {
                         print_doc(out);
-                        initializers.push((
-                            param_rename.into(),
-                            "RangeQuery<Timestamp>".into(),
-                            required,
-                        ));
+                        initializers.push((param_rename.into(), RustType::RangeQueryTs, required));
                         state.use_params.insert(UseParams::RangeQuery);
                         state.use_params.insert(UseParams::Timestamp);
-                        write_out_field(out, param_rename, "RangeQuery<Timestamp>", required);
+                        write_out_field(out, param_rename, &RustType::RangeQueryTs, required);
                     } else if let Some(enum_strings) = schema.as_item().and_then(as_enum_strings) {
                         let enum_schema = schema_field(&object, param_rename);
                         let enum_name = schema_to_rust_object_name(&enum_schema);
@@ -486,28 +474,29 @@ pub fn gen_inferred_params(
                         };
                         let inserted = state.try_insert_enum(enum_name.clone(), enum_.clone());
                         let enum_name = if inserted.is_err() {
-                            let enum_schema = format!("{}_filter", enum_schema);
+                            let enum_schema = SchemaName::new(format!("{}_filter", enum_schema));
                             let enum_name = schema_to_rust_object_name(&enum_schema);
                             state.insert_enum(enum_name.clone(), enum_);
                             enum_name
                         } else {
                             enum_name
                         };
+                        let rust_typ = RustType::Object(enum_name);
 
                         print_doc(out);
-                        initializers.push((param_rename.into(), enum_name.clone(), required));
-                        write_out_field(out, param_rename, &enum_name, required);
+                        write_out_field(out, param_rename, &rust_typ, required);
+                        initializers.push((param_rename.into(), rust_typ, required));
                     } else if (param_name == "currency" || param_name.ends_with("_currency"))
                         && is_string_schema
                     {
                         print_doc(out);
-                        initializers.push((param_rename.into(), "Currency".into(), required));
+                        initializers.push((param_rename.into(), RustType::Currency, required));
                         state.use_resources.insert(UseResources::Currency);
-                        write_out_field(out, param_rename, "Currency", required);
+                        write_out_field(out, param_rename, &RustType::Currency, required);
                     } else if is_string_schema {
                         print_doc(out);
-                        initializers.push((param_rename.into(), "&'a str".into(), required));
-                        write_out_field(out, param_rename, "&'a str", required);
+                        initializers.push((param_rename.into(), RustType::Str, required));
+                        write_out_field(out, param_rename, &RustType::Str, required);
                     } else if schema.as_item().is_none()
                         || matches!(
                             kind,
@@ -722,16 +711,18 @@ pub fn gen_unions(
 }
 
 #[tracing::instrument(skip_all)]
-pub fn gen_member_variable_string(schema: &Schema) -> Result<String, TypeError> {
+pub fn gen_member_variable_string(schema: &Schema) -> Result<RustType, TypeError> {
     if let SchemaKind::Type(typ) = &schema.schema_kind {
         match typ {
-            Type::String(_) => Ok("String".into()),
-            Type::Integer(_) => Ok("i32".into()),
-            Type::Boolean { .. } => Ok("bool".into()),
-            Type::Array(arr) => Ok(format!(
-                "Vec<{}>",
-                gen_member_variable_string(arr.items.as_ref().unwrap().as_item().unwrap()).unwrap()
-            )),
+            Type::String(_) => Ok(RustType::String),
+            Type::Integer(_) => Ok(RustType::Int(IntTypes::I32)),
+            Type::Boolean { .. } => Ok(RustType::Bool),
+            Type::Array(arr) => {
+                let inner_typ =
+                    gen_member_variable_string(arr.items.as_ref().unwrap().as_item().unwrap())
+                        .unwrap();
+                Ok(RustType::vec(inner_typ))
+            }
             Type::Object(_) => Err(TypeError::IsObject),
             _ => Err(TypeError::Unhandled),
         }
@@ -875,7 +866,7 @@ pub fn gen_field<T: Borrow<Schema>>(
         shared_objects,
     );
     if !required {
-        if rust_type == "bool" || rust_type == "Metadata" || rust_type.starts_with("List<") {
+        if matches!(rust_type, RustType::Bool | RustType::Metadata | RustType::List(_)) {
             out.push_str("    #[serde(default)]\n");
         } else if rust_type.starts_with("Option<") {
             out.push_str("    #[serde(skip_serializing_if = \"Option::is_none\")]\n");
@@ -985,7 +976,7 @@ fn gen_field_type(
                 false,
                 shared_objects,
             );
-            format!("Vec<{}>", element_type)
+            RustType::vec(element_type)
         }
         SchemaKind::Type(Type::Object(typ)) => {
             if as_object_enum_name(field).as_deref() == Some("list") {
@@ -1012,7 +1003,7 @@ fn gen_field_type(
                 );
 
                 // N.B. return immediately; we use `Default` for list rather than `Option`
-                return format!("List<{}>", element_type);
+                return RustType::list(element_type);
             }
 
             if let Some(AdditionalProperties::Schema(additional)) = &typ.additional_properties {
@@ -1079,13 +1070,13 @@ fn gen_field_type(
                     shared_objects,
                 );
                 state.use_params.insert(UseParams::Expandable);
-                format!("Expandable<{}>", ty_)
+                RustType::expandable(ty_)
             } else if any_of[0].as_item().and_then(|s| s.schema_data.title.as_deref())
                 == Some("range_query_specs")
             {
                 state.use_params.insert(UseParams::RangeQuery);
                 state.use_params.insert(UseParams::Timestamp);
-                "RangeQuery<Timestamp>".into()
+                RustType::RangeQueryTs
             } else {
                 log::trace!("object: {}, field_name: {}", object, field_name);
                 let union_addition = format!("{field_name}_union");
@@ -1201,9 +1192,9 @@ pub fn gen_field_rust_type<T: Borrow<Schema>>(
     let should_box = ty.as_str() == "ApiErrors";
 
     match (optional, should_box) {
-        (true, true) => format!("Option<Box<{}>>", ty),
-        (true, false) => format!("Option<{}>", ty),
-        (false, true) => format!("Box<{}>", ty),
+        (true, true) => RustType::option(RustType::boxed(ty)),
+        (true, false) => RustType::option(ty),
+        (false, true) => RustType::boxed(ty),
         (false, false) => ty,
     }
 }

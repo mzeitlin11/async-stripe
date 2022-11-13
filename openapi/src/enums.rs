@@ -4,11 +4,11 @@ use std::fmt::Write as _;
 use indoc::writedoc;
 
 use crate::metadata::gen_variant_name;
-use crate::types::InferredEnum;
+use crate::types::{InferredEnum, RustObjectTypeName, SchemaName};
 use crate::util::write_serde_rename;
 
 #[tracing::instrument(skip_all)]
-pub fn gen_enums(out: &mut String, enums: &BTreeMap<String, InferredEnum>) {
+pub fn gen_enums(out: &mut String, enums: &BTreeMap<RustObjectTypeName, InferredEnum>) {
     for (enum_name, enum_) in enums {
         log::trace!("enum {} {{ ... }}", enum_name);
 

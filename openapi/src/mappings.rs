@@ -193,352 +193,67 @@ type FieldSpec = (
 fn field_mappings() -> FieldMap {
     BTreeMap::from([
         // Config for object types
-        (("account", "type"), ("AccountType", "Option<AccountType>")),
-        (("balance_transaction", "status"), ("BalanceTransactionStatus", "BalanceTransactionStatus")),
-        (("bank_account", "status"), ("BankAccountStatus", "Option<BankAccountStatus>")),
-        (("fee", "type"), ("FeeType", "FeeType")),
-        (("charge", "source"), ("PaymentSource", "Option<PaymentSource>")),
-        (("customer", "default_source"), ("PaymentSource", "Option<Expandable<PaymentSource>>")),
-        (("customer", "sources"), ("PaymentSource", "List<PaymentSource>")),
-        (("invoice", "billing"), ("", "Option<CollectionMethod>")),
-        (("invoice", "default_source"), ("PaymentSource", "Option<Expandable<PaymentSource>>")),
-        (("invoiceitem", "period"), ("Period", "Option<Period>")),
-        (("line_item", "period"), ("Period", "Option<Period>")),
-        (
-            ("issuing_authorization", "authorization_method"),
-            ("IssuingAuthorizationMethod", "IssuingAuthorizationMethod"),
-        ),
-        (
-            ("issuing_authorization", "wallet_provider"),
-            ("IssuingAuthorizationWalletProvider", "Option<IssuingAuthorizationWalletProvider>"),
-        ),
-        (
-            ("issuing_authorization_request", "reason"),
-            ("IssuingAuthorizationReason", "IssuingAuthorizationReason"),
-        ),
-        (
-            ("issuing_authorization_verification_data", "address_line1_check"),
-            ("IssuingAuthorizationCheck", "IssuingAuthorizationCheck"),
-        ),
-        (
-            ("issuing_authorization_verification_data", "address_zip_check"),
-            ("IssuingAuthorizationCheck", "IssuingAuthorizationCheck"),
-        ),
-        (
-            ("issuing_authorization_verification_data", "address_postal_code_check"),
-            ("IssuingAuthorizationCheck", "IssuingAuthorizationCheck"),
-        ),
-        (
-            ("issuing_authorization_verification_data", "cvc_check"),
-            ("IssuingAuthorizationCheck", "IssuingAuthorizationCheck"),
-        ),
-        (
-            ("issuing_authorization_verification_data", "expiry_check"),
-            ("IssuingAuthorizationCheck", "IssuingAuthorizationCheck"),
-        ),
-        (("issuing_card", "brand"), ("CardBrand", "CardBrand")),
-        (("issuing_card", "type"), ("IssuingCardType", "IssuingCardType")),
-        (
-            ("issuing_card_authorization_controls", "allowed_categories"),
-            ("MerchantCategory", "Option<Vec<MerchantCategory>>"),
-        ),
-        (
-            ("issuing_card_authorization_controls", "blocked_categories"),
-            ("MerchantCategory", "Option<Vec<MerchantCategory>>"),
-        ),
-        (
-            ("issuing_cardholder_authorization_controls", "allowed_categories"),
-            ("MerchantCategory", "Option<Vec<MerchantCategory>>"),
-        ),
-        (
-            ("issuing_cardholder_authorization_controls", "blocked_categories"),
-            ("MerchantCategory", "Option<Vec<MerchantCategory>>"),
-        ),
-        (
-            ("issuing_card_pin", "status"),
-            ("IssuingCardPinStatus", "IssuingCardPinStatus"),
-        ),
-        (
-            ("issuing_card_shipping", "type"),
-            ("IssuingCardShippingType", "IssuingCardShippingType"),
-        ),
-        (
-            ("issuing_card_shipping", "status"),
-            ("IssuingCardShippingStatus", "Option<IssuingCardShippingStatus>"),
-        ),
-        (
-            ("issuing_dispute", "reason"),
-            ("IssuingDisputeReason", "IssuingDisputeReason"),
-        ),
-        (
-            ("issuing_dispute", "status"),
-            ("IssuingDisputeStatus", "IssuingDisputeStatus"),
-        ),
-        (
-            ("issuing_transaction", "type"),
-            ("IssuingTransactionType", "IssuingTransactionType"),
-        ),
-        (("file", "purpose"), ("", "FilePurpose")),
-        (("recipient", "type"), ("", "crate::RecipientType")),
-        (("review", "reason"), ("ReviewReason", "ReviewReason")),
-        (("sku", "attributes"), ("Metadata", "Option<Metadata>")),
-        (
-            ("subscription", "default_source"),
-            ("PaymentSource", "Option<Expandable<PaymentSource>>"),
-        ),
-        (("source", "flow"), ("", "SourceFlow")),
-        (("source", "status"), ("SourceStatus", "SourceStatus")),
-        (("source", "usage"), ("SourceUsage", "Option<SourceUsage>")),
-        (
-            ("source_redirect_flow", "failure_reason"),
-            ("SourceRedirectFlowFailureReason", "Option<SourceRedirectFlowFailureReason>"),
-        ),
-        (
-            ("source_redirect_flow", "status"),
-            ("SourceRedirectFlowStatus", "SourceRedirectFlowStatus"),
-        ),
-        (
-            ("subscription", "billing"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("subscription", "collection_method"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("subscription_schedule", "billing"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("subscription_schedule", "collection_method"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("subscription_schedule_phase_configuration", "collection_method"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("subscription_schedule_renewal_interval", "interval"),
-            ("PlanInterval", "PlanInterval"),
-        ),
-        (
-            ("subscription_schedule_default_settings", "collection_method"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("subscription_schedule_default_settings_params", "collection_method"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (("token", "type"), ("TokenType", "TokenType")),
-        (("transfer", "source_type"), ("", "Option<TransferSourceType>")),
-        (("webhook_endpoint", "api_version"), ("ApiVersion", "Option<ApiVersion>")),
-        (("webhook_endpoint", "enabled_events"), ("", "Option<Vec<EventFilter>>")),
-        (("webhook_endpoint", "status"), ("WebhookEndpointStatus", "Option<WebhookEndpointStatus>")),
+        (("sku", "attributes"), RustType::option(RustType::Metadata)),
+        // (("token", "type"), ("TokenType", "TokenType")),
+        // (("transfer", "source_type"), ("", "Option<TransferSourceType>")),
+        (("webhook_endpoint", "api_version"), RustType::option(RustType::APIVersion)),
+        // (("webhook_endpoint", "enabled_events"), ("", "Option<Vec<EventFilter>>")),
+        // (("webhook_endpoint", "status"), ("WebhookEndpointStatus", "Option<WebhookEndpointStatus>")),
 
         // Config for `account` params
-        (("create_account", "business_profile"), ("BusinessProfile", "Option<BusinessProfile>")),
-        (("update_account", "business_profile"), ("BusinessProfile", "Option<BusinessProfile>")),
-        (("company_params", "address"), ("Address", "Option<Address>")),
-        (("company_params", "address_kana"), ("Address", "Option<Address>")),
-        (("company_params", "address_kanji"), ("Address", "Option<Address>")),
+        // (("create_account", "business_profile"), ("BusinessProfile", "Option<BusinessProfile>")),
+        // (("update_account", "business_profile"), ("BusinessProfile", "Option<BusinessProfile>")),
+        (("company_params", "address"), RustType::option(RustType::Address)),
+        (("company_params", "address_kana"), RustType::option(RustType::Address)),
+        (("company_params", "address_kanji"), RustType::option(RustType::Address)),
         // (("company_params", "verification"), ("CompanyVerificationParams", "Option<CompanyVerificationParams>")),
-        (("person_params", "address"), ("Address", "Option<Address>")),
-        (("person_params", "address_kana"), ("Address", "Option<Address>")),
-        (("person_params", "address_kanji"), ("Address", "Option<Address>")),
-        (("person_params", "verification"), ("PersonVerificationParams", "Option<PersonVerificationParams>")),
-        (("company_verification_params", "document"), ("VerificationDocumentParams", "Option<VerificationDocumentParams>")),
+        (("person_params", "address"), RustType::option(RustType::Address)),
+        (("person_params", "address_kana"), RustType::option(RustType::Address)),
+        (("person_params", "address_kanji"), RustType::option(RustType::Address)),
+        // (("person_params", "verification"), ("PersonVerificationParams", "Option<PersonVerificationParams>")),
+        // (("company_verification_params", "document"), ("VerificationDocumentParams", "Option<VerificationDocumentParams>")),
         // (("person_verification_params", "document"), ("VerificationDocumentParams", "Option<VerificationDocumentParams>")),
         // (("person_verification_params", "additional_document"), ("VerificationDocumentParams", "Option<VerificationDocumentParams>")),
 
         // Config for `charge` params
-        (("create_charge", "shipping"), ("Shipping", "Option<Shipping>")),
-        (("create_charge", "source"), ("ChargeSourceParams", "Option<ChargeSourceParams>")),
-        (("update_charge", "shipping"), ("Shipping", "Option<Shipping>")),
+        // (("create_charge", "shipping"), ("Shipping", "Option<Shipping>")),
+        // (("create_charge", "source"), ("ChargeSourceParams", "Option<ChargeSourceParams>")),
+        // (("update_charge", "shipping"), ("Shipping", "Option<Shipping>")),
 
         // Config for `customer` params
-        (("create_customer", "address"), ("Address", "Option<Address>")),
-        (("update_customer", "address"), ("Address", "Option<Address>")),
-        (
-            ("update_customer", "default_alipay_account"),
-            ("AlipayAccountId", "Option<AlipayAccountId>"),
-        ),
-        (("update_customer", "default_bank_account"), ("BankAccountId", "Option<BankAccountId>")),
-        (("update_customer", "default_card"), ("CardId", "Option<CardId>")),
-        (("create_customer", "default_source"), ("PaymentSourceId", "Option<PaymentSourceId>")),
-        (("update_customer", "default_source"), ("PaymentSourceId", "Option<PaymentSourceId>")),
-        (("create_customer", "source"), ("PaymentSourceParams", "Option<PaymentSourceParams>")),
-        (("update_customer", "source"), ("PaymentSourceParams", "Option<PaymentSourceParams>")),
+        (("create_customer", "address"), RustType::option(RustType::Address)),
+        (("update_customer", "address"), RustType::option(RustType::Address)),
         (("update_customer", "trial_end"), RustType::option(RustType::Scheduled)),
 
         // Config for `invoice` params
-        (("list_invoices", "billing"), ("", "Option<CollectionMethod>")),
-        (("create_invoice", "billing"), ("", "Option<CollectionMethod>")),
-
-        // Config for `invoiceitem` params
-        (("create_invoice_item", "period"), ("Period", "Option<Period>")),
-        (("update_invoice_item", "period"), ("Period", "Option<Period>")),
-
-        // Config for `order` params
-        (("list_orders", "status"), ("OrderStatusFilter", "Option<OrderStatusFilter>")),
-
-        // Config for `payment_intent` params
-        (("payment_intent", "source"), ("PaymentSource", "Option<Expandable<PaymentSource>>")),
         (("payment_intent_next_action", "use_stripe_sdk"),RustType::option(RustType::JSONValue)),
-        (
-            ("create_payment_intent", "off_session"),
-            ("PaymentIntentOffSession", "Option<PaymentIntentOffSession>"),
-        ),
-        (("create_setup_intent", "usage"), ("", "Option<SetupIntentUsage>")),
         (("setup_intent_next_action", "use_stripe_sdk"), RustType::option(RustType::JSONValue)),
 
         // Config for `sku` params
         (("list_skus", "attributes"), RustType::option(RustType::Metadata)),
         (("create_sku", "attributes"), RustType::option(RustType::Metadata)),
         (("update_sku", "attributes"), RustType::option(RustType::Metadata)),
-        (("create_sku", "inventory"), ("SkuInventory", "Option<SkuInventory>")),
-        (("update_sku", "inventory"), ("SkuInventory", "Option<SkuInventory>")),
-        (("create_sku", "package_dimensions"), ("PackageDimensions", "Option<PackageDimensions>")),
-        (("update_sku", "package_dimensions"), ("PackageDimensions", "Option<PackageDimensions>")),
-
-        // Config for `source` params
-        (("create_source", "owner"), ("BillingDetails", "Option<BillingDetails>")),
-        (("update_source", "owner"), ("BillingDetails", "Option<BillingDetails>")),
-
-        // Config for `subscription` params
-        (
-            ("create_subscription", "billing_thresholds"),
-            ("SubscriptionBillingThresholds", "Option<SubscriptionBillingThresholds>"),
-        ),
-        (
-            ("update_subscription", "billing_thresholds"),
-            ("SubscriptionBillingThresholds", "Option<SubscriptionBillingThresholds>"),
-        ),
-        (
-            ("create_subscription_item", "billing_thresholds"),
-            ("SubscriptionItemBillingThresholds", "Option<SubscriptionItemBillingThresholds>"),
-        ),
-        (
-            ("update_subscription_item", "billing_thresholds"),
-            ("SubscriptionItemBillingThresholds", "Option<SubscriptionItemBillingThresholds>"),
-        ),
-        (
-            ("update_subscription_items", "billing_thresholds"),
-            ("SubscriptionItemBillingThresholds", "Option<SubscriptionItemBillingThresholds>"),
-        ),
-        (
-            ("subscription_schedule_phases_plans_params", "billing_thresholds"),
-            ("SubscriptionItemBillingThresholds", "Option<SubscriptionItemBillingThresholds>"),
-        ),
-        (
-            ("list_subscriptions", "billing"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("create_subscription", "billing"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("update_subscription", "billing"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("list_subscriptions", "collection_method"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("create_subscription", "collection_method"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("update_subscription", "collection_method"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
         (("create_subscription", "trial_end"), RustType::option(RustType::Scheduled)),
         (("update_subscription", "trial_end"), RustType::option(RustType::Scheduled)),
 
         // Config for `subscription_schedule` params
-        (("create_subscription_schedule", "collection_method"), ("CollectionMethod", "Option<CollectionMethod>")),
-        (("update_subscription_schedule", "collection_method"), ("CollectionMethod", "Option<CollectionMethod>")),
         (("create_subscription_schedule", "start_date"), RustType::option(RustType::Scheduled)),
         (("update_subscription_schedule", "start_date"), RustType::option(RustType::Scheduled)),
-        (
-            ("create_subscription_schedule", "billing_thresholds"),
-            ("SubscriptionBillingThresholds", "Option<SubscriptionBillingThresholds>"),
-        ),
-        (
-            ("update_subscription_schedule", "billing_thresholds"),
-            ("SubscriptionBillingThresholds", "Option<SubscriptionBillingThresholds>"),
-        ),
-        (
-            ("create_subscription_schedule", "billing"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("update_subscription_schedule", "billing"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("create_subscription_schedule_phases", "billing_thresholds"),
-            ("SubscriptionBillingThresholds", "Option<SubscriptionBillingThresholds>"),
-        ),
-        (
-            ("update_subscription_schedule_phases", "billing_thresholds"),
-            ("SubscriptionBillingThresholds", "Option<SubscriptionBillingThresholds>"),
-        ),
-        (
-            ("create_subscription_schedule_phases", "collection_method"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
-        (
-            ("update_subscription_schedule_phases", "collection_method"),
-            ("CollectionMethod", "Option<CollectionMethod>"),
-        ),
         (("create_subscription_schedule_phases", "start_date"), RustType::option(RustType::Scheduled)),
         (("update_subscription_schedule_phases", "start_date"), RustType::option(RustType::Scheduled)),
         (("create_subscription_schedule_phases", "end_date"), RustType::option(RustType::Scheduled)),
         (("update_subscription_schedule_phases", "end_date"), RustType::option(RustType::Scheduled)),
         (("create_subscription_schedule_phases", "trial_end"), RustType::option(RustType::Scheduled)),
         (("update_subscription_schedule_phases", "trial_end"), RustType::option(RustType::Scheduled)),
-        (
-            ("subscription_schedule_renewal_interval_params", "interval"),
-            ("PlanInterval", "PlanInterval"),
-        ),
-        (
-            ("subscription_schedule_default_settings_params", "invoice_settings"),
-            ("SubscriptionScheduleInvoiceSettings", "Option<SubscriptionScheduleInvoiceSettings>"),
-        ),
-
-        // Miscellaneous params
-        (("create_recipient", "type"), ("", "RecipientType")),
-        (
-            ("update_payment_method", "billing_details"),
-            ("BillingDetails", "Option<BillingDetails>"),
-        ),
-        (
-            ("create_product", "package_dimensions"),
-            ("PackageDimensions", "Option<PackageDimensions>"),
-        ),
-        (
-            ("update_product", "package_dimensions"),
-            ("PackageDimensions", "Option<PackageDimensions>"),
-        ),
-        (("create_plan_tiers", "up_to"), ("UpTo", "Option<UpTo>")),
-        (("create_price_tiers", "up_to"), ("UpTo", "Option<UpTo>")),
-        (("create_price_currency_options_tiers", "up_to"), ("UpTo", "Option<UpTo>")),
-        (("update_price_currency_options_tiers", "up_to"), ("UpTo", "Option<UpTo>")),
-        (("create_product_default_price_data_currency_options_tiers", "up_to"), ("UpTo", "Option<UpTo>")),
+        (("create_plan_tiers", "up_to"), RustType::option(RustType::UpTo)),
+        (("create_price_tiers", "up_to"), RustType::option(RustType::UpTo)),
+        (("create_price_currency_options_tiers", "up_to"), RustType::option(RustType::UpTo)),
+        (("update_price_currency_options_tiers", "up_to"), RustType::option(RustType::UpTo)),
+        (("create_product_default_price_data_currency_options_tiers", "up_to"), RustType::option(RustType::UpTo)),
         (("update_file_link", "expires_at"), RustType::option(RustType::Scheduled)),
-        (("create_token_account", "company"), ("CompanyParams", "Option<CompanyParams>")),
-        (("create_token_account", "individual"), ("PersonParams", "Option<PersonParams>")),
-
-        (("create_token_person", "address"), ("Address", "Option<Address>")),
-        (("create_token_person", "address_kana"), ("Address", "Option<Address>")),
-        (("create_token_person", "address_kanji"), ("Address", "Option<Address>")),
-        (
-            ("create_payment_method", "billing_details"),
-            ("BillingDetails", "Option<BillingDetails>"),
-        ),
-        (("transfer_schedule_params", "delay_days"), ("DelayDays", "Option<DelayDays>")),
-        (("create_webhook_endpoint", "api_version"), ("ApiVersion", "Option<ApiVersion>")),
+        (("create_token_person", "address"), RustType::option(RustType::Address)),
+        (("create_token_person", "address_kana"), RustType::option(RustType::Address)),
+        (("create_token_person", "address_kanji"), RustType::option(RustType::Address)),
+        (("create_webhook_endpoint", "api_version"), RustType::option(RustType::APIVersion)),
     ])
 }

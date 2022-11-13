@@ -28,6 +28,10 @@ impl Spec {
         &self.components().schemas
     }
 
+    pub fn get_schema(&self, name: &SchemaName) -> Option<&ReferenceOr<Schema>> {
+        self.component_schemas().get(name.as_ref())
+    }
+
     pub fn get_schema_unwrapped(&self, name: &SchemaName) -> &ReferenceOr<Schema> {
         self.component_schemas()
             .get(name.as_ref())

@@ -6,6 +6,7 @@
 
 mod currency;
 mod expandable;
+mod generated;
 mod ids;
 mod pagination;
 mod params;

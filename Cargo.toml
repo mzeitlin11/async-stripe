@@ -1,7 +1,8 @@
 [workspace]
 members = [
     "async-stripe",
-    "stripe_types"
+    "stripe_types",
+    "stripe_webhook"
 ]
 resolver = "2"
 # Makes dependency management simpler to allow codegen crate to use whichever dep versions

@@ -53,13 +53,8 @@
 //!   Otherwise, we are open to turning this into an open trait so that you can implement your own strategy.
 
 #![allow(clippy::map_clone, clippy::large_enum_variant)]
-#![warn(clippy::unwrap_used, clippy::missing_errors_doc, clippy::missing_panics_doc)]
+#![warn(clippy::unwrap_used, clippy::missing_errors_doc)]
 #![forbid(unsafe_code)]
-
-// Give a clear error when a required runtime error is not present. Would be better for this
-// to be a fatal error preventing emission of further compile errors relating to lack of
-// a runtime feature, but that does not seem currently possible:
-// https://github.com/rust-lang/rust/issues/68838
 
 mod client;
 mod error;

@@ -1,12 +1,10 @@
-mod mock;
+use stripe_types::currency_option::CurrencyOptionTaxBehavior;
+use stripe_types::{Currency, Price};
 
 // Using fixture for this test because the stripe-mock server does not (currently [2023-05-25]) support the `currency_options` field.
 // See: https://github.com/stripe/stripe-mock/issues/420
 #[test]
-#[cfg(feature = "blocking")]
 fn deserialize_currency_options() {
-    use stripe::{Currency, CurrencyOptionTaxBehavior, Price};
-
     let fixture = r#"
     {
         "id": "price_1234",

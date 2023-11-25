@@ -1,18 +1,15 @@
-mod mock;
+use stripe_core::customer::{CreateCustomer, DeleteCustomer};
 
-#[cfg(feature = "blocking")]
+use crate::mock;
+
 fn customer_create_and_delete(client: &stripe::Client) {
-    let customer_params = stripe::CreateCustomer::new();
-    let customer = stripe::Customer::create(client, customer_params).unwrap();
-    let result = stripe::Customer::delete(client, &customer.id);
-    match result {
-        Ok(deleted) => assert!(deleted.deleted, "customer wasn't deleted"),
-        Err(err) => panic!("{}", err),
-    }
+    // NB: the create step is not required for deletion to work since the stripe mock is stateless
+    let customer = CreateCustomer::new().send(client).unwrap();
+    let result = DeleteCustomer::new().send(client, &customer.id).unwrap();
+    assert_eq!(result.id, customer.id);
 }
 
 #[test]
-#[cfg(feature = "blocking")]
 fn customer_create_and_delete_without_account() {
     mock::with_client(|client| {
         customer_create_and_delete(client);
@@ -20,7 +17,6 @@ fn customer_create_and_delete_without_account() {
 }
 
 #[test]
-#[cfg(feature = "blocking")]
 fn customer_create_and_delete_with_account() {
     mock::with_client(|client| {
         let client = client

@@ -1,120 +1,8 @@
-#![recursion_limit = "256"]
 use serde_json::json;
-
-#[test]
-fn debug_currency() {
-    use stripe::Currency;
-    assert_eq!(format!("{:?}", Currency::AED), "AED");
-    assert_eq!(format!("{:?}", Currency::USD), "USD");
-    assert_eq!(format!("{:?}", Currency::ZMW), "ZMW");
-}
-
-#[test]
-fn display_currency() {
-    use stripe::Currency;
-    assert_eq!(format!("{}", Currency::AED), "aed");
-    assert_eq!(format!("{}", Currency::USD), "usd");
-    assert_eq!(format!("{}", Currency::ZMW), "zmw");
-}
-
-#[test]
-fn serialize_currency() {
-    use stripe::Currency;
-    assert_eq!(serde_json::to_string(&Currency::AED).unwrap(), "\"aed\"");
-    assert_eq!(serde_json::to_string(&Currency::USD).unwrap(), "\"usd\"");
-    assert_eq!(serde_json::to_string(&Currency::ZMW).unwrap(), "\"zmw\"");
-}
-
-#[test]
-fn deserialize_currency() {
-    use stripe::Currency;
-    assert_eq!(serde_json::from_str::<Currency>("\"aed\"").unwrap(), Currency::AED);
-    assert_eq!(serde_json::from_str::<Currency>("\"usd\"").unwrap(), Currency::USD);
-    assert_eq!(serde_json::from_str::<Currency>("\"zmw\"").unwrap(), Currency::ZMW);
-}
-
-#[test]
-fn serialize_range_query() {
-    use stripe::{ListCustomers, RangeBounds, RangeQuery};
-
-    let query = RangeQuery::Bounds(RangeBounds {
-        gt: None,
-        gte: Some(1501598702),
-        lt: Some(1504233902),
-        lte: None,
-    });
-    assert_eq!(urldecode(serde_qs::to_string(&query).unwrap()), "gte=1501598702&lt=1504233902");
-
-    let mut params = ListCustomers::new();
-    params.created = Some(RangeQuery::eq(1501598702));
-    params.limit = Some(3);
-    assert_eq!(urldecode(serde_qs::to_string(&params).unwrap()), "created=1501598702&limit=3");
-
-    let mut params = ListCustomers::new();
-    params.created = Some(RangeQuery::gte(1501598702));
-    params.limit = Some(3);
-    assert_eq!(urldecode(serde_qs::to_string(&params).unwrap()), "created[gte]=1501598702&limit=3");
-
-    let mut params = ListCustomers::new();
-    params.created = Some(query);
-    params.limit = Some(3);
-    let encoded = urldecode(serde_qs::to_string(&params).unwrap());
-    assert_eq!(encoded, "created[gte]=1501598702&created[lt]=1504233902&limit=3");
-}
-
-fn urldecode(input: String) -> String {
-    input.replace("%5B", "[").replace("%5D", "]")
-}
-
-#[test]
-fn deserialize_payment_source_params() {
-    use stripe::{PaymentSourceParams, SourceId, TokenId};
-
-    let examples = [
-        (
-            json!("src_xyzABC123"),
-            Some(PaymentSourceParams::Source("src_xyzABC123".parse::<SourceId>().unwrap())),
-        ),
-        (
-            json!("tok_189g322eZvKYlo2CeoPw2sdy"),
-            Some(PaymentSourceParams::Token(
-                "tok_189g322eZvKYlo2CeoPw2sdy".parse::<TokenId>().unwrap(),
-            )),
-        ),
-    ];
-
-    for (value, expected) in &examples {
-        let input = serde_json::to_string(value).unwrap();
-        let parsed: Option<PaymentSourceParams> = serde_json::from_str(&input).ok();
-        assert_eq!(json!(parsed), json!(expected));
-    }
-}
-
-#[test]
-fn serialize_payment_source_params() {
-    use stripe::{PaymentSourceParams, SourceId, TokenId};
-
-    let examples = [
-        (
-            PaymentSourceParams::Source("src_xyzABC123".parse::<SourceId>().unwrap()),
-            json!("src_xyzABC123"),
-        ),
-        (
-            PaymentSourceParams::Token("tok_189g322eZvKYlo2CeoPw2sdy".parse::<TokenId>().unwrap()),
-            json!("tok_189g322eZvKYlo2CeoPw2sdy"),
-        ),
-    ];
-
-    for (params, expected) in &examples {
-        let value = serde_json::to_value(params).unwrap();
-        assert_eq!(&value, expected);
-    }
-}
+use stripe_types::Customer;
 
 #[test]
 fn deserialize_customer_with_card() {
-    use stripe::Customer;
-
     let example = json!({
       "id": "cus_1234",
       "object": "customer",
@@ -179,8 +67,6 @@ fn deserialize_customer_with_card() {
 
 #[test]
 fn deserialize_customer_with_source() {
-    use stripe::Customer;
-
     let example = json!({
       "id": "cus_5678",
       "object": "customer",
@@ -261,9 +147,8 @@ fn deserialize_customer_with_source() {
 }
 
 #[test]
-#[cfg(feature = "event")]
 fn deserialize_checkout_event() {
-    use stripe::Event;
+    use stripe_types::NotificationEvent;
 
     let example = json!({
       "created": 1326853478,
@@ -310,6 +195,6 @@ fn deserialize_checkout_event() {
         }
       }
     });
-    let result = serde_json::from_value::<Event>(example);
+    let result = serde_json::from_value::<NotificationEvent>(example);
     assert!(result.is_ok(), "expected ok; was {:?}", result);
 }

@@ -1,0 +1,5 @@
+{
+  "/issuing/tokens/{token}": "issuing.token",
+  "/checkout/sessions/{session}": "checkout.session",
+  "/subscriptions/{subscription_exposed_id}": "subscription"
+}

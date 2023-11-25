@@ -1,35 +1,17 @@
-use std::fmt::Write as _;
+use std::fmt::Write;
 
-use heck::SnakeCase;
 use lazy_static::lazy_static;
-use openapiv3::{IntegerFormat, Schema, VariantOrUnknownOrEmpty};
-use regex::Regex;
-
-use crate::file_generator::FileGenerator;
-
-pub fn write_out_field(out: &mut String, var_name: &str, var_type: &str, required: bool) {
-    if required {
-        writeln!(out, "    pub {var_name}: {var_type},").unwrap();
-    } else {
-        out.push_str("    #[serde(skip_serializing_if = \"Option::is_none\")]\n");
-        writeln!(out, "    pub {var_name}: Option<{var_type}>,").unwrap();
-    }
-}
+use regex_lite::Regex;
 
 pub fn write_serde_rename(out: &mut String, rename: &str) {
-    writeln!(out, r#"    #[serde(rename = "{rename}")]"#).unwrap();
+    let _ = writeln!(out, r#"#[serde(rename = "{rename}")]"#);
 }
 
-pub fn print_doc_from_schema(out: &mut String, schema: &Schema, print_level: u8) {
-    if let Some(description) = &schema.schema_data.description {
-        print_doc_comment(out, description, print_level);
-    }
-}
-
-pub fn print_doc_comment(out: &mut String, description: &str, depth: u8) {
+pub fn write_doc_comment(description: &str, depth: u8) -> String {
     if description.trim().is_empty() {
-        return;
+        return String::new();
     }
+    let mut out = String::with_capacity(32);
 
     let doc = format_doc_comment(description);
     let mut doc_parts = doc.splitn(2, ". ");
@@ -38,7 +20,7 @@ pub fn print_doc_comment(out: &mut String, description: &str, depth: u8) {
         if i > 0 {
             out.push('\n');
         }
-        print_indent(out, depth);
+        print_indent(&mut out, depth);
         if !line.is_empty() {
             out.push_str("/// ");
             out.push_str(line);
@@ -51,10 +33,10 @@ pub fn print_doc_comment(out: &mut String, description: &str, depth: u8) {
     }
     out.push('\n');
     if let Some(tail) = doc_parts.next() {
-        print_indent(out, depth);
+        print_indent(&mut out, depth);
         out.push_str("///\n");
         for part in tail.split(". ") {
-            print_indent(out, depth);
+            print_indent(&mut out, depth);
             out.push_str("/// ");
             out.push_str(part.replace('\n', " ").trim());
             if !part.ends_with('.') {
@@ -63,6 +45,7 @@ pub fn print_doc_comment(out: &mut String, description: &str, depth: u8) {
             out.push('\n');
         }
     }
+    out
 }
 
 fn print_indent(out: &mut String, depth: u8) {
@@ -77,8 +60,7 @@ fn format_doc_comment(doc: &str) -> String {
         static ref BR_TAG: Regex = Regex::new("<br ?/?>").unwrap();
         static ref A_DOC_TAG: Regex = Regex::new("<a href=\"/docs/([^\"]+)\">([^<]+)</a>").unwrap();
         static ref A_HASH_TAG: Regex = Regex::new("<a href=\"#([^\"]+)\">([^<]+)</a>").unwrap();
-        static ref A_HTTP_TAG: Regex =
-            Regex::new("<a href=\"(https?://[^\"]+)\">([^<]+)</a>").unwrap();
+        static ref A_HTTP_TAG: Regex = Regex::new("<a href=\"(https?://[^\"]+)\">([^<]+)</a>").unwrap();
         static ref CODE_TAG: Regex = Regex::new("<code>|</code>").unwrap();
         static ref EM_TAG: Regex = Regex::new("<em>|</em>|<i>|</i>").unwrap();
         static ref STRONG_TAG: Regex = Regex::new("<strong>|</strong>|<b>|</b>").unwrap();
@@ -101,33 +83,6 @@ fn format_doc_comment(doc: &str) -> String {
     let doc = CURRENCY_OPEN_TAG.replace_all(&doc, "$"); // add locale formatting (we can only support one easily in our rust docs...)
     let doc = CURRENCY_CLOSE_TAG.replace_all(&doc, "");
     let doc = HYPERLINK.replace_all(&doc, "$1<$2>$5"); // replace all hyperlinks that are not already in markdown with rust doc links
+    let doc = doc.replace("[Deprecated]", r"\[Deprecated\]"); // Otherwise rustdoc creates broken intra-doc links
     doc.trim().into()
-}
-
-pub fn infer_integer_type(
-    state: &mut FileGenerator,
-    name: &str,
-    int_fmt: &VariantOrUnknownOrEmpty<IntegerFormat>,
-) -> String {
-    let is_unix_time_fmt = match int_fmt {
-        VariantOrUnknownOrEmpty::Unknown(val) => val == "unix-time",
-        _ => false,
-    };
-    let name_snake = name.to_snake_case();
-    let name_words = name_snake.split('_').collect::<Vec<_>>();
-    if is_unix_time_fmt || name_words.contains(&"date") {
-        state.use_params.insert("Timestamp");
-        "Timestamp".into()
-    } else if name == "monthly_anchor" {
-        "u8".into()
-    } else if name_words.contains(&"days") {
-        "u32".into()
-    } else if name_words.contains(&"count")
-        || name_words.contains(&"size")
-        || name_words.contains(&"quantity")
-    {
-        "u64".into()
-    } else {
-        "i64".into()
-    }
 }

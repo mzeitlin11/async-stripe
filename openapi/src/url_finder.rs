@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use heck::SnakeCase;
+use heck::ToSnakeCase;
 use reqwest::blocking::Client;
 
 // we use a common user agent, otherwise stripe rejects the connection
@@ -22,7 +22,7 @@ impl UrlFinder {
                     flattened_api_sections: serde_json::from_str(
                         line.trim()
                             .trim_start_matches("flattenedAPISections: ")
-                            .trim_end_matches(","),
+                            .trim_end_matches(','),
                     )
                     .expect("should be valid json"),
                 })
@@ -33,6 +33,12 @@ impl UrlFinder {
             tracing::error!("{}", resp.text()?);
             Err(anyhow!("request to stripe api returned non-200 status code"))
         }
+    }
+
+    /// Create a stub `UrlFinder` which does not require a network request. Only meant to
+    /// be used for testing since no `doc_url`'s will be found.
+    pub fn stub() -> Self {
+        Self { flattened_api_sections: serde_json::Map::new() }
     }
 
     pub fn url_for_object(&self, object: &str) -> Option<String> {
@@ -49,7 +55,11 @@ impl UrlFinder {
             }
         }
 
-        tracing::warn!("{} not in html", object);
+        // Only warn if not the stub `UrlFinder`
+        if !self.flattened_api_sections.is_empty() {
+            tracing::warn!("{} not in html", object);
+        }
+
         None
     }
 }

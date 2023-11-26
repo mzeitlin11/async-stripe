@@ -53,7 +53,7 @@
   "subscription_item": "si",
   "subscription_schedule": "sub_sched",
   "tax_code": "txcd",
-  "tax_id": "txi",
+  "tax_id": ["txi", "atxi"],
   "tax_rate": "txr",
   "tax_deducted_at_source": "itds",
   "terminal.reader": "tmr",

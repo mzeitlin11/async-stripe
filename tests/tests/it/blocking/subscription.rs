@@ -1,4 +1,6 @@
-use stripe_billing::subscription::{CancelSubscription, RetrieveSubscription};
+use stripe_billing::subscription::{
+    CancelSubscription, CancelSubscriptionCancellationDetails, RetrieveSubscription,
+};
 
 use crate::mock;
 
@@ -31,10 +33,12 @@ fn is_subscription_expandable() {
 #[test]
 #[ignore]
 /// https://github.com/arlyon/async-stripe/issues/394
+/// https://github.com/arlyon/async-stripe/issues/419
 fn can_prorate_when_cancelling_subscription() {
     mock::with_client(|client| {
         let id = "sub_123".parse().unwrap();
         let mut cancel = CancelSubscription::new();
+        cancel.cancellation_details = Some(CancelSubscriptionCancellationDetails::new());
         cancel.prorate = Some(true);
         let result = cancel.send(client, &id).unwrap();
         assert_eq!(result.id, id);

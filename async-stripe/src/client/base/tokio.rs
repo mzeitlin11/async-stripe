@@ -388,7 +388,7 @@ mod tests {
 
         // Start a lightweight mock server.
         let server = MockServer::start_async().await;
-        let message ="Your destination account needs to have at least one of the following capabilities enabled: transfers, crypto_transfers, legacy_payments";
+        let message = "Your destination account needs to have at least one of the following capabilities enabled: transfers, crypto_transfers, legacy_payments";
         let log_url = "https://dashboard.stripe.com/logs/req_nIhlutaV4amLEs?t=1685040634";
         let mock = server.mock(|when, then| {
             when.method(GET).path("/v1/transfers");
@@ -412,6 +412,9 @@ mod tests {
                 assert_eq!(err.type_, ApiErrorsType::InvalidRequestError);
                 assert_eq!(err.message.as_deref(), Some(message));
                 assert_eq!(err.request_log_url.as_deref(), Some(log_url));
+                // NB: `Unknown` here because the error code reported in the issue is not
+                // present in the OpenAPI spec. Reporting unknown instead of an error seems
+                // better regardless so that stripe adding new variants is not a breaking change
                 assert_eq!(err.code, Some(ApiErrorsCode::Unknown));
             }
             _ => panic!("Expected stripe error, got {:?}", res),

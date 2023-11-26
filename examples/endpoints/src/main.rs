@@ -1,5 +1,3 @@
-use crate::strategy::run_strategy_example;
-
 #[cfg(feature = "async")]
 mod checkout;
 #[cfg(feature = "async")]
@@ -25,6 +23,7 @@ async fn main() -> Result<(), stripe::StripeError> {
     use crate::customer::run_customer_example;
     use crate::payment_intent::run_payment_intent_example;
     use crate::payment_link::run_payment_link_example;
+    use crate::strategy::run_strategy_example;
     use crate::subscriptions::run_subscriptions_example;
 
     let secret_key =

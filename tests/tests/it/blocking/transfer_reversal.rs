@@ -7,7 +7,7 @@ use crate::mock;
 fn create_transfer_reversal() {
     mock::with_client(|client| {
         let mut create = CreateTransferReversal::new();
-        let id = "trr_Ll53U0VONALFk36".parse().unwrap();
+        let id = "tr_Ll53U0VONALFk36".parse().unwrap();
         create.refund_application_fee = Some(true);
         create.amount = Some(4);
 

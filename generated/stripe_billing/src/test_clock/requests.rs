@@ -14,7 +14,7 @@ impl<'a> RetrieveTestClock<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        test_clock: &str,
+        test_clock: &stripe_types::test_clock::TestHelpersTestClockId,
     ) -> stripe::Response<stripe_types::TestClock> {
         client.get_query(&format!("/test_helpers/test_clocks/{test_clock}"), self)
     }
@@ -53,7 +53,7 @@ impl DeleteTestClock {
     pub fn send(
         &self,
         client: &stripe::Client,
-        test_clock: &str,
+        test_clock: &stripe_types::test_clock::TestHelpersTestClockId,
     ) -> stripe::Response<stripe_types::DeletedTestClock> {
         client.send_form(
             &format!("/test_helpers/test_clocks/{test_clock}"),
@@ -86,7 +86,7 @@ impl<'a> AdvanceTestClock<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        test_clock: &str,
+        test_clock: &stripe_types::test_clock::TestHelpersTestClockId,
     ) -> stripe::Response<stripe_types::TestClock> {
         client.send_form(
             &format!("/test_helpers/test_clocks/{test_clock}/advance"),

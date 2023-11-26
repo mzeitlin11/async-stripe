@@ -6944,7 +6944,7 @@ impl<'a> RetrievePaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::payment_intent::PaymentIntentId,
     ) -> stripe::Response<stripe_types::PaymentIntent> {
         client.get_query(&format!("/payment_intents/{intent}"), self)
     }
@@ -13355,7 +13355,7 @@ impl<'a> UpdatePaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::payment_intent::PaymentIntentId,
     ) -> stripe::Response<stripe_types::PaymentIntent> {
         client.send_form(&format!("/payment_intents/{intent}"), self, http_types::Method::Post)
     }
@@ -19952,7 +19952,7 @@ impl<'a> ConfirmPaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::payment_intent::PaymentIntentId,
     ) -> stripe::Response<stripe_types::PaymentIntent> {
         client.send_form(
             &format!("/payment_intents/{intent}/confirm"),
@@ -20046,7 +20046,7 @@ impl<'a> CancelPaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::payment_intent::PaymentIntentId,
     ) -> stripe::Response<stripe_types::PaymentIntent> {
         client.send_form(
             &format!("/payment_intents/{intent}/cancel"),
@@ -20132,7 +20132,7 @@ impl<'a> CapturePaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::payment_intent::PaymentIntentId,
     ) -> stripe::Response<stripe_types::PaymentIntent> {
         client.send_form(
             &format!("/payment_intents/{intent}/capture"),
@@ -20215,7 +20215,7 @@ impl<'a> IncrementAuthorizationPaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::payment_intent::PaymentIntentId,
     ) -> stripe::Response<stripe_types::PaymentIntent> {
         client.send_form(
             &format!("/payment_intents/{intent}/increment_authorization"),
@@ -20246,7 +20246,7 @@ impl<'a> VerifyMicrodepositsPaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::payment_intent::PaymentIntentId,
     ) -> stripe::Response<stripe_types::PaymentIntent> {
         client.send_form(
             &format!("/payment_intents/{intent}/verify_microdeposits"),
@@ -20285,7 +20285,7 @@ impl<'a> ApplyCustomerBalancePaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::payment_intent::PaymentIntentId,
     ) -> stripe::Response<stripe_types::PaymentIntent> {
         client.send_form(
             &format!("/payment_intents/{intent}/apply_customer_balance"),

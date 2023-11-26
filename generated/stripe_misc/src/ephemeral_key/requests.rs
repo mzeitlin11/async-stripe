@@ -43,7 +43,7 @@ impl<'a> DeleteEphemeralKey<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        key: &str,
+        key: &stripe_misc::ephemeral_key::EphemeralKeyId,
     ) -> stripe::Response<stripe_misc::EphemeralKey> {
         client.send_form(&format!("/ephemeral_keys/{key}"), self, http_types::Method::Delete)
     }

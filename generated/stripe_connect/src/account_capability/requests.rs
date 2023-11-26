@@ -45,7 +45,7 @@ impl<'a> RetrieveAccountCapability<'a> {
         &self,
         client: &stripe::Client,
         account: &stripe_types::account::AccountId,
-        capability: &stripe_types::account_capability::CapabilityId,
+        capability: &str,
     ) -> stripe::Response<stripe_types::AccountCapability> {
         client.get_query(&format!("/accounts/{account}/capabilities/{capability}"), self)
     }
@@ -77,7 +77,7 @@ impl<'a> UpdateAccountCapability<'a> {
         &self,
         client: &stripe::Client,
         account: &stripe_types::account::AccountId,
-        capability: &stripe_types::account_capability::CapabilityId,
+        capability: &str,
     ) -> stripe::Response<stripe_types::AccountCapability> {
         client.send_form(
             &format!("/accounts/{account}/capabilities/{capability}"),

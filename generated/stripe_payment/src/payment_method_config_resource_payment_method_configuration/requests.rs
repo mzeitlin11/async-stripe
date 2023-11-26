@@ -49,7 +49,7 @@ impl<'a> RetrievePaymentMethodConfigResourcePaymentMethodConfiguration<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        configuration: &str,
+        configuration:&stripe_payment::payment_method_config_resource_payment_method_configuration::PaymentMethodConfigurationId,
     ) -> stripe::Response<stripe_payment::PaymentMethodConfigResourcePaymentMethodConfiguration>
     {
         client.get_query(&format!("/payment_method_configurations/{configuration}"), self)
@@ -3184,7 +3184,7 @@ impl<'a> UpdatePaymentMethodConfigResourcePaymentMethodConfiguration<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        configuration: &str,
+        configuration:&stripe_payment::payment_method_config_resource_payment_method_configuration::PaymentMethodConfigurationId,
     ) -> stripe::Response<stripe_payment::PaymentMethodConfigResourcePaymentMethodConfiguration>
     {
         client.send_form(

@@ -45,7 +45,7 @@ impl<'a> CreateTransferReversal<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::transfer_reversal::TransferReversalId,
+        id: &stripe_types::transfer::TransferId,
     ) -> stripe::Response<stripe_types::TransferReversal> {
         client.send_form(&format!("/transfers/{id}/reversals"), self, http_types::Method::Post)
     }
@@ -86,13 +86,13 @@ impl<'a> ListTransferReversal<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::transfer_reversal::TransferReversalId,
+        id: &stripe_types::transfer::TransferId,
     ) -> stripe::Response<stripe_types::List<stripe_types::TransferReversal>> {
         client.get_query(&format!("/transfers/{id}/reversals"), self)
     }
     pub fn paginate(
         self,
-        id: &stripe_types::transfer_reversal::TransferReversalId,
+        id: &stripe_types::transfer::TransferId,
     ) -> stripe::ListPaginator<stripe_types::TransferReversal> {
         stripe::ListPaginator::from_params(&format!("/transfers/{id}/reversals"), self)
     }

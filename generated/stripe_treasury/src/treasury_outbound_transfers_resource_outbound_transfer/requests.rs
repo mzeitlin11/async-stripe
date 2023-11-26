@@ -145,7 +145,7 @@ impl<'a> RetrieveTreasuryOutboundTransfersResourceOutboundTransfer<'a> {
 }
 impl<'a> RetrieveTreasuryOutboundTransfersResourceOutboundTransfer<'a> {
     /// Retrieves the details of an existing OutboundTransfer by passing the unique OutboundTransfer ID from either the OutboundTransfer creation request or OutboundTransfer list.
-    pub fn send(&self, client: &stripe::Client, outbound_transfer: &str) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfersResourceOutboundTransfer> {
+    pub fn send(&self, client: &stripe::Client, outbound_transfer: &stripe_treasury::treasury_outbound_transfers_resource_outbound_transfer::TreasuryOutboundTransferId) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfersResourceOutboundTransfer> {
         client.get_query(&format!("/treasury/outbound_transfers/{outbound_transfer}"), self)
     }
 }
@@ -265,7 +265,7 @@ impl<'a> CancelTreasuryOutboundTransfersResourceOutboundTransfer<'a> {
 }
 impl<'a> CancelTreasuryOutboundTransfersResourceOutboundTransfer<'a> {
     /// An OutboundTransfer can be canceled if the funds have not yet been paid out.
-    pub fn send(&self, client: &stripe::Client, outbound_transfer: &str) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfersResourceOutboundTransfer> {
+    pub fn send(&self, client: &stripe::Client, outbound_transfer: &stripe_treasury::treasury_outbound_transfers_resource_outbound_transfer::TreasuryOutboundTransferId) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfersResourceOutboundTransfer> {
         client.send_form(&format!("/treasury/outbound_transfers/{outbound_transfer}/cancel"), self, http_types::Method::Post)
     }
 }

@@ -66,7 +66,7 @@ impl<'a> RetrieveShippingRate<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        shipping_rate_token: &str,
+        shipping_rate_token: &stripe_types::shipping_rate::ShippingRateId,
     ) -> stripe::Response<stripe_types::ShippingRate> {
         client.get_query(&format!("/shipping_rates/{shipping_rate_token}"), self)
     }
@@ -702,7 +702,7 @@ impl<'a> UpdateShippingRate<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        shipping_rate_token: &str,
+        shipping_rate_token: &stripe_types::shipping_rate::ShippingRateId,
     ) -> stripe::Response<stripe_types::ShippingRate> {
         client.send_form(
             &format!("/shipping_rates/{shipping_rate_token}"),

@@ -83,7 +83,7 @@ impl<'a> RetrieveBankConnectionsResourceLinkedAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account:&stripe_misc::bank_connections_resource_linked_account::FinancialConnectionsAccountId,
     ) -> stripe::Response<stripe_misc::BankConnectionsResourceLinkedAccount> {
         client.get_query(&format!("/financial_connections/accounts/{account}"), self)
     }
@@ -129,13 +129,13 @@ impl<'a> ListOwnersBankConnectionsResourceLinkedAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account:&stripe_misc::bank_connections_resource_linked_account::FinancialConnectionsAccountId,
     ) -> stripe::Response<stripe_types::List<stripe_misc::BankConnectionsResourceOwner>> {
         client.get_query(&format!("/financial_connections/accounts/{account}/owners"), self)
     }
     pub fn paginate(
         self,
-        account: &stripe_types::account::AccountId,
+        account:&stripe_misc::bank_connections_resource_linked_account::FinancialConnectionsAccountId,
     ) -> stripe::ListPaginator<stripe_misc::BankConnectionsResourceOwner> {
         stripe::ListPaginator::from_params(
             &format!("/financial_connections/accounts/{account}/owners"),
@@ -213,7 +213,7 @@ impl<'a> RefreshBankConnectionsResourceLinkedAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account:&stripe_misc::bank_connections_resource_linked_account::FinancialConnectionsAccountId,
     ) -> stripe::Response<stripe_misc::BankConnectionsResourceLinkedAccount> {
         client.send_form(
             &format!("/financial_connections/accounts/{account}/refresh"),
@@ -241,7 +241,7 @@ impl<'a> DisconnectBankConnectionsResourceLinkedAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account:&stripe_misc::bank_connections_resource_linked_account::FinancialConnectionsAccountId,
     ) -> stripe::Response<stripe_misc::BankConnectionsResourceLinkedAccount> {
         client.send_form(
             &format!("/financial_connections/accounts/{account}/disconnect"),

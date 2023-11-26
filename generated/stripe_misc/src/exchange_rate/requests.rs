@@ -57,7 +57,7 @@ impl<'a> RetrieveExchangeRate<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        rate_id: &str,
+        rate_id: &stripe_misc::exchange_rate::ExchangeRateId,
     ) -> stripe::Response<stripe_misc::ExchangeRate> {
         client.get_query(&format!("/exchange_rates/{rate_id}"), self)
     }

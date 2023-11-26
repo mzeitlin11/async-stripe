@@ -704,14 +704,14 @@ impl<'a> ListLineItemsTaxProductResourceTaxCalculation<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        calculation: &str,
+        calculation: &stripe_misc::tax_product_resource_tax_calculation::TaxCalculationId,
     ) -> stripe::Response<stripe_types::List<stripe_misc::TaxProductResourceTaxCalculationLineItem>>
     {
         client.get_query(&format!("/tax/calculations/{calculation}/line_items"), self)
     }
     pub fn paginate(
         self,
-        calculation: &str,
+        calculation: &stripe_misc::tax_product_resource_tax_calculation::TaxCalculationId,
     ) -> stripe::ListPaginator<stripe_misc::TaxProductResourceTaxCalculationLineItem> {
         stripe::ListPaginator::from_params(
             &format!("/tax/calculations/{calculation}/line_items"),

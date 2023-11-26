@@ -127,7 +127,7 @@ impl<'a> RetrieveIssuingAuthorization<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        authorization: &str,
+        authorization: &stripe_types::issuing_authorization::IssuingAuthorizationId,
     ) -> stripe::Response<stripe_types::IssuingAuthorization> {
         client.get_query(&format!("/issuing/authorizations/{authorization}"), self)
     }
@@ -157,7 +157,7 @@ impl<'a> UpdateIssuingAuthorization<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        authorization: &str,
+        authorization: &stripe_types::issuing_authorization::IssuingAuthorizationId,
     ) -> stripe::Response<stripe_types::IssuingAuthorization> {
         client.send_form(
             &format!("/issuing/authorizations/{authorization}"),
@@ -198,7 +198,7 @@ impl<'a> ApproveIssuingAuthorization<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        authorization: &str,
+        authorization: &stripe_types::issuing_authorization::IssuingAuthorizationId,
     ) -> stripe::Response<stripe_types::IssuingAuthorization> {
         client.send_form(
             &format!("/issuing/authorizations/{authorization}/approve"),
@@ -233,7 +233,7 @@ impl<'a> DeclineIssuingAuthorization<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        authorization: &str,
+        authorization: &stripe_types::issuing_authorization::IssuingAuthorizationId,
     ) -> stripe::Response<stripe_types::IssuingAuthorization> {
         client.send_form(
             &format!("/issuing/authorizations/{authorization}/decline"),

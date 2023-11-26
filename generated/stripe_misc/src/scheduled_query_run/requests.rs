@@ -55,7 +55,7 @@ impl<'a> RetrieveScheduledQueryRun<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        scheduled_query_run: &stripe_misc::scheduled_query_run::ScheduledQueryRunId,
+        scheduled_query_run: &str,
     ) -> stripe::Response<stripe_misc::ScheduledQueryRun> {
         client.get_query(&format!("/sigma/scheduled_query_runs/{scheduled_query_run}"), self)
     }

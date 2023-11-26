@@ -2831,7 +2831,7 @@ impl<'a> RetrieveSetupIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::setup_intent::SetupIntentId,
     ) -> stripe::Response<stripe_types::SetupIntent> {
         client.get_query(&format!("/setup_intents/{intent}"), self)
     }
@@ -5295,7 +5295,7 @@ impl<'a> UpdateSetupIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::setup_intent::SetupIntentId,
     ) -> stripe::Response<stripe_types::SetupIntent> {
         client.send_form(&format!("/setup_intents/{intent}"), self, http_types::Method::Post)
     }
@@ -7881,7 +7881,7 @@ impl<'a> ConfirmSetupIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::setup_intent::SetupIntentId,
     ) -> stripe::Response<stripe_types::SetupIntent> {
         client.send_form(
             &format!("/setup_intents/{intent}/confirm"),
@@ -7969,7 +7969,7 @@ impl<'a> CancelSetupIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::setup_intent::SetupIntentId,
     ) -> stripe::Response<stripe_types::SetupIntent> {
         client.send_form(&format!("/setup_intents/{intent}/cancel"), self, http_types::Method::Post)
     }
@@ -7996,7 +7996,7 @@ impl<'a> VerifyMicrodepositsSetupIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &str,
+        intent: &stripe_types::setup_intent::SetupIntentId,
     ) -> stripe::Response<stripe_types::SetupIntent> {
         client.send_form(
             &format!("/setup_intents/{intent}/verify_microdeposits"),

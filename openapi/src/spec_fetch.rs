@@ -21,7 +21,7 @@ pub fn parse_spec_version(arg: &str) -> anyhow::Result<SpecVersion> {
         "latest" => Ok(SpecVersion::Latest),
         "current" => Ok(SpecVersion::Current),
         version => {
-            let re = Regex::new(r#"v[1-9]\d*"#).unwrap();
+            let re = Regex::new(r"v[1-9]\d*").unwrap();
             if re.is_match(version) {
                 Ok(SpecVersion::Version(as_lower))
             } else {

@@ -7071,11 +7071,14 @@ impl<'a> ListLineItemsSession<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        session: &str,
+        session: &stripe_checkout::session::CheckoutSessionId,
     ) -> stripe::Response<stripe_types::List<stripe_types::LineItem>> {
         client.get_query(&format!("/checkout/sessions/{session}/line_items"), self)
     }
-    pub fn paginate(self, session: &str) -> stripe::ListPaginator<stripe_types::LineItem> {
+    pub fn paginate(
+        self,
+        session: &stripe_checkout::session::CheckoutSessionId,
+    ) -> stripe::ListPaginator<stripe_types::LineItem> {
         stripe::ListPaginator::from_params(
             &format!("/checkout/sessions/{session}/line_items"),
             self,
@@ -7101,7 +7104,7 @@ impl<'a> ExpireSession<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        session: &str,
+        session: &stripe_checkout::session::CheckoutSessionId,
     ) -> stripe::Response<stripe_checkout::Session> {
         client.send_form(
             &format!("/checkout/sessions/{session}/expire"),

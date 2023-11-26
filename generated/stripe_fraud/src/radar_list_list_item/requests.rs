@@ -72,7 +72,7 @@ impl<'a> RetrieveRadarListListItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        item: &stripe_types::line_item::ItemId,
+        item: &stripe_fraud::radar_list_list_item::RadarValueListItemId,
     ) -> stripe::Response<stripe_fraud::RadarListListItem> {
         client.get_query(&format!("/radar/value_list_items/{item}"), self)
     }
@@ -113,7 +113,7 @@ impl DeleteRadarListListItem {
     pub fn send(
         &self,
         client: &stripe::Client,
-        item: &stripe_types::line_item::ItemId,
+        item: &stripe_fraud::radar_list_list_item::RadarValueListItemId,
     ) -> stripe::Response<stripe_fraud::RadarListDeletedListItem> {
         client.send_form(
             &format!("/radar/value_list_items/{item}"),

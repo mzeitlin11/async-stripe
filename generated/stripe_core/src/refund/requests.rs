@@ -320,7 +320,7 @@ impl<'a> ExpireRefund<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        refund: &stripe_types::refund::RefundId,
+        refund: &str,
     ) -> stripe::Response<stripe_types::Refund> {
         client.send_form(
             &format!("/test_helpers/refunds/{refund}/expire"),

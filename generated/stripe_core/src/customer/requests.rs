@@ -1587,7 +1587,7 @@ impl<'a> RetrievePaymentMethodCustomer<'a> {
         &self,
         client: &stripe::Client,
         customer: &stripe_types::customer::CustomerId,
-        payment_method: &stripe_types::payment_method::PaymentMethodId,
+        payment_method: &str,
     ) -> stripe::Response<stripe_types::PaymentMethod> {
         client.get_query(&format!("/customers/{customer}/payment_methods/{payment_method}"), self)
     }
@@ -1670,7 +1670,7 @@ impl<'a> FundCashBalanceCustomer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_types::customer::CustomerId,
+        customer: &str,
     ) -> stripe::Response<stripe_types::CustomerCashBalanceTransaction> {
         client.send_form(
             &format!("/test_helpers/customers/{customer}/fund_cash_balance"),

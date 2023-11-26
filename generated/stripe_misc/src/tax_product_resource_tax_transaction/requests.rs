@@ -14,7 +14,7 @@ impl<'a> RetrieveTaxProductResourceTaxTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        transaction: &str,
+        transaction: &stripe_misc::tax_product_resource_tax_transaction::TaxTransactionId,
     ) -> stripe::Response<stripe_misc::TaxProductResourceTaxTransaction> {
         client.get_query(&format!("/tax/transactions/{transaction}"), self)
     }
@@ -255,14 +255,14 @@ impl<'a> ListLineItemsTaxProductResourceTaxTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        transaction: &str,
+        transaction: &stripe_misc::tax_product_resource_tax_transaction::TaxTransactionId,
     ) -> stripe::Response<stripe_types::List<stripe_misc::TaxProductResourceTaxTransactionLineItem>>
     {
         client.get_query(&format!("/tax/transactions/{transaction}/line_items"), self)
     }
     pub fn paginate(
         self,
-        transaction: &str,
+        transaction: &stripe_misc::tax_product_resource_tax_transaction::TaxTransactionId,
     ) -> stripe::ListPaginator<stripe_misc::TaxProductResourceTaxTransactionLineItem> {
         stripe::ListPaginator::from_params(
             &format!("/tax/transactions/{transaction}/line_items"),

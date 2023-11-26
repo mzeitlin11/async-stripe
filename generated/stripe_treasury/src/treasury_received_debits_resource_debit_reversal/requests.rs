@@ -37,7 +37,7 @@ impl<'a> RetrieveTreasuryReceivedDebitsResourceDebitReversal<'a> {
 }
 impl<'a> RetrieveTreasuryReceivedDebitsResourceDebitReversal<'a> {
     /// Retrieves a DebitReversal object.
-    pub fn send(&self, client: &stripe::Client, debit_reversal: &str) -> stripe::Response<stripe_treasury::TreasuryReceivedDebitsResourceDebitReversal> {
+    pub fn send(&self, client: &stripe::Client, debit_reversal: &stripe_treasury::treasury_received_debits_resource_debit_reversal::TreasuryDebitReversalId) -> stripe::Response<stripe_treasury::TreasuryReceivedDebitsResourceDebitReversal> {
         client.get_query(&format!("/treasury/debit_reversals/{debit_reversal}"), self)
     }
 }

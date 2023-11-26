@@ -3804,7 +3804,7 @@ impl<'a> RetrieveIssuingCardholder<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        cardholder: &str,
+        cardholder: &stripe_types::issuing_cardholder::IssuingCardholderId,
     ) -> stripe::Response<stripe_types::IssuingCardholder> {
         client.get_query(&format!("/issuing/cardholders/{cardholder}"), self)
     }
@@ -7343,7 +7343,7 @@ impl<'a> UpdateIssuingCardholder<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        cardholder: &str,
+        cardholder: &stripe_types::issuing_cardholder::IssuingCardholderId,
     ) -> stripe::Response<stripe_types::IssuingCardholder> {
         client.send_form(
             &format!("/issuing/cardholders/{cardholder}"),

@@ -4785,7 +4785,7 @@ impl DeleteDiscountSubscription {
     pub fn send(
         &self,
         client: &stripe::Client,
-        subscription_exposed_id: &str,
+        subscription_exposed_id: &stripe_types::subscription::SubscriptionId,
     ) -> stripe::Response<stripe_types::DeletedDiscount> {
         client.send_form(
             &format!("/subscriptions/{subscription_exposed_id}/discount"),

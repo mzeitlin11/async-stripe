@@ -1273,7 +1273,7 @@ impl<'a> UpdateIssuingDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_types::dispute::DisputeId,
+        dispute: &stripe_types::issuing_dispute::IssuingDisputeId,
     ) -> stripe::Response<stripe_types::IssuingDispute> {
         client.send_form(&format!("/issuing/disputes/{dispute}"), self, http_types::Method::Post)
     }
@@ -1294,7 +1294,7 @@ impl<'a> RetrieveIssuingDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_types::dispute::DisputeId,
+        dispute: &stripe_types::issuing_dispute::IssuingDisputeId,
     ) -> stripe::Response<stripe_types::IssuingDispute> {
         client.get_query(&format!("/issuing/disputes/{dispute}"), self)
     }
@@ -1325,7 +1325,7 @@ impl<'a> SubmitIssuingDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_types::dispute::DisputeId,
+        dispute: &stripe_types::issuing_dispute::IssuingDisputeId,
     ) -> stripe::Response<stripe_types::IssuingDispute> {
         client.send_form(
             &format!("/issuing/disputes/{dispute}/submit"),

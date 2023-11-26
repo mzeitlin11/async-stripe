@@ -68,7 +68,7 @@ fn format_doc_comment(doc: &str) -> String {
         static ref AMOUNT_CLOSE_TAG: Regex = Regex::new("</amount>").unwrap();
         static ref CURRENCY_OPEN_TAG: Regex = Regex::new("<currency>").unwrap();
         static ref CURRENCY_CLOSE_TAG: Regex = Regex::new("</currency>").unwrap();
-        static ref HYPERLINK: Regex = Regex::new(r#"([^\(])(https?://(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))([^\)])"#).unwrap();
+        static ref HYPERLINK: Regex = Regex::new(r"([^\(])(https?://(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))([^\)])").unwrap();
     }
     let doc = P_TAG.replace_all(doc, "");
     let doc = BR_TAG.replace_all(&doc, "\n");

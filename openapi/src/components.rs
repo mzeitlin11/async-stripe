@@ -262,7 +262,7 @@ pub fn get_components(spec: &Spec) -> anyhow::Result<Components> {
         } else {
             maybe_infer_crate_by_path(&path)
         };
-        let reqs = parse_requests(stripe_reqs, spec, resource.ident(), &path, &id_map)?;
+        let reqs = parse_requests(stripe_reqs, spec, resource.ident(), &id_map)?;
         components.insert(
             path,
             StripeObject {

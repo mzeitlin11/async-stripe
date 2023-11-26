@@ -89,7 +89,7 @@ impl<'a> RetrievePerson<'a> {
         &self,
         client: &stripe::Client,
         account: &stripe_types::account::AccountId,
-        person: &stripe_types::person::PersonId,
+        person: &str,
     ) -> stripe::Response<stripe_types::Person> {
         client.get_query(&format!("/accounts/{account}/persons/{person}"), self)
     }
@@ -926,7 +926,7 @@ impl<'a> UpdatePerson<'a> {
         &self,
         client: &stripe::Client,
         account: &stripe_types::account::AccountId,
-        person: &stripe_types::person::PersonId,
+        person: &str,
     ) -> stripe::Response<stripe_types::Person> {
         client.send_form(
             &format!("/accounts/{account}/persons/{person}"),
@@ -951,7 +951,7 @@ impl DeletePerson {
         &self,
         client: &stripe::Client,
         account: &stripe_types::account::AccountId,
-        person: &stripe_types::person::PersonId,
+        person: &str,
     ) -> stripe::Response<stripe_types::DeletedPerson> {
         client.send_form(
             &format!("/accounts/{account}/persons/{person}"),

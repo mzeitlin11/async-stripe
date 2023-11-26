@@ -209,7 +209,7 @@ impl<'a> RetrieveGelatoVerificationSession<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        session: &str,
+        session: &stripe_misc::gelato_verification_session::IdentityVerificationSessionId,
     ) -> stripe::Response<stripe_misc::GelatoVerificationSession> {
         client.get_query(&format!("/identity/verification_sessions/{session}"), self)
     }
@@ -342,7 +342,7 @@ impl<'a> CancelGelatoVerificationSession<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        session: &str,
+        session: &stripe_misc::gelato_verification_session::IdentityVerificationSessionId,
     ) -> stripe::Response<stripe_misc::GelatoVerificationSession> {
         client.send_form(
             &format!("/identity/verification_sessions/{session}/cancel"),
@@ -374,7 +374,7 @@ impl<'a> RedactGelatoVerificationSession<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        session: &str,
+        session: &stripe_misc::gelato_verification_session::IdentityVerificationSessionId,
     ) -> stripe::Response<stripe_misc::GelatoVerificationSession> {
         client.send_form(
             &format!("/identity/verification_sessions/{session}/redact"),
@@ -560,7 +560,7 @@ impl<'a> UpdateGelatoVerificationSession<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        session: &str,
+        session: &stripe_misc::gelato_verification_session::IdentityVerificationSessionId,
     ) -> stripe::Response<stripe_misc::GelatoVerificationSession> {
         client.send_form(
             &format!("/identity/verification_sessions/{session}"),

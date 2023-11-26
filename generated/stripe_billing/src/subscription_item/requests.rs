@@ -63,7 +63,7 @@ impl<'a> RetrieveSubscriptionItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        item: &stripe_types::line_item::ItemId,
+        item: &stripe_types::subscription_item::SubscriptionItemId,
     ) -> stripe::Response<stripe_types::SubscriptionItem> {
         client.get_query(&format!("/subscription_items/{item}"), self)
     }
@@ -866,7 +866,7 @@ impl<'a> UpdateSubscriptionItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        item: &stripe_types::line_item::ItemId,
+        item: &stripe_types::subscription_item::SubscriptionItemId,
     ) -> stripe::Response<stripe_types::SubscriptionItem> {
         client.send_form(&format!("/subscription_items/{item}"), self, http_types::Method::Post)
     }
@@ -957,7 +957,7 @@ impl DeleteSubscriptionItem {
     pub fn send(
         &self,
         client: &stripe::Client,
-        item: &stripe_types::line_item::ItemId,
+        item: &stripe_types::subscription_item::SubscriptionItemId,
     ) -> stripe::Response<stripe_types::DeletedSubscriptionItem> {
         client.send_form(&format!("/subscription_items/{item}"), self, http_types::Method::Delete)
     }

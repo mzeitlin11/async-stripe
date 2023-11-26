@@ -1,9 +1,7 @@
 use std::collections::HashMap;
-use std::fs::File;
 
 use anyhow::{bail, Context};
 use heck::ToSnakeCase;
-use lazy_static::lazy_static;
 use openapiv3::{Parameter, ParameterData, ParameterSchemaOrContent, ReferenceOr, Schema};
 use tracing::debug;
 
@@ -14,26 +12,6 @@ use crate::spec::{get_ok_response_schema, get_request_form_parameters, Spec};
 use crate::spec_inference::Inference;
 use crate::stripe_object::{OperationType, PathParam, RequestSpec, StripeOperation};
 use crate::types::{ComponentPath, RustIdent};
-
-/// Load overrides that hardcode the id types we should use for path parameters.
-/// Map request path start to id path
-fn load_request_path_param_id_overrides() -> anyhow::Result<HashMap<String, String>> {
-    Ok(serde_json::from_reader(File::open("request_path_params.json")?)?)
-}
-
-lazy_static! {
-    pub static ref PATH_PARAM_OVERRIDE: HashMap<String, String> =
-        load_request_path_param_id_overrides().expect("Unable to load path params");
-}
-
-fn find_single_path_param_override(req_path: &str) -> Option<&'static str> {
-    for (k, v) in &*PATH_PARAM_OVERRIDE {
-        if k.starts_with(req_path) {
-            return Some(v);
-        }
-    }
-    None
-}
 
 /// Should we skip a currently unsupported request?
 fn should_skip_request(op: &StripeOperation) -> bool {
@@ -160,7 +138,6 @@ pub fn parse_requests(
     operations: Vec<StripeOperation>,
     spec: &Spec,
     ident: &RustIdent,
-    component: &ComponentPath,
     path_id_map: &HashMap<String, ComponentPath>,
 ) -> anyhow::Result<Vec<RequestSpec>> {
     let mut req_details = Vec::with_capacity(operations.len());
@@ -177,14 +154,8 @@ pub fn parse_requests(
     let mut requests = Vec::with_capacity(operations.len());
     for req in &req_details {
         requests.push(
-            build_request(
-                req,
-                ident,
-                &method_names[&RequestKey::from_op(req)],
-                component,
-                path_id_map,
-            )
-            .with_context(|| format!("Error generating request operation {req:?}"))?,
+            build_request(req, ident, &method_names[&RequestKey::from_op(req)], path_id_map)
+                .with_context(|| format!("Error generating request operation {req:?}"))?,
         );
     }
     Ok(requests)
@@ -211,7 +182,6 @@ fn build_request(
     req: &RequestDetails,
     parent_ident: &RustIdent,
     method_name: &str,
-    component: &ComponentPath,
     path_id_map: &HashMap<String, ComponentPath>,
 ) -> anyhow::Result<RequestSpec> {
     let return_ident = RustIdent::joined(method_name, "returned");
@@ -274,9 +244,7 @@ fn build_request(
             bail!("Expected path parameter to be a string");
         }
 
-        let rust_type = if let Some(id_typ) =
-            infer_id_path(&param.name, &req.path_params, req_path, component, path_id_map)?
-        {
+        let rust_type = if let Some(id_typ) = infer_id_path(&param.name, req_path, path_id_map)? {
             RustType::object_id(id_typ, true)
         } else {
             // NB: Assuming this is safe since we check earlier that this matches the path type.
@@ -299,36 +267,58 @@ fn build_request(
 /// Try our best to determine a specialized id type for this parameter, e.g. `AccountId`.
 fn infer_id_path(
     param_name: &str,
-    params: &[&ParameterData],
     req_path: &str,
-    component: &ComponentPath,
     path_id_map: &HashMap<String, ComponentPath>,
 ) -> anyhow::Result<Option<ComponentPath>> {
-    let has_single_path_param = params.len() == 1;
+    let pieces = req_path.trim_matches('/').split('/');
 
-    // First, check if there is a hardcoded object name we should use. These are overrides might not be necessary
-    // with cleverer inference, but this seems useful regardless since id handling is quite finicky, so having
-    // an easy mechanism to hardcode parameter ideas is helpful
-    if has_single_path_param {
-        if let Some(obj_name) = find_single_path_param_override(req_path) {
-            let id_path = path_id_map.get(obj_name).with_context(|| {
-                format!("Overriden request path {req_path} has object name with no id")
-            })?;
-            return Ok(Some(id_path.clone()));
+    // For now we only infer the first parametrized piece as an idea, so collect everything
+    // that precedes it and return is this is not the first parameterized piece
+    let mut preceding_sections = vec![];
+    for piece in pieces {
+        if piece.starts_with('{') {
+            if piece.trim_start_matches('{').trim_end_matches('}') == param_name {
+                break;
+            } else {
+                return Ok(None);
+            }
+        } else {
+            preceding_sections.push(piece);
         }
     }
 
-    // Try to use the name of the path parameter to infer the id type.
-    if let Some(id_path) = path_id_map.get(param_name) {
-        return Ok(Some(id_path.clone()));
-    }
+    // Based on the request path, infer what it belongs to. Note that parameter names
+    // are used inconsistently so they are not used at all in inference
 
-    // If there's just a single path parameter with the name `id`, try assuming the id corresponds
-    // to the parent component (assuming such an id actually exists). We check for `id` explicitly
-    // because some requests like `GetApplePayDomainsDomain` has a path parameter which is a _domain_,
-    // not an id
-    if has_single_path_param && param_name == "id" && path_id_map.contains_key(component.as_ref()) {
-        return Ok(Some(component.clone()));
+    // /accounts -> account
+    let obj_name = if preceding_sections.len() == 1 {
+        unpluralize(preceding_sections.first().unwrap())
+        // /treasury/inbound_transfers/ -> treasury.inbound_transfer
+    } else if preceding_sections.len() == 2 {
+        let class = preceding_sections.first().unwrap();
+        let item = preceding_sections.get(1).unwrap();
+        format!("{class}.{}", unpluralize(item))
+        // Some cases here, but mostly around test helpers, so not too urgent to handle
+    } else {
+        return Ok(None);
+    };
+
+    if let Some(comp) = path_id_map.get(&obj_name) {
+        Ok(Some(comp.clone()))
+    } else {
+        debug!("No id type for {}", req_path);
+        Ok(None)
     }
-    Ok(None)
+}
+
+fn unpluralize(val: &str) -> String {
+    // A simple transformation covers the two cases we see in stripe request paths:
+
+    // treasury_entries -> treasury_entry
+    if val.ends_with("ies") {
+        val.replace("ies", "y")
+    } else {
+        // accounts -> account
+        val.trim_end_matches('s').to_string()
+    }
 }

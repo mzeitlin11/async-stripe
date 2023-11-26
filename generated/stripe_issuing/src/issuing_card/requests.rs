@@ -3806,7 +3806,7 @@ impl<'a> RetrieveIssuingCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        card: &stripe_types::card::CardId,
+        card: &stripe_types::issuing_card::IssuingCardId,
     ) -> stripe::Response<stripe_types::IssuingCard> {
         client.get_query(&format!("/issuing/cards/{card}"), self)
     }
@@ -7171,7 +7171,7 @@ impl<'a> UpdateIssuingCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        card: &stripe_types::card::CardId,
+        card: &stripe_types::issuing_card::IssuingCardId,
     ) -> stripe::Response<stripe_types::IssuingCard> {
         client.send_form(&format!("/issuing/cards/{card}"), self, http_types::Method::Post)
     }
@@ -7192,7 +7192,7 @@ impl<'a> DeliverCardIssuingCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        card: &stripe_types::card::CardId,
+        card: &str,
     ) -> stripe::Response<stripe_types::IssuingCard> {
         client.send_form(
             &format!("/test_helpers/issuing/cards/{card}/shipping/deliver"),
@@ -7217,7 +7217,7 @@ impl<'a> ShipCardIssuingCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        card: &stripe_types::card::CardId,
+        card: &str,
     ) -> stripe::Response<stripe_types::IssuingCard> {
         client.send_form(
             &format!("/test_helpers/issuing/cards/{card}/shipping/ship"),
@@ -7242,7 +7242,7 @@ impl<'a> ReturnCardIssuingCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        card: &stripe_types::card::CardId,
+        card: &str,
     ) -> stripe::Response<stripe_types::IssuingCard> {
         client.send_form(
             &format!("/test_helpers/issuing/cards/{card}/shipping/return"),
@@ -7267,7 +7267,7 @@ impl<'a> FailCardIssuingCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        card: &stripe_types::card::CardId,
+        card: &str,
     ) -> stripe::Response<stripe_types::IssuingCard> {
         client.send_form(
             &format!("/test_helpers/issuing/cards/{card}/shipping/fail"),

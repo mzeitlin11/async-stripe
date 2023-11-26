@@ -594,7 +594,7 @@ impl<'a> FailTreasuryOutboundPaymentsResourceOutboundPayment<'a> {
     /// Transitions a test mode created OutboundPayment to the `failed` status.
     ///
     /// The OutboundPayment must already be in the `processing` state.
-    pub fn send(&self, client: &stripe::Client, id: &stripe_treasury::treasury_outbound_payments_resource_outbound_payment::TreasuryOutboundPaymentId) -> stripe::Response<stripe_treasury::TreasuryOutboundPaymentsResourceOutboundPayment> {
+    pub fn send(&self, client: &stripe::Client, id: &str) -> stripe::Response<stripe_treasury::TreasuryOutboundPaymentsResourceOutboundPayment> {
         client.send_form(&format!("/test_helpers/treasury/outbound_payments/{id}/fail"), self, http_types::Method::Post)
     }
 }
@@ -613,7 +613,7 @@ impl<'a> PostTreasuryOutboundPaymentsResourceOutboundPayment<'a> {
     /// Transitions a test mode created OutboundPayment to the `posted` status.
     ///
     /// The OutboundPayment must already be in the `processing` state.
-    pub fn send(&self, client: &stripe::Client, id: &stripe_treasury::treasury_outbound_payments_resource_outbound_payment::TreasuryOutboundPaymentId) -> stripe::Response<stripe_treasury::TreasuryOutboundPaymentsResourceOutboundPayment> {
+    pub fn send(&self, client: &stripe::Client, id: &str) -> stripe::Response<stripe_treasury::TreasuryOutboundPaymentsResourceOutboundPayment> {
         client.send_form(&format!("/test_helpers/treasury/outbound_payments/{id}/post"), self, http_types::Method::Post)
     }
 }
@@ -722,7 +722,7 @@ impl<'a> ReturnOutboundPaymentTreasuryOutboundPaymentsResourceOutboundPayment<'a
     /// Transitions a test mode created OutboundPayment to the `returned` status.
     ///
     /// The OutboundPayment must already be in the `processing` state.
-    pub fn send(&self, client: &stripe::Client, id: &stripe_treasury::treasury_outbound_payments_resource_outbound_payment::TreasuryOutboundPaymentId) -> stripe::Response<stripe_treasury::TreasuryOutboundPaymentsResourceOutboundPayment> {
+    pub fn send(&self, client: &stripe::Client, id: &str) -> stripe::Response<stripe_treasury::TreasuryOutboundPaymentsResourceOutboundPayment> {
         client.send_form(&format!("/test_helpers/treasury/outbound_payments/{id}/return"), self, http_types::Method::Post)
     }
 }

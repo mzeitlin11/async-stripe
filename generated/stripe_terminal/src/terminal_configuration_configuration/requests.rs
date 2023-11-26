@@ -433,7 +433,7 @@ impl<'a> RetrieveTerminalConfigurationConfiguration<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        configuration: &str,
+        configuration:&stripe_terminal::terminal_configuration_configuration::TerminalConfigurationId,
     ) -> stripe::Response<RetrieveReturned> {
         client.get_query(&format!("/terminal/configurations/{configuration}"), self)
     }
@@ -814,7 +814,7 @@ impl<'a> UpdateTerminalConfigurationConfiguration<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        configuration: &str,
+        configuration:&stripe_terminal::terminal_configuration_configuration::TerminalConfigurationId,
     ) -> stripe::Response<UpdateReturned> {
         client.send_form(
             &format!("/terminal/configurations/{configuration}"),
@@ -843,7 +843,7 @@ impl DeleteTerminalConfigurationConfiguration {
     pub fn send(
         &self,
         client: &stripe::Client,
-        configuration: &str,
+        configuration:&stripe_terminal::terminal_configuration_configuration::TerminalConfigurationId,
     ) -> stripe::Response<stripe_terminal::TerminalConfigurationDeletedConfiguration> {
         client.send_form(
             &format!("/terminal/configurations/{configuration}"),

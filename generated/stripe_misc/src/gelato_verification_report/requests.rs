@@ -14,7 +14,7 @@ impl<'a> RetrieveGelatoVerificationReport<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        report: &str,
+        report: &stripe_misc::gelato_verification_report::IdentityVerificationReportId,
     ) -> stripe::Response<stripe_misc::GelatoVerificationReport> {
         client.get_query(&format!("/identity/verification_reports/{report}"), self)
     }

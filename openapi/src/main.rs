@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 use std::fs;
 use std::fs::File;
+use std::path::Path;
 
 use anyhow::{bail, Context, Result};
 use clap::Parser;
@@ -68,11 +69,13 @@ fn main() -> Result<()> {
     let args = Command::parse();
 
     let in_path = args.spec_path;
-    let out_path = args.out;
-    fs::remove_dir_all(&out_path).context("could not remove out folder")?;
-    fs::create_dir_all(&out_path).context("could not create out folder")?;
+    let out_path = Path::new(&args.out);
+    if out_path.exists() {
+        fs::remove_dir_all(out_path).context("could not remove out folder")?;
+    }
+    fs::create_dir_all(out_path).context("could not create out folder")?;
 
-    info!("generating code for {} to {}", in_path, out_path);
+    info!("generating code for {} to {}", in_path, out_path.display());
 
     let spec = if let Some(version) = args.fetch {
         let raw = fetch_spec(version, &in_path)?;

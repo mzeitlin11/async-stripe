@@ -168,7 +168,7 @@ mod tests {
         mock.assert_hits_async(1).await;
 
         match res {
-            Err(StripeError::Stripe(x)) => println!("{:?}", x),
+            Err(StripeError::Stripe(x, _)) => println!("{:?}", x),
             _ => panic!("Expected stripe error {:?}", res),
         }
     }

@@ -24,7 +24,7 @@ jobs:
           components: rustfmt
 
       - name: Check formatting for workspace
-        run: cargo fmt -- --check
+        run: cargo fmt --all -- --check
 
   verify-codegen-crate:
     runs-on: ubuntu-latest
@@ -154,3 +154,18 @@ jobs:
 
       - name: Build Documentation
         run: cargo doc --lib --no-deps --features "runtime-tokio-hyper full"
+
+  # Examples tested separately so that we can use crates which don't match our MSRV
+  examples:
+    name: Check Examples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Check examples
+        run: cargo clippy --features "runtime-tokio-hyper-rustls" --all

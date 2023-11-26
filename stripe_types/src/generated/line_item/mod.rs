@@ -41,4 +41,4 @@ impl stripe_types::Object for LineItem {
         Some(self.id.as_str())
     }
 }
-stripe_types::def_id!(ItemId);
+stripe_types::def_id!(ItemId, "li_");

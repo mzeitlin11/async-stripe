@@ -31,4 +31,4 @@ impl stripe_types::Object for FeeRefund {
         Some(self.id.as_str())
     }
 }
-stripe_types::def_id!(FeeRefundId);
+stripe_types::def_id!(FeeRefundId, "fr_");

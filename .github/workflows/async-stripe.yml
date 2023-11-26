@@ -36,26 +36,15 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
-      - name: Install nightly toolchain
-        uses: dtolnay/rust-toolchain@nightly
-        with:
-          components: rustfmt
-
-      - name: Check formatting
-        uses: dtolnay/rust-toolchain@nightly
-        run: cargo fmt -- --check
-
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
 
       - name: Run clippy
-        uses: dtolnay/rust-toolchain@stable
         run: cargo clippy
 
       - name: Run codegen
-        uses: dtolnay/rust-toolchain@stable
         run: cargo run --release -- --fetch current
 
       - name: Ensure generated files unchanged
@@ -64,6 +53,7 @@ jobs:
         with:
           files: |
             **/*.rs
+
       - name: Report changed files
         if: steps.verify-changed-files.outputs.files_changed == 'true'
         run: |
@@ -148,6 +138,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 

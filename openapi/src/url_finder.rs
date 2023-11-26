@@ -57,7 +57,7 @@ impl UrlFinder {
 
         // Only warn if not the stub `UrlFinder`
         if !self.flattened_api_sections.is_empty() {
-            tracing::warn!("{} not in html", object);
+            tracing::debug!("{} not in html", object);
         }
 
         None

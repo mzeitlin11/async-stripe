@@ -36,6 +36,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v3
 
+      - name: Install nightly toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+
+      - name: Check formatting
+        run: cargo +nightly fmt -- --check
+
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@stable
         with:

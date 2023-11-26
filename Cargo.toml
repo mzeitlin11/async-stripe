@@ -7,6 +7,10 @@ members = [
     "generated/*",
     "examples/*",
 ]
+
+# Skip "examples/*" when running default commands since that adds a bunch of deps that makes
+# development feedback loop slower
+default-members = ["async-stripe", "stripe_types", "stripe_webhook", "tests", "generated/*"]
 resolver = "2"
 # Makes dependency management simpler to allow codegen crate to use whichever dep versions
 # it wants without affecting dependency resolution of the user-facing library crates

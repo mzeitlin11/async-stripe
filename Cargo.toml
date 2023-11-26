@@ -5,6 +5,7 @@ members = [
     "stripe_webhook",
     "tests",
     "generated/*",
+    "examples/*",
 ]
 resolver = "2"
 # Makes dependency management simpler to allow codegen crate to use whichever dep versions

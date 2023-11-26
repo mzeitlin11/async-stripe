@@ -84,7 +84,7 @@ async-std = {version = "1.8,<1.11", optional = true}
 thiserror = "1.0.24"
 hyper = { version = "0.14", default-features = false, features = ["http1", "http2", "client", "tcp"], optional = true }
 hyper-tls = { version = "0.5", optional = true }
-hyper-rustls = { version = "0.23", default-features = false, features = ["http1", "http2", "tls12", "logging"], optional = true }
+hyper-rustls = { version = "0.24", default-features = false, features = ["http1", "http2", "tls12", "logging"], optional = true }
 serde_json.workspace = true
 serde_qs = "0.12.0"
 serde_path_to_error = "0.1.8"

@@ -57,6 +57,10 @@ impl<'de> serde::Deserialize<'de> for OutboundPaymentsPaymentMethodDetailsFinanc
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for OutboundPaymentsPaymentMethodDetailsFinancialAccountNetwork"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom(
+                "Unknown value for OutboundPaymentsPaymentMethodDetailsFinancialAccountNetwork",
+            )
+        })
     }
 }

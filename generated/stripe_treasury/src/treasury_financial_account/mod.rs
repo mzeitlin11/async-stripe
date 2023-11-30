@@ -15,7 +15,8 @@ pub struct TreasuryFinancialAccount {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub features: Option<stripe_treasury::TreasuryFinancialAccountFeatures>,
     /// The set of credentials that resolve to a FinancialAccount.
-    pub financial_addresses: Vec<stripe_treasury::TreasuryFinancialAccountsResourceFinancialAddress>,
+    pub financial_addresses:
+        Vec<stripe_treasury::TreasuryFinancialAccountsResourceFinancialAddress>,
     /// Unique identifier for the object.
     pub id: stripe_treasury::treasury_financial_account::TreasuryFinancialAccountId,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
@@ -29,7 +30,8 @@ pub struct TreasuryFinancialAccount {
     pub pending_features: Option<Vec<TreasuryFinancialAccountPendingFeatures>>,
     /// The set of functionalities that the platform can restrict on the FinancialAccount.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub platform_restrictions: Option<stripe_treasury::TreasuryFinancialAccountsResourcePlatformRestrictions>,
+    pub platform_restrictions:
+        Option<stripe_treasury::TreasuryFinancialAccountsResourcePlatformRestrictions>,
     /// The array of paths to restricted Features in the Features hash.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub restricted_features: Option<Vec<TreasuryFinancialAccountRestrictedFeatures>>,
@@ -120,7 +122,9 @@ impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountActiveFeatures {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryFinancialAccountActiveFeatures"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for TreasuryFinancialAccountActiveFeatures")
+        })
     }
 }
 /// The array of paths to pending Features in the Features hash.
@@ -202,7 +206,9 @@ impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountPendingFeatures {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryFinancialAccountPendingFeatures"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for TreasuryFinancialAccountPendingFeatures")
+        })
     }
 }
 /// The array of paths to restricted Features in the Features hash.
@@ -284,7 +290,9 @@ impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountRestrictedFeatures
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryFinancialAccountRestrictedFeatures"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for TreasuryFinancialAccountRestrictedFeatures")
+        })
     }
 }
 /// The enum specifying what state the account is in.
@@ -342,7 +350,9 @@ impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountStatus {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryFinancialAccountStatus"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for TreasuryFinancialAccountStatus")
+        })
     }
 }
 impl stripe_types::Object for TreasuryFinancialAccount {

@@ -20,7 +20,8 @@ pub struct TreasuryDebitReversal {
     /// Unique identifier for the object.
     pub id: stripe_treasury::treasury_debit_reversal::TreasuryDebitReversalId,
     /// Other flows linked to a DebitReversal.
-    pub linked_flows: Option<stripe_treasury::TreasuryReceivedDebitsResourceDebitReversalLinkedFlows>,
+    pub linked_flows:
+        Option<stripe_treasury::TreasuryReceivedDebitsResourceDebitReversalLinkedFlows>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
@@ -92,7 +93,8 @@ impl<'de> serde::Deserialize<'de> for TreasuryDebitReversalNetwork {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryDebitReversalNetwork"))
+        Self::from_str(&s)
+            .map_err(|_| serde::de::Error::custom("Unknown value for TreasuryDebitReversalNetwork"))
     }
 }
 /// Status of the DebitReversal.
@@ -153,7 +155,8 @@ impl<'de> serde::Deserialize<'de> for TreasuryDebitReversalStatus {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryDebitReversalStatus"))
+        Self::from_str(&s)
+            .map_err(|_| serde::de::Error::custom("Unknown value for TreasuryDebitReversalStatus"))
     }
 }
 impl stripe_types::Object for TreasuryDebitReversal {

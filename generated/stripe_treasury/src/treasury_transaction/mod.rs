@@ -34,7 +34,8 @@ pub struct TreasuryTransaction {
     pub livemode: bool,
     /// Status of the Transaction.
     pub status: TreasuryTransactionStatus,
-    pub status_transitions: stripe_treasury::TreasuryTransactionsResourceAbstractTransactionResourceStatusTransitions,
+    pub status_transitions:
+        stripe_treasury::TreasuryTransactionsResourceAbstractTransactionResourceStatusTransitions,
 }
 /// Type of the flow that created the Transaction.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -112,7 +113,8 @@ impl<'de> serde::Deserialize<'de> for TreasuryTransactionFlowType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryTransactionFlowType"))
+        Self::from_str(&s)
+            .map_err(|_| serde::de::Error::custom("Unknown value for TreasuryTransactionFlowType"))
     }
 }
 /// Status of the Transaction.
@@ -173,7 +175,8 @@ impl<'de> serde::Deserialize<'de> for TreasuryTransactionStatus {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryTransactionStatus"))
+        Self::from_str(&s)
+            .map_err(|_| serde::de::Error::custom("Unknown value for TreasuryTransactionStatus"))
     }
 }
 impl stripe_types::Object for TreasuryTransaction {

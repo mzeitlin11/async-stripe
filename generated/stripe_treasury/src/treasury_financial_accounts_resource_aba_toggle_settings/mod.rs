@@ -6,7 +6,8 @@ pub struct TreasuryFinancialAccountsResourceAbaToggleSettings {
     /// Whether the Feature is operational.
     pub status: TreasuryFinancialAccountsResourceAbaToggleSettingsStatus,
     /// Additional details; includes at least one entry when the status is not `active`.
-    pub status_details: Vec<stripe_treasury::TreasuryFinancialAccountsResourceTogglesSettingStatusDetails>,
+    pub status_details:
+        Vec<stripe_treasury::TreasuryFinancialAccountsResourceTogglesSettingStatusDetails>,
 }
 /// Whether the Feature is operational.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -66,6 +67,10 @@ impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountsResourceAbaToggle
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryFinancialAccountsResourceAbaToggleSettingsStatus"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom(
+                "Unknown value for TreasuryFinancialAccountsResourceAbaToggleSettingsStatus",
+            )
+        })
     }
 }

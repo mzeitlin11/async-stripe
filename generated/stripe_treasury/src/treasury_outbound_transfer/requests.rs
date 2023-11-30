@@ -16,7 +16,8 @@ pub struct CreateTreasuryOutboundTransfer<'a> {
     pub destination_payment_method: Option<&'a str>,
     /// Hash describing payment method configuration details.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub destination_payment_method_options: Option<CreateTreasuryOutboundTransferDestinationPaymentMethodOptions>,
+    pub destination_payment_method_options:
+        Option<CreateTreasuryOutboundTransferDestinationPaymentMethodOptions>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
@@ -38,7 +39,17 @@ pub struct CreateTreasuryOutboundTransfer<'a> {
 }
 impl<'a> CreateTreasuryOutboundTransfer<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency, financial_account: &'a str) -> Self {
-        Self { amount, currency, description: None, destination_payment_method: None, destination_payment_method_options: None, expand: None, financial_account, metadata: None, statement_descriptor: None }
+        Self {
+            amount,
+            currency,
+            description: None,
+            destination_payment_method: None,
+            destination_payment_method_options: None,
+            expand: None,
+            financial_account,
+            metadata: None,
+            statement_descriptor: None,
+        }
     }
 }
 /// Hash describing payment method configuration details.
@@ -46,7 +57,8 @@ impl<'a> CreateTreasuryOutboundTransfer<'a> {
 pub struct CreateTreasuryOutboundTransferDestinationPaymentMethodOptions {
     /// Optional fields for `us_bank_account`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub us_bank_account: Option<CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccount>,
+    pub us_bank_account:
+        Option<CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccount>,
 }
 impl CreateTreasuryOutboundTransferDestinationPaymentMethodOptions {
     pub fn new() -> Self {
@@ -58,7 +70,8 @@ impl CreateTreasuryOutboundTransferDestinationPaymentMethodOptions {
 pub struct CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccount {
     /// Designate the OutboundTransfer as using a US bank account network configuration.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub network: Option<CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork>,
+    pub network:
+        Option<CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork>,
 }
 impl CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccount {
     pub fn new() -> Self {
@@ -81,7 +94,9 @@ impl CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountN
     }
 }
 
-impl std::str::FromStr for CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork {
+impl std::str::FromStr
+    for CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork
+{
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork::*;
@@ -92,23 +107,31 @@ impl std::str::FromStr for CreateTreasuryOutboundTransferDestinationPaymentMetho
         }
     }
 }
-impl AsRef<str> for CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork {
+impl AsRef<str>
+    for CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork
+{
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display for CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork {
+impl std::fmt::Display
+    for CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork
+{
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug for CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork {
+impl std::fmt::Debug
+    for CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork
+{
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize for CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork {
+impl serde::Serialize
+    for CreateTreasuryOutboundTransferDestinationPaymentMethodOptionsUsBankAccountNetwork
+{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -118,7 +141,10 @@ impl serde::Serialize for CreateTreasuryOutboundTransferDestinationPaymentMethod
 }
 impl<'a> CreateTreasuryOutboundTransfer<'a> {
     /// Creates an OutboundTransfer.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+    ) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
         client.send_form("/treasury/outbound_transfers", self, http_types::Method::Post)
     }
 }
@@ -135,7 +161,11 @@ impl<'a> RetrieveTreasuryOutboundTransfer<'a> {
 }
 impl<'a> RetrieveTreasuryOutboundTransfer<'a> {
     /// Retrieves the details of an existing OutboundTransfer by passing the unique OutboundTransfer ID from either the OutboundTransfer creation request or OutboundTransfer list.
-    pub fn send(&self, client: &stripe::Client, outbound_transfer: &stripe_treasury::treasury_outbound_transfer::TreasuryOutboundTransferId) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+        outbound_transfer: &stripe_treasury::treasury_outbound_transfer::TreasuryOutboundTransferId,
+    ) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
         client.get_query(&format!("/treasury/outbound_transfers/{outbound_transfer}"), self)
     }
 }
@@ -169,7 +199,14 @@ pub struct ListTreasuryOutboundTransfer<'a> {
 }
 impl<'a> ListTreasuryOutboundTransfer<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self { ending_before: None, expand: None, financial_account, limit: None, starting_after: None, status: None }
+        Self {
+            ending_before: None,
+            expand: None,
+            financial_account,
+            limit: None,
+            starting_after: None,
+            status: None,
+        }
     }
 }
 /// Only return OutboundTransfers that have the given status: `processing`, `canceled`, `failed`, `posted`, or `returned`.
@@ -234,7 +271,10 @@ impl serde::Serialize for ListTreasuryOutboundTransferStatus {
 }
 impl<'a> ListTreasuryOutboundTransfer<'a> {
     /// Returns a list of OutboundTransfers sent from the specified FinancialAccount.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryOutboundTransfer>> {
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+    ) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryOutboundTransfer>> {
         client.get_query("/treasury/outbound_transfers", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_treasury::TreasuryOutboundTransfer> {
@@ -255,8 +295,16 @@ impl<'a> CancelTreasuryOutboundTransfer<'a> {
 }
 impl<'a> CancelTreasuryOutboundTransfer<'a> {
     /// An OutboundTransfer can be canceled if the funds have not yet been paid out.
-    pub fn send(&self, client: &stripe::Client, outbound_transfer: &stripe_treasury::treasury_outbound_transfer::TreasuryOutboundTransferId) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
-        client.send_form(&format!("/treasury/outbound_transfers/{outbound_transfer}/cancel"), self, http_types::Method::Post)
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+        outbound_transfer: &stripe_treasury::treasury_outbound_transfer::TreasuryOutboundTransferId,
+    ) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
+        client.send_form(
+            &format!("/treasury/outbound_transfers/{outbound_transfer}/cancel"),
+            self,
+            http_types::Method::Post,
+        )
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -274,8 +322,16 @@ impl<'a> FailTreasuryOutboundTransfer<'a> {
     /// Transitions a test mode created OutboundTransfer to the `failed` status.
     ///
     /// The OutboundTransfer must already be in the `processing` state.
-    pub fn send(&self, client: &stripe::Client, outbound_transfer: &str) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
-        client.send_form(&format!("/test_helpers/treasury/outbound_transfers/{outbound_transfer}/fail"), self, http_types::Method::Post)
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+        outbound_transfer: &str,
+    ) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
+        client.send_form(
+            &format!("/test_helpers/treasury/outbound_transfers/{outbound_transfer}/fail"),
+            self,
+            http_types::Method::Post,
+        )
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -293,8 +349,16 @@ impl<'a> PostTreasuryOutboundTransfer<'a> {
     /// Transitions a test mode created OutboundTransfer to the `posted` status.
     ///
     /// The OutboundTransfer must already be in the `processing` state.
-    pub fn send(&self, client: &stripe::Client, outbound_transfer: &str) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
-        client.send_form(&format!("/test_helpers/treasury/outbound_transfers/{outbound_transfer}/post"), self, http_types::Method::Post)
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+        outbound_transfer: &str,
+    ) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
+        client.send_form(
+            &format!("/test_helpers/treasury/outbound_transfers/{outbound_transfer}/post"),
+            self,
+            http_types::Method::Post,
+        )
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -402,7 +466,15 @@ impl<'a> ReturnOutboundTransferTreasuryOutboundTransfer<'a> {
     /// Transitions a test mode created OutboundTransfer to the `returned` status.
     ///
     /// The OutboundTransfer must already be in the `processing` state.
-    pub fn send(&self, client: &stripe::Client, outbound_transfer: &str) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
-        client.send_form(&format!("/test_helpers/treasury/outbound_transfers/{outbound_transfer}/return"), self, http_types::Method::Post)
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+        outbound_transfer: &str,
+    ) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
+        client.send_form(
+            &format!("/test_helpers/treasury/outbound_transfers/{outbound_transfer}/return"),
+            self,
+            http_types::Method::Post,
+        )
     }
 }

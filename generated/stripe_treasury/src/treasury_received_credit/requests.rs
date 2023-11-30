@@ -31,7 +31,15 @@ pub struct ListTreasuryReceivedCredit<'a> {
 }
 impl<'a> ListTreasuryReceivedCredit<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self { ending_before: None, expand: None, financial_account, limit: None, linked_flows: None, starting_after: None, status: None }
+        Self {
+            ending_before: None,
+            expand: None,
+            financial_account,
+            limit: None,
+            linked_flows: None,
+            starting_after: None,
+            status: None,
+        }
     }
 }
 /// Only return ReceivedCredits described by the flow.
@@ -155,7 +163,10 @@ impl serde::Serialize for ListTreasuryReceivedCreditStatus {
 }
 impl<'a> ListTreasuryReceivedCredit<'a> {
     /// Returns a list of ReceivedCredits.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryReceivedCredit>> {
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+    ) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryReceivedCredit>> {
         client.get_query("/treasury/received_credits", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_treasury::TreasuryReceivedCredit> {
@@ -176,7 +187,11 @@ impl<'a> RetrieveTreasuryReceivedCredit<'a> {
 }
 impl<'a> RetrieveTreasuryReceivedCredit<'a> {
     /// Retrieves the details of an existing ReceivedCredit by passing the unique ReceivedCredit ID from the ReceivedCredit list.
-    pub fn send(&self, client: &stripe::Client, id: &stripe_treasury::treasury_received_credit::TreasuryReceivedCreditId) -> stripe::Response<stripe_treasury::TreasuryReceivedCredit> {
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+        id: &stripe_treasury::treasury_received_credit::TreasuryReceivedCreditId,
+    ) -> stripe::Response<stripe_treasury::TreasuryReceivedCredit> {
         client.get_query(&format!("/treasury/received_credits/{id}"), self)
     }
 }
@@ -200,13 +215,27 @@ pub struct CreateTreasuryReceivedCredit<'a> {
     pub financial_account: &'a str,
     /// Initiating payment method details for the object.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub initiating_payment_method_details: Option<CreateTreasuryReceivedCreditInitiatingPaymentMethodDetails<'a>>,
+    pub initiating_payment_method_details:
+        Option<CreateTreasuryReceivedCreditInitiatingPaymentMethodDetails<'a>>,
     /// The rails used for the object.
     pub network: CreateTreasuryReceivedCreditNetwork,
 }
 impl<'a> CreateTreasuryReceivedCredit<'a> {
-    pub fn new(amount: i64, currency: stripe_types::Currency, financial_account: &'a str, network: CreateTreasuryReceivedCreditNetwork) -> Self {
-        Self { amount, currency, description: None, expand: None, financial_account, initiating_payment_method_details: None, network }
+    pub fn new(
+        amount: i64,
+        currency: stripe_types::Currency,
+        financial_account: &'a str,
+        network: CreateTreasuryReceivedCreditNetwork,
+    ) -> Self {
+        Self {
+            amount,
+            currency,
+            description: None,
+            expand: None,
+            financial_account,
+            initiating_payment_method_details: None,
+            network,
+        }
     }
 }
 /// Initiating payment method details for the object.
@@ -217,7 +246,8 @@ pub struct CreateTreasuryReceivedCreditInitiatingPaymentMethodDetails<'a> {
     pub type_: CreateTreasuryReceivedCreditInitiatingPaymentMethodDetailsType,
     /// Optional fields for `us_bank_account`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub us_bank_account: Option<CreateTreasuryReceivedCreditInitiatingPaymentMethodDetailsUsBankAccount<'a>>,
+    pub us_bank_account:
+        Option<CreateTreasuryReceivedCreditInitiatingPaymentMethodDetailsUsBankAccount<'a>>,
 }
 impl<'a> CreateTreasuryReceivedCreditInitiatingPaymentMethodDetails<'a> {
     pub fn new(type_: CreateTreasuryReceivedCreditInitiatingPaymentMethodDetailsType) -> Self {
@@ -345,7 +375,10 @@ impl<'a> CreateTreasuryReceivedCredit<'a> {
     /// Use this endpoint to simulate a test mode ReceivedCredit initiated by a third party.
     ///
     /// In live mode, you can’t directly create ReceivedCredits initiated by third parties.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_treasury::TreasuryReceivedCredit> {
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+    ) -> stripe::Response<stripe_treasury::TreasuryReceivedCredit> {
         client.send_form("/test_helpers/treasury/received_credits", self, http_types::Method::Post)
     }
 }

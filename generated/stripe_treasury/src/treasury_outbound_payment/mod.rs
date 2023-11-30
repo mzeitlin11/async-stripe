@@ -27,9 +27,12 @@ pub struct TreasuryOutboundPayment {
     /// This field can be empty if the OutboundPayment was created using `destination_payment_method_data`.
     pub destination_payment_method: Option<String>,
     /// Details about the PaymentMethod for an OutboundPayment.
-    pub destination_payment_method_details: Option<stripe_treasury::OutboundPaymentsPaymentMethodDetails>,
+    pub destination_payment_method_details:
+        Option<stripe_treasury::OutboundPaymentsPaymentMethodDetails>,
     /// Details about the end user.
-    pub end_user_details: Option<stripe_treasury::TreasuryOutboundPaymentsResourceOutboundPaymentResourceEndUserDetails>,
+    pub end_user_details: Option<
+        stripe_treasury::TreasuryOutboundPaymentsResourceOutboundPaymentResourceEndUserDetails,
+    >,
     /// The date when funds are expected to arrive in the destination account.
     pub expected_arrival_date: stripe_types::Timestamp,
     /// The FinancialAccount that funds were pulled from.
@@ -56,7 +59,8 @@ pub struct TreasuryOutboundPayment {
     /// The status changes to `posted` once the OutboundPayment has been "confirmed" and funds have left the account, or to `failed` or `canceled`.
     /// If an OutboundPayment fails to arrive at its destination, its status will change to `returned`.
     pub status: TreasuryOutboundPaymentStatus,
-    pub status_transitions: stripe_treasury::TreasuryOutboundPaymentsResourceOutboundPaymentResourceStatusTransitions,
+    pub status_transitions:
+        stripe_treasury::TreasuryOutboundPaymentsResourceOutboundPaymentResourceStatusTransitions,
     /// The Transaction associated with this object.
     pub transaction: stripe_types::Expandable<stripe_treasury::TreasuryTransaction>,
 }
@@ -128,7 +132,9 @@ impl<'de> serde::Deserialize<'de> for TreasuryOutboundPaymentStatus {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryOutboundPaymentStatus"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for TreasuryOutboundPaymentStatus")
+        })
     }
 }
 impl stripe_types::Object for TreasuryOutboundPayment {

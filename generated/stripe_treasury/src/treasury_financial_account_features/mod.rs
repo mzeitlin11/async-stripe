@@ -7,13 +7,18 @@ pub struct TreasuryFinancialAccountFeatures {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub deposit_insurance: Option<stripe_treasury::TreasuryFinancialAccountsResourceToggleSettings>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub financial_addresses: Option<stripe_treasury::TreasuryFinancialAccountsResourceFinancialAddressesFeatures>,
+    pub financial_addresses:
+        Option<stripe_treasury::TreasuryFinancialAccountsResourceFinancialAddressesFeatures>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub inbound_transfers: Option<stripe_treasury::TreasuryFinancialAccountsResourceInboundTransfers>,
+    pub inbound_transfers:
+        Option<stripe_treasury::TreasuryFinancialAccountsResourceInboundTransfers>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub intra_stripe_flows: Option<stripe_treasury::TreasuryFinancialAccountsResourceToggleSettings>,
+    pub intra_stripe_flows:
+        Option<stripe_treasury::TreasuryFinancialAccountsResourceToggleSettings>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub outbound_payments: Option<stripe_treasury::TreasuryFinancialAccountsResourceOutboundPayments>,
+    pub outbound_payments:
+        Option<stripe_treasury::TreasuryFinancialAccountsResourceOutboundPayments>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub outbound_transfers: Option<stripe_treasury::TreasuryFinancialAccountsResourceOutboundTransfers>,
+    pub outbound_transfers:
+        Option<stripe_treasury::TreasuryFinancialAccountsResourceOutboundTransfers>,
 }

@@ -7,7 +7,8 @@ pub struct TreasuryFinancialAccountsResourceTogglesSettingStatusDetails {
     pub resolution: Option<TreasuryFinancialAccountsResourceTogglesSettingStatusDetailsResolution>,
     /// The `platform_restrictions` that are restricting this Feature.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub restriction: Option<TreasuryFinancialAccountsResourceTogglesSettingStatusDetailsRestriction>,
+    pub restriction:
+        Option<TreasuryFinancialAccountsResourceTogglesSettingStatusDetailsRestriction>,
 }
 /// Represents the reason why the status is `pending` or `restricted`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -81,7 +82,9 @@ impl serde::Serialize for TreasuryFinancialAccountsResourceTogglesSettingStatusD
         serializer.serialize_str(self.as_str())
     }
 }
-impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountsResourceTogglesSettingStatusDetailsCode {
+impl<'de> serde::Deserialize<'de>
+    for TreasuryFinancialAccountsResourceTogglesSettingStatusDetailsCode
+{
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
@@ -142,7 +145,9 @@ impl serde::Serialize for TreasuryFinancialAccountsResourceTogglesSettingStatusD
         serializer.serialize_str(self.as_str())
     }
 }
-impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountsResourceTogglesSettingStatusDetailsResolution {
+impl<'de> serde::Deserialize<'de>
+    for TreasuryFinancialAccountsResourceTogglesSettingStatusDetailsResolution
+{
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
@@ -200,7 +205,9 @@ impl serde::Serialize for TreasuryFinancialAccountsResourceTogglesSettingStatusD
         serializer.serialize_str(self.as_str())
     }
 }
-impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountsResourceTogglesSettingStatusDetailsRestriction {
+impl<'de> serde::Deserialize<'de>
+    for TreasuryFinancialAccountsResourceTogglesSettingStatusDetailsRestriction
+{
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;

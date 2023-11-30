@@ -20,7 +20,10 @@ impl<'a> CreateTreasuryDebitReversal<'a> {
 }
 impl<'a> CreateTreasuryDebitReversal<'a> {
     /// Reverses a ReceivedDebit and creates a DebitReversal object.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_treasury::TreasuryDebitReversal> {
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+    ) -> stripe::Response<stripe_treasury::TreasuryDebitReversal> {
         client.send_form("/treasury/debit_reversals", self, http_types::Method::Post)
     }
 }
@@ -37,7 +40,11 @@ impl<'a> RetrieveTreasuryDebitReversal<'a> {
 }
 impl<'a> RetrieveTreasuryDebitReversal<'a> {
     /// Retrieves a DebitReversal object.
-    pub fn send(&self, client: &stripe::Client, debit_reversal: &stripe_treasury::treasury_debit_reversal::TreasuryDebitReversalId) -> stripe::Response<stripe_treasury::TreasuryDebitReversal> {
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+        debit_reversal: &stripe_treasury::treasury_debit_reversal::TreasuryDebitReversalId,
+    ) -> stripe::Response<stripe_treasury::TreasuryDebitReversal> {
         client.get_query(&format!("/treasury/debit_reversals/{debit_reversal}"), self)
     }
 }
@@ -77,7 +84,16 @@ pub struct ListTreasuryDebitReversal<'a> {
 }
 impl<'a> ListTreasuryDebitReversal<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self { ending_before: None, expand: None, financial_account, limit: None, received_debit: None, resolution: None, starting_after: None, status: None }
+        Self {
+            ending_before: None,
+            expand: None,
+            financial_account,
+            limit: None,
+            received_debit: None,
+            resolution: None,
+            starting_after: None,
+            status: None,
+        }
     }
 }
 /// Only return DebitReversals for a given resolution.
@@ -187,7 +203,10 @@ impl serde::Serialize for ListTreasuryDebitReversalStatus {
 }
 impl<'a> ListTreasuryDebitReversal<'a> {
     /// Returns a list of DebitReversals.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryDebitReversal>> {
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+    ) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryDebitReversal>> {
         client.get_query("/treasury/debit_reversals", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_treasury::TreasuryDebitReversal> {

@@ -129,21 +129,6 @@ impl CodeGen {
                 let toml = gen_crate_toml(*krate, neighbors.collect(), request_features);
                 write_to_file(toml, base_path.join("Cargo.toml"))?;
 
-                // NB: a hack to avoid the insanely long lines generated because of _very_ long
-                // type names causing `rustfmt` errors (https://github.com/rust-lang/rustfmt/issues/5315)
-                if *krate == Crate::TREASURY {
-                    write_to_file(
-                        r#"
-use_small_heuristics = "Max"
-reorder_imports = true
-group_imports = "StdExternalCrate"
-error_on_line_overflow = true
-max_width = 260
-                    "#,
-                        base_path.join(".rustfmt.toml"),
-                    )?;
-                }
-
                 let crate_name = krate.name();
 
                 // We set up some things in the base `mod.rs` file:

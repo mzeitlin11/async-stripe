@@ -12,7 +12,8 @@ pub struct TreasuryReceivedCreditsResourceLinkedFlows {
     /// Examples of source flows include OutboundPayments, payouts, or CreditReversals.
     pub source_flow: Option<String>,
     /// The expandable object of the source flow.
-    pub source_flow_details: Option<stripe_treasury::TreasuryReceivedCreditsResourceSourceFlowsDetails>,
+    pub source_flow_details:
+        Option<stripe_treasury::TreasuryReceivedCreditsResourceSourceFlowsDetails>,
     /// The type of flow that originated the ReceivedCredit (for example, `outbound_payment`).
     pub source_flow_type: Option<String>,
 }

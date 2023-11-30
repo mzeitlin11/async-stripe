@@ -2,7 +2,8 @@
 pub struct OutboundPaymentsPaymentMethodDetails {
     pub billing_details: stripe_treasury::TreasurySharedResourceBillingDetails,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub financial_account: Option<stripe_treasury::OutboundPaymentsPaymentMethodDetailsFinancialAccount>,
+    pub financial_account:
+        Option<stripe_treasury::OutboundPaymentsPaymentMethodDetailsFinancialAccount>,
     /// The type of the payment method used in the OutboundPayment.
     #[serde(rename = "type")]
     pub type_: OutboundPaymentsPaymentMethodDetailsType,
@@ -64,6 +65,8 @@ impl<'de> serde::Deserialize<'de> for OutboundPaymentsPaymentMethodDetailsType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for OutboundPaymentsPaymentMethodDetailsType"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for OutboundPaymentsPaymentMethodDetailsType")
+        })
     }
 }

@@ -2,7 +2,9 @@
 pub struct TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetails {
     /// Set when `type` is `balance`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub balance: Option<TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance>,
+    pub balance: Option<
+        TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance,
+    >,
     pub billing_details: stripe_treasury::TreasurySharedResourceBillingDetails,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_account: Option<stripe_treasury::ReceivedPaymentMethodDetailsFinancialAccount>,
@@ -15,9 +17,11 @@ pub struct TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPayment
     ///
     /// This can be an external account, a Stripe balance, or a FinancialAccount.
     #[serde(rename = "type")]
-    pub type_: TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType,
+    pub type_:
+        TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub us_bank_account: Option<stripe_treasury::TreasurySharedResourceInitiatingPaymentMethodDetailsUsBankAccount>,
+    pub us_bank_account:
+        Option<stripe_treasury::TreasurySharedResourceInitiatingPaymentMethodDetailsUsBankAccount>,
 }
 /// Set when `type` is `balance`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -33,7 +37,9 @@ impl TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethod
     }
 }
 
-impl std::str::FromStr for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance {
+impl std::str::FromStr
+    for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance
+{
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance::*;
@@ -43,23 +49,31 @@ impl std::str::FromStr for TreasurySharedResourceInitiatingPaymentMethodDetailsI
         }
     }
 }
-impl AsRef<str> for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance {
+impl AsRef<str>
+    for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance
+{
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance {
+impl std::fmt::Display
+    for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance
+{
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance {
+impl std::fmt::Debug
+    for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance
+{
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance {
+impl serde::Serialize
+    for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance
+{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -67,7 +81,9 @@ impl serde::Serialize for TreasurySharedResourceInitiatingPaymentMethodDetailsIn
         serializer.serialize_str(self.as_str())
     }
 }
-impl<'de> serde::Deserialize<'de> for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance {
+impl<'de> serde::Deserialize<'de>
+    for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBalance
+{
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
@@ -98,7 +114,9 @@ impl TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethod
     }
 }
 
-impl std::str::FromStr for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType {
+impl std::str::FromStr
+    for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType
+{
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType::*;
@@ -112,23 +130,31 @@ impl std::str::FromStr for TreasurySharedResourceInitiatingPaymentMethodDetailsI
         }
     }
 }
-impl AsRef<str> for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType {
+impl AsRef<str>
+    for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType
+{
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType {
+impl std::fmt::Display
+    for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType
+{
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType {
+impl std::fmt::Debug
+    for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType
+{
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType {
+impl serde::Serialize
+    for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType
+{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -136,7 +162,9 @@ impl serde::Serialize for TreasurySharedResourceInitiatingPaymentMethodDetailsIn
         serializer.serialize_str(self.as_str())
     }
 }
-impl<'de> serde::Deserialize<'de> for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType {
+impl<'de> serde::Deserialize<'de>
+    for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType
+{
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;

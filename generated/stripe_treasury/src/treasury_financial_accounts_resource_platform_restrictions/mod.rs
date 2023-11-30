@@ -57,7 +57,9 @@ impl serde::Serialize for TreasuryFinancialAccountsResourcePlatformRestrictionsI
         serializer.serialize_str(self.as_str())
     }
 }
-impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountsResourcePlatformRestrictionsInboundFlows {
+impl<'de> serde::Deserialize<'de>
+    for TreasuryFinancialAccountsResourcePlatformRestrictionsInboundFlows
+{
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
@@ -115,7 +117,9 @@ impl serde::Serialize for TreasuryFinancialAccountsResourcePlatformRestrictionsO
         serializer.serialize_str(self.as_str())
     }
 }
-impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountsResourcePlatformRestrictionsOutboundFlows {
+impl<'de> serde::Deserialize<'de>
+    for TreasuryFinancialAccountsResourcePlatformRestrictionsOutboundFlows
+{
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;

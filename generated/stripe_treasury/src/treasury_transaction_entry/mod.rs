@@ -106,7 +106,9 @@ impl<'de> serde::Deserialize<'de> for TreasuryTransactionEntryFlowType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryTransactionEntryFlowType"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for TreasuryTransactionEntryFlowType")
+        })
     }
 }
 /// The specific money movement that generated the TransactionEntry.

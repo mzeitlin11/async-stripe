@@ -21,7 +21,6 @@ pub struct Crate(&'static str);
 
 impl Crate {
     pub const TYPES: Self = Self("types");
-    pub const TREASURY: Self = Self("treasury");
 
     pub fn generate_to(self) -> String {
         let out_path = self.generated_out_path();

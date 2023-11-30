@@ -1,7 +1,8 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct OutboundTransfersPaymentMethodDetailsUsBankAccount {
     /// Account holder type: individual or company.
-    pub account_holder_type: Option<OutboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType>,
+    pub account_holder_type:
+        Option<OutboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType>,
     /// Account type: checkings or savings.
     ///
     /// Defaults to checking if omitted.
@@ -70,7 +71,9 @@ impl serde::Serialize for OutboundTransfersPaymentMethodDetailsUsBankAccountAcco
         serializer.serialize_str(self.as_str())
     }
 }
-impl<'de> serde::Deserialize<'de> for OutboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType {
+impl<'de> serde::Deserialize<'de>
+    for OutboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType
+{
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
@@ -130,11 +133,17 @@ impl serde::Serialize for OutboundTransfersPaymentMethodDetailsUsBankAccountAcco
         serializer.serialize_str(self.as_str())
     }
 }
-impl<'de> serde::Deserialize<'de> for OutboundTransfersPaymentMethodDetailsUsBankAccountAccountType {
+impl<'de> serde::Deserialize<'de>
+    for OutboundTransfersPaymentMethodDetailsUsBankAccountAccountType
+{
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for OutboundTransfersPaymentMethodDetailsUsBankAccountAccountType"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom(
+                "Unknown value for OutboundTransfersPaymentMethodDetailsUsBankAccountAccountType",
+            )
+        })
     }
 }
 /// The US bank account network used to send funds.
@@ -192,6 +201,10 @@ impl<'de> serde::Deserialize<'de> for OutboundTransfersPaymentMethodDetailsUsBan
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for OutboundTransfersPaymentMethodDetailsUsBankAccountNetwork"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom(
+                "Unknown value for OutboundTransfersPaymentMethodDetailsUsBankAccountNetwork",
+            )
+        })
     }
 }

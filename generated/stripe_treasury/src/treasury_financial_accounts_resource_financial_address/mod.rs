@@ -5,7 +5,8 @@ pub struct TreasuryFinancialAccountsResourceFinancialAddress {
     pub aba: Option<stripe_treasury::TreasuryFinancialAccountsResourceAbaRecord>,
     /// The list of networks that the address supports.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub supported_networks: Option<Vec<TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks>>,
+    pub supported_networks:
+        Option<Vec<TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks>>,
     /// The type of financial address.
     #[serde(rename = "type")]
     pub type_: TreasuryFinancialAccountsResourceFinancialAddressType,
@@ -61,7 +62,9 @@ impl serde::Serialize for TreasuryFinancialAccountsResourceFinancialAddressSuppo
         serializer.serialize_str(self.as_str())
     }
 }
-impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks {
+impl<'de> serde::Deserialize<'de>
+    for TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks
+{
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
@@ -120,6 +123,10 @@ impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountsResourceFinancial
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryFinancialAccountsResourceFinancialAddressType"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom(
+                "Unknown value for TreasuryFinancialAccountsResourceFinancialAddressType",
+            )
+        })
     }
 }

@@ -29,7 +29,8 @@ pub struct TreasuryInboundTransfer {
     pub hosted_regulatory_receipt_url: Option<String>,
     /// Unique identifier for the object.
     pub id: stripe_treasury::treasury_inbound_transfer::TreasuryInboundTransferId,
-    pub linked_flows: stripe_treasury::TreasuryInboundTransfersResourceInboundTransferResourceLinkedFlows,
+    pub linked_flows:
+        stripe_treasury::TreasuryInboundTransfersResourceInboundTransferResourceLinkedFlows,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
@@ -52,7 +53,8 @@ pub struct TreasuryInboundTransfer {
     /// The status changes to `succeeded` once the funds have been "confirmed" and a `transaction` is created and posted.
     /// The status changes to `failed` if the transfer fails.
     pub status: TreasuryInboundTransferStatus,
-    pub status_transitions: stripe_treasury::TreasuryInboundTransfersResourceInboundTransferResourceStatusTransitions,
+    pub status_transitions:
+        stripe_treasury::TreasuryInboundTransfersResourceInboundTransferResourceStatusTransitions,
     /// The Transaction associated with this object.
     pub transaction: Option<stripe_types::Expandable<stripe_treasury::TreasuryTransaction>>,
 }
@@ -121,7 +123,9 @@ impl<'de> serde::Deserialize<'de> for TreasuryInboundTransferStatus {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryInboundTransferStatus"))
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for TreasuryInboundTransferStatus")
+        })
     }
 }
 impl stripe_types::Object for TreasuryInboundTransfer {

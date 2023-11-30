@@ -37,7 +37,7 @@ pub struct ShippingRate {
     /// A [tax code](https://stripe.com/docs/tax/tax-categories) ID.
     ///
     /// The Shipping tax code is `txcd_92010001`.
-    pub tax_code: Option<stripe_types::Expandable<stripe_types::TaxProductResourceTaxCode>>,
+    pub tax_code: Option<stripe_types::Expandable<stripe_types::TaxCode>>,
     /// The type of calculation to use on the shipping rate.
     ///
     /// Can only be `fixed_amount` for now.

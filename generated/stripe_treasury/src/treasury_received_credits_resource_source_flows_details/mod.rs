@@ -1,9 +1,9 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryReceivedCreditsResourceSourceFlowsDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub credit_reversal: Option<stripe_treasury::TreasuryReceivedCreditsResourceCreditReversal>,
+    pub credit_reversal: Option<stripe_treasury::TreasuryCreditReversal>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub outbound_payment: Option<stripe_treasury::TreasuryOutboundPaymentsResourceOutboundPayment>,
+    pub outbound_payment: Option<stripe_treasury::TreasuryOutboundPayment>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payout: Option<stripe_types::Payout>,
     /// The type of the source flow that originated the ReceivedCredit.

@@ -39,7 +39,7 @@ pub struct PaymentLink {
     pub invoice_creation: Option<stripe_types::PaymentLinksResourceInvoiceCreation>,
     /// The line items representing what is being sold.
     #[serde(default)]
-    pub line_items: stripe_types::List<stripe_types::LineItem>,
+    pub line_items: stripe_types::List<stripe_types::Item>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.

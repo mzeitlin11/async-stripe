@@ -15,7 +15,7 @@ async-stripe = {path = "../async-stripe"}
 stripe_connect = {path = "../generated/stripe_connect", features = ["account", "transfer_reversal"]}
 stripe_billing = {path = "../generated/stripe_billing", features = ["invoice", "plan", "subscription", "subscription_item", "usage_record"]}
 stripe_core = {path = "../generated/stripe_core", features = ["customer", "charge", "token"]}
-stripe_checkout = {path = "../generated/stripe_checkout", features = ["session"]}
+stripe_checkout = {path = "../generated/stripe_checkout", features = ["checkout_session"]}
 stripe_product = {path = "../generated/stripe_product", features = ["product", "price", "promotion_code"]}
 
 [features]

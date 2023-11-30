@@ -70,7 +70,7 @@ pub struct IssuingAuthorization {
     ///
     /// If a network token was not used for this authorization, this field will be null.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub token: Option<stripe_types::Expandable<stripe_types::IssuingNetworkToken>>,
+    pub token: Option<stripe_types::Expandable<stripe_types::IssuingToken>>,
     /// List of [transactions](https://stripe.com/docs/api/issuing/transactions) associated with this authorization.
     pub transactions: Vec<stripe_types::IssuingTransaction>,
     /// [Treasury](https://stripe.com/docs/api/treasury) details related to this authorization if it was created on a [FinancialAccount](https://stripe.com/docs/api/treasury/financial_accounts).

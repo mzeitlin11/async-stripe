@@ -105,7 +105,7 @@ pub struct Customer {
     pub tax_ids: stripe_types::List<stripe_types::TaxId>,
     /// ID of the test clock that this customer belongs to.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub test_clock: Option<stripe_types::Expandable<stripe_types::TestClock>>,
+    pub test_clock: Option<stripe_types::Expandable<stripe_types::TestHelpersTestClock>>,
 }
 /// Describes the customer's tax exemption status, which is `none`, `exempt`, or `reverse`.
 ///

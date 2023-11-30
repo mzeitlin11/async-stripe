@@ -14,7 +14,7 @@ stripe_billing = {path = "../../generated/stripe_billing", features = ["subscrip
 stripe_core = {path = "../../generated/stripe_core", features = ["customer", "payment_intent"]}
 stripe_product = {path = "../../generated/stripe_product", features = ["product", "price"]}
 stripe_payment = {path = "../../generated/stripe_payment", features = ["payment_method", "payment_link"]}
-stripe_checkout = {path = "../../generated/stripe_checkout", features = ["session"]}
+stripe_checkout = {path = "../../generated/stripe_checkout", features = ["checkout_session"]}
 stripe_connect = {path = "../../generated/stripe_connect", features = ["account", "account_link"]}
 
 [features]

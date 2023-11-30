@@ -49,7 +49,7 @@ pub struct Product {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor: Option<String>,
     /// A [tax code](https://stripe.com/docs/tax/tax-categories) ID.
-    pub tax_code: Option<stripe_types::Expandable<stripe_types::TaxProductResourceTaxCode>>,
+    pub tax_code: Option<stripe_types::Expandable<stripe_types::TaxCode>>,
     /// The type of the product.
     ///
     /// The product is either of type `good`, which is eligible for use with Orders and SKUs, or `service`, which is eligible for use with Subscriptions and Plans.

@@ -2,20 +2,20 @@
 #![allow(clippy::large_enum_variant)]
 #![allow(rustdoc::invalid_html_tags)]
 extern crate self as stripe_terminal;
-pub mod terminal_configuration_deleted_configuration;
-pub use terminal_configuration_deleted_configuration::TerminalConfigurationDeletedConfiguration;
-pub mod terminal_location_deleted_location;
-pub use terminal_location_deleted_location::TerminalLocationDeletedLocation;
-pub mod terminal_reader_deleted_reader;
-pub use terminal_reader_deleted_reader::TerminalReaderDeletedReader;
-pub mod terminal_configuration_configuration;
-pub use terminal_configuration_configuration::TerminalConfigurationConfiguration;
+pub mod deleted_terminal_configuration;
+pub use deleted_terminal_configuration::DeletedTerminalConfiguration;
+pub mod deleted_terminal_location;
+pub use deleted_terminal_location::DeletedTerminalLocation;
+pub mod deleted_terminal_reader;
+pub use deleted_terminal_reader::DeletedTerminalReader;
+pub mod terminal_configuration;
+pub use terminal_configuration::TerminalConfiguration;
 pub mod terminal_connection_token;
 pub use terminal_connection_token::TerminalConnectionToken;
-pub mod terminal_location_location;
-pub use terminal_location_location::TerminalLocationLocation;
-pub mod terminal_reader_reader;
-pub use terminal_reader_reader::TerminalReaderReader;
+pub mod terminal_location;
+pub use terminal_location::TerminalLocation;
+pub mod terminal_reader;
+pub use terminal_reader::TerminalReader;
 pub mod terminal_configuration_configuration_resource_currency_specific_config;
 pub use terminal_configuration_configuration_resource_currency_specific_config::TerminalConfigurationConfigurationResourceCurrencySpecificConfig;
 pub mod terminal_configuration_configuration_resource_device_type_specific_config;

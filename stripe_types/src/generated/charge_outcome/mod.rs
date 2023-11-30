@@ -28,7 +28,7 @@ pub struct ChargeOutcome {
     pub risk_score: Option<i64>,
     /// The ID of the Radar rule that matched the payment, if applicable.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub rule: Option<stripe_types::Expandable<stripe_types::RadarRule>>,
+    pub rule: Option<stripe_types::Expandable<stripe_types::Rule>>,
     /// A human-readable description of the outcome type and reason, designed for you (the recipient of the payment), not your customer.
     pub seller_message: Option<String>,
     /// Possible values are `authorized`, `manual_review`, `issuer_declined`, `blocked`, and `invalid`.

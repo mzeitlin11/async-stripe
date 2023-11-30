@@ -148,7 +148,7 @@ fn deserialize_customer_with_source() {
 
 #[test]
 fn deserialize_checkout_event() {
-    use stripe_types::NotificationEvent;
+    use stripe_types::Event;
 
     let example = json!({
       "created": 1326853478,
@@ -195,6 +195,6 @@ fn deserialize_checkout_event() {
         }
       }
     });
-    let result = serde_json::from_value::<NotificationEvent>(example);
+    let result = serde_json::from_value::<Event>(example);
     assert!(result.is_ok(), "expected ok; was {:?}", result);
 }

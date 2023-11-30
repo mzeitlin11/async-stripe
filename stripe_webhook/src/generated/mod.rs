@@ -5,11 +5,11 @@ pub enum EventObject {
     #[serde(rename = "account")]
     Account(stripe_types::Account),
     #[serde(rename = "capability")]
-    AccountCapability(stripe_types::AccountCapability),
+    Capability(stripe_types::Capability),
     #[serde(rename = "application")]
     Application(stripe_types::Application),
     #[serde(rename = "application_fee")]
-    PlatformFee(stripe_types::PlatformFee),
+    ApplicationFee(stripe_types::ApplicationFee),
     #[serde(rename = "fee_refund")]
     FeeRefund(stripe_types::FeeRefund),
     #[cfg(feature = "stripe_core")]
@@ -19,12 +19,12 @@ pub enum EventObject {
     BankAccount(stripe_types::BankAccount),
     #[cfg(feature = "stripe_billing")]
     #[serde(rename = "billing_portal.configuration")]
-    PortalConfiguration(stripe_billing::PortalConfiguration),
+    BillingPortalConfiguration(stripe_billing::BillingPortalConfiguration),
     #[serde(rename = "card")]
     Card(stripe_types::Card),
     #[cfg(feature = "stripe_checkout")]
     #[serde(rename = "checkout.session")]
-    Session(stripe_checkout::Session),
+    CheckoutSession(stripe_checkout::CheckoutSession),
     #[serde(rename = "coupon")]
     Coupon(stripe_types::Coupon),
     #[serde(rename = "customer")]
@@ -38,7 +38,7 @@ pub enum EventObject {
     #[serde(rename = "invoice")]
     Invoice(stripe_types::Invoice),
     #[serde(rename = "invoiceitem")]
-    InvoiceItem(stripe_types::InvoiceItem),
+    Invoiceitem(stripe_types::Invoiceitem),
     #[serde(rename = "issuing.authorization")]
     IssuingAuthorization(stripe_types::IssuingAuthorization),
     #[serde(rename = "issuing.card")]
@@ -74,7 +74,7 @@ pub enum EventObject {
     #[serde(rename = "refund")]
     Refund(stripe_types::Refund),
     #[serde(rename = "review")]
-    RadarReview(stripe_types::RadarReview),
+    Review(stripe_types::Review),
     #[serde(rename = "setup_intent")]
     SetupIntent(stripe_types::SetupIntent),
     #[serde(rename = "subscription")]
@@ -86,7 +86,7 @@ pub enum EventObject {
     #[serde(rename = "tax_rate")]
     TaxRate(stripe_types::TaxRate),
     #[serde(rename = "test_helpers.test_clock")]
-    TestClock(stripe_types::TestClock),
+    TestHelpersTestClock(stripe_types::TestHelpersTestClock),
     #[serde(rename = "topup")]
     Topup(stripe_types::Topup),
     #[serde(rename = "transfer")]

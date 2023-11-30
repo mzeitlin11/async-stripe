@@ -53,7 +53,7 @@ pub struct SubscriptionSchedule {
     /// ID of the subscription managed by the subscription schedule.
     pub subscription: Option<stripe_types::Expandable<stripe_types::Subscription>>,
     /// ID of the test clock this subscription schedule belongs to.
-    pub test_clock: Option<stripe_types::Expandable<stripe_types::TestClock>>,
+    pub test_clock: Option<stripe_types::Expandable<stripe_types::TestHelpersTestClock>>,
 }
 /// Behavior of the subscription schedule and underlying subscription when it ends.
 ///

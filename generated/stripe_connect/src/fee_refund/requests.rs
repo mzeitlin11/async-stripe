@@ -34,7 +34,7 @@ impl<'a> CreateFeeRefund<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::platform_fee::ApplicationFeeId,
+        id: &stripe_types::application_fee::ApplicationFeeId,
     ) -> stripe::Response<stripe_types::FeeRefund> {
         client.send_form(&format!("/application_fees/{id}/refunds"), self, http_types::Method::Post)
     }
@@ -75,13 +75,13 @@ impl<'a> ListFeeRefund<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::platform_fee::ApplicationFeeId,
+        id: &stripe_types::application_fee::ApplicationFeeId,
     ) -> stripe::Response<stripe_types::List<stripe_types::FeeRefund>> {
         client.get_query(&format!("/application_fees/{id}/refunds"), self)
     }
     pub fn paginate(
         self,
-        id: &stripe_types::platform_fee::ApplicationFeeId,
+        id: &stripe_types::application_fee::ApplicationFeeId,
     ) -> stripe::ListPaginator<stripe_types::FeeRefund> {
         stripe::ListPaginator::from_params(&format!("/application_fees/{id}/refunds"), self)
     }
@@ -103,7 +103,7 @@ impl<'a> RetrieveFeeRefund<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        fee: &stripe_types::platform_fee::ApplicationFeeId,
+        fee: &stripe_types::application_fee::ApplicationFeeId,
         id: &str,
     ) -> stripe::Response<stripe_types::FeeRefund> {
         client.get_query(&format!("/application_fees/{fee}/refunds/{id}"), self)
@@ -134,7 +134,7 @@ impl<'a> UpdateFeeRefund<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        fee: &stripe_types::platform_fee::ApplicationFeeId,
+        fee: &stripe_types::application_fee::ApplicationFeeId,
         id: &str,
     ) -> stripe::Response<stripe_types::FeeRefund> {
         client.send_form(

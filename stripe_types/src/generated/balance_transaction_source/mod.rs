@@ -3,7 +3,7 @@
 #[serde(tag = "object")]
 pub enum BalanceTransactionSource {
     #[serde(rename = "application_fee")]
-    PlatformFee(stripe_types::PlatformFee),
+    ApplicationFee(stripe_types::ApplicationFee),
     #[serde(rename = "charge")]
     Charge(stripe_types::Charge),
     #[serde(rename = "connect_collection_transfer")]
@@ -23,7 +23,7 @@ pub enum BalanceTransactionSource {
     #[serde(rename = "payout")]
     Payout(stripe_types::Payout),
     #[serde(rename = "platform_tax_fee")]
-    PlatformTax(stripe_types::PlatformTax),
+    PlatformTaxFee(stripe_types::PlatformTaxFee),
     #[serde(rename = "refund")]
     Refund(stripe_types::Refund),
     #[serde(rename = "reserve_transaction")]
@@ -41,7 +41,7 @@ impl stripe_types::Object for BalanceTransactionSource {
     type Id = String;
     fn id(&self) -> Option<&str> {
         match self {
-            Self::PlatformFee(v) => Some(v.id.as_str()),
+            Self::ApplicationFee(v) => Some(v.id.as_str()),
             Self::Charge(v) => Some(v.id.as_str()),
             Self::ConnectCollectionTransfer(v) => Some(v.id.as_str()),
             Self::CustomerCashBalanceTransaction(v) => Some(v.id.as_str()),
@@ -51,7 +51,7 @@ impl stripe_types::Object for BalanceTransactionSource {
             Self::IssuingDispute(v) => Some(v.id.as_str()),
             Self::IssuingTransaction(v) => Some(v.id.as_str()),
             Self::Payout(v) => Some(v.id.as_str()),
-            Self::PlatformTax(v) => Some(v.id.as_str()),
+            Self::PlatformTaxFee(v) => Some(v.id.as_str()),
             Self::Refund(v) => Some(v.id.as_str()),
             Self::ReserveTransaction(v) => Some(v.id.as_str()),
             Self::TaxDeductedAtSource(v) => Some(v.id.as_str()),

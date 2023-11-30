@@ -36,34 +36,34 @@ runtime-blocking-rustls-webpki = ["async-stripe/runtime-blocking-rustls-webpki"]
 runtime-async-std-surf = ["async-stripe/runtime-async-std-surf"]
 
 apple_pay_domain = []
-bank_connections_resource_link_account_session = []
-bank_connections_resource_linked_account = []
 ephemeral_key = []
 exchange_rate = []
-gelato_verification_report = []
-gelato_verification_session = []
-notification_webhook_endpoint = []
+financial_connections_account = []
+financial_connections_session = []
+identity_verification_report = []
+identity_verification_session = []
 reporting_report_run = []
 reporting_report_type = []
 scheduled_query_run = []
-tax_product_registrations_resource_tax_registration = []
-tax_product_resource_tax_calculation = []
-tax_product_resource_tax_settings = []
-tax_product_resource_tax_transaction = []
+tax_calculation = []
+tax_registration = []
+tax_settings = []
+tax_transaction = []
+webhook_endpoint = []
 
 full = ["apple_pay_domain",
-"bank_connections_resource_link_account_session",
-"bank_connections_resource_linked_account",
 "ephemeral_key",
 "exchange_rate",
-"gelato_verification_report",
-"gelato_verification_session",
-"notification_webhook_endpoint",
+"financial_connections_account",
+"financial_connections_session",
+"identity_verification_report",
+"identity_verification_session",
 "reporting_report_run",
 "reporting_report_type",
 "scheduled_query_run",
-"tax_product_registrations_resource_tax_registration",
-"tax_product_resource_tax_calculation",
-"tax_product_resource_tax_settings",
-"tax_product_resource_tax_transaction"]
+"tax_calculation",
+"tax_registration",
+"tax_settings",
+"tax_transaction",
+"webhook_endpoint"]
 

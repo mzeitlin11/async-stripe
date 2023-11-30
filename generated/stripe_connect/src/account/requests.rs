@@ -4508,13 +4508,13 @@ impl<'a> CapabilitiesAccount<'a> {
         &self,
         client: &stripe::Client,
         account: &stripe_types::account::AccountId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::AccountCapability>> {
+    ) -> stripe::Response<stripe_types::List<stripe_types::Capability>> {
         client.get_query(&format!("/accounts/{account}/capabilities"), self)
     }
     pub fn paginate(
         self,
         account: &stripe_types::account::AccountId,
-    ) -> stripe::ListPaginator<stripe_types::AccountCapability> {
+    ) -> stripe::ListPaginator<stripe_types::Capability> {
         stripe::ListPaginator::from_params(&format!("/accounts/{account}/capabilities"), self)
     }
 }

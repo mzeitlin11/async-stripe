@@ -4,9 +4,10 @@ use std::str::FromStr;
 use chrono::Utc;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
-use stripe_types::{ApiVersion, NotificationEvent};
+use stripe_types::event::EventType;
+use stripe_types::ApiVersion;
 
-use crate::{EventObject, EventType, WebhookError};
+use crate::{EventObject, WebhookError};
 
 #[derive(Clone, Debug)]
 pub struct Event {
@@ -22,7 +23,7 @@ pub struct Event {
     pub created: stripe_types::Timestamp,
     pub data: EventData,
     /// Unique identifier for the object.
-    pub id: stripe_types::notification_event::EventId,
+    pub id: stripe_types::event::EventId,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Number of webhooks that have yet to be successfully delivered (i.e., to return a 20x response) to the URLs you've specified.
@@ -86,7 +87,7 @@ impl Webhook {
             return Err(WebhookError::BadTimestamp(signature.t));
         }
 
-        let base_evt: NotificationEvent = serde_json::from_str(payload)?;
+        let base_evt: stripe_types::Event = serde_json::from_str(payload)?;
 
         Ok(Event {
             account: base_evt.account,

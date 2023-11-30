@@ -135,7 +135,7 @@ pub struct Subscription {
     /// After receiving updated payment information from a customer, you may choose to reopen and pay their closed invoices.
     pub status: SubscriptionStatus,
     /// ID of the test clock this subscription belongs to.
-    pub test_clock: Option<stripe_types::Expandable<stripe_types::TestClock>>,
+    pub test_clock: Option<stripe_types::Expandable<stripe_types::TestHelpersTestClock>>,
     /// The account (if any) the subscription's payments will be attributed to for tax reporting, and where funds from each payment will be transferred to for each of the subscription's invoices.
     pub transfer_data: Option<stripe_types::SubscriptionTransferData>,
     /// If the subscription has a trial, the end of that trial.

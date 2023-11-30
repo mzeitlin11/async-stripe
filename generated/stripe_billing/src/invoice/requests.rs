@@ -4551,10 +4551,10 @@ impl<'a> UpcomingLinesInvoice<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::InvoiceLineItem>> {
+    ) -> stripe::Response<stripe_types::List<stripe_types::LineItem>> {
         client.get_query("/invoices/upcoming/lines", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::InvoiceLineItem> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::LineItem> {
         stripe::ListPaginator::from_params("/invoices/upcoming/lines", self)
     }
 }

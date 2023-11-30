@@ -10,7 +10,9 @@
 //! If you'd rather avoid this, you can use a [stripe_types::PaymentLink].
 
 use stripe::StripeError;
-use stripe_checkout::session::{CreateSession, CreateSessionLineItems, CreateSessionMode};
+use stripe_checkout::checkout_session::{
+    CreateCheckoutSession, CreateCheckoutSessionLineItems, CreateCheckoutSessionMode,
+};
 use stripe_core::customer::CreateCustomer;
 use stripe_product::price::CreatePrice;
 use stripe_product::product::CreateProduct;
@@ -58,16 +60,16 @@ pub async fn run_checkout_session_example(client: &stripe::Client) -> Result<(),
     );
 
     // finally, create a checkout session for this product / price
-    let line_items = vec![CreateSessionLineItems {
+    let line_items = vec![CreateCheckoutSessionLineItems {
         quantity: Some(3),
         price: Some(&price.id),
         ..Default::default()
     }];
     let checkout_session = {
-        let mut params = CreateSession::new();
+        let mut params = CreateCheckoutSession::new();
         params.cancel_url = Some("http://test.com/cancel");
         params.customer = Some(customer.id.as_str());
-        params.mode = Some(CreateSessionMode::Payment);
+        params.mode = Some(CreateCheckoutSessionMode::Payment);
         params.line_items = Some(&line_items);
         params.expand = Some(&["line_items", "line_items.data.price.product"]);
         params.send(client).await?

@@ -2,8 +2,8 @@
 #![allow(clippy::large_enum_variant)]
 #![allow(rustdoc::invalid_html_tags)]
 extern crate self as stripe_checkout;
-pub mod session;
-pub use session::Session;
+pub mod checkout_session;
+pub use checkout_session::CheckoutSession;
 pub mod checkout_acss_debit_mandate_options;
 pub use checkout_acss_debit_mandate_options::CheckoutAcssDebitMandateOptions;
 pub mod checkout_acss_debit_payment_method_options;

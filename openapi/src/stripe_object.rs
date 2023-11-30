@@ -207,7 +207,6 @@ pub enum OperationType {
 
 #[derive(Debug, Clone, serde::Deserialize)]
 struct BaseResource {
-    pub class_name: String,
     pub in_package: Option<String>,
 }
 
@@ -242,7 +241,7 @@ impl StripeResource {
             }
         }
 
-        let ident = infer_object_ident(&path, &schema.schema_data.title, &resource.class_name);
+        let ident = infer_object_ident(&path);
         let requests = if let Some(val) = schema.schema_data.extensions.get("x-stripeOperations") {
             serde_json::from_value(val.clone())?
         } else {
@@ -252,14 +251,8 @@ impl StripeResource {
     }
 }
 
-fn infer_object_ident(path: &ComponentPath, title: &Option<String>, class: &str) -> RustIdent {
-    let Some(title) = title else {
-        return RustIdent::create(path);
-    };
-    if title == "Polymorphic" {
-        return RustIdent::create(class);
-    }
-    RustIdent::create(title)
+fn infer_object_ident(path: &ComponentPath) -> RustIdent {
+    RustIdent::create(path)
 }
 
 #[derive(Debug, Clone)]

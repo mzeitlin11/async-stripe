@@ -99,13 +99,13 @@ impl<'a> ListLineItemsPaymentLink<'a> {
         &self,
         client: &stripe::Client,
         payment_link: &stripe_types::payment_link::PaymentLinkId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::LineItem>> {
+    ) -> stripe::Response<stripe_types::List<stripe_types::Item>> {
         client.get_query(&format!("/payment_links/{payment_link}/line_items"), self)
     }
     pub fn paginate(
         self,
         payment_link: &stripe_types::payment_link::PaymentLinkId,
-    ) -> stripe::ListPaginator<stripe_types::LineItem> {
+    ) -> stripe::ListPaginator<stripe_types::Item> {
         stripe::ListPaginator::from_params(
             &format!("/payment_links/{payment_link}/line_items"),
             self,

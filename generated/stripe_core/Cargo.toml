@@ -43,15 +43,15 @@ customer = []
 customer_balance_transaction = []
 customer_cash_balance_transaction = []
 dispute = []
+event = []
 file = []
 file_link = []
 mandate = []
-notification_event = []
-payment_flows_setup_intent_setup_attempt = []
 payment_intent = []
 payment_source = []
 payout = []
 refund = []
+setup_attempt = []
 setup_intent = []
 token = []
 
@@ -63,15 +63,15 @@ full = ["balance",
 "customer_balance_transaction",
 "customer_cash_balance_transaction",
 "dispute",
+"event",
 "file",
 "file_link",
 "mandate",
-"notification_event",
-"payment_flows_setup_intent_setup_attempt",
 "payment_intent",
 "payment_source",
 "payout",
 "refund",
+"setup_attempt",
 "setup_intent",
 "token"]
 

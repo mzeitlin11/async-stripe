@@ -40,7 +40,7 @@ price = []
 product = []
 promotion_code = []
 shipping_rate = []
-tax_product_resource_tax_code = []
+tax_code = []
 tax_rate = []
 
 full = ["coupon",
@@ -48,6 +48,6 @@ full = ["coupon",
 "product",
 "promotion_code",
 "shipping_rate",
-"tax_product_resource_tax_code",
+"tax_code",
 "tax_rate"]
 

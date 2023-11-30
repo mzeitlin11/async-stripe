@@ -3,7 +3,7 @@ pub struct TreasuryOutboundPaymentsResourceReturnedStatus {
     /// Reason for the return.
     pub code: TreasuryOutboundPaymentsResourceReturnedStatusCode,
     /// The Transaction associated with this object.
-    pub transaction: stripe_types::Expandable<stripe_treasury::TreasuryTransactionsResourceTransaction>,
+    pub transaction: stripe_types::Expandable<stripe_treasury::TreasuryTransaction>,
 }
 /// Reason for the return.
 #[derive(Copy, Clone, Eq, PartialEq)]

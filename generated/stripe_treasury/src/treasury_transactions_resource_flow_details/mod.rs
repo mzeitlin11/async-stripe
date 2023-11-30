@@ -1,21 +1,21 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryTransactionsResourceFlowDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub credit_reversal: Option<stripe_treasury::TreasuryReceivedCreditsResourceCreditReversal>,
+    pub credit_reversal: Option<stripe_treasury::TreasuryCreditReversal>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub debit_reversal: Option<stripe_treasury::TreasuryReceivedDebitsResourceDebitReversal>,
+    pub debit_reversal: Option<stripe_treasury::TreasuryDebitReversal>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub inbound_transfer: Option<stripe_treasury::TreasuryInboundTransfersResourceInboundTransfer>,
+    pub inbound_transfer: Option<stripe_treasury::TreasuryInboundTransfer>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub issuing_authorization: Option<stripe_types::IssuingAuthorization>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub outbound_payment: Option<stripe_treasury::TreasuryOutboundPaymentsResourceOutboundPayment>,
+    pub outbound_payment: Option<stripe_treasury::TreasuryOutboundPayment>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub outbound_transfer: Option<stripe_treasury::TreasuryOutboundTransfersResourceOutboundTransfer>,
+    pub outbound_transfer: Option<stripe_treasury::TreasuryOutboundTransfer>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub received_credit: Option<stripe_treasury::TreasuryReceivedCreditsResourceReceivedCredit>,
+    pub received_credit: Option<stripe_treasury::TreasuryReceivedCredit>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub received_debit: Option<stripe_treasury::TreasuryReceivedDebitsResourceReceivedDebit>,
+    pub received_debit: Option<stripe_treasury::TreasuryReceivedDebit>,
     /// Type of the flow that created the Transaction.
     ///
     /// Set to the same value as `flow_type`.

@@ -67,7 +67,7 @@ pub struct Quote {
     pub invoice_settings: Option<stripe_types::InvoiceSettingQuoteSetting>,
     /// A list of items the customer is being quoted for.
     #[serde(default)]
-    pub line_items: stripe_types::List<stripe_types::LineItem>,
+    pub line_items: stripe_types::List<stripe_types::Item>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
@@ -91,7 +91,7 @@ pub struct Quote {
     /// The subscription schedule that was created or updated from this quote.
     pub subscription_schedule: Option<stripe_types::Expandable<stripe_types::SubscriptionSchedule>>,
     /// ID of the test clock this quote belongs to.
-    pub test_clock: Option<stripe_types::Expandable<stripe_types::TestClock>>,
+    pub test_clock: Option<stripe_types::Expandable<stripe_types::TestHelpersTestClock>>,
     pub total_details: stripe_types::QuotesResourceTotalDetails,
     /// The account (if any) the payments will be attributed to for tax reporting, and where funds from each payment will be transferred to for each of the invoices.
     pub transfer_data: Option<stripe_types::QuotesResourceTransferData>,

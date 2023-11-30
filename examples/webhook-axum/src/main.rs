@@ -69,7 +69,7 @@ where
 async fn handle_webhook(StripeEvent(event): StripeEvent) {
     match event.type_ {
         EventType::CheckoutSessionCompleted => {
-            if let EventObject::Session(session) = event.data.object {
+            if let EventObject::CheckoutSession(session) = event.data.object {
                 println!("Received checkout session completed webhook with id: {:?}", session.id);
             }
         }

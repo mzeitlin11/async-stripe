@@ -186,7 +186,7 @@ pub struct Invoice {
     /// The individual line items that make up the invoice.
     ///
     /// `lines` is sorted as follows: (1) pending invoice items (including prorations) in reverse chronological order, (2) subscription items in reverse chronological order, and (3) invoice items added after invoice creation in chronological order.
-    pub lines: stripe_types::List<stripe_types::InvoiceLineItem>,
+    pub lines: stripe_types::List<stripe_types::LineItem>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
@@ -277,7 +277,7 @@ pub struct Invoice {
     /// This is the sum of all the tax amounts on this invoice.
     pub tax: Option<i64>,
     /// ID of the test clock this invoice belongs to.
-    pub test_clock: Option<stripe_types::Expandable<stripe_types::TestClock>>,
+    pub test_clock: Option<stripe_types::Expandable<stripe_types::TestHelpersTestClock>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub threshold_reason: Option<stripe_types::InvoiceThresholdReason>,
     /// Total after discounts and taxes.

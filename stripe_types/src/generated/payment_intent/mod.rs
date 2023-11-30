@@ -102,7 +102,7 @@ pub struct PaymentIntent {
     /// If `receipt_email` is specified for a payment in live mode, a receipt will be sent regardless of your [email settings](https://dashboard.stripe.com/account/emails).
     pub receipt_email: Option<String>,
     /// ID of the review associated with this PaymentIntent, if any.
-    pub review: Option<stripe_types::Expandable<stripe_types::RadarReview>>,
+    pub review: Option<stripe_types::Expandable<stripe_types::Review>>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.

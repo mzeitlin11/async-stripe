@@ -36,12 +36,12 @@ runtime-blocking-rustls-webpki = ["async-stripe/runtime-blocking-rustls-webpki"]
 runtime-async-std-surf = ["async-stripe/runtime-async-std-surf"]
 
 radar_early_fraud_warning = []
-radar_list_list = []
-radar_list_list_item = []
-radar_review = []
+radar_value_list = []
+radar_value_list_item = []
+review = []
 
 full = ["radar_early_fraud_warning",
-"radar_list_list",
-"radar_list_list_item",
-"radar_review"]
+"radar_value_list",
+"radar_value_list_item",
+"review"]
 

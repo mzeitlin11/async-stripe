@@ -43,7 +43,7 @@ pub fn handle_webhook(req: HttpRequest, payload: web::Bytes) -> Result<(), Webho
                 }
             }
             EventType::CheckoutSessionCompleted => {
-                if let EventObject::Session(session) = event.data.object {
+                if let EventObject::CheckoutSession(session) = event.data.object {
                     handle_checkout_session(session)?;
                 }
             }
@@ -67,7 +67,7 @@ fn handle_account_updated(account: stripe_types::Account) -> Result<(), WebhookE
     Ok(())
 }
 
-fn handle_checkout_session(session: stripe_checkout::Session) -> Result<(), WebhookError> {
+fn handle_checkout_session(session: stripe_checkout::CheckoutSession) -> Result<(), WebhookError> {
     println!("Received checkout session completed webhook with id: {:?}", session.id);
     Ok(())
 }

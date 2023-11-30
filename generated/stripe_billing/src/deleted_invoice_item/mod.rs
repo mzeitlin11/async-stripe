@@ -1,1 +1,0 @@
-pub use stripe_types::deleted_invoice_item::*;

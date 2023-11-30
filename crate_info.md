@@ -1,105 +1,105 @@
-| Name                                                          | Crate           |
-|---------------------------------------------------------------|-----------------|
-| PortalConfiguration                                           | stripe_billing  |
-| PortalSession                                                 | stripe_billing  |
-| CreditNote                                                    | stripe_billing  |
-| CreditNoteLineItem                                            | stripe_billing  |
-| Invoice                                                       | stripe_billing  |
-| InvoiceItem                                                   | stripe_billing  |
-| InvoiceLineItem                                               | stripe_billing  |
-| UsageRecordSummary                                            | stripe_billing  |
-| Plan                                                          | stripe_billing  |
-| Quote                                                         | stripe_billing  |
-| UsageRecord                                                   | stripe_billing  |
-| Subscription                                                  | stripe_billing  |
-| SubscriptionItem                                              | stripe_billing  |
-| SubscriptionSchedule                                          | stripe_billing  |
-| TaxId                                                         | stripe_billing  |
-| TestClock                                                     | stripe_billing  |
-| Session                                                       | stripe_checkout |
-| Account                                                       | stripe_connect  |
-| AccountLink                                                   | stripe_connect  |
-| ConnectEmbeddedMethodAccountSessionCreateMethodAccountSession | stripe_connect  |
-| PlatformFee                                                   | stripe_connect  |
-| SecretServiceResourceSecret                                   | stripe_connect  |
-| AccountCapability                                             | stripe_connect  |
-| CountrySpec                                                   | stripe_connect  |
-| ExternalAccount                                               | stripe_connect  |
-| FeeRefund                                                     | stripe_connect  |
-| LoginLink                                                     | stripe_connect  |
-| Person                                                        | stripe_connect  |
-| Topup                                                         | stripe_connect  |
-| Transfer                                                      | stripe_connect  |
-| TransferReversal                                              | stripe_connect  |
-| Balance                                                       | stripe_core     |
-| BalanceTransaction                                            | stripe_core     |
-| CashBalance                                                   | stripe_core     |
-| Charge                                                        | stripe_core     |
-| Customer                                                      | stripe_core     |
-| CustomerBalanceTransaction                                    | stripe_core     |
-| CustomerCashBalanceTransaction                                | stripe_core     |
-| Dispute                                                       | stripe_core     |
-| NotificationEvent                                             | stripe_core     |
-| File                                                          | stripe_core     |
-| FileLink                                                      | stripe_core     |
-| Mandate                                                       | stripe_core     |
-| PaymentIntent                                                 | stripe_core     |
-| PaymentSource                                                 | stripe_core     |
-| Payout                                                        | stripe_core     |
-| Refund                                                        | stripe_core     |
-| PaymentFlowsSetupIntentSetupAttempt                           | stripe_core     |
-| SetupIntent                                                   | stripe_core     |
-| Token                                                         | stripe_core     |
-| RadarEarlyFraudWarning                                        | stripe_fraud    |
-| RadarListList                                                 | stripe_fraud    |
-| RadarListListItem                                             | stripe_fraud    |
-| RadarReview                                                   | stripe_fraud    |
-| IssuingAuthorization                                          | stripe_issuing  |
-| IssuingCard                                                   | stripe_issuing  |
-| IssuingCardholder                                             | stripe_issuing  |
-| IssuingDispute                                                | stripe_issuing  |
-| IssuingNetworkToken                                           | stripe_issuing  |
-| IssuingTransaction                                            | stripe_issuing  |
-| ApplePayDomain                                                | stripe_misc     |
-| NotificationWebhookEndpoint                                   | stripe_misc     |
-| EphemeralKey                                                  | stripe_misc     |
-| ExchangeRate                                                  | stripe_misc     |
-| BankConnectionsResourceLinkedAccount                          | stripe_misc     |
-| BankConnectionsResourceLinkAccountSession                     | stripe_misc     |
-| GelatoVerificationReport                                      | stripe_misc     |
-| GelatoVerificationSession                                     | stripe_misc     |
-| ReportingReportRun                                            | stripe_misc     |
-| ReportingReportType                                           | stripe_misc     |
-| ScheduledQueryRun                                             | stripe_misc     |
-| TaxProductResourceTaxCalculation                              | stripe_misc     |
-| TaxProductRegistrationsResourceTaxRegistration                | stripe_misc     |
-| TaxProductResourceTaxSettings                                 | stripe_misc     |
-| TaxProductResourceTaxTransaction                              | stripe_misc     |
-| BankAccount                                                   | stripe_payment  |
-| Card                                                          | stripe_payment  |
-| PaymentLink                                                   | stripe_payment  |
-| PaymentMethod                                                 | stripe_payment  |
-| PaymentMethodConfigResourcePaymentMethodConfiguration         | stripe_payment  |
-| PaymentMethodDomainResourcePaymentMethodDomain                | stripe_payment  |
-| Source                                                        | stripe_payment  |
-| Coupon                                                        | stripe_product  |
-| Price                                                         | stripe_product  |
-| Product                                                       | stripe_product  |
-| PromotionCode                                                 | stripe_product  |
-| ShippingRate                                                  | stripe_product  |
-| TaxProductResourceTaxCode                                     | stripe_product  |
-| TaxRate                                                       | stripe_product  |
-| TerminalConfigurationConfiguration                            | stripe_terminal |
-| TerminalConnectionToken                                       | stripe_terminal |
-| TerminalLocationLocation                                      | stripe_terminal |
-| TerminalReaderReader                                          | stripe_terminal |
-| TreasuryReceivedCreditsResourceCreditReversal                 | stripe_treasury |
-| TreasuryReceivedDebitsResourceDebitReversal                   | stripe_treasury |
-| TreasuryFinancialAccountsResourceFinancialAccount             | stripe_treasury |
-| TreasuryInboundTransfersResourceInboundTransfer               | stripe_treasury |
-| TreasuryOutboundPaymentsResourceOutboundPayment               | stripe_treasury |
-| TreasuryOutboundTransfersResourceOutboundTransfer             | stripe_treasury |
-| TreasuryReceivedCreditsResourceReceivedCredit                 | stripe_treasury |
-| TreasuryReceivedDebitsResourceReceivedDebit                   | stripe_treasury |
-| TreasuryTransactionsResourceTransaction                       | stripe_treasury |
-| TreasuryTransactionsResourceTransactionEntry                  | stripe_treasury |
+| Struct Name                    | Path Implied Name              | Crate           | Feature Gate                      |
+|--------------------------------|--------------------------------|-----------------|-----------------------------------|
+| BillingPortalConfiguration     | BillingPortalConfiguration     | stripe_billing  | billing_portal_configuration      |
+| BillingPortalSession           | BillingPortalSession           | stripe_billing  | billing_portal_session            |
+| CreditNote                     | CreditNote                     | stripe_billing  | credit_note                       |
+| CreditNoteLineItem             | CreditNoteLineItem             | stripe_billing  | credit_note_line_item             |
+| Invoice                        | Invoice                        | stripe_billing  | invoice                           |
+| Invoiceitem                    | Invoiceitem                    | stripe_billing  | invoiceitem                       |
+| LineItem                       | LineItem                       | stripe_billing  | line_item                         |
+| UsageRecordSummary             | UsageRecordSummary             | stripe_billing  | usage_record_summary              |
+| Plan                           | Plan                           | stripe_billing  | plan                              |
+| Quote                          | Quote                          | stripe_billing  | quote                             |
+| UsageRecord                    | UsageRecord                    | stripe_billing  | usage_record                      |
+| Subscription                   | Subscription                   | stripe_billing  | subscription                      |
+| SubscriptionItem               | SubscriptionItem               | stripe_billing  | subscription_item                 |
+| SubscriptionSchedule           | SubscriptionSchedule           | stripe_billing  | subscription_schedule             |
+| TaxId                          | TaxId                          | stripe_billing  | tax_id                            |
+| TestHelpersTestClock           | TestHelpersTestClock           | stripe_billing  | test_helpers_test_clock           |
+| CheckoutSession                | CheckoutSession                | stripe_checkout | checkout_session                  |
+| Account                        | Account                        | stripe_connect  | account                           |
+| AccountLink                    | AccountLink                    | stripe_connect  | account_link                      |
+| AccountSession                 | AccountSession                 | stripe_connect  | account_session                   |
+| ApplicationFee                 | ApplicationFee                 | stripe_connect  | application_fee                   |
+| AppsSecret                     | AppsSecret                     | stripe_connect  | apps_secret                       |
+| Capability                     | Capability                     | stripe_connect  | capability                        |
+| CountrySpec                    | CountrySpec                    | stripe_connect  | country_spec                      |
+| ExternalAccount                | ExternalAccount                | stripe_connect  | external_account                  |
+| FeeRefund                      | FeeRefund                      | stripe_connect  | fee_refund                        |
+| LoginLink                      | LoginLink                      | stripe_connect  | login_link                        |
+| Person                         | Person                         | stripe_connect  | person                            |
+| Topup                          | Topup                          | stripe_connect  | topup                             |
+| Transfer                       | Transfer                       | stripe_connect  | transfer                          |
+| TransferReversal               | TransferReversal               | stripe_connect  | transfer_reversal                 |
+| Balance                        | Balance                        | stripe_core     | balance                           |
+| BalanceTransaction             | BalanceTransaction             | stripe_core     | balance_transaction               |
+| CashBalance                    | CashBalance                    | stripe_core     | cash_balance                      |
+| Charge                         | Charge                         | stripe_core     | charge                            |
+| Customer                       | Customer                       | stripe_core     | customer                          |
+| CustomerBalanceTransaction     | CustomerBalanceTransaction     | stripe_core     | customer_balance_transaction      |
+| CustomerCashBalanceTransaction | CustomerCashBalanceTransaction | stripe_core     | customer_cash_balance_transaction |
+| Dispute                        | Dispute                        | stripe_core     | dispute                           |
+| Event                          | Event                          | stripe_core     | event                             |
+| File                           | File                           | stripe_core     | file                              |
+| FileLink                       | FileLink                       | stripe_core     | file_link                         |
+| Mandate                        | Mandate                        | stripe_core     | mandate                           |
+| PaymentIntent                  | PaymentIntent                  | stripe_core     | payment_intent                    |
+| PaymentSource                  | PaymentSource                  | stripe_core     | payment_source                    |
+| Payout                         | Payout                         | stripe_core     | payout                            |
+| Refund                         | Refund                         | stripe_core     | refund                            |
+| SetupAttempt                   | SetupAttempt                   | stripe_core     | setup_attempt                     |
+| SetupIntent                    | SetupIntent                    | stripe_core     | setup_intent                      |
+| Token                          | Token                          | stripe_core     | token                             |
+| RadarEarlyFraudWarning         | RadarEarlyFraudWarning         | stripe_fraud    | radar_early_fraud_warning         |
+| RadarValueList                 | RadarValueList                 | stripe_fraud    | radar_value_list                  |
+| RadarValueListItem             | RadarValueListItem             | stripe_fraud    | radar_value_list_item             |
+| Review                         | Review                         | stripe_fraud    | review                            |
+| IssuingAuthorization           | IssuingAuthorization           | stripe_issuing  | issuing_authorization             |
+| IssuingCard                    | IssuingCard                    | stripe_issuing  | issuing_card                      |
+| IssuingCardholder              | IssuingCardholder              | stripe_issuing  | issuing_cardholder                |
+| IssuingDispute                 | IssuingDispute                 | stripe_issuing  | issuing_dispute                   |
+| IssuingToken                   | IssuingToken                   | stripe_issuing  | issuing_token                     |
+| IssuingTransaction             | IssuingTransaction             | stripe_issuing  | issuing_transaction               |
+| ApplePayDomain                 | ApplePayDomain                 | stripe_misc     | apple_pay_domain                  |
+| WebhookEndpoint                | WebhookEndpoint                | stripe_misc     | webhook_endpoint                  |
+| EphemeralKey                   | EphemeralKey                   | stripe_misc     | ephemeral_key                     |
+| ExchangeRate                   | ExchangeRate                   | stripe_misc     | exchange_rate                     |
+| FinancialConnectionsAccount    | FinancialConnectionsAccount    | stripe_misc     | financial_connections_account     |
+| FinancialConnectionsSession    | FinancialConnectionsSession    | stripe_misc     | financial_connections_session     |
+| IdentityVerificationReport     | IdentityVerificationReport     | stripe_misc     | identity_verification_report      |
+| IdentityVerificationSession    | IdentityVerificationSession    | stripe_misc     | identity_verification_session     |
+| ReportingReportRun             | ReportingReportRun             | stripe_misc     | reporting_report_run              |
+| ReportingReportType            | ReportingReportType            | stripe_misc     | reporting_report_type             |
+| ScheduledQueryRun              | ScheduledQueryRun              | stripe_misc     | scheduled_query_run               |
+| TaxCalculation                 | TaxCalculation                 | stripe_misc     | tax_calculation                   |
+| TaxRegistration                | TaxRegistration                | stripe_misc     | tax_registration                  |
+| TaxSettings                    | TaxSettings                    | stripe_misc     | tax_settings                      |
+| TaxTransaction                 | TaxTransaction                 | stripe_misc     | tax_transaction                   |
+| BankAccount                    | BankAccount                    | stripe_payment  | bank_account                      |
+| Card                           | Card                           | stripe_payment  | card                              |
+| PaymentLink                    | PaymentLink                    | stripe_payment  | payment_link                      |
+| PaymentMethod                  | PaymentMethod                  | stripe_payment  | payment_method                    |
+| PaymentMethodConfiguration     | PaymentMethodConfiguration     | stripe_payment  | payment_method_configuration      |
+| PaymentMethodDomain            | PaymentMethodDomain            | stripe_payment  | payment_method_domain             |
+| Source                         | Source                         | stripe_payment  | source                            |
+| Coupon                         | Coupon                         | stripe_product  | coupon                            |
+| Price                          | Price                          | stripe_product  | price                             |
+| Product                        | Product                        | stripe_product  | product                           |
+| PromotionCode                  | PromotionCode                  | stripe_product  | promotion_code                    |
+| ShippingRate                   | ShippingRate                   | stripe_product  | shipping_rate                     |
+| TaxCode                        | TaxCode                        | stripe_product  | tax_code                          |
+| TaxRate                        | TaxRate                        | stripe_product  | tax_rate                          |
+| TerminalConfiguration          | TerminalConfiguration          | stripe_terminal | terminal_configuration            |
+| TerminalConnectionToken        | TerminalConnectionToken        | stripe_terminal | terminal_connection_token         |
+| TerminalLocation               | TerminalLocation               | stripe_terminal | terminal_location                 |
+| TerminalReader                 | TerminalReader                 | stripe_terminal | terminal_reader                   |
+| TreasuryCreditReversal         | TreasuryCreditReversal         | stripe_treasury | treasury_credit_reversal          |
+| TreasuryDebitReversal          | TreasuryDebitReversal          | stripe_treasury | treasury_debit_reversal           |
+| TreasuryFinancialAccount       | TreasuryFinancialAccount       | stripe_treasury | treasury_financial_account        |
+| TreasuryInboundTransfer        | TreasuryInboundTransfer        | stripe_treasury | treasury_inbound_transfer         |
+| TreasuryOutboundPayment        | TreasuryOutboundPayment        | stripe_treasury | treasury_outbound_payment         |
+| TreasuryOutboundTransfer       | TreasuryOutboundTransfer       | stripe_treasury | treasury_outbound_transfer        |
+| TreasuryReceivedCredit         | TreasuryReceivedCredit         | stripe_treasury | treasury_received_credit          |
+| TreasuryReceivedDebit          | TreasuryReceivedDebit          | stripe_treasury | treasury_received_debit           |
+| TreasuryTransaction            | TreasuryTransaction            | stripe_treasury | treasury_transaction              |
+| TreasuryTransactionEntry       | TreasuryTransactionEntry       | stripe_treasury | treasury_transaction_entry        |

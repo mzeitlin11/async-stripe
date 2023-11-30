@@ -1908,9 +1908,7 @@ impl<'a> CreateFundingInstructionsCustomer<'a> {
         &self,
         client: &stripe::Client,
         customer: &stripe_types::customer::CustomerId,
-    ) -> stripe::Response<
-        stripe_types::CustomerBalanceFundingInstructionsCustomerBalanceFundingInstructions,
-    > {
+    ) -> stripe::Response<stripe_types::FundingInstructions> {
         client.send_form(
             &format!("/customers/{customer}/funding_instructions"),
             self,

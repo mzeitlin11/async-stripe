@@ -17,7 +17,7 @@ pub struct FeeRefund {
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// ID of the application fee that was refunded.
-    pub fee: stripe_types::Expandable<stripe_types::PlatformFee>,
+    pub fee: stripe_types::Expandable<stripe_types::ApplicationFee>,
     /// Unique identifier for the object.
     pub id: stripe_types::fee_refund::FeeRefundId,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.

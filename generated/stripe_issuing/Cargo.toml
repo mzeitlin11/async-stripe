@@ -39,13 +39,13 @@ issuing_authorization = []
 issuing_card = []
 issuing_cardholder = []
 issuing_dispute = []
-issuing_network_token = []
+issuing_token = []
 issuing_transaction = []
 
 full = ["issuing_authorization",
 "issuing_card",
 "issuing_cardholder",
 "issuing_dispute",
-"issuing_network_token",
+"issuing_token",
 "issuing_transaction"]
 

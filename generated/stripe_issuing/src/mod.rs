@@ -2,8 +2,8 @@
 #![allow(clippy::large_enum_variant)]
 #![allow(rustdoc::invalid_html_tags)]
 extern crate self as stripe_issuing;
-pub use stripe_types::CustomerBalanceFundingInstructionsCustomerBalanceFundingInstructions;
-pub mod customer_balance_funding_instructions_customer_balance_funding_instructions;
+pub use stripe_types::FundingInstructions;
+pub mod funding_instructions;
 pub use stripe_types::FundingInstructionsBankTransfer;
 pub mod funding_instructions_bank_transfer;
 pub use stripe_types::FundingInstructionsBankTransferAbaRecord;
@@ -28,8 +28,8 @@ pub use stripe_types::IssuingCardholder;
 pub mod issuing_cardholder;
 pub use stripe_types::IssuingDispute;
 pub mod issuing_dispute;
-pub use stripe_types::IssuingNetworkToken;
-pub mod issuing_network_token;
+pub use stripe_types::IssuingToken;
+pub mod issuing_token;
 pub use stripe_types::IssuingTransaction;
 pub mod issuing_transaction;
 pub use stripe_types::IssuingAuthorizationAmountDetails;

@@ -21,7 +21,7 @@ pub struct Charge {
     /// The application fee (if any) for the charge.
     ///
     /// [See the Connect documentation](https://stripe.com/docs/connect/direct-charges#collecting-fees) for details.
-    pub application_fee: Option<stripe_types::Expandable<stripe_types::PlatformFee>>,
+    pub application_fee: Option<stripe_types::Expandable<stripe_types::ApplicationFee>>,
     /// The amount of the application fee (if any) requested for the charge.
     ///
     /// [See the Connect documentation](https://stripe.com/docs/connect/direct-charges#collecting-fees) for details.
@@ -111,7 +111,7 @@ pub struct Charge {
     /// A list of refunds that have been applied to the charge.
     pub refunds: stripe_types::List<stripe_types::Refund>,
     /// ID of the review associated with this charge if one exists.
-    pub review: Option<stripe_types::Expandable<stripe_types::RadarReview>>,
+    pub review: Option<stripe_types::Expandable<stripe_types::Review>>,
     /// Shipping information for the charge.
     pub shipping: Option<stripe_types::Shipping>,
     /// This is a legacy field that will be removed in the future.

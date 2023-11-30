@@ -69,7 +69,10 @@ impl CodeGen {
                     base_path.join(&mod_path).join("mod.rs"),
                 )?;
                 append_to_file(
-                    format!("pub use stripe_types::{};", component.resource.ident()),
+                    format!(
+                        "pub use stripe_types::{};pub mod {mod_path};",
+                        component.resource.ident()
+                    ),
                     base_path.join("mod.rs"),
                 )?;
             }
@@ -77,9 +80,6 @@ impl CodeGen {
             if !component.requests.is_empty() {
                 debug!("Writing requests for {}", component.path());
                 self.write_component_requests(component, &base_path.join(&mod_path))?;
-                if base_crate != crate_for_types {
-                    append_to_file(format!("pub mod {mod_path};"), base_path.join("mod.rs"))?;
-                }
             }
         }
 

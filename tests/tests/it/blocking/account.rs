@@ -1,4 +1,8 @@
-use stripe_connect::account::{CreateAccount, ListAccount};
+use stripe_connect::account::{
+    CreateAccount, CreateAccountCapabilities, CreateAccountCapabilitiesAcssDebitPayments,
+    ListAccount,
+};
+use stripe_connect::account_capabilities::AccountCapabilitiesCardPayments;
 use stripe_types::AccountId;
 
 use crate::mock;
@@ -23,8 +27,16 @@ fn is_account_listable() {
 #[test]
 fn create_account() {
     mock::with_client(|client| {
-        let create = CreateAccount::new();
+        let mut create = CreateAccount::new();
+        let mut capabilities = CreateAccountCapabilities::new();
+        capabilities.acss_debit_payments =
+            Some(CreateAccountCapabilitiesAcssDebitPayments { requested: Some(true) });
+        create.capabilities = Some(capabilities);
         let result = create.send(client).unwrap();
         assert_eq!(result.email, Some("site@stripe.com".to_string()));
+        assert_eq!(
+            result.capabilities.unwrap().card_payments,
+            Some(AccountCapabilitiesCardPayments::Active)
+        );
     });
 }

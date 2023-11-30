@@ -5,7 +5,7 @@
 /// Sometimes you want to add a charge or credit to a customer, but actually charge or credit the customer’s card only at the end of a regular billing cycle.
 /// This is useful for combining several charges (to minimize per-transaction fees), or for having Stripe tabulate your usage-based billing totals.  Related guides: [Integrate with the Invoicing API](https://stripe.com/docs/invoicing/integration), [Subscription Invoices](https://stripe.com/docs/billing/invoices/subscription#adding-upcoming-invoice-items).  For more details see <<https://stripe.com/docs/api/invoiceitems/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-pub struct Invoiceitem {
+pub struct InvoiceItem {
     /// Amount (in the `currency` specified) of the invoice item.
     ///
     /// This should always be equal to `unit_amount * quantity`.
@@ -34,7 +34,7 @@ pub struct Invoiceitem {
     /// Use `expand[]=discounts` to expand each discount.
     pub discounts: Option<Vec<stripe_types::Expandable<stripe_types::Discount>>>,
     /// Unique identifier for the object.
-    pub id: stripe_types::invoiceitem::InvoiceitemId,
+    pub id: stripe_types::invoice_item::InvoiceItemId,
     /// The ID of the invoice this invoice item belongs to.
     pub invoice: Option<stripe_types::Expandable<stripe_types::Invoice>>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
@@ -70,10 +70,10 @@ pub struct Invoiceitem {
     /// Same as `unit_amount`, but contains a decimal value with at most 12 decimal places.
     pub unit_amount_decimal: Option<String>,
 }
-impl stripe_types::Object for Invoiceitem {
-    type Id = stripe_types::invoiceitem::InvoiceitemId;
+impl stripe_types::Object for InvoiceItem {
+    type Id = stripe_types::invoice_item::InvoiceItemId;
     fn id(&self) -> Option<&str> {
         Some(self.id.as_str())
     }
 }
-stripe_types::def_id!(InvoiceitemId, "ii_");
+stripe_types::def_id!(InvoiceItemId, "ii_");

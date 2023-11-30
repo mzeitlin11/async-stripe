@@ -72,7 +72,7 @@ pub struct CheckoutSession {
     pub invoice_creation: Option<stripe_checkout::PaymentPagesCheckoutSessionInvoiceCreation>,
     /// The line items purchased by the customer.
     #[serde(default)]
-    pub line_items: stripe_types::List<stripe_types::Item>,
+    pub line_items: stripe_types::List<stripe_types::CheckoutSessionItem>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// The IETF language tag of the locale Checkout is displayed in.

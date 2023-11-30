@@ -454,7 +454,3 @@ pub fn infer_doc_comment(schema: &Schema, doc_url: Option<&str>) -> String {
     }
     doc_comment
 }
-
-pub fn infer_id_name(obj_name: &str) -> RustIdent {
-    RustIdent::create(format!("{obj_name}_id"))
-}

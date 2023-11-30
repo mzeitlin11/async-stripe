@@ -1,6 +1,6 @@
 /// A line item.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-pub struct Item {
+pub struct CheckoutSessionItem {
     /// Total discount amount applied.
     ///
     /// If no discounts were applied, defaults to 0.
@@ -26,7 +26,7 @@ pub struct Item {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub discounts: Option<Vec<stripe_types::LineItemsDiscountAmount>>,
     /// Unique identifier for the object.
-    pub id: stripe_types::item::ItemId,
+    pub id: stripe_types::checkout_session_item::CheckoutSessionItemId,
     /// The price used to generate the line item.
     pub price: Option<stripe_types::Price>,
     /// The quantity of products being purchased.
@@ -35,10 +35,10 @@ pub struct Item {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub taxes: Option<Vec<stripe_types::LineItemsTaxAmount>>,
 }
-impl stripe_types::Object for Item {
-    type Id = stripe_types::item::ItemId;
+impl stripe_types::Object for CheckoutSessionItem {
+    type Id = stripe_types::checkout_session_item::CheckoutSessionItemId;
     fn id(&self) -> Option<&str> {
         Some(self.id.as_str())
     }
 }
-stripe_types::def_id!(ItemId, "li_");
+stripe_types::def_id!(CheckoutSessionItemId, "li_");

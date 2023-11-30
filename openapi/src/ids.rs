@@ -5,13 +5,15 @@ use std::fs::File;
 use lazy_static::lazy_static;
 use serde::Deserialize;
 
-use crate::spec_inference::infer_id_name;
-use crate::types::ComponentPath;
+use crate::types::{ComponentPath, RustIdent};
 
+/// The kind of prefix an id is required to follow
 #[derive(Deserialize)]
 #[serde(untagged)]
 enum IdPrefix {
+    /// Must start with given prefix
     Single(String),
+    /// Must start with any of the given prefixes
     Multi(Vec<String>),
 }
 
@@ -21,13 +23,13 @@ fn load_id_prefixes() -> anyhow::Result<HashMap<String, IdPrefix>> {
 }
 
 lazy_static! {
+    /// Map of component_path to what the prefix for this id should be.
     static ref ID_PREFIXES: HashMap<String, IdPrefix> =
         load_id_prefixes().expect("Invalid id prefix file");
 }
 
-pub fn write_object_id(out: &mut String, path: &ComponentPath) {
+pub fn write_object_id(out: &mut String, path: &ComponentPath, ident: &RustIdent) {
     let crate_name = "stripe_types";
-    let ident = infer_id_name(path);
     match ID_PREFIXES.get(path.as_ref()) {
         Some(IdPrefix::Single(prefix)) => {
             let _ = writeln!(out, r#"{crate_name}::def_id!({ident}, "{prefix}_");"#);

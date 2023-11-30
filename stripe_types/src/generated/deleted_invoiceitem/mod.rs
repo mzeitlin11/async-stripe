@@ -3,10 +3,10 @@ pub struct DeletedInvoiceitem {
     /// Always true for a deleted object.
     deleted: stripe_types::AlwaysTrue,
     /// Unique identifier for the object.
-    pub id: stripe_types::invoiceitem::InvoiceitemId,
+    pub id: stripe_types::invoice_item::InvoiceItemId,
 }
 impl stripe_types::Object for DeletedInvoiceitem {
-    type Id = stripe_types::invoiceitem::InvoiceitemId;
+    type Id = stripe_types::invoice_item::InvoiceItemId;
     fn id(&self) -> Option<&str> {
         Some(self.id.as_str())
     }

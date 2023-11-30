@@ -16,7 +16,6 @@ use crate::requests::parse_requests;
 use crate::rust_object::RustObject;
 use crate::rust_type::{Container, PathToType, RustType};
 use crate::spec::Spec;
-use crate::spec_inference::infer_id_name;
 use crate::stripe_object::{
     parse_stripe_schema_as_rust_object, CrateInfo, OperationType, RequestSpec, StripeObject,
     StripeOperation, StripeResource,
@@ -102,11 +101,11 @@ impl Components {
                 self.construct_printable_type_from_path(path)
             }
             RustType::Path { path: PathToType::ObjectId(path), is_ref } => {
-                let ident = infer_id_name(path);
+                let obj = self.get(path);
                 let path_info = self.resolve_path(path);
                 PrintableType::QualifiedPath {
                     path: Some(path_info),
-                    ident,
+                    ident: obj.id_type_ident(),
                     is_ref: *is_ref,
                     has_ref: false,
                 }

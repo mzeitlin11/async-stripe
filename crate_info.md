@@ -5,8 +5,8 @@
 | CreditNote                     | CreditNote                     | stripe_billing  | credit_note                       |
 | CreditNoteLineItem             | CreditNoteLineItem             | stripe_billing  | credit_note_line_item             |
 | Invoice                        | Invoice                        | stripe_billing  | invoice                           |
-| Invoiceitem                    | Invoiceitem                    | stripe_billing  | invoiceitem                       |
-| LineItem                       | LineItem                       | stripe_billing  | line_item                         |
+| InvoiceItem                    | Invoiceitem                    | stripe_billing  | invoice_item                      |
+| InvoiceLineItem                | LineItem                       | stripe_billing  | invoice_line_item                 |
 | UsageRecordSummary             | UsageRecordSummary             | stripe_billing  | usage_record_summary              |
 | Plan                           | Plan                           | stripe_billing  | plan                              |
 | Quote                          | Quote                          | stripe_billing  | quote                             |
@@ -25,7 +25,7 @@
 | Capability                     | Capability                     | stripe_connect  | capability                        |
 | CountrySpec                    | CountrySpec                    | stripe_connect  | country_spec                      |
 | ExternalAccount                | ExternalAccount                | stripe_connect  | external_account                  |
-| FeeRefund                      | FeeRefund                      | stripe_connect  | fee_refund                        |
+| ApplicationFeeRefund           | FeeRefund                      | stripe_connect  | application_fee_refund            |
 | LoginLink                      | LoginLink                      | stripe_connect  | login_link                        |
 | Person                         | Person                         | stripe_connect  | person                            |
 | Topup                          | Topup                          | stripe_connect  | topup                             |

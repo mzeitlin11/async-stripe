@@ -40,8 +40,8 @@ billing_portal_session = []
 credit_note = []
 credit_note_line_item = []
 invoice = []
-invoiceitem = []
-line_item = []
+invoice_item = []
+invoice_line_item = []
 plan = []
 quote = []
 subscription = []
@@ -57,8 +57,8 @@ full = ["billing_portal_configuration",
 "credit_note",
 "credit_note_line_item",
 "invoice",
-"invoiceitem",
-"line_item",
+"invoice_item",
+"invoice_line_item",
 "plan",
 "quote",
 "subscription",

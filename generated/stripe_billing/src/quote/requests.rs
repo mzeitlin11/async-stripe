@@ -1208,13 +1208,13 @@ impl<'a> ListLineItemsQuote<'a> {
         &self,
         client: &stripe::Client,
         quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Item>> {
+    ) -> stripe::Response<stripe_types::List<stripe_types::CheckoutSessionItem>> {
         client.get_query(&format!("/quotes/{quote}/line_items"), self)
     }
     pub fn paginate(
         self,
         quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::ListPaginator<stripe_types::Item> {
+    ) -> stripe::ListPaginator<stripe_types::CheckoutSessionItem> {
         stripe::ListPaginator::from_params(&format!("/quotes/{quote}/line_items"), self)
     }
 }
@@ -1255,13 +1255,13 @@ impl<'a> ListComputedUpfrontLineItemsQuote<'a> {
         &self,
         client: &stripe::Client,
         quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Item>> {
+    ) -> stripe::Response<stripe_types::List<stripe_types::CheckoutSessionItem>> {
         client.get_query(&format!("/quotes/{quote}/computed_upfront_line_items"), self)
     }
     pub fn paginate(
         self,
         quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::ListPaginator<stripe_types::Item> {
+    ) -> stripe::ListPaginator<stripe_types::CheckoutSessionItem> {
         stripe::ListPaginator::from_params(
             &format!("/quotes/{quote}/computed_upfront_line_items"),
             self,

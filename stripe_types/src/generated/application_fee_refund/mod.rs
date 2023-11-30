@@ -3,7 +3,7 @@
 ///
 /// Funds will be refunded to the Stripe account from which the fee was originally collected.  Related guide: [Refunding application fees](https://stripe.com/docs/connect/destination-charges#refunding-app-fee)  For more details see <<https://stripe.com/docs/api/fee_refunds/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-pub struct FeeRefund {
+pub struct ApplicationFeeRefund {
     /// Amount, in cents (or local equivalent).
     pub amount: i64,
     /// Balance transaction that describes the impact on your account balance.
@@ -19,16 +19,16 @@ pub struct FeeRefund {
     /// ID of the application fee that was refunded.
     pub fee: stripe_types::Expandable<stripe_types::ApplicationFee>,
     /// Unique identifier for the object.
-    pub id: stripe_types::fee_refund::FeeRefundId,
+    pub id: stripe_types::application_fee_refund::ApplicationFeeRefundId,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
     ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: Option<std::collections::HashMap<String, String>>,
 }
-impl stripe_types::Object for FeeRefund {
-    type Id = stripe_types::fee_refund::FeeRefundId;
+impl stripe_types::Object for ApplicationFeeRefund {
+    type Id = stripe_types::application_fee_refund::ApplicationFeeRefundId;
     fn id(&self) -> Option<&str> {
         Some(self.id.as_str())
     }
 }
-stripe_types::def_id!(FeeRefundId, "fr_");
+stripe_types::def_id!(ApplicationFeeRefundId, "fr_");

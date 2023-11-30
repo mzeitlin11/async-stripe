@@ -13,7 +13,7 @@ pub enum BalanceTransactionSource {
     #[serde(rename = "dispute")]
     Dispute(stripe_types::Dispute),
     #[serde(rename = "fee_refund")]
-    FeeRefund(stripe_types::FeeRefund),
+    ApplicationFeeRefund(stripe_types::ApplicationFeeRefund),
     #[serde(rename = "issuing.authorization")]
     IssuingAuthorization(stripe_types::IssuingAuthorization),
     #[serde(rename = "issuing.dispute")]
@@ -46,7 +46,7 @@ impl stripe_types::Object for BalanceTransactionSource {
             Self::ConnectCollectionTransfer(v) => Some(v.id.as_str()),
             Self::CustomerCashBalanceTransaction(v) => Some(v.id.as_str()),
             Self::Dispute(v) => Some(v.id.as_str()),
-            Self::FeeRefund(v) => Some(v.id.as_str()),
+            Self::ApplicationFeeRefund(v) => Some(v.id.as_str()),
             Self::IssuingAuthorization(v) => Some(v.id.as_str()),
             Self::IssuingDispute(v) => Some(v.id.as_str()),
             Self::IssuingTransaction(v) => Some(v.id.as_str()),

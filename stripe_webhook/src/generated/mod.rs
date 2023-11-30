@@ -11,7 +11,7 @@ pub enum EventObject {
     #[serde(rename = "application_fee")]
     ApplicationFee(stripe_types::ApplicationFee),
     #[serde(rename = "fee_refund")]
-    FeeRefund(stripe_types::FeeRefund),
+    ApplicationFeeRefund(stripe_types::ApplicationFeeRefund),
     #[cfg(feature = "stripe_core")]
     #[serde(rename = "balance")]
     Balance(stripe_core::Balance),
@@ -38,7 +38,7 @@ pub enum EventObject {
     #[serde(rename = "invoice")]
     Invoice(stripe_types::Invoice),
     #[serde(rename = "invoiceitem")]
-    Invoiceitem(stripe_types::Invoiceitem),
+    InvoiceItem(stripe_types::InvoiceItem),
     #[serde(rename = "issuing.authorization")]
     IssuingAuthorization(stripe_types::IssuingAuthorization),
     #[serde(rename = "issuing.card")]

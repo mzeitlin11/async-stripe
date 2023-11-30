@@ -32,7 +32,7 @@ pub struct ApplicationFee {
     /// If the fee is only partially refunded, this attribute will still be false.
     pub refunded: bool,
     /// A list of refunds that have been applied to the fee.
-    pub refunds: stripe_types::List<stripe_types::FeeRefund>,
+    pub refunds: stripe_types::List<stripe_types::ApplicationFeeRefund>,
 }
 impl stripe_types::Object for ApplicationFee {
     type Id = stripe_types::application_fee::ApplicationFeeId;

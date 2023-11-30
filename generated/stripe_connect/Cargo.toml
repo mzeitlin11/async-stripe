@@ -39,11 +39,11 @@ account = []
 account_link = []
 account_session = []
 application_fee = []
+application_fee_refund = []
 apps_secret = []
 capability = []
 country_spec = []
 external_account = []
-fee_refund = []
 login_link = []
 person = []
 topup = []
@@ -54,11 +54,11 @@ full = ["account",
 "account_link",
 "account_session",
 "application_fee",
+"application_fee_refund",
 "apps_secret",
 "capability",
 "country_spec",
 "external_account",
-"fee_refund",
 "login_link",
 "person",
 "topup",

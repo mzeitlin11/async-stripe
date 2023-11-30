@@ -67,7 +67,7 @@ pub struct Quote {
     pub invoice_settings: Option<stripe_types::InvoiceSettingQuoteSetting>,
     /// A list of items the customer is being quoted for.
     #[serde(default)]
-    pub line_items: stripe_types::List<stripe_types::Item>,
+    pub line_items: stripe_types::List<stripe_types::CheckoutSessionItem>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.

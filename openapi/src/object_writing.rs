@@ -135,7 +135,7 @@ pub fn gen_obj(
             // `DeletedAccount`, we don't want to duplicate `AccountId` since `DeletedAccount`
             // uses that same id
             if path == comp.path() {
-                write_object_id(&mut out, path)
+                write_object_id(&mut out, path, &comp.id_type_ident())
             }
         }
     }

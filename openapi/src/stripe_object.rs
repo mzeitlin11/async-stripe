@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use heck::ToSnakeCase;
 use indexmap::IndexMap;
 use openapiv3::Schema;
@@ -75,6 +77,40 @@ impl StripeObject {
         self.krate = Some(CrateInfo::new(new_krate));
     }
 
+    pub fn mod_path(&self) -> String {
+        self.resource.mod_path()
+    }
+
+    pub fn path(&self) -> &ComponentPath {
+        &self.resource.path
+    }
+
+    pub fn ident(&self) -> &RustIdent {
+        self.resource.ident()
+    }
+
+    pub fn id_type_ident(&self) -> RustIdent {
+        RustIdent::create(format!("{}Id", self.ident()))
+    }
+
+    pub fn id_type(&self) -> Option<&RustType> {
+        self.data.id_type.as_ref()
+    }
+
+    pub fn rust_obj(&self) -> &RustObject {
+        &self.data.obj
+    }
+
+    pub fn is_nested_resource_of(&self, other: &StripeObject) -> bool {
+        if self.requests.is_empty() {
+            return false;
+        }
+        self.requests.iter().all(|r| {
+            let start = format!("/{}", other.path());
+            r.req_path.starts_with(&start)
+        })
+    }
+
     pub fn visit<'a, V: Visit<'a>>(&'a self, visitor: &mut V) {
         visitor.visit_obj(&self.data.obj, None);
         for req in &self.requests {
@@ -95,38 +131,6 @@ pub struct StripeObjectData {
     pub obj: RustObject,
     pub object_name: Option<String>,
     pub id_type: Option<RustType>,
-}
-
-impl StripeObject {
-    pub fn mod_path(&self) -> String {
-        self.resource.mod_path()
-    }
-
-    pub fn path(&self) -> &ComponentPath {
-        &self.resource.path
-    }
-
-    pub fn ident(&self) -> &RustIdent {
-        self.resource.ident()
-    }
-
-    pub fn id_type(&self) -> Option<&RustType> {
-        self.data.id_type.as_ref()
-    }
-
-    pub fn rust_obj(&self) -> &RustObject {
-        &self.data.obj
-    }
-
-    pub fn is_nested_resource_of(&self, other: &StripeObject) -> bool {
-        if self.requests.is_empty() {
-            return false;
-        }
-        self.requests.iter().all(|r| {
-            let start = format!("/{}", other.path());
-            r.req_path.starts_with(&start)
-        })
-    }
 }
 
 pub fn parse_stripe_schema_as_rust_object(
@@ -251,8 +255,21 @@ impl StripeResource {
     }
 }
 
+fn object_renames() -> HashMap<&'static str, &'static str> {
+    return HashMap::from([
+        ("invoiceitem", "invoice_item"),
+        ("item", "checkout_session_item"),
+        ("line_item", "invoice_line_item"),
+        ("fee_refund", "application_fee_refund"),
+    ]);
+}
+
 fn infer_object_ident(path: &ComponentPath) -> RustIdent {
-    RustIdent::create(path)
+    if let Some(renamed) = object_renames().get(path.as_ref()) {
+        RustIdent::create(renamed)
+    } else {
+        RustIdent::create(path)
+    }
 }
 
 #[derive(Debug, Clone)]

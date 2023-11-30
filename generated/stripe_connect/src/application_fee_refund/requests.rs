@@ -1,5 +1,5 @@
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateFeeRefund<'a> {
+pub struct CreateApplicationFeeRefund<'a> {
     /// A positive integer, in _cents (or local equivalent)_, representing how much of this fee to refund.
     ///
     /// Can refund only up to the remaining unrefunded amount of the fee.
@@ -16,12 +16,12 @@ pub struct CreateFeeRefund<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
 }
-impl<'a> CreateFeeRefund<'a> {
+impl<'a> CreateApplicationFeeRefund<'a> {
     pub fn new() -> Self {
         Self::default()
     }
 }
-impl<'a> CreateFeeRefund<'a> {
+impl<'a> CreateApplicationFeeRefund<'a> {
     /// Refunds an application fee that has previously been collected but not yet refunded.
     /// Funds will be refunded to the Stripe account from which the fee was originally collected.
     ///
@@ -35,12 +35,12 @@ impl<'a> CreateFeeRefund<'a> {
         &self,
         client: &stripe::Client,
         id: &stripe_types::application_fee::ApplicationFeeId,
-    ) -> stripe::Response<stripe_types::FeeRefund> {
+    ) -> stripe::Response<stripe_types::ApplicationFeeRefund> {
         client.send_form(&format!("/application_fees/{id}/refunds"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct ListFeeRefund<'a> {
+pub struct ListApplicationFeeRefund<'a> {
     /// A cursor for use in pagination.
     ///
     /// `ending_before` is an object ID that defines your place in the list.
@@ -62,12 +62,12 @@ pub struct ListFeeRefund<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub starting_after: Option<&'a str>,
 }
-impl<'a> ListFeeRefund<'a> {
+impl<'a> ListApplicationFeeRefund<'a> {
     pub fn new() -> Self {
         Self::default()
     }
 }
-impl<'a> ListFeeRefund<'a> {
+impl<'a> ListApplicationFeeRefund<'a> {
     /// You can see a list of the refunds belonging to a specific application fee.
     ///
     /// Note that the 10 most recent refunds are always available by default on the application fee object.
@@ -76,41 +76,41 @@ impl<'a> ListFeeRefund<'a> {
         &self,
         client: &stripe::Client,
         id: &stripe_types::application_fee::ApplicationFeeId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::FeeRefund>> {
+    ) -> stripe::Response<stripe_types::List<stripe_types::ApplicationFeeRefund>> {
         client.get_query(&format!("/application_fees/{id}/refunds"), self)
     }
     pub fn paginate(
         self,
         id: &stripe_types::application_fee::ApplicationFeeId,
-    ) -> stripe::ListPaginator<stripe_types::FeeRefund> {
+    ) -> stripe::ListPaginator<stripe_types::ApplicationFeeRefund> {
         stripe::ListPaginator::from_params(&format!("/application_fees/{id}/refunds"), self)
     }
 }
-impl<'a> stripe::PaginationParams for ListFeeRefund<'a> {}
+impl<'a> stripe::PaginationParams for ListApplicationFeeRefund<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct RetrieveFeeRefund<'a> {
+pub struct RetrieveApplicationFeeRefund<'a> {
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
 }
-impl<'a> RetrieveFeeRefund<'a> {
+impl<'a> RetrieveApplicationFeeRefund<'a> {
     pub fn new() -> Self {
         Self::default()
     }
 }
-impl<'a> RetrieveFeeRefund<'a> {
+impl<'a> RetrieveApplicationFeeRefund<'a> {
     /// By default, you can see the 10 most recent refunds stored directly on the application fee object, but you can also retrieve details about a specific refund stored on the application fee.
     pub fn send(
         &self,
         client: &stripe::Client,
         fee: &stripe_types::application_fee::ApplicationFeeId,
         id: &str,
-    ) -> stripe::Response<stripe_types::FeeRefund> {
+    ) -> stripe::Response<stripe_types::ApplicationFeeRefund> {
         client.get_query(&format!("/application_fees/{fee}/refunds/{id}"), self)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateFeeRefund<'a> {
+pub struct UpdateApplicationFeeRefund<'a> {
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
@@ -122,12 +122,12 @@ pub struct UpdateFeeRefund<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
 }
-impl<'a> UpdateFeeRefund<'a> {
+impl<'a> UpdateApplicationFeeRefund<'a> {
     pub fn new() -> Self {
         Self::default()
     }
 }
-impl<'a> UpdateFeeRefund<'a> {
+impl<'a> UpdateApplicationFeeRefund<'a> {
     /// Updates the specified application fee refund by setting the values of the parameters passed.
     ///
     /// Any parameters not provided will be left unchanged.  This request only accepts metadata as an argument.
@@ -136,7 +136,7 @@ impl<'a> UpdateFeeRefund<'a> {
         client: &stripe::Client,
         fee: &stripe_types::application_fee::ApplicationFeeId,
         id: &str,
-    ) -> stripe::Response<stripe_types::FeeRefund> {
+    ) -> stripe::Response<stripe_types::ApplicationFeeRefund> {
         client.send_form(
             &format!("/application_fees/{fee}/refunds/{id}"),
             self,

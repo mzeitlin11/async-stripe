@@ -8,6 +8,6 @@ pub struct QuotesResourceUpfront {
     ///
     /// This does not include pending invoice items that exist on the customer but may still be included in the next invoice.
     #[serde(default)]
-    pub line_items: stripe_types::List<stripe_types::Item>,
+    pub line_items: stripe_types::List<stripe_types::CheckoutSessionItem>,
     pub total_details: stripe_types::QuotesResourceTotalDetails,
 }

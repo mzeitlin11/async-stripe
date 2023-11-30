@@ -7153,13 +7153,13 @@ impl<'a> ListLineItemsCheckoutSession<'a> {
         &self,
         client: &stripe::Client,
         session: &stripe_checkout::checkout_session::CheckoutSessionId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Item>> {
+    ) -> stripe::Response<stripe_types::List<stripe_types::CheckoutSessionItem>> {
         client.get_query(&format!("/checkout/sessions/{session}/line_items"), self)
     }
     pub fn paginate(
         self,
         session: &stripe_checkout::checkout_session::CheckoutSessionId,
-    ) -> stripe::ListPaginator<stripe_types::Item> {
+    ) -> stripe::ListPaginator<stripe_types::CheckoutSessionItem> {
         stripe::ListPaginator::from_params(
             &format!("/checkout/sessions/{session}/line_items"),
             self,

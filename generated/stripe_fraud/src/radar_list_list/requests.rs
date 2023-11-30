@@ -95,13 +95,7 @@ pub struct CreateRadarListList<'a> {
 }
 impl<'a> CreateRadarListList<'a> {
     pub fn new(alias: &'a str, name: &'a str) -> Self {
-        Self {
-            alias,
-            expand: Default::default(),
-            item_type: Default::default(),
-            metadata: Default::default(),
-            name,
-        }
+        Self { alias, expand: None, item_type: None, metadata: None, name }
     }
 }
 /// Type of the items in the value list.

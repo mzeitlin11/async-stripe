@@ -96,12 +96,12 @@ impl<'a> CreateNotificationWebhookEndpoint<'a> {
         url: &'a str,
     ) -> Self {
         Self {
-            api_version: Default::default(),
-            connect: Default::default(),
-            description: Default::default(),
+            api_version: None,
+            connect: None,
+            description: None,
             enabled_events,
-            expand: Default::default(),
-            metadata: Default::default(),
+            expand: None,
+            metadata: None,
             url,
         }
     }

@@ -129,13 +129,13 @@ impl<'a> CreatePayout<'a> {
         Self {
             amount,
             currency,
-            description: Default::default(),
-            destination: Default::default(),
-            expand: Default::default(),
-            metadata: Default::default(),
-            method: Default::default(),
-            source_type: Default::default(),
-            statement_descriptor: Default::default(),
+            description: None,
+            destination: None,
+            expand: None,
+            metadata: None,
+            method: None,
+            source_type: None,
+            statement_descriptor: None,
         }
     }
 }

@@ -115,13 +115,7 @@ pub struct ListOwnersBankConnectionsResourceLinkedAccount<'a> {
 }
 impl<'a> ListOwnersBankConnectionsResourceLinkedAccount<'a> {
     pub fn new(ownership: &'a str) -> Self {
-        Self {
-            ending_before: Default::default(),
-            expand: Default::default(),
-            limit: Default::default(),
-            ownership,
-            starting_after: Default::default(),
-        }
+        Self { ending_before: None, expand: None, limit: None, ownership, starting_after: None }
     }
 }
 impl<'a> ListOwnersBankConnectionsResourceLinkedAccount<'a> {
@@ -154,7 +148,7 @@ pub struct RefreshBankConnectionsResourceLinkedAccount<'a> {
 }
 impl<'a> RefreshBankConnectionsResourceLinkedAccount<'a> {
     pub fn new(features: &'a [RefreshBankConnectionsResourceLinkedAccountFeatures]) -> Self {
-        Self { expand: Default::default(), features }
+        Self { expand: None, features }
     }
 }
 /// The list of account features that you would like to refresh.

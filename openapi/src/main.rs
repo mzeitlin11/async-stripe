@@ -18,6 +18,7 @@ use crate::utils::write_to_file;
 mod codegen;
 mod components;
 mod crate_inference;
+mod crate_table;
 mod graph;
 mod ids;
 mod object_writing;
@@ -133,6 +134,11 @@ fn main() -> Result<()> {
         run_rsync("out/crates/", "../generated/")?;
         run_rsync("out/stripe_types/", "../stripe_types/src/generated/")?;
         run_rsync("out/stripe_webhook/", "../stripe_webhook/src/generated/")?;
+
+        std::process::Command::new("cp")
+            .arg("out/crate_info.md")
+            .arg("../crate_info.md")
+            .output()?;
     }
     Ok(())
 }

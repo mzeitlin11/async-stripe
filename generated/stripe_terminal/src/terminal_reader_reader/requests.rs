@@ -89,13 +89,7 @@ pub struct CreateTerminalReaderReader<'a> {
 }
 impl<'a> CreateTerminalReaderReader<'a> {
     pub fn new(registration_code: &'a str) -> Self {
-        Self {
-            expand: Default::default(),
-            label: Default::default(),
-            location: Default::default(),
-            metadata: Default::default(),
-            registration_code,
-        }
+        Self { expand: None, label: None, location: None, metadata: None, registration_code }
     }
 }
 impl<'a> CreateTerminalReaderReader<'a> {
@@ -304,7 +298,7 @@ pub struct ProcessPaymentIntentTerminalReaderReader<'a> {
 }
 impl<'a> ProcessPaymentIntentTerminalReaderReader<'a> {
     pub fn new(payment_intent: &'a str) -> Self {
-        Self { expand: Default::default(), payment_intent, process_config: Default::default() }
+        Self { expand: None, payment_intent, process_config: None }
     }
 }
 /// Configuration overrides.
@@ -365,12 +359,7 @@ pub struct ProcessSetupIntentTerminalReaderReader<'a> {
 }
 impl<'a> ProcessSetupIntentTerminalReaderReader<'a> {
     pub fn new(customer_consent_collected: bool, setup_intent: &'a str) -> Self {
-        Self {
-            customer_consent_collected,
-            expand: Default::default(),
-            process_config: Default::default(),
-            setup_intent,
-        }
+        Self { customer_consent_collected, expand: None, process_config: None, setup_intent }
     }
 }
 impl<'a> ProcessSetupIntentTerminalReaderReader<'a> {
@@ -426,7 +415,7 @@ pub struct SetReaderDisplayTerminalReaderReader<'a> {
 }
 impl<'a> SetReaderDisplayTerminalReaderReader<'a> {
     pub fn new(type_: SetReaderDisplayTerminalReaderReaderType) -> Self {
-        Self { cart: Default::default(), expand: Default::default(), type_ }
+        Self { cart: None, expand: None, type_ }
     }
 }
 /// Cart.
@@ -450,7 +439,7 @@ impl<'a> SetReaderDisplayTerminalReaderReaderCart<'a> {
         line_items: &'a [SetReaderDisplayTerminalReaderReaderCartLineItems<'a>],
         total: i64,
     ) -> Self {
-        Self { currency, line_items, tax: Default::default(), total }
+        Self { currency, line_items, tax: None, total }
     }
 }
 /// Array of line items that were purchased.

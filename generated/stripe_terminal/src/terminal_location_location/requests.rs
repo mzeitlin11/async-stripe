@@ -47,13 +47,7 @@ pub struct CreateTerminalLocationLocation<'a> {
 }
 impl<'a> CreateTerminalLocationLocation<'a> {
     pub fn new(address: CreateTerminalLocationLocationAddress<'a>, display_name: &'a str) -> Self {
-        Self {
-            address,
-            configuration_overrides: Default::default(),
-            display_name,
-            expand: Default::default(),
-            metadata: Default::default(),
-        }
+        Self { address, configuration_overrides: None, display_name, expand: None, metadata: None }
     }
 }
 /// The full address of the location.
@@ -79,14 +73,7 @@ pub struct CreateTerminalLocationLocationAddress<'a> {
 }
 impl<'a> CreateTerminalLocationLocationAddress<'a> {
     pub fn new(country: &'a str) -> Self {
-        Self {
-            city: Default::default(),
-            country,
-            line1: Default::default(),
-            line2: Default::default(),
-            postal_code: Default::default(),
-            state: Default::default(),
-        }
+        Self { city: None, country, line1: None, line2: None, postal_code: None, state: None }
     }
 }
 impl<'a> CreateTerminalLocationLocation<'a> {

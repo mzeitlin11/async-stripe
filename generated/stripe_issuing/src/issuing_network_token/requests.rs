@@ -33,12 +33,12 @@ impl<'a> ListIssuingNetworkToken<'a> {
     pub fn new(card: &'a str) -> Self {
         Self {
             card,
-            created: Default::default(),
-            ending_before: Default::default(),
-            expand: Default::default(),
-            limit: Default::default(),
-            starting_after: Default::default(),
-            status: Default::default(),
+            created: None,
+            ending_before: None,
+            expand: None,
+            limit: None,
+            starting_after: None,
+            status: None,
         }
     }
 }
@@ -143,7 +143,7 @@ pub struct UpdateIssuingNetworkToken<'a> {
 }
 impl<'a> UpdateIssuingNetworkToken<'a> {
     pub fn new(status: UpdateIssuingNetworkTokenStatus) -> Self {
-        Self { expand: Default::default(), status }
+        Self { expand: None, status }
     }
 }
 /// Specifies which status the token should be updated to.

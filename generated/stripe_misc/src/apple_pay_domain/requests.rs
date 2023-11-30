@@ -50,7 +50,7 @@ pub struct CreateApplePayDomain<'a> {
 }
 impl<'a> CreateApplePayDomain<'a> {
     pub fn new(domain_name: &'a str) -> Self {
-        Self { domain_name, expand: Default::default() }
+        Self { domain_name, expand: None }
     }
 }
 impl<'a> CreateApplePayDomain<'a> {

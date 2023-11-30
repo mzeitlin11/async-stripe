@@ -21,12 +21,7 @@ pub struct SearchInvoice<'a> {
 }
 impl<'a> SearchInvoice<'a> {
     pub fn new(query: &'a str) -> Self {
-        Self {
-            expand: Default::default(),
-            limit: Default::default(),
-            page: Default::default(),
-            query,
-        }
+        Self { expand: None, limit: None, page: None, query }
     }
 }
 impl<'a> SearchInvoice<'a> {
@@ -311,7 +306,7 @@ pub struct UpcomingInvoiceCustomerDetailsShipping<'a> {
 }
 impl<'a> UpcomingInvoiceCustomerDetailsShipping<'a> {
     pub fn new(address: UpcomingInvoiceCustomerDetailsShippingAddress<'a>, name: &'a str) -> Self {
-        Self { address, name, phone: Default::default() }
+        Self { address, name, phone: None }
     }
 }
 /// Customer shipping address.
@@ -844,13 +839,7 @@ pub struct UpcomingInvoiceInvoiceItemsPriceData<'a> {
 }
 impl<'a> UpcomingInvoiceInvoiceItemsPriceData<'a> {
     pub fn new(currency: stripe_types::Currency, product: &'a str) -> Self {
-        Self {
-            currency,
-            product,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
-        }
+        Self { currency, product, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
@@ -1082,9 +1071,9 @@ impl<'a> UpcomingInvoiceSubscriptionItemsPriceData<'a> {
             currency,
             product,
             recurring,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -1104,7 +1093,7 @@ pub struct UpcomingInvoiceSubscriptionItemsPriceDataRecurring {
 }
 impl UpcomingInvoiceSubscriptionItemsPriceDataRecurring {
     pub fn new(interval: UpcomingInvoiceSubscriptionItemsPriceDataRecurringInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies billing frequency.
@@ -2780,13 +2769,13 @@ pub struct UpdateInvoiceShippingCostShippingRateData<'a> {
 impl<'a> UpdateInvoiceShippingCostShippingRateData<'a> {
     pub fn new(display_name: &'a str) -> Self {
         Self {
-            delivery_estimate: Default::default(),
+            delivery_estimate: None,
             display_name,
-            fixed_amount: Default::default(),
-            metadata: Default::default(),
-            tax_behavior: Default::default(),
-            tax_code: Default::default(),
-            type_: Default::default(),
+            fixed_amount: None,
+            metadata: None,
+            tax_behavior: None,
+            tax_code: None,
+            type_: None,
         }
     }
 }
@@ -2991,7 +2980,7 @@ pub struct UpdateInvoiceShippingCostShippingRateDataFixedAmount<'a> {
 }
 impl<'a> UpdateInvoiceShippingCostShippingRateDataFixedAmount<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency) -> Self {
-        Self { amount, currency, currency_options: Default::default() }
+        Self { amount, currency, currency_options: None }
     }
 }
 /// Shipping rates defined in each available currency option.
@@ -3010,7 +2999,7 @@ pub struct UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptions {
 }
 impl UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptions {
     pub fn new(amount: i64) -> Self {
-        Self { amount, tax_behavior: Default::default() }
+        Self { amount, tax_behavior: None }
     }
 }
 /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
@@ -3198,7 +3187,7 @@ pub struct UpdateInvoiceShippingDetails<'a> {
 }
 impl<'a> UpdateInvoiceShippingDetails<'a> {
     pub fn new(address: UpdateInvoiceShippingDetailsAddress<'a>, name: &'a str) -> Self {
-        Self { address, name, phone: Default::default() }
+        Self { address, name, phone: None }
     }
 }
 /// Shipping address.
@@ -3243,7 +3232,7 @@ pub struct UpdateInvoiceTransferData<'a> {
 }
 impl<'a> UpdateInvoiceTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount: Default::default(), destination }
+        Self { amount: None, destination }
     }
 }
 impl<'a> UpdateInvoice<'a> {
@@ -3535,7 +3524,7 @@ impl<'a> UpcomingLinesInvoiceCustomerDetailsShipping<'a> {
         address: UpcomingLinesInvoiceCustomerDetailsShippingAddress<'a>,
         name: &'a str,
     ) -> Self {
-        Self { address, name, phone: Default::default() }
+        Self { address, name, phone: None }
     }
 }
 /// Customer shipping address.
@@ -4068,13 +4057,7 @@ pub struct UpcomingLinesInvoiceInvoiceItemsPriceData<'a> {
 }
 impl<'a> UpcomingLinesInvoiceInvoiceItemsPriceData<'a> {
     pub fn new(currency: stripe_types::Currency, product: &'a str) -> Self {
-        Self {
-            currency,
-            product,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
-        }
+        Self { currency, product, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
@@ -4306,9 +4289,9 @@ impl<'a> UpcomingLinesInvoiceSubscriptionItemsPriceData<'a> {
             currency,
             product,
             recurring,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -4328,7 +4311,7 @@ pub struct UpcomingLinesInvoiceSubscriptionItemsPriceDataRecurring {
 }
 impl UpcomingLinesInvoiceSubscriptionItemsPriceDataRecurring {
     pub fn new(interval: UpcomingLinesInvoiceSubscriptionItemsPriceDataRecurringInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies billing frequency.
@@ -6156,13 +6139,13 @@ pub struct CreateInvoiceShippingCostShippingRateData<'a> {
 impl<'a> CreateInvoiceShippingCostShippingRateData<'a> {
     pub fn new(display_name: &'a str) -> Self {
         Self {
-            delivery_estimate: Default::default(),
+            delivery_estimate: None,
             display_name,
-            fixed_amount: Default::default(),
-            metadata: Default::default(),
-            tax_behavior: Default::default(),
-            tax_code: Default::default(),
-            type_: Default::default(),
+            fixed_amount: None,
+            metadata: None,
+            tax_behavior: None,
+            tax_code: None,
+            type_: None,
         }
     }
 }
@@ -6367,7 +6350,7 @@ pub struct CreateInvoiceShippingCostShippingRateDataFixedAmount<'a> {
 }
 impl<'a> CreateInvoiceShippingCostShippingRateDataFixedAmount<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency) -> Self {
-        Self { amount, currency, currency_options: Default::default() }
+        Self { amount, currency, currency_options: None }
     }
 }
 /// Shipping rates defined in each available currency option.
@@ -6386,7 +6369,7 @@ pub struct CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptions {
 }
 impl CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptions {
     pub fn new(amount: i64) -> Self {
-        Self { amount, tax_behavior: Default::default() }
+        Self { amount, tax_behavior: None }
     }
 }
 /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
@@ -6574,7 +6557,7 @@ pub struct CreateInvoiceShippingDetails<'a> {
 }
 impl<'a> CreateInvoiceShippingDetails<'a> {
     pub fn new(address: CreateInvoiceShippingDetailsAddress<'a>, name: &'a str) -> Self {
-        Self { address, name, phone: Default::default() }
+        Self { address, name, phone: None }
     }
 }
 /// Shipping address.
@@ -6617,7 +6600,7 @@ pub struct CreateInvoiceTransferData<'a> {
 }
 impl<'a> CreateInvoiceTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount: Default::default(), destination }
+        Self { amount: None, destination }
     }
 }
 impl<'a> CreateInvoice<'a> {

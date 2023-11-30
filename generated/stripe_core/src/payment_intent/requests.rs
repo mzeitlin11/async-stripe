@@ -21,12 +21,7 @@ pub struct SearchPaymentIntent<'a> {
 }
 impl<'a> SearchPaymentIntent<'a> {
     pub fn new(query: &'a str) -> Self {
-        Self {
-            expand: Default::default(),
-            limit: Default::default(),
-            page: Default::default(),
-            query,
-        }
+        Self { expand: None, limit: None, page: None, query }
     }
 }
 impl<'a> SearchPaymentIntent<'a> {
@@ -271,36 +266,36 @@ impl<'a> CreatePaymentIntent<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency) -> Self {
         Self {
             amount,
-            application_fee_amount: Default::default(),
-            automatic_payment_methods: Default::default(),
-            capture_method: Default::default(),
-            confirm: Default::default(),
-            confirmation_method: Default::default(),
+            application_fee_amount: None,
+            automatic_payment_methods: None,
+            capture_method: None,
+            confirm: None,
+            confirmation_method: None,
             currency,
-            customer: Default::default(),
-            description: Default::default(),
-            error_on_requires_action: Default::default(),
-            expand: Default::default(),
-            mandate: Default::default(),
-            mandate_data: Default::default(),
-            metadata: Default::default(),
-            off_session: Default::default(),
-            on_behalf_of: Default::default(),
-            payment_method: Default::default(),
-            payment_method_configuration: Default::default(),
-            payment_method_data: Default::default(),
-            payment_method_options: Default::default(),
-            payment_method_types: Default::default(),
-            radar_options: Default::default(),
-            receipt_email: Default::default(),
-            return_url: Default::default(),
-            setup_future_usage: Default::default(),
-            shipping: Default::default(),
-            statement_descriptor: Default::default(),
-            statement_descriptor_suffix: Default::default(),
-            transfer_data: Default::default(),
-            transfer_group: Default::default(),
-            use_stripe_sdk: Default::default(),
+            customer: None,
+            description: None,
+            error_on_requires_action: None,
+            expand: None,
+            mandate: None,
+            mandate_data: None,
+            metadata: None,
+            off_session: None,
+            on_behalf_of: None,
+            payment_method: None,
+            payment_method_configuration: None,
+            payment_method_data: None,
+            payment_method_options: None,
+            payment_method_types: None,
+            radar_options: None,
+            receipt_email: None,
+            return_url: None,
+            setup_future_usage: None,
+            shipping: None,
+            statement_descriptor: None,
+            statement_descriptor_suffix: None,
+            transfer_data: None,
+            transfer_group: None,
+            use_stripe_sdk: None,
         }
     }
 }
@@ -319,7 +314,7 @@ pub struct CreatePaymentIntentAutomaticPaymentMethods {
 }
 impl CreatePaymentIntentAutomaticPaymentMethods {
     pub fn new(enabled: bool) -> Self {
-        Self { allow_redirects: Default::default(), enabled }
+        Self { allow_redirects: None, enabled }
     }
 }
 /// Controls whether this PaymentIntent will accept redirect-based payment methods.
@@ -514,12 +509,7 @@ pub struct CreatePaymentIntentMandateDataCustomerAcceptance<'a> {
 }
 impl<'a> CreatePaymentIntentMandateDataCustomerAcceptance<'a> {
     pub fn new(type_: CreatePaymentIntentMandateDataCustomerAcceptanceType) -> Self {
-        Self {
-            accepted_at: Default::default(),
-            offline: Default::default(),
-            online: Default::default(),
-            type_,
-        }
+        Self { accepted_at: None, offline: None, online: None, type_ }
     }
 }
 /// If this is a Mandate accepted online, this hash contains details about the online acceptance.
@@ -725,42 +715,42 @@ pub struct CreatePaymentIntentPaymentMethodData<'a> {
 impl<'a> CreatePaymentIntentPaymentMethodData<'a> {
     pub fn new(type_: CreatePaymentIntentPaymentMethodDataType) -> Self {
         Self {
-            acss_debit: Default::default(),
-            affirm: Default::default(),
-            afterpay_clearpay: Default::default(),
-            alipay: Default::default(),
-            au_becs_debit: Default::default(),
-            bacs_debit: Default::default(),
-            bancontact: Default::default(),
-            billing_details: Default::default(),
-            blik: Default::default(),
-            boleto: Default::default(),
-            cashapp: Default::default(),
-            customer_balance: Default::default(),
-            eps: Default::default(),
-            fpx: Default::default(),
-            giropay: Default::default(),
-            grabpay: Default::default(),
-            ideal: Default::default(),
-            interac_present: Default::default(),
-            klarna: Default::default(),
-            konbini: Default::default(),
-            link: Default::default(),
-            metadata: Default::default(),
-            oxxo: Default::default(),
-            p24: Default::default(),
-            paynow: Default::default(),
-            paypal: Default::default(),
-            pix: Default::default(),
-            promptpay: Default::default(),
-            radar_options: Default::default(),
-            revolut_pay: Default::default(),
-            sepa_debit: Default::default(),
-            sofort: Default::default(),
+            acss_debit: None,
+            affirm: None,
+            afterpay_clearpay: None,
+            alipay: None,
+            au_becs_debit: None,
+            bacs_debit: None,
+            bancontact: None,
+            billing_details: None,
+            blik: None,
+            boleto: None,
+            cashapp: None,
+            customer_balance: None,
+            eps: None,
+            fpx: None,
+            giropay: None,
+            grabpay: None,
+            ideal: None,
+            interac_present: None,
+            klarna: None,
+            konbini: None,
+            link: None,
+            metadata: None,
+            oxxo: None,
+            p24: None,
+            paynow: None,
+            paypal: None,
+            pix: None,
+            promptpay: None,
+            radar_options: None,
+            revolut_pay: None,
+            sepa_debit: None,
+            sofort: None,
             type_,
-            us_bank_account: Default::default(),
-            wechat_pay: Default::default(),
-            zip: Default::default(),
+            us_bank_account: None,
+            wechat_pay: None,
+            zip: None,
         }
     }
 }
@@ -1028,7 +1018,7 @@ pub struct CreatePaymentIntentPaymentMethodDataFpx {
 }
 impl CreatePaymentIntentPaymentMethodDataFpx {
     pub fn new(bank: CreatePaymentIntentPaymentMethodDataFpxBank) -> Self {
-        Self { account_holder_type: Default::default(), bank }
+        Self { account_holder_type: None, bank }
     }
 }
 /// Account holder type for FPX transaction.
@@ -3279,13 +3269,13 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
         Self {
             amount,
             amount_type,
-            description: Default::default(),
-            end_date: Default::default(),
+            description: None,
+            end_date: None,
             interval,
-            interval_count: Default::default(),
+            interval_count: None,
             reference,
             start_date,
-            supported_types: Default::default(),
+            supported_types: None,
         }
     }
 }
@@ -4058,11 +4048,7 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransfer<'a> 
     pub fn new(
         type_: CreatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferType,
     ) -> Self {
-        Self {
-            eu_bank_transfer: Default::default(),
-            requested_address_types: Default::default(),
-            type_,
-        }
+        Self { eu_bank_transfer: None, requested_address_types: None, type_ }
     }
 }
 /// Configuration for the eu_bank_transfer funding type.
@@ -6530,7 +6516,7 @@ pub struct CreatePaymentIntentPaymentMethodOptionsWechatPay<'a> {
 }
 impl<'a> CreatePaymentIntentPaymentMethodOptionsWechatPay<'a> {
     pub fn new(client: CreatePaymentIntentPaymentMethodOptionsWechatPayClient) -> Self {
-        Self { app_id: Default::default(), client, setup_future_usage: Default::default() }
+        Self { app_id: None, client, setup_future_usage: None }
     }
 }
 /// The client type that the end customer will pay from.
@@ -6797,13 +6783,7 @@ pub struct CreatePaymentIntentShipping<'a> {
 }
 impl<'a> CreatePaymentIntentShipping<'a> {
     pub fn new(address: CreatePaymentIntentShippingAddress<'a>, name: &'a str) -> Self {
-        Self {
-            address,
-            carrier: Default::default(),
-            name,
-            phone: Default::default(),
-            tracking_number: Default::default(),
-        }
+        Self { address, carrier: None, name, phone: None, tracking_number: None }
     }
 }
 /// Shipping address.
@@ -6855,7 +6835,7 @@ pub struct CreatePaymentIntentTransferData<'a> {
 }
 impl<'a> CreatePaymentIntentTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount: Default::default(), destination }
+        Self { amount: None, destination }
     }
 }
 impl<'a> CreatePaymentIntent<'a> {
@@ -7236,42 +7216,42 @@ pub struct UpdatePaymentIntentPaymentMethodData<'a> {
 impl<'a> UpdatePaymentIntentPaymentMethodData<'a> {
     pub fn new(type_: UpdatePaymentIntentPaymentMethodDataType) -> Self {
         Self {
-            acss_debit: Default::default(),
-            affirm: Default::default(),
-            afterpay_clearpay: Default::default(),
-            alipay: Default::default(),
-            au_becs_debit: Default::default(),
-            bacs_debit: Default::default(),
-            bancontact: Default::default(),
-            billing_details: Default::default(),
-            blik: Default::default(),
-            boleto: Default::default(),
-            cashapp: Default::default(),
-            customer_balance: Default::default(),
-            eps: Default::default(),
-            fpx: Default::default(),
-            giropay: Default::default(),
-            grabpay: Default::default(),
-            ideal: Default::default(),
-            interac_present: Default::default(),
-            klarna: Default::default(),
-            konbini: Default::default(),
-            link: Default::default(),
-            metadata: Default::default(),
-            oxxo: Default::default(),
-            p24: Default::default(),
-            paynow: Default::default(),
-            paypal: Default::default(),
-            pix: Default::default(),
-            promptpay: Default::default(),
-            radar_options: Default::default(),
-            revolut_pay: Default::default(),
-            sepa_debit: Default::default(),
-            sofort: Default::default(),
+            acss_debit: None,
+            affirm: None,
+            afterpay_clearpay: None,
+            alipay: None,
+            au_becs_debit: None,
+            bacs_debit: None,
+            bancontact: None,
+            billing_details: None,
+            blik: None,
+            boleto: None,
+            cashapp: None,
+            customer_balance: None,
+            eps: None,
+            fpx: None,
+            giropay: None,
+            grabpay: None,
+            ideal: None,
+            interac_present: None,
+            klarna: None,
+            konbini: None,
+            link: None,
+            metadata: None,
+            oxxo: None,
+            p24: None,
+            paynow: None,
+            paypal: None,
+            pix: None,
+            promptpay: None,
+            radar_options: None,
+            revolut_pay: None,
+            sepa_debit: None,
+            sofort: None,
             type_,
-            us_bank_account: Default::default(),
-            wechat_pay: Default::default(),
-            zip: Default::default(),
+            us_bank_account: None,
+            wechat_pay: None,
+            zip: None,
         }
     }
 }
@@ -7539,7 +7519,7 @@ pub struct UpdatePaymentIntentPaymentMethodDataFpx {
 }
 impl UpdatePaymentIntentPaymentMethodDataFpx {
     pub fn new(bank: UpdatePaymentIntentPaymentMethodDataFpxBank) -> Self {
-        Self { account_holder_type: Default::default(), bank }
+        Self { account_holder_type: None, bank }
     }
 }
 /// Account holder type for FPX transaction.
@@ -9790,13 +9770,13 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
         Self {
             amount,
             amount_type,
-            description: Default::default(),
-            end_date: Default::default(),
+            description: None,
+            end_date: None,
             interval,
-            interval_count: Default::default(),
+            interval_count: None,
             reference,
             start_date,
-            supported_types: Default::default(),
+            supported_types: None,
         }
     }
 }
@@ -10569,11 +10549,7 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransfer<'a> 
     pub fn new(
         type_: UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferType,
     ) -> Self {
-        Self {
-            eu_bank_transfer: Default::default(),
-            requested_address_types: Default::default(),
-            type_,
-        }
+        Self { eu_bank_transfer: None, requested_address_types: None, type_ }
     }
 }
 /// Configuration for the eu_bank_transfer funding type.
@@ -13041,7 +13017,7 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsWechatPay<'a> {
 }
 impl<'a> UpdatePaymentIntentPaymentMethodOptionsWechatPay<'a> {
     pub fn new(client: UpdatePaymentIntentPaymentMethodOptionsWechatPayClient) -> Self {
-        Self { app_id: Default::default(), client, setup_future_usage: Default::default() }
+        Self { app_id: None, client, setup_future_usage: None }
     }
 }
 /// The client type that the end customer will pay from.
@@ -13294,13 +13270,7 @@ pub struct UpdatePaymentIntentShipping<'a> {
 }
 impl<'a> UpdatePaymentIntentShipping<'a> {
     pub fn new(address: UpdatePaymentIntentShippingAddress<'a>, name: &'a str) -> Self {
-        Self {
-            address,
-            carrier: Default::default(),
-            name,
-            phone: Default::default(),
-            tracking_number: Default::default(),
-        }
+        Self { address, carrier: None, name, phone: None, tracking_number: None }
     }
 }
 /// Shipping address.
@@ -13520,12 +13490,7 @@ pub struct ConfirmPaymentIntentSecretKeyParamCustomerAcceptance<'a> {
 }
 impl<'a> ConfirmPaymentIntentSecretKeyParamCustomerAcceptance<'a> {
     pub fn new(type_: ConfirmPaymentIntentSecretKeyParamCustomerAcceptanceType) -> Self {
-        Self {
-            accepted_at: Default::default(),
-            offline: Default::default(),
-            online: Default::default(),
-            type_,
-        }
+        Self { accepted_at: None, offline: None, online: None, type_ }
     }
 }
 /// If this is a Mandate accepted online, this hash contains details about the online acceptance.
@@ -13822,42 +13787,42 @@ pub struct ConfirmPaymentIntentPaymentMethodData<'a> {
 impl<'a> ConfirmPaymentIntentPaymentMethodData<'a> {
     pub fn new(type_: ConfirmPaymentIntentPaymentMethodDataType) -> Self {
         Self {
-            acss_debit: Default::default(),
-            affirm: Default::default(),
-            afterpay_clearpay: Default::default(),
-            alipay: Default::default(),
-            au_becs_debit: Default::default(),
-            bacs_debit: Default::default(),
-            bancontact: Default::default(),
-            billing_details: Default::default(),
-            blik: Default::default(),
-            boleto: Default::default(),
-            cashapp: Default::default(),
-            customer_balance: Default::default(),
-            eps: Default::default(),
-            fpx: Default::default(),
-            giropay: Default::default(),
-            grabpay: Default::default(),
-            ideal: Default::default(),
-            interac_present: Default::default(),
-            klarna: Default::default(),
-            konbini: Default::default(),
-            link: Default::default(),
-            metadata: Default::default(),
-            oxxo: Default::default(),
-            p24: Default::default(),
-            paynow: Default::default(),
-            paypal: Default::default(),
-            pix: Default::default(),
-            promptpay: Default::default(),
-            radar_options: Default::default(),
-            revolut_pay: Default::default(),
-            sepa_debit: Default::default(),
-            sofort: Default::default(),
+            acss_debit: None,
+            affirm: None,
+            afterpay_clearpay: None,
+            alipay: None,
+            au_becs_debit: None,
+            bacs_debit: None,
+            bancontact: None,
+            billing_details: None,
+            blik: None,
+            boleto: None,
+            cashapp: None,
+            customer_balance: None,
+            eps: None,
+            fpx: None,
+            giropay: None,
+            grabpay: None,
+            ideal: None,
+            interac_present: None,
+            klarna: None,
+            konbini: None,
+            link: None,
+            metadata: None,
+            oxxo: None,
+            p24: None,
+            paynow: None,
+            paypal: None,
+            pix: None,
+            promptpay: None,
+            radar_options: None,
+            revolut_pay: None,
+            sepa_debit: None,
+            sofort: None,
             type_,
-            us_bank_account: Default::default(),
-            wechat_pay: Default::default(),
-            zip: Default::default(),
+            us_bank_account: None,
+            wechat_pay: None,
+            zip: None,
         }
     }
 }
@@ -14125,7 +14090,7 @@ pub struct ConfirmPaymentIntentPaymentMethodDataFpx {
 }
 impl ConfirmPaymentIntentPaymentMethodDataFpx {
     pub fn new(bank: ConfirmPaymentIntentPaymentMethodDataFpxBank) -> Self {
-        Self { account_holder_type: Default::default(), bank }
+        Self { account_holder_type: None, bank }
     }
 }
 /// Account holder type for FPX transaction.
@@ -16381,13 +16346,13 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
         Self {
             amount,
             amount_type,
-            description: Default::default(),
-            end_date: Default::default(),
+            description: None,
+            end_date: None,
             interval,
-            interval_count: Default::default(),
+            interval_count: None,
             reference,
             start_date,
-            supported_types: Default::default(),
+            supported_types: None,
         }
     }
 }
@@ -17168,11 +17133,7 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceBankTransfer<'a>
     pub fn new(
         type_: ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferType,
     ) -> Self {
-        Self {
-            eu_bank_transfer: Default::default(),
-            requested_address_types: Default::default(),
-            type_,
-        }
+        Self { eu_bank_transfer: None, requested_address_types: None, type_ }
     }
 }
 /// Configuration for the eu_bank_transfer funding type.
@@ -19637,7 +19598,7 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsWechatPay<'a> {
 }
 impl<'a> ConfirmPaymentIntentPaymentMethodOptionsWechatPay<'a> {
     pub fn new(client: ConfirmPaymentIntentPaymentMethodOptionsWechatPayClient) -> Self {
-        Self { app_id: Default::default(), client, setup_future_usage: Default::default() }
+        Self { app_id: None, client, setup_future_usage: None }
     }
 }
 /// The client type that the end customer will pay from.
@@ -19904,13 +19865,7 @@ pub struct ConfirmPaymentIntentShipping<'a> {
 }
 impl<'a> ConfirmPaymentIntentShipping<'a> {
     pub fn new(address: ConfirmPaymentIntentShippingAddress<'a>, name: &'a str) -> Self {
-        Self {
-            address,
-            carrier: Default::default(),
-            name,
-            phone: Default::default(),
-            tracking_number: Default::default(),
-        }
+        Self { address, carrier: None, name, phone: None, tracking_number: None }
     }
 }
 /// Shipping address.
@@ -20182,12 +20137,12 @@ impl<'a> IncrementAuthorizationPaymentIntent<'a> {
     pub fn new(amount: i64) -> Self {
         Self {
             amount,
-            application_fee_amount: Default::default(),
-            description: Default::default(),
-            expand: Default::default(),
-            metadata: Default::default(),
-            statement_descriptor: Default::default(),
-            transfer_data: Default::default(),
+            application_fee_amount: None,
+            description: None,
+            expand: None,
+            metadata: None,
+            statement_descriptor: None,
+            transfer_data: None,
         }
     }
 }

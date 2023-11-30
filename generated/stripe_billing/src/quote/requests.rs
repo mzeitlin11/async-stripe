@@ -219,7 +219,7 @@ pub struct CreateQuoteFromQuote<'a> {
 }
 impl<'a> CreateQuoteFromQuote<'a> {
     pub fn new(quote: &'a str) -> Self {
-        Self { is_revision: Default::default(), quote }
+        Self { is_revision: None, quote }
     }
 }
 /// All invoices will be billed using the specified settings.
@@ -300,10 +300,10 @@ impl<'a> CreateQuoteLineItemsPriceData<'a> {
         Self {
             currency,
             product,
-            recurring: Default::default(),
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            recurring: None,
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -323,7 +323,7 @@ pub struct CreateQuoteLineItemsPriceDataRecurring {
 }
 impl CreateQuoteLineItemsPriceDataRecurring {
     pub fn new(interval: CreateQuoteLineItemsPriceDataRecurringInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies billing frequency.
@@ -510,7 +510,7 @@ pub struct CreateQuoteTransferData<'a> {
 }
 impl<'a> CreateQuoteTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount: Default::default(), amount_percent: Default::default(), destination }
+        Self { amount: None, amount_percent: None, destination }
     }
 }
 impl<'a> CreateQuote<'a> {
@@ -772,10 +772,10 @@ impl<'a> UpdateQuoteLineItemsPriceData<'a> {
         Self {
             currency,
             product,
-            recurring: Default::default(),
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            recurring: None,
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -795,7 +795,7 @@ pub struct UpdateQuoteLineItemsPriceDataRecurring {
 }
 impl UpdateQuoteLineItemsPriceDataRecurring {
     pub fn new(interval: UpdateQuoteLineItemsPriceDataRecurringInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies billing frequency.
@@ -982,7 +982,7 @@ pub struct UpdateQuoteTransferData<'a> {
 }
 impl<'a> UpdateQuoteTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount: Default::default(), amount_percent: Default::default(), destination }
+        Self { amount: None, amount_percent: None, destination }
     }
 }
 impl<'a> UpdateQuote<'a> {

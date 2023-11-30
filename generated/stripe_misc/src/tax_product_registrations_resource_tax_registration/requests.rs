@@ -129,13 +129,7 @@ impl<'a> CreateTaxProductRegistrationsResourceTaxRegistration<'a> {
         country: &'a str,
         country_options: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptions<'a>,
     ) -> Self {
-        Self {
-            active_from,
-            country,
-            country_options,
-            expand: Default::default(),
-            expires_at: Default::default(),
-        }
+        Self { active_from, country, country_options, expand: None, expires_at: None }
     }
 }
 /// Time at which the Tax Registration becomes active.
@@ -384,7 +378,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsAt {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsAtType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -595,7 +589,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsBe {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsBeType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -740,7 +734,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsBg {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsBgType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -886,7 +880,7 @@ impl<'a> CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsCa<'a
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsCaType,
     ) -> Self {
-        Self { province_standard: Default::default(), type_ }
+        Self { province_standard: None, type_ }
     }
 }
 /// Options for the provincial tax registration.
@@ -1172,7 +1166,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsCy {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsCyType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -1317,7 +1311,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsCz {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsCzType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -1462,7 +1456,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsDe {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsDeType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -1607,7 +1601,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsDk {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsDkType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -1752,7 +1746,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsEe {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsEeType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -1897,7 +1891,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsEs {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsEsType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -2042,7 +2036,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsFi {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsFiType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -2187,7 +2181,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsFr {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsFrType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -2398,7 +2392,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsGr {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsGrType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -2543,7 +2537,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsHr {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsHrType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -2688,7 +2682,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsHu {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsHuType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -2899,7 +2893,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsIe {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsIeType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -3110,7 +3104,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsIt {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsItType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -3387,7 +3381,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsLt {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsLtType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -3532,7 +3526,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsLu {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsLuType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -3677,7 +3671,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsLv {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsLvType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -3822,7 +3816,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsMt {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsMtType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -4099,7 +4093,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsNl {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsNlType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -4376,7 +4370,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsPl {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsPlType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -4521,7 +4515,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsPt {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsPtType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -4666,7 +4660,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsRo {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsRoType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -4877,7 +4871,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsSe {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsSeType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -5088,7 +5082,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsSi {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsSiType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -5233,7 +5227,7 @@ impl CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsSk {
     pub fn new(
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsSkType,
     ) -> Self {
-        Self { standard: Default::default(), type_ }
+        Self { standard: None, type_ }
     }
 }
 /// Options for the standard registration.
@@ -5519,12 +5513,7 @@ impl<'a> CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsUs<'a
         state: &'a str,
         type_: CreateTaxProductRegistrationsResourceTaxRegistrationCountryOptionsUsType,
     ) -> Self {
-        Self {
-            local_amusement_tax: Default::default(),
-            local_lease_tax: Default::default(),
-            state,
-            type_,
-        }
+        Self { local_amusement_tax: None, local_lease_tax: None, state, type_ }
     }
 }
 /// Options for the local amusement tax registration.

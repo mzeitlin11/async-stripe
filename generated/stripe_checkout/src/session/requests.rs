@@ -369,7 +369,7 @@ pub struct CreateSessionAfterExpirationRecovery {
 }
 impl CreateSessionAfterExpirationRecovery {
     pub fn new(enabled: bool) -> Self {
-        Self { allow_promotion_codes: Default::default(), enabled }
+        Self { allow_promotion_codes: None, enabled }
     }
 }
 /// Settings for automatic tax lookup for this session and resulting payments, invoices, and subscriptions.
@@ -594,15 +594,7 @@ impl<'a> CreateSessionCustomFields<'a> {
         label: CreateSessionCustomFieldsLabel<'a>,
         type_: CreateSessionCustomFieldsType,
     ) -> Self {
-        Self {
-            dropdown: Default::default(),
-            key,
-            label,
-            numeric: Default::default(),
-            optional: Default::default(),
-            text: Default::default(),
-            type_,
-        }
+        Self { dropdown: None, key, label, numeric: None, optional: None, text: None, type_ }
     }
 }
 /// Configuration for `type=dropdown` fields.
@@ -1112,7 +1104,7 @@ pub struct CreateSessionInvoiceCreation<'a> {
 }
 impl<'a> CreateSessionInvoiceCreation<'a> {
     pub fn new(enabled: bool) -> Self {
-        Self { enabled, invoice_data: Default::default() }
+        Self { enabled, invoice_data: None }
     }
 }
 /// Parameters passed when creating invoices for payment-mode Checkout Sessions.
@@ -1296,7 +1288,7 @@ pub struct CreateSessionLineItemsAdjustableQuantity {
 }
 impl CreateSessionLineItemsAdjustableQuantity {
     pub fn new(enabled: bool) -> Self {
-        Self { enabled, maximum: Default::default(), minimum: Default::default() }
+        Self { enabled, maximum: None, minimum: None }
     }
 }
 /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
@@ -1343,12 +1335,12 @@ impl<'a> CreateSessionLineItemsPriceData<'a> {
     pub fn new(currency: stripe_types::Currency) -> Self {
         Self {
             currency,
-            product: Default::default(),
-            product_data: Default::default(),
-            recurring: Default::default(),
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            product: None,
+            product_data: None,
+            recurring: None,
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -1380,13 +1372,7 @@ pub struct CreateSessionLineItemsPriceDataProductData<'a> {
 }
 impl<'a> CreateSessionLineItemsPriceDataProductData<'a> {
     pub fn new(name: &'a str) -> Self {
-        Self {
-            description: Default::default(),
-            images: Default::default(),
-            metadata: Default::default(),
-            name,
-            tax_code: Default::default(),
-        }
+        Self { description: None, images: None, metadata: None, name, tax_code: None }
     }
 }
 /// The recurring components of a price such as `interval` and `interval_count`.
@@ -1405,7 +1391,7 @@ pub struct CreateSessionLineItemsPriceDataRecurring {
 }
 impl CreateSessionLineItemsPriceDataRecurring {
     pub fn new(interval: CreateSessionLineItemsPriceDataRecurringInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies billing frequency.
@@ -1979,13 +1965,7 @@ pub struct CreateSessionPaymentIntentDataShipping<'a> {
 }
 impl<'a> CreateSessionPaymentIntentDataShipping<'a> {
     pub fn new(address: CreateSessionPaymentIntentDataShippingAddress<'a>, name: &'a str) -> Self {
-        Self {
-            address,
-            carrier: Default::default(),
-            name,
-            phone: Default::default(),
-            tracking_number: Default::default(),
-        }
+        Self { address, carrier: None, name, phone: None, tracking_number: None }
     }
 }
 /// Shipping address.
@@ -2011,14 +1991,7 @@ pub struct CreateSessionPaymentIntentDataShippingAddress<'a> {
 }
 impl<'a> CreateSessionPaymentIntentDataShippingAddress<'a> {
     pub fn new(line1: &'a str) -> Self {
-        Self {
-            city: Default::default(),
-            country: Default::default(),
-            line1,
-            line2: Default::default(),
-            postal_code: Default::default(),
-            state: Default::default(),
-        }
+        Self { city: None, country: None, line1, line2: None, postal_code: None, state: None }
     }
 }
 /// The parameters used to automatically create a Transfer when the payment succeeds.
@@ -2037,7 +2010,7 @@ pub struct CreateSessionPaymentIntentDataTransferData<'a> {
 }
 impl<'a> CreateSessionPaymentIntentDataTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount: Default::default(), destination }
+        Self { amount: None, destination }
     }
 }
 /// Specify whether Checkout should collect a payment method.
@@ -3288,11 +3261,7 @@ pub struct CreateSessionPaymentMethodOptionsCustomerBalanceBankTransfer<'a> {
 }
 impl<'a> CreateSessionPaymentMethodOptionsCustomerBalanceBankTransfer<'a> {
     pub fn new(type_: CreateSessionPaymentMethodOptionsCustomerBalanceBankTransferType) -> Self {
-        Self {
-            eu_bank_transfer: Default::default(),
-            requested_address_types: Default::default(),
-            type_,
-        }
+        Self { eu_bank_transfer: None, requested_address_types: None, type_ }
     }
 }
 /// Configuration for eu_bank_transfer funding type.
@@ -5082,7 +5051,7 @@ pub struct CreateSessionPaymentMethodOptionsWechatPay<'a> {
 }
 impl<'a> CreateSessionPaymentMethodOptionsWechatPay<'a> {
     pub fn new(client: CreateSessionPaymentMethodOptionsWechatPayClient) -> Self {
-        Self { app_id: Default::default(), client, setup_future_usage: Default::default() }
+        Self { app_id: None, client, setup_future_usage: None }
     }
 }
 /// The client type that the end customer will pay from.
@@ -6283,13 +6252,13 @@ pub struct CreateSessionShippingOptionsShippingRateData<'a> {
 impl<'a> CreateSessionShippingOptionsShippingRateData<'a> {
     pub fn new(display_name: &'a str) -> Self {
         Self {
-            delivery_estimate: Default::default(),
+            delivery_estimate: None,
             display_name,
-            fixed_amount: Default::default(),
-            metadata: Default::default(),
-            tax_behavior: Default::default(),
-            tax_code: Default::default(),
-            type_: Default::default(),
+            fixed_amount: None,
+            metadata: None,
+            tax_behavior: None,
+            tax_code: None,
+            type_: None,
         }
     }
 }
@@ -6494,7 +6463,7 @@ pub struct CreateSessionShippingOptionsShippingRateDataFixedAmount<'a> {
 }
 impl<'a> CreateSessionShippingOptionsShippingRateDataFixedAmount<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency) -> Self {
-        Self { amount, currency, currency_options: Default::default() }
+        Self { amount, currency, currency_options: None }
     }
 }
 /// Shipping rates defined in each available currency option.
@@ -6513,7 +6482,7 @@ pub struct CreateSessionShippingOptionsShippingRateDataFixedAmountCurrencyOption
 }
 impl CreateSessionShippingOptionsShippingRateDataFixedAmountCurrencyOptions {
     pub fn new(amount: i64) -> Self {
-        Self { amount, tax_behavior: Default::default() }
+        Self { amount, tax_behavior: None }
     }
 }
 /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
@@ -6878,7 +6847,7 @@ pub struct CreateSessionSubscriptionDataTransferData<'a> {
 }
 impl<'a> CreateSessionSubscriptionDataTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount_percent: Default::default(), destination }
+        Self { amount_percent: None, destination }
     }
 }
 /// Settings related to subscription trials.

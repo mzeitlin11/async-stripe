@@ -224,16 +224,16 @@ pub struct CreateIssuingCard<'a> {
 impl<'a> CreateIssuingCard<'a> {
     pub fn new(currency: stripe_types::Currency, type_: CreateIssuingCardType) -> Self {
         Self {
-            cardholder: Default::default(),
+            cardholder: None,
             currency,
-            expand: Default::default(),
-            financial_account: Default::default(),
-            metadata: Default::default(),
-            replacement_for: Default::default(),
-            replacement_reason: Default::default(),
-            shipping: Default::default(),
-            spending_controls: Default::default(),
-            status: Default::default(),
+            expand: None,
+            financial_account: None,
+            metadata: None,
+            replacement_for: None,
+            replacement_reason: None,
+            shipping: None,
+            spending_controls: None,
+            status: None,
             type_,
         }
     }
@@ -323,12 +323,12 @@ impl<'a> CreateIssuingCardShipping<'a> {
     pub fn new(address: CreateIssuingCardShippingAddress<'a>, name: &'a str) -> Self {
         Self {
             address,
-            customs: Default::default(),
+            customs: None,
             name,
-            phone_number: Default::default(),
-            require_signature: Default::default(),
-            service: Default::default(),
-            type_: Default::default(),
+            phone_number: None,
+            require_signature: None,
+            service: None,
+            type_: None,
         }
     }
 }
@@ -352,14 +352,7 @@ pub struct CreateIssuingCardShippingAddress<'a> {
 }
 impl<'a> CreateIssuingCardShippingAddress<'a> {
     pub fn new(city: &'a str, country: &'a str, line1: &'a str, postal_code: &'a str) -> Self {
-        Self {
-            city,
-            country,
-            line1,
-            line2: Default::default(),
-            postal_code,
-            state: Default::default(),
-        }
+        Self { city, country, line1, line2: None, postal_code, state: None }
     }
 }
 /// Customs information for the shipment.
@@ -2583,7 +2576,7 @@ impl<'a> CreateIssuingCardSpendingControlsSpendingLimits<'a> {
         amount: i64,
         interval: CreateIssuingCardSpendingControlsSpendingLimitsInterval,
     ) -> Self {
-        Self { amount, categories: Default::default(), interval }
+        Self { amount, categories: None, interval }
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) this limit applies to.
@@ -6012,7 +6005,7 @@ impl<'a> UpdateIssuingCardSpendingControlsSpendingLimits<'a> {
         amount: i64,
         interval: UpdateIssuingCardSpendingControlsSpendingLimitsInterval,
     ) -> Self {
-        Self { amount, categories: Default::default(), interval }
+        Self { amount, categories: None, interval }
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) this limit applies to.

@@ -41,12 +41,7 @@ pub struct CreateFileLink<'a> {
 }
 impl<'a> CreateFileLink<'a> {
     pub fn new(file: &'a str) -> Self {
-        Self {
-            expand: Default::default(),
-            expires_at: Default::default(),
-            file,
-            metadata: Default::default(),
-        }
+        Self { expand: None, expires_at: None, file, metadata: None }
     }
 }
 impl<'a> CreateFileLink<'a> {

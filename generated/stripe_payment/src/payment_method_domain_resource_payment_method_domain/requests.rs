@@ -87,7 +87,7 @@ pub struct CreatePaymentMethodDomainResourcePaymentMethodDomain<'a> {
 }
 impl<'a> CreatePaymentMethodDomainResourcePaymentMethodDomain<'a> {
     pub fn new(domain_name: &'a str) -> Self {
-        Self { domain_name, enabled: Default::default(), expand: Default::default() }
+        Self { domain_name, enabled: None, expand: None }
     }
 }
 impl<'a> CreatePaymentMethodDomainResourcePaymentMethodDomain<'a> {

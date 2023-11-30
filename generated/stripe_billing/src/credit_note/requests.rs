@@ -51,19 +51,19 @@ pub struct CreateCreditNote<'a> {
 impl<'a> CreateCreditNote<'a> {
     pub fn new(invoice: &'a str) -> Self {
         Self {
-            amount: Default::default(),
-            credit_amount: Default::default(),
-            effective_at: Default::default(),
-            expand: Default::default(),
+            amount: None,
+            credit_amount: None,
+            effective_at: None,
+            expand: None,
             invoice,
-            lines: Default::default(),
-            memo: Default::default(),
-            metadata: Default::default(),
-            out_of_band_amount: Default::default(),
-            reason: Default::default(),
-            refund: Default::default(),
-            refund_amount: Default::default(),
-            shipping_cost: Default::default(),
+            lines: None,
+            memo: None,
+            metadata: None,
+            out_of_band_amount: None,
+            reason: None,
+            refund: None,
+            refund_amount: None,
+            shipping_cost: None,
         }
     }
 }
@@ -116,15 +116,15 @@ pub struct CreateCreditNoteLines<'a> {
 impl<'a> CreateCreditNoteLines<'a> {
     pub fn new(type_: CreateCreditNoteLinesType) -> Self {
         Self {
-            amount: Default::default(),
-            description: Default::default(),
-            invoice_line_item: Default::default(),
-            quantity: Default::default(),
-            tax_amounts: Default::default(),
-            tax_rates: Default::default(),
+            amount: None,
+            description: None,
+            invoice_line_item: None,
+            quantity: None,
+            tax_amounts: None,
+            tax_rates: None,
             type_,
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -331,19 +331,19 @@ pub struct PreviewCreditNote<'a> {
 impl<'a> PreviewCreditNote<'a> {
     pub fn new(invoice: &'a str) -> Self {
         Self {
-            amount: Default::default(),
-            credit_amount: Default::default(),
-            effective_at: Default::default(),
-            expand: Default::default(),
+            amount: None,
+            credit_amount: None,
+            effective_at: None,
+            expand: None,
             invoice,
-            lines: Default::default(),
-            memo: Default::default(),
-            metadata: Default::default(),
-            out_of_band_amount: Default::default(),
-            reason: Default::default(),
-            refund: Default::default(),
-            refund_amount: Default::default(),
-            shipping_cost: Default::default(),
+            lines: None,
+            memo: None,
+            metadata: None,
+            out_of_band_amount: None,
+            reason: None,
+            refund: None,
+            refund_amount: None,
+            shipping_cost: None,
         }
     }
 }
@@ -396,15 +396,15 @@ pub struct PreviewCreditNoteLines<'a> {
 impl<'a> PreviewCreditNoteLines<'a> {
     pub fn new(type_: PreviewCreditNoteLinesType) -> Self {
         Self {
-            amount: Default::default(),
-            description: Default::default(),
-            invoice_line_item: Default::default(),
-            quantity: Default::default(),
-            tax_amounts: Default::default(),
-            tax_rates: Default::default(),
+            amount: None,
+            description: None,
+            invoice_line_item: None,
+            quantity: None,
+            tax_amounts: None,
+            tax_rates: None,
             type_,
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -745,22 +745,22 @@ pub struct PreviewLinesCreditNote<'a> {
 impl<'a> PreviewLinesCreditNote<'a> {
     pub fn new(invoice: &'a str) -> Self {
         Self {
-            amount: Default::default(),
-            credit_amount: Default::default(),
-            effective_at: Default::default(),
-            ending_before: Default::default(),
-            expand: Default::default(),
+            amount: None,
+            credit_amount: None,
+            effective_at: None,
+            ending_before: None,
+            expand: None,
             invoice,
-            limit: Default::default(),
-            lines: Default::default(),
-            memo: Default::default(),
-            metadata: Default::default(),
-            out_of_band_amount: Default::default(),
-            reason: Default::default(),
-            refund: Default::default(),
-            refund_amount: Default::default(),
-            shipping_cost: Default::default(),
-            starting_after: Default::default(),
+            limit: None,
+            lines: None,
+            memo: None,
+            metadata: None,
+            out_of_band_amount: None,
+            reason: None,
+            refund: None,
+            refund_amount: None,
+            shipping_cost: None,
+            starting_after: None,
         }
     }
 }
@@ -813,15 +813,15 @@ pub struct PreviewLinesCreditNoteLines<'a> {
 impl<'a> PreviewLinesCreditNoteLines<'a> {
     pub fn new(type_: PreviewLinesCreditNoteLinesType) -> Self {
         Self {
-            amount: Default::default(),
-            description: Default::default(),
-            invoice_line_item: Default::default(),
-            quantity: Default::default(),
-            tax_amounts: Default::default(),
-            tax_rates: Default::default(),
+            amount: None,
+            description: None,
+            invoice_line_item: None,
+            quantity: None,
+            tax_amounts: None,
+            tax_rates: None,
             type_,
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }

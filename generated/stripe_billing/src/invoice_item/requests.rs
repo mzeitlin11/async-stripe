@@ -159,25 +159,25 @@ pub struct CreateInvoiceItem<'a> {
 impl<'a> CreateInvoiceItem<'a> {
     pub fn new(customer: &'a str) -> Self {
         Self {
-            amount: Default::default(),
-            currency: Default::default(),
+            amount: None,
+            currency: None,
             customer,
-            description: Default::default(),
-            discountable: Default::default(),
-            discounts: Default::default(),
-            expand: Default::default(),
-            invoice: Default::default(),
-            metadata: Default::default(),
-            period: Default::default(),
-            price: Default::default(),
-            price_data: Default::default(),
-            quantity: Default::default(),
-            subscription: Default::default(),
-            tax_behavior: Default::default(),
-            tax_code: Default::default(),
-            tax_rates: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            description: None,
+            discountable: None,
+            discounts: None,
+            expand: None,
+            invoice: None,
+            metadata: None,
+            period: None,
+            price: None,
+            price_data: None,
+            quantity: None,
+            subscription: None,
+            tax_behavior: None,
+            tax_code: None,
+            tax_rates: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -244,13 +244,7 @@ pub struct CreateInvoiceItemPriceData<'a> {
 }
 impl<'a> CreateInvoiceItemPriceData<'a> {
     pub fn new(currency: stripe_types::Currency, product: &'a str) -> Self {
-        Self {
-            currency,
-            product,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
-        }
+        Self { currency, product, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
@@ -549,13 +543,7 @@ pub struct UpdateInvoiceItemPriceData<'a> {
 }
 impl<'a> UpdateInvoiceItemPriceData<'a> {
     pub fn new(currency: stripe_types::Currency, product: &'a str) -> Self {
-        Self {
-            currency,
-            product,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
-        }
+        Self { currency, product, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.

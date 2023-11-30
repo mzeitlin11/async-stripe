@@ -23,7 +23,7 @@ pub struct CreateTreasuryFinancialAccountsResourceFinancialAccount<'a> {
 }
 impl<'a> CreateTreasuryFinancialAccountsResourceFinancialAccount<'a> {
     pub fn new(supported_currencies: &'a [&'a str]) -> Self {
-        Self { expand: Default::default(), features: Default::default(), metadata: Default::default(), platform_restrictions: Default::default(), supported_currencies }
+        Self { expand: None, features: None, metadata: None, platform_restrictions: None, supported_currencies }
     }
 }
 /// Encodes whether a FinancialAccount has access to a particular feature.

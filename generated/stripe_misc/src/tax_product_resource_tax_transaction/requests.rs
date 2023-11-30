@@ -60,14 +60,14 @@ impl<'a> CreateReversalTaxProductResourceTaxTransaction<'a> {
         reference: &'a str,
     ) -> Self {
         Self {
-            expand: Default::default(),
-            flat_amount: Default::default(),
-            line_items: Default::default(),
-            metadata: Default::default(),
+            expand: None,
+            flat_amount: None,
+            line_items: None,
+            metadata: None,
             mode,
             original_transaction,
             reference,
-            shipping_cost: Default::default(),
+            shipping_cost: None,
         }
     }
 }
@@ -100,14 +100,7 @@ impl<'a> CreateReversalTaxProductResourceTaxTransactionLineItems<'a> {
         original_line_item: &'a str,
         reference: &'a str,
     ) -> Self {
-        Self {
-            amount,
-            amount_tax,
-            metadata: Default::default(),
-            original_line_item,
-            quantity: Default::default(),
-            reference,
-        }
+        Self { amount, amount_tax, metadata: None, original_line_item, quantity: None, reference }
     }
 }
 /// If `partial`, the provided line item or shipping cost amounts are reversed.
@@ -206,7 +199,7 @@ pub struct CreateFromCalculationTaxProductResourceTaxTransaction<'a> {
 }
 impl<'a> CreateFromCalculationTaxProductResourceTaxTransaction<'a> {
     pub fn new(calculation: &'a str, reference: &'a str) -> Self {
-        Self { calculation, expand: Default::default(), metadata: Default::default(), reference }
+        Self { calculation, expand: None, metadata: None, reference }
     }
 }
 impl<'a> CreateFromCalculationTaxProductResourceTaxTransaction<'a> {

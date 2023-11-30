@@ -194,10 +194,10 @@ impl<'a> CreateForceCaptureIssuingTransaction<'a> {
         Self {
             amount,
             card,
-            currency: Default::default(),
-            expand: Default::default(),
-            merchant_data: Default::default(),
-            purchase_details: Default::default(),
+            currency: None,
+            expand: None,
+            merchant_data: None,
+            purchase_details: None,
         }
     }
 }
@@ -1558,10 +1558,10 @@ impl<'a> CreateUnlinkedRefundIssuingTransaction<'a> {
         Self {
             amount,
             card,
-            currency: Default::default(),
-            expand: Default::default(),
-            merchant_data: Default::default(),
-            purchase_details: Default::default(),
+            currency: None,
+            expand: None,
+            merchant_data: None,
+            purchase_details: None,
         }
     }
 }

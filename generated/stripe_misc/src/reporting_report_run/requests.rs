@@ -34,7 +34,7 @@ pub struct CreateReportingReportRun<'a> {
 }
 impl<'a> CreateReportingReportRun<'a> {
     pub fn new(report_type: &'a str) -> Self {
-        Self { expand: Default::default(), parameters: Default::default(), report_type }
+        Self { expand: None, parameters: None, report_type }
     }
 }
 /// Parameters specifying how the report should be run.

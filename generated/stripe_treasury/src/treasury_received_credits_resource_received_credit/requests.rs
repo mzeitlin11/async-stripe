@@ -31,7 +31,7 @@ pub struct ListTreasuryReceivedCreditsResourceReceivedCredit<'a> {
 }
 impl<'a> ListTreasuryReceivedCreditsResourceReceivedCredit<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self { ending_before: Default::default(), expand: Default::default(), financial_account, limit: Default::default(), linked_flows: Default::default(), starting_after: Default::default(), status: Default::default() }
+        Self { ending_before: None, expand: None, financial_account, limit: None, linked_flows: None, starting_after: None, status: None }
     }
 }
 /// Only return ReceivedCredits described by the flow.
@@ -206,7 +206,7 @@ pub struct CreateTreasuryReceivedCreditsResourceReceivedCredit<'a> {
 }
 impl<'a> CreateTreasuryReceivedCreditsResourceReceivedCredit<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency, financial_account: &'a str, network: CreateTreasuryReceivedCreditsResourceReceivedCreditNetwork) -> Self {
-        Self { amount, currency, description: Default::default(), expand: Default::default(), financial_account, initiating_payment_method_details: Default::default(), network }
+        Self { amount, currency, description: None, expand: None, financial_account, initiating_payment_method_details: None, network }
     }
 }
 /// Initiating payment method details for the object.
@@ -221,7 +221,7 @@ pub struct CreateTreasuryReceivedCreditsResourceReceivedCreditInitiatingPaymentM
 }
 impl<'a> CreateTreasuryReceivedCreditsResourceReceivedCreditInitiatingPaymentMethodDetails<'a> {
     pub fn new(type_: CreateTreasuryReceivedCreditsResourceReceivedCreditInitiatingPaymentMethodDetailsType) -> Self {
-        Self { type_, us_bank_account: Default::default() }
+        Self { type_, us_bank_account: None }
     }
 }
 /// The source type.

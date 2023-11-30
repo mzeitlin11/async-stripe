@@ -22,13 +22,7 @@ pub struct CreateGelatoVerificationSession<'a> {
 }
 impl<'a> CreateGelatoVerificationSession<'a> {
     pub fn new(type_: CreateGelatoVerificationSessionType) -> Self {
-        Self {
-            expand: Default::default(),
-            metadata: Default::default(),
-            options: Default::default(),
-            return_url: Default::default(),
-            type_,
-        }
+        Self { expand: None, metadata: None, options: None, return_url: None, type_ }
     }
 }
 /// A set of options for the session’s verification checks.

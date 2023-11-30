@@ -41,12 +41,12 @@ impl<'a> CreateTopup<'a> {
         Self {
             amount,
             currency,
-            description: Default::default(),
-            expand: Default::default(),
-            metadata: Default::default(),
-            source: Default::default(),
-            statement_descriptor: Default::default(),
-            transfer_group: Default::default(),
+            description: None,
+            expand: None,
+            metadata: None,
+            source: None,
+            statement_descriptor: None,
+            transfer_group: None,
         }
     }
 }

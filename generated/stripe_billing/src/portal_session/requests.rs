@@ -34,13 +34,13 @@ pub struct CreatePortalSession<'a> {
 impl<'a> CreatePortalSession<'a> {
     pub fn new(customer: &'a str) -> Self {
         Self {
-            configuration: Default::default(),
+            configuration: None,
             customer,
-            expand: Default::default(),
-            flow_data: Default::default(),
-            locale: Default::default(),
-            on_behalf_of: Default::default(),
-            return_url: Default::default(),
+            expand: None,
+            flow_data: None,
+            locale: None,
+            on_behalf_of: None,
+            return_url: None,
         }
     }
 }
@@ -69,10 +69,10 @@ pub struct CreatePortalSessionFlowData<'a> {
 impl<'a> CreatePortalSessionFlowData<'a> {
     pub fn new(type_: CreatePortalSessionFlowDataType) -> Self {
         Self {
-            after_completion: Default::default(),
-            subscription_cancel: Default::default(),
-            subscription_update: Default::default(),
-            subscription_update_confirm: Default::default(),
+            after_completion: None,
+            subscription_cancel: None,
+            subscription_update: None,
+            subscription_update_confirm: None,
             type_,
         }
     }
@@ -93,7 +93,7 @@ pub struct CreatePortalSessionFlowDataAfterCompletion<'a> {
 }
 impl<'a> CreatePortalSessionFlowDataAfterCompletion<'a> {
     pub fn new(type_: CreatePortalSessionFlowDataAfterCompletionType) -> Self {
-        Self { hosted_confirmation: Default::default(), redirect: Default::default(), type_ }
+        Self { hosted_confirmation: None, redirect: None, type_ }
     }
 }
 /// Configuration when `after_completion.type=hosted_confirmation`.
@@ -184,7 +184,7 @@ pub struct CreatePortalSessionFlowDataSubscriptionCancel<'a> {
 }
 impl<'a> CreatePortalSessionFlowDataSubscriptionCancel<'a> {
     pub fn new(subscription: &'a str) -> Self {
-        Self { retention: Default::default(), subscription }
+        Self { retention: None, subscription }
     }
 }
 /// Specify a retention strategy to be used in the cancellation flow.
@@ -294,7 +294,7 @@ impl<'a> CreatePortalSessionFlowDataSubscriptionUpdateConfirm<'a> {
         items: &'a [CreatePortalSessionFlowDataSubscriptionUpdateConfirmItems<'a>],
         subscription: &'a str,
     ) -> Self {
-        Self { discounts: Default::default(), items, subscription }
+        Self { discounts: None, items, subscription }
     }
 }
 /// The coupon or promotion code to apply to this subscription update.
@@ -332,7 +332,7 @@ pub struct CreatePortalSessionFlowDataSubscriptionUpdateConfirmItems<'a> {
 }
 impl<'a> CreatePortalSessionFlowDataSubscriptionUpdateConfirmItems<'a> {
     pub fn new(id: &'a str) -> Self {
-        Self { id, price: Default::default(), quantity: Default::default() }
+        Self { id, price: None, quantity: None }
     }
 }
 /// Type of flow that the customer will go through.

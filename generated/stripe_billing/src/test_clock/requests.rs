@@ -32,7 +32,7 @@ pub struct CreateTestClock<'a> {
 }
 impl<'a> CreateTestClock<'a> {
     pub fn new(frozen_time: stripe_types::Timestamp) -> Self {
-        Self { expand: Default::default(), frozen_time, name: Default::default() }
+        Self { expand: None, frozen_time, name: None }
     }
 }
 impl<'a> CreateTestClock<'a> {
@@ -76,7 +76,7 @@ pub struct AdvanceTestClock<'a> {
 }
 impl<'a> AdvanceTestClock<'a> {
     pub fn new(frozen_time: stripe_types::Timestamp) -> Self {
-        Self { expand: Default::default(), frozen_time }
+        Self { expand: None, frozen_time }
     }
 }
 impl<'a> AdvanceTestClock<'a> {

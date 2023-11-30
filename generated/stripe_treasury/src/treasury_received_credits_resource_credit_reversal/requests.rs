@@ -31,7 +31,7 @@ pub struct ListTreasuryReceivedCreditsResourceCreditReversal<'a> {
 }
 impl<'a> ListTreasuryReceivedCreditsResourceCreditReversal<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self { ending_before: Default::default(), expand: Default::default(), financial_account, limit: Default::default(), received_credit: Default::default(), starting_after: Default::default(), status: Default::default() }
+        Self { ending_before: None, expand: None, financial_account, limit: None, received_credit: None, starting_after: None, status: None }
     }
 }
 /// Only return CreditReversals for a given status.
@@ -132,7 +132,7 @@ pub struct CreateTreasuryReceivedCreditsResourceCreditReversal<'a> {
 }
 impl<'a> CreateTreasuryReceivedCreditsResourceCreditReversal<'a> {
     pub fn new(received_credit: &'a str) -> Self {
-        Self { expand: Default::default(), metadata: Default::default(), received_credit }
+        Self { expand: None, metadata: None, received_credit }
     }
 }
 impl<'a> CreateTreasuryReceivedCreditsResourceCreditReversal<'a> {

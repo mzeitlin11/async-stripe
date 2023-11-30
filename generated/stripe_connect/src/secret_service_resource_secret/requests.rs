@@ -12,7 +12,7 @@ pub struct FindSecretServiceResourceSecret<'a> {
 }
 impl<'a> FindSecretServiceResourceSecret<'a> {
     pub fn new(name: &'a str, scope: FindSecretServiceResourceSecretScope<'a>) -> Self {
-        Self { expand: Default::default(), name, scope }
+        Self { expand: None, name, scope }
     }
 }
 /// Specifies the scoping of the secret.
@@ -31,7 +31,7 @@ pub struct FindSecretServiceResourceSecretScope<'a> {
 }
 impl<'a> FindSecretServiceResourceSecretScope<'a> {
     pub fn new(type_: FindSecretServiceResourceSecretScopeType) -> Self {
-        Self { type_, user: Default::default() }
+        Self { type_, user: None }
     }
 }
 /// The secret scope type.
@@ -117,7 +117,7 @@ impl<'a> CreateSecretServiceResourceSecret<'a> {
         payload: &'a str,
         scope: CreateSecretServiceResourceSecretScope<'a>,
     ) -> Self {
-        Self { expand: Default::default(), expires_at: Default::default(), name, payload, scope }
+        Self { expand: None, expires_at: None, name, payload, scope }
     }
 }
 /// Specifies the scoping of the secret.
@@ -136,7 +136,7 @@ pub struct CreateSecretServiceResourceSecretScope<'a> {
 }
 impl<'a> CreateSecretServiceResourceSecretScope<'a> {
     pub fn new(type_: CreateSecretServiceResourceSecretScopeType) -> Self {
-        Self { type_, user: Default::default() }
+        Self { type_, user: None }
     }
 }
 /// The secret scope type.
@@ -213,7 +213,7 @@ pub struct DeleteWhereSecretServiceResourceSecret<'a> {
 }
 impl<'a> DeleteWhereSecretServiceResourceSecret<'a> {
     pub fn new(name: &'a str, scope: DeleteWhereSecretServiceResourceSecretScope<'a>) -> Self {
-        Self { expand: Default::default(), name, scope }
+        Self { expand: None, name, scope }
     }
 }
 /// Specifies the scoping of the secret.
@@ -232,7 +232,7 @@ pub struct DeleteWhereSecretServiceResourceSecretScope<'a> {
 }
 impl<'a> DeleteWhereSecretServiceResourceSecretScope<'a> {
     pub fn new(type_: DeleteWhereSecretServiceResourceSecretScopeType) -> Self {
-        Self { type_, user: Default::default() }
+        Self { type_, user: None }
     }
 }
 /// The secret scope type.
@@ -324,13 +324,7 @@ pub struct ListSecretServiceResourceSecret<'a> {
 }
 impl<'a> ListSecretServiceResourceSecret<'a> {
     pub fn new(scope: ListSecretServiceResourceSecretScope<'a>) -> Self {
-        Self {
-            ending_before: Default::default(),
-            expand: Default::default(),
-            limit: Default::default(),
-            scope,
-            starting_after: Default::default(),
-        }
+        Self { ending_before: None, expand: None, limit: None, scope, starting_after: None }
     }
 }
 /// Specifies the scoping of the secret.
@@ -349,7 +343,7 @@ pub struct ListSecretServiceResourceSecretScope<'a> {
 }
 impl<'a> ListSecretServiceResourceSecretScope<'a> {
     pub fn new(type_: ListSecretServiceResourceSecretScopeType) -> Self {
-        Self { type_, user: Default::default() }
+        Self { type_, user: None }
     }
 }
 /// The secret scope type.

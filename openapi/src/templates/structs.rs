@@ -50,7 +50,12 @@ impl<'a> ObjectWriter<'a> {
                         let _ = write!(params, "{}: {typ},", field.field_name);
                         let _ = write!(cons_inner, "{},", field.field_name);
                     } else {
-                        let _ = write!(cons_inner, "{}: Default::default(),", field.field_name);
+                        // `Default::default()` would also evaluate to `None` for `Option` types, but nice to
+                        // generate less code and maybe make things easier for the compiler since most
+                        // of these types are `Option`.
+                        let field_default_val =
+                            if field.rust_type.is_option() { "None" } else { "Default::default()" };
+                        let _ = write!(cons_inner, "{}: {field_default_val},", field.field_name);
                     }
                 }
                 formatdoc! {

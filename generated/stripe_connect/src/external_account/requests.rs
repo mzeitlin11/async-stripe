@@ -139,12 +139,7 @@ pub struct CreateExternalAccount<'a> {
 }
 impl<'a> CreateExternalAccount<'a> {
     pub fn new(external_account: &'a str) -> Self {
-        Self {
-            default_for_currency: Default::default(),
-            expand: Default::default(),
-            external_account,
-            metadata: Default::default(),
-        }
+        Self { default_for_currency: None, expand: None, external_account, metadata: None }
     }
 }
 impl<'a> CreateExternalAccount<'a> {

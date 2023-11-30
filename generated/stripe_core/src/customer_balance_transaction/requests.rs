@@ -96,13 +96,7 @@ pub struct CreateCustomerBalanceTransaction<'a> {
 }
 impl<'a> CreateCustomerBalanceTransaction<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency) -> Self {
-        Self {
-            amount,
-            currency,
-            description: Default::default(),
-            expand: Default::default(),
-            metadata: Default::default(),
-        }
+        Self { amount, currency, description: None, expand: None, metadata: None }
     }
 }
 impl<'a> CreateCustomerBalanceTransaction<'a> {

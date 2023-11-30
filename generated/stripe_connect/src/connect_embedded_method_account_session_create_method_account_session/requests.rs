@@ -15,7 +15,7 @@ impl<'a> CreateConnectEmbeddedMethodAccountSessionCreateMethodAccountSession<'a>
         account: &'a str,
         components: CreateConnectEmbeddedMethodAccountSessionCreateMethodAccountSessionComponents,
     ) -> Self {
-        Self { account, components, expand: Default::default() }
+        Self { account, components, expand: None }
     }
 }
 /// Each key of the dictionary represents an embedded component, and each embedded component maps to its configuration (e.g.

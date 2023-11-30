@@ -264,13 +264,13 @@ pub struct CreateSourceMandateAcceptance<'a> {
 impl<'a> CreateSourceMandateAcceptance<'a> {
     pub fn new(status: CreateSourceMandateAcceptanceStatus) -> Self {
         Self {
-            date: Default::default(),
-            ip: Default::default(),
-            offline: Default::default(),
-            online: Default::default(),
+            date: None,
+            ip: None,
+            offline: None,
+            online: None,
             status,
-            type_: Default::default(),
-            user_agent: Default::default(),
+            type_: None,
+            user_agent: None,
         }
     }
 }
@@ -799,13 +799,7 @@ pub struct CreateSourceSourceOrderShipping<'a> {
 }
 impl<'a> CreateSourceSourceOrderShipping<'a> {
     pub fn new(address: CreateSourceSourceOrderShippingAddress<'a>) -> Self {
-        Self {
-            address,
-            carrier: Default::default(),
-            name: Default::default(),
-            phone: Default::default(),
-            tracking_number: Default::default(),
-        }
+        Self { address, carrier: None, name: None, phone: None, tracking_number: None }
     }
 }
 /// Shipping address.
@@ -831,14 +825,7 @@ pub struct CreateSourceSourceOrderShippingAddress<'a> {
 }
 impl<'a> CreateSourceSourceOrderShippingAddress<'a> {
     pub fn new(line1: &'a str) -> Self {
-        Self {
-            city: Default::default(),
-            country: Default::default(),
-            line1,
-            line2: Default::default(),
-            postal_code: Default::default(),
-            state: Default::default(),
-        }
+        Self { city: None, country: None, line1, line2: None, postal_code: None, state: None }
     }
 }
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -997,13 +984,13 @@ pub struct UpdateSourceMandateAcceptance<'a> {
 impl<'a> UpdateSourceMandateAcceptance<'a> {
     pub fn new(status: UpdateSourceMandateAcceptanceStatus) -> Self {
         Self {
-            date: Default::default(),
-            ip: Default::default(),
-            offline: Default::default(),
-            online: Default::default(),
+            date: None,
+            ip: None,
+            offline: None,
+            online: None,
             status,
-            type_: Default::default(),
-            user_agent: Default::default(),
+            type_: None,
+            user_agent: None,
         }
     }
 }
@@ -1443,13 +1430,7 @@ pub struct UpdateSourceSourceOrderShipping<'a> {
 }
 impl<'a> UpdateSourceSourceOrderShipping<'a> {
     pub fn new(address: UpdateSourceSourceOrderShippingAddress<'a>) -> Self {
-        Self {
-            address,
-            carrier: Default::default(),
-            name: Default::default(),
-            phone: Default::default(),
-            tracking_number: Default::default(),
-        }
+        Self { address, carrier: None, name: None, phone: None, tracking_number: None }
     }
 }
 /// Shipping address.
@@ -1475,14 +1456,7 @@ pub struct UpdateSourceSourceOrderShippingAddress<'a> {
 }
 impl<'a> UpdateSourceSourceOrderShippingAddress<'a> {
     pub fn new(line1: &'a str) -> Self {
-        Self {
-            city: Default::default(),
-            country: Default::default(),
-            line1,
-            line2: Default::default(),
-            postal_code: Default::default(),
-            state: Default::default(),
-        }
+        Self { city: None, country: None, line1, line2: None, postal_code: None, state: None }
     }
 }
 impl<'a> UpdateSource<'a> {
@@ -1509,7 +1483,7 @@ pub struct VerifySource<'a> {
 }
 impl<'a> VerifySource<'a> {
     pub fn new(values: &'a [&'a str]) -> Self {
-        Self { expand: Default::default(), values }
+        Self { expand: None, values }
     }
 }
 impl<'a> VerifySource<'a> {

@@ -57,17 +57,7 @@ pub struct ListTreasuryTransactionsResourceTransaction<'a> {
 }
 impl<'a> ListTreasuryTransactionsResourceTransaction<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self {
-            created: Default::default(),
-            ending_before: Default::default(),
-            expand: Default::default(),
-            financial_account,
-            limit: Default::default(),
-            order_by: Default::default(),
-            starting_after: Default::default(),
-            status: Default::default(),
-            status_transitions: Default::default(),
-        }
+        Self { created: None, ending_before: None, expand: None, financial_account, limit: None, order_by: None, starting_after: None, status: None, status_transitions: None }
     }
 }
 /// The results are in reverse chronological order by `created` or `posted_at`.

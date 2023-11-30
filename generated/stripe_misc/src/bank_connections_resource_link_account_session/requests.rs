@@ -28,11 +28,11 @@ impl<'a> CreateBankConnectionsResourceLinkAccountSession<'a> {
     ) -> Self {
         Self {
             account_holder,
-            expand: Default::default(),
-            filters: Default::default(),
+            expand: None,
+            filters: None,
             permissions,
-            prefetch: Default::default(),
-            return_url: Default::default(),
+            prefetch: None,
+            return_url: None,
         }
     }
 }
@@ -55,7 +55,7 @@ pub struct CreateBankConnectionsResourceLinkAccountSessionAccountHolder<'a> {
 }
 impl<'a> CreateBankConnectionsResourceLinkAccountSessionAccountHolder<'a> {
     pub fn new(type_: CreateBankConnectionsResourceLinkAccountSessionAccountHolderType) -> Self {
-        Self { account: Default::default(), customer: Default::default(), type_ }
+        Self { account: None, customer: None, type_ }
     }
 }
 /// Type of account holder to collect accounts for.

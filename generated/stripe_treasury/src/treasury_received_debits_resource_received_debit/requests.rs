@@ -28,7 +28,7 @@ pub struct ListTreasuryReceivedDebitsResourceReceivedDebit<'a> {
 }
 impl<'a> ListTreasuryReceivedDebitsResourceReceivedDebit<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self { ending_before: Default::default(), expand: Default::default(), financial_account, limit: Default::default(), starting_after: Default::default(), status: Default::default() }
+        Self { ending_before: None, expand: None, financial_account, limit: None, starting_after: None, status: None }
     }
 }
 /// Only return ReceivedDebits that have the given status: `succeeded` or `failed`.
@@ -135,7 +135,7 @@ pub struct CreateTreasuryReceivedDebitsResourceReceivedDebit<'a> {
 }
 impl<'a> CreateTreasuryReceivedDebitsResourceReceivedDebit<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency, financial_account: &'a str, network: CreateTreasuryReceivedDebitsResourceReceivedDebitNetwork) -> Self {
-        Self { amount, currency, description: Default::default(), expand: Default::default(), financial_account, initiating_payment_method_details: Default::default(), network }
+        Self { amount, currency, description: None, expand: None, financial_account, initiating_payment_method_details: None, network }
     }
 }
 /// Initiating payment method details for the object.
@@ -150,7 +150,7 @@ pub struct CreateTreasuryReceivedDebitsResourceReceivedDebitInitiatingPaymentMet
 }
 impl<'a> CreateTreasuryReceivedDebitsResourceReceivedDebitInitiatingPaymentMethodDetails<'a> {
     pub fn new(type_: CreateTreasuryReceivedDebitsResourceReceivedDebitInitiatingPaymentMethodDetailsType) -> Self {
-        Self { type_, us_bank_account: Default::default() }
+        Self { type_, us_bank_account: None }
     }
 }
 /// The source type.

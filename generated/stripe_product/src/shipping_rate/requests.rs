@@ -117,14 +117,14 @@ pub struct CreateShippingRate<'a> {
 impl<'a> CreateShippingRate<'a> {
     pub fn new(display_name: &'a str) -> Self {
         Self {
-            delivery_estimate: Default::default(),
+            delivery_estimate: None,
             display_name,
-            expand: Default::default(),
-            fixed_amount: Default::default(),
-            metadata: Default::default(),
-            tax_behavior: Default::default(),
-            tax_code: Default::default(),
-            type_: Default::default(),
+            expand: None,
+            fixed_amount: None,
+            metadata: None,
+            tax_behavior: None,
+            tax_code: None,
+            type_: None,
         }
     }
 }
@@ -323,7 +323,7 @@ pub struct CreateShippingRateFixedAmount<'a> {
 }
 impl<'a> CreateShippingRateFixedAmount<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency) -> Self {
-        Self { amount, currency, currency_options: Default::default() }
+        Self { amount, currency, currency_options: None }
     }
 }
 /// Shipping rates defined in each available currency option.
@@ -341,7 +341,7 @@ pub struct CreateShippingRateFixedAmountCurrencyOptions {
 }
 impl CreateShippingRateFixedAmountCurrencyOptions {
     pub fn new(amount: i64) -> Self {
-        Self { amount, tax_behavior: Default::default() }
+        Self { amount, tax_behavior: None }
     }
 }
 /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.

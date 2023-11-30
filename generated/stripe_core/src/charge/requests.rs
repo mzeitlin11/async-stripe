@@ -21,12 +21,7 @@ pub struct SearchCharge<'a> {
 }
 impl<'a> SearchCharge<'a> {
     pub fn new(query: &'a str) -> Self {
-        Self {
-            expand: Default::default(),
-            limit: Default::default(),
-            page: Default::default(),
-            query,
-        }
+        Self { expand: None, limit: None, page: None, query }
     }
 }
 impl<'a> SearchCharge<'a> {
@@ -287,7 +282,7 @@ pub struct CreateChargeDestination<'a> {
 }
 impl<'a> CreateChargeDestination<'a> {
     pub fn new(account: &'a str) -> Self {
-        Self { account, amount: Default::default() }
+        Self { account, amount: None }
     }
 }
 /// Options to configure Radar.
@@ -327,13 +322,7 @@ pub struct CreateChargeShipping<'a> {
 }
 impl<'a> CreateChargeShipping<'a> {
     pub fn new(address: CreateChargeShippingAddress<'a>, name: &'a str) -> Self {
-        Self {
-            address,
-            carrier: Default::default(),
-            name,
-            phone: Default::default(),
-            tracking_number: Default::default(),
-        }
+        Self { address, carrier: None, name, phone: None, tracking_number: None }
     }
 }
 /// Shipping address.
@@ -378,7 +367,7 @@ pub struct CreateChargeTransferData<'a> {
 }
 impl<'a> CreateChargeTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount: Default::default(), destination }
+        Self { amount: None, destination }
     }
 }
 impl<'a> CreateCharge<'a> {
@@ -555,13 +544,7 @@ pub struct UpdateChargeShipping<'a> {
 }
 impl<'a> UpdateChargeShipping<'a> {
     pub fn new(address: UpdateChargeShippingAddress<'a>, name: &'a str) -> Self {
-        Self {
-            address,
-            carrier: Default::default(),
-            name,
-            phone: Default::default(),
-            tracking_number: Default::default(),
-        }
+        Self { address, carrier: None, name, phone: None, tracking_number: None }
     }
 }
 /// Shipping address.

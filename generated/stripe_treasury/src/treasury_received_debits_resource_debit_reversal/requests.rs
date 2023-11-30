@@ -15,7 +15,7 @@ pub struct CreateTreasuryReceivedDebitsResourceDebitReversal<'a> {
 }
 impl<'a> CreateTreasuryReceivedDebitsResourceDebitReversal<'a> {
     pub fn new(received_debit: &'a str) -> Self {
-        Self { expand: Default::default(), metadata: Default::default(), received_debit }
+        Self { expand: None, metadata: None, received_debit }
     }
 }
 impl<'a> CreateTreasuryReceivedDebitsResourceDebitReversal<'a> {
@@ -77,7 +77,7 @@ pub struct ListTreasuryReceivedDebitsResourceDebitReversal<'a> {
 }
 impl<'a> ListTreasuryReceivedDebitsResourceDebitReversal<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self { ending_before: Default::default(), expand: Default::default(), financial_account, limit: Default::default(), received_debit: Default::default(), resolution: Default::default(), starting_after: Default::default(), status: Default::default() }
+        Self { ending_before: None, expand: None, financial_account, limit: None, received_debit: None, resolution: None, starting_after: None, status: None }
     }
 }
 /// Only return DebitReversals for a given resolution.

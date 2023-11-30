@@ -22,12 +22,7 @@ pub struct CreateUsageRecord<'a> {
 }
 impl<'a> CreateUsageRecord<'a> {
     pub fn new(quantity: u64) -> Self {
-        Self {
-            action: Default::default(),
-            expand: Default::default(),
-            quantity,
-            timestamp: Default::default(),
-        }
+        Self { action: None, expand: None, quantity, timestamp: None }
     }
 }
 /// Valid values are `increment` (default) or `set`.

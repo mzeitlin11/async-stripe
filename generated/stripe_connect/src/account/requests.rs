@@ -4398,7 +4398,7 @@ pub struct RejectAccount<'a> {
 }
 impl<'a> RejectAccount<'a> {
     pub fn new(reason: &'a str) -> Self {
-        Self { expand: Default::default(), reason }
+        Self { expand: None, reason }
     }
 }
 impl<'a> RejectAccount<'a> {

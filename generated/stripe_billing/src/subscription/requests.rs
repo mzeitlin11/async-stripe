@@ -21,12 +21,7 @@ pub struct SearchSubscription<'a> {
 }
 impl<'a> SearchSubscription<'a> {
     pub fn new(query: &'a str) -> Self {
-        Self {
-            expand: Default::default(),
-            limit: Default::default(),
-            page: Default::default(),
-            query,
-        }
+        Self { expand: None, limit: None, page: None, query }
     }
 }
 impl<'a> SearchSubscription<'a> {
@@ -513,38 +508,38 @@ pub struct CreateSubscription<'a> {
 impl<'a> CreateSubscription<'a> {
     pub fn new(customer: &'a str) -> Self {
         Self {
-            add_invoice_items: Default::default(),
-            application_fee_percent: Default::default(),
-            automatic_tax: Default::default(),
-            backdate_start_date: Default::default(),
-            billing_cycle_anchor: Default::default(),
-            billing_thresholds: Default::default(),
-            cancel_at: Default::default(),
-            cancel_at_period_end: Default::default(),
-            collection_method: Default::default(),
-            coupon: Default::default(),
-            currency: Default::default(),
+            add_invoice_items: None,
+            application_fee_percent: None,
+            automatic_tax: None,
+            backdate_start_date: None,
+            billing_cycle_anchor: None,
+            billing_thresholds: None,
+            cancel_at: None,
+            cancel_at_period_end: None,
+            collection_method: None,
+            coupon: None,
+            currency: None,
             customer,
-            days_until_due: Default::default(),
-            default_payment_method: Default::default(),
-            default_source: Default::default(),
-            default_tax_rates: Default::default(),
-            description: Default::default(),
-            expand: Default::default(),
-            items: Default::default(),
-            metadata: Default::default(),
-            off_session: Default::default(),
-            on_behalf_of: Default::default(),
-            payment_behavior: Default::default(),
-            payment_settings: Default::default(),
-            pending_invoice_item_interval: Default::default(),
-            promotion_code: Default::default(),
-            proration_behavior: Default::default(),
-            transfer_data: Default::default(),
-            trial_end: Default::default(),
-            trial_from_plan: Default::default(),
-            trial_period_days: Default::default(),
-            trial_settings: Default::default(),
+            days_until_due: None,
+            default_payment_method: None,
+            default_source: None,
+            default_tax_rates: None,
+            description: None,
+            expand: None,
+            items: None,
+            metadata: None,
+            off_session: None,
+            on_behalf_of: None,
+            payment_behavior: None,
+            payment_settings: None,
+            pending_invoice_item_interval: None,
+            promotion_code: None,
+            proration_behavior: None,
+            transfer_data: None,
+            trial_end: None,
+            trial_from_plan: None,
+            trial_period_days: None,
+            trial_settings: None,
         }
     }
 }
@@ -602,13 +597,7 @@ pub struct CreateSubscriptionAddInvoiceItemsPriceData<'a> {
 }
 impl<'a> CreateSubscriptionAddInvoiceItemsPriceData<'a> {
     pub fn new(currency: stripe_types::Currency, product: &'a str) -> Self {
-        Self {
-            currency,
-            product,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
-        }
+        Self { currency, product, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
@@ -845,9 +834,9 @@ impl<'a> CreateSubscriptionItemsPriceData<'a> {
             currency,
             product,
             recurring,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -867,7 +856,7 @@ pub struct CreateSubscriptionItemsPriceDataRecurring {
 }
 impl CreateSubscriptionItemsPriceDataRecurring {
     pub fn new(interval: CreateSubscriptionItemsPriceDataRecurringInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies billing frequency.
@@ -2068,7 +2057,7 @@ pub struct CreateSubscriptionPendingInvoiceItemInterval {
 }
 impl CreateSubscriptionPendingInvoiceItemInterval {
     pub fn new(interval: CreateSubscriptionPendingInvoiceItemIntervalInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies invoicing frequency.
@@ -2200,7 +2189,7 @@ pub struct CreateSubscriptionTransferData<'a> {
 }
 impl<'a> CreateSubscriptionTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount_percent: Default::default(), destination }
+        Self { amount_percent: None, destination }
     }
 }
 /// Unix timestamp representing the end of the trial period the customer will get before being charged for the first time.
@@ -2528,13 +2517,7 @@ pub struct UpdateSubscriptionAddInvoiceItemsPriceData<'a> {
 }
 impl<'a> UpdateSubscriptionAddInvoiceItemsPriceData<'a> {
     pub fn new(currency: stripe_types::Currency, product: &'a str) -> Self {
-        Self {
-            currency,
-            product,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
-        }
+        Self { currency, product, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
@@ -2922,9 +2905,9 @@ impl<'a> UpdateSubscriptionItemsPriceData<'a> {
             currency,
             product,
             recurring,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -2944,7 +2927,7 @@ pub struct UpdateSubscriptionItemsPriceDataRecurring {
 }
 impl UpdateSubscriptionItemsPriceDataRecurring {
     pub fn new(interval: UpdateSubscriptionItemsPriceDataRecurringInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies billing frequency.
@@ -3077,7 +3060,7 @@ pub struct UpdateSubscriptionPauseCollection {
 }
 impl UpdateSubscriptionPauseCollection {
     pub fn new(behavior: UpdateSubscriptionPauseCollectionBehavior) -> Self {
-        Self { behavior, resumes_at: Default::default() }
+        Self { behavior, resumes_at: None }
     }
 }
 /// The payment collection behavior for this subscription while paused.
@@ -4214,7 +4197,7 @@ pub struct UpdateSubscriptionPendingInvoiceItemInterval {
 }
 impl UpdateSubscriptionPendingInvoiceItemInterval {
     pub fn new(interval: UpdateSubscriptionPendingInvoiceItemIntervalInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies invoicing frequency.
@@ -4348,7 +4331,7 @@ pub struct UpdateSubscriptionTransferData<'a> {
 }
 impl<'a> UpdateSubscriptionTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount_percent: Default::default(), destination }
+        Self { amount_percent: None, destination }
     }
 }
 /// Unix timestamp representing the end of the trial period the customer will get before being charged for the first time.

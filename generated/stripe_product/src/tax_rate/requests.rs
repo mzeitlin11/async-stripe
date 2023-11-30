@@ -120,17 +120,17 @@ pub struct CreateTaxRate<'a> {
 impl<'a> CreateTaxRate<'a> {
     pub fn new(display_name: &'a str, inclusive: bool, percentage: f64) -> Self {
         Self {
-            active: Default::default(),
-            country: Default::default(),
-            description: Default::default(),
+            active: None,
+            country: None,
+            description: None,
             display_name,
-            expand: Default::default(),
+            expand: None,
             inclusive,
-            jurisdiction: Default::default(),
-            metadata: Default::default(),
+            jurisdiction: None,
+            metadata: None,
             percentage,
-            state: Default::default(),
-            tax_type: Default::default(),
+            state: None,
+            tax_type: None,
         }
     }
 }

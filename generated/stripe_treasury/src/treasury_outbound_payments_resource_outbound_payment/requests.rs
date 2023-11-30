@@ -56,16 +56,16 @@ impl<'a> CreateTreasuryOutboundPaymentsResourceOutboundPayment<'a> {
         Self {
             amount,
             currency,
-            customer: Default::default(),
-            description: Default::default(),
-            destination_payment_method: Default::default(),
-            destination_payment_method_data: Default::default(),
-            destination_payment_method_options: Default::default(),
-            end_user_details: Default::default(),
-            expand: Default::default(),
+            customer: None,
+            description: None,
+            destination_payment_method: None,
+            destination_payment_method_data: None,
+            destination_payment_method_options: None,
+            end_user_details: None,
+            expand: None,
             financial_account,
-            metadata: Default::default(),
-            statement_descriptor: Default::default(),
+            metadata: None,
+            statement_descriptor: None,
         }
     }
 }
@@ -101,7 +101,7 @@ pub struct CreateTreasuryOutboundPaymentsResourceOutboundPaymentDestinationPayme
 }
 impl<'a> CreateTreasuryOutboundPaymentsResourceOutboundPaymentDestinationPaymentMethodData<'a> {
     pub fn new(type_: CreateTreasuryOutboundPaymentsResourceOutboundPaymentDestinationPaymentMethodDataType) -> Self {
-        Self { billing_details: Default::default(), financial_account: Default::default(), metadata: Default::default(), type_, us_bank_account: Default::default() }
+        Self { billing_details: None, financial_account: None, metadata: None, type_, us_bank_account: None }
     }
 }
 /// Billing information associated with the PaymentMethod that may be used or required by particular types of payment methods.
@@ -430,7 +430,7 @@ pub struct CreateTreasuryOutboundPaymentsResourceOutboundPaymentEndUserDetails<'
 }
 impl<'a> CreateTreasuryOutboundPaymentsResourceOutboundPaymentEndUserDetails<'a> {
     pub fn new(present: bool) -> Self {
-        Self { ip_address: Default::default(), present }
+        Self { ip_address: None, present }
     }
 }
 impl<'a> CreateTreasuryOutboundPaymentsResourceOutboundPayment<'a> {
@@ -489,7 +489,7 @@ pub struct ListTreasuryOutboundPaymentsResourceOutboundPayment<'a> {
 }
 impl<'a> ListTreasuryOutboundPaymentsResourceOutboundPayment<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self { customer: Default::default(), ending_before: Default::default(), expand: Default::default(), financial_account, limit: Default::default(), starting_after: Default::default(), status: Default::default() }
+        Self { customer: None, ending_before: None, expand: None, financial_account, limit: None, starting_after: None, status: None }
     }
 }
 /// Only return OutboundPayments that have the given status: `processing`, `failed`, `posted`, `returned`, or `canceled`.

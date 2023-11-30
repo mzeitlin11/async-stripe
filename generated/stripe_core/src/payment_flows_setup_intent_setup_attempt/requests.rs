@@ -32,12 +32,12 @@ pub struct ListPaymentFlowsSetupIntentSetupAttempt<'a> {
 impl<'a> ListPaymentFlowsSetupIntentSetupAttempt<'a> {
     pub fn new(setup_intent: &'a str) -> Self {
         Self {
-            created: Default::default(),
-            ending_before: Default::default(),
-            expand: Default::default(),
-            limit: Default::default(),
+            created: None,
+            ending_before: None,
+            expand: None,
+            limit: None,
             setup_intent,
-            starting_after: Default::default(),
+            starting_after: None,
         }
     }
 }

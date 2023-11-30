@@ -31,12 +31,12 @@ pub struct ListRadarListListItem<'a> {
 impl<'a> ListRadarListListItem<'a> {
     pub fn new(value_list: &'a str) -> Self {
         Self {
-            created: Default::default(),
-            ending_before: Default::default(),
-            expand: Default::default(),
-            limit: Default::default(),
-            starting_after: Default::default(),
-            value: Default::default(),
+            created: None,
+            ending_before: None,
+            expand: None,
+            limit: None,
+            starting_after: None,
+            value: None,
             value_list,
         }
     }
@@ -89,7 +89,7 @@ pub struct CreateRadarListListItem<'a> {
 }
 impl<'a> CreateRadarListListItem<'a> {
     pub fn new(value: &'a str, value_list: &'a str) -> Self {
-        Self { expand: Default::default(), value, value_list }
+        Self { expand: None, value, value_list }
     }
 }
 impl<'a> CreateRadarListListItem<'a> {

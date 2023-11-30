@@ -87,12 +87,7 @@ pub struct CreatePaymentSource<'a> {
 }
 impl<'a> CreatePaymentSource<'a> {
     pub fn new(source: &'a str) -> Self {
-        Self {
-            expand: Default::default(),
-            metadata: Default::default(),
-            source,
-            validate: Default::default(),
-        }
+        Self { expand: None, metadata: None, source, validate: None }
     }
 }
 impl<'a> CreatePaymentSource<'a> {

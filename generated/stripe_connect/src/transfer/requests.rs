@@ -45,15 +45,15 @@ pub struct CreateTransfer<'a> {
 impl<'a> CreateTransfer<'a> {
     pub fn new(currency: stripe_types::Currency, destination: &'a str) -> Self {
         Self {
-            amount: Default::default(),
+            amount: None,
             currency,
-            description: Default::default(),
+            description: None,
             destination,
-            expand: Default::default(),
-            metadata: Default::default(),
-            source_transaction: Default::default(),
-            source_type: Default::default(),
-            transfer_group: Default::default(),
+            expand: None,
+            metadata: None,
+            source_transaction: None,
+            source_type: None,
+            transfer_group: None,
         }
     }
 }

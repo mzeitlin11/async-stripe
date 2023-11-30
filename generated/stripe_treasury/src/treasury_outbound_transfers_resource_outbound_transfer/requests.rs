@@ -38,17 +38,7 @@ pub struct CreateTreasuryOutboundTransfersResourceOutboundTransfer<'a> {
 }
 impl<'a> CreateTreasuryOutboundTransfersResourceOutboundTransfer<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency, financial_account: &'a str) -> Self {
-        Self {
-            amount,
-            currency,
-            description: Default::default(),
-            destination_payment_method: Default::default(),
-            destination_payment_method_options: Default::default(),
-            expand: Default::default(),
-            financial_account,
-            metadata: Default::default(),
-            statement_descriptor: Default::default(),
-        }
+        Self { amount, currency, description: None, destination_payment_method: None, destination_payment_method_options: None, expand: None, financial_account, metadata: None, statement_descriptor: None }
     }
 }
 /// Hash describing payment method configuration details.
@@ -179,7 +169,7 @@ pub struct ListTreasuryOutboundTransfersResourceOutboundTransfer<'a> {
 }
 impl<'a> ListTreasuryOutboundTransfersResourceOutboundTransfer<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self { ending_before: Default::default(), expand: Default::default(), financial_account, limit: Default::default(), starting_after: Default::default(), status: Default::default() }
+        Self { ending_before: None, expand: None, financial_account, limit: None, starting_after: None, status: None }
     }
 }
 /// Only return OutboundTransfers that have the given status: `processing`, `canceled`, `failed`, `posted`, or `returned`.

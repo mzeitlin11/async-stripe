@@ -280,7 +280,7 @@ pub struct CreatePaymentMethodCardDetailsParams<'a> {
 }
 impl<'a> CreatePaymentMethodCardDetailsParams<'a> {
     pub fn new(exp_month: i64, exp_year: i64, number: &'a str) -> Self {
-        Self { cvc: Default::default(), exp_month, exp_year, number }
+        Self { cvc: None, exp_month, exp_year, number }
     }
 }
 /// If this is a `card` PaymentMethod, this hash contains the user's card details.
@@ -454,7 +454,7 @@ pub struct CreatePaymentMethodFpx {
 }
 impl CreatePaymentMethodFpx {
     pub fn new(bank: CreatePaymentMethodFpxBank) -> Self {
-        Self { account_holder_type: Default::default(), bank }
+        Self { account_holder_type: None, bank }
     }
 }
 /// Account holder type for FPX transaction.
@@ -1683,7 +1683,7 @@ pub struct AttachPaymentMethod<'a> {
 }
 impl<'a> AttachPaymentMethod<'a> {
     pub fn new(customer: &'a str) -> Self {
-        Self { customer, expand: Default::default() }
+        Self { customer, expand: None }
     }
 }
 impl<'a> AttachPaymentMethod<'a> {

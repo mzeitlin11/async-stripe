@@ -34,12 +34,12 @@ impl<'a> CreateTaxProductResourceTaxCalculation<'a> {
     ) -> Self {
         Self {
             currency,
-            customer: Default::default(),
-            customer_details: Default::default(),
-            expand: Default::default(),
+            customer: None,
+            customer_details: None,
+            expand: None,
             line_items,
-            shipping_cost: Default::default(),
-            tax_date: Default::default(),
+            shipping_cost: None,
+            tax_date: None,
         }
     }
 }
@@ -96,14 +96,7 @@ pub struct CreateTaxProductResourceTaxCalculationCustomerDetailsAddress<'a> {
 }
 impl<'a> CreateTaxProductResourceTaxCalculationCustomerDetailsAddress<'a> {
     pub fn new(country: &'a str) -> Self {
-        Self {
-            city: Default::default(),
-            country,
-            line1: Default::default(),
-            line2: Default::default(),
-            postal_code: Default::default(),
-            state: Default::default(),
-        }
+        Self { city: None, country, line1: None, line2: None, postal_code: None, state: None }
     }
 }
 /// The type of customer address provided.
@@ -516,11 +509,11 @@ impl<'a> CreateTaxProductResourceTaxCalculationLineItems<'a> {
     pub fn new(amount: i64) -> Self {
         Self {
             amount,
-            product: Default::default(),
-            quantity: Default::default(),
-            reference: Default::default(),
-            tax_behavior: Default::default(),
-            tax_code: Default::default(),
+            product: None,
+            quantity: None,
+            reference: None,
+            tax_behavior: None,
+            tax_code: None,
         }
     }
 }

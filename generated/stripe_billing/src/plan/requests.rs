@@ -145,24 +145,24 @@ pub struct CreatePlan<'a> {
 impl<'a> CreatePlan<'a> {
     pub fn new(currency: stripe_types::Currency, interval: CreatePlanInterval) -> Self {
         Self {
-            active: Default::default(),
-            aggregate_usage: Default::default(),
-            amount: Default::default(),
-            amount_decimal: Default::default(),
-            billing_scheme: Default::default(),
+            active: None,
+            aggregate_usage: None,
+            amount: None,
+            amount_decimal: None,
+            billing_scheme: None,
             currency,
-            expand: Default::default(),
-            id: Default::default(),
+            expand: None,
+            id: None,
             interval,
-            interval_count: Default::default(),
-            metadata: Default::default(),
-            nickname: Default::default(),
-            product: Default::default(),
-            tiers: Default::default(),
-            tiers_mode: Default::default(),
-            transform_usage: Default::default(),
-            trial_period_days: Default::default(),
-            usage_type: Default::default(),
+            interval_count: None,
+            metadata: None,
+            nickname: None,
+            product: None,
+            tiers: None,
+            tiers_mode: None,
+            transform_usage: None,
+            trial_period_days: None,
+            usage_type: None,
         }
     }
 }
@@ -387,13 +387,13 @@ pub struct CreatePlanInlineProductParams<'a> {
 impl<'a> CreatePlanInlineProductParams<'a> {
     pub fn new(name: &'a str) -> Self {
         Self {
-            active: Default::default(),
-            id: Default::default(),
-            metadata: Default::default(),
+            active: None,
+            id: None,
+            metadata: None,
             name,
-            statement_descriptor: Default::default(),
-            tax_code: Default::default(),
-            unit_label: Default::default(),
+            statement_descriptor: None,
+            tax_code: None,
+            unit_label: None,
         }
     }
 }
@@ -428,10 +428,10 @@ pub struct CreatePlanTiers<'a> {
 impl<'a> CreatePlanTiers<'a> {
     pub fn new(up_to: CreatePlanTiersUpTo) -> Self {
         Self {
-            flat_amount: Default::default(),
-            flat_amount_decimal: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            flat_amount: None,
+            flat_amount_decimal: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
             up_to,
         }
     }

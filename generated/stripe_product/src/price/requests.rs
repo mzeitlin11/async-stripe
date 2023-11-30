@@ -21,12 +21,7 @@ pub struct SearchPrice<'a> {
 }
 impl<'a> SearchPrice<'a> {
     pub fn new(query: &'a str) -> Self {
-        Self {
-            expand: Default::default(),
-            limit: Default::default(),
-            page: Default::default(),
-            query,
-        }
+        Self { expand: None, limit: None, page: None, query }
     }
 }
 impl<'a> SearchPrice<'a> {
@@ -455,25 +450,25 @@ pub struct CreatePrice<'a> {
 impl<'a> CreatePrice<'a> {
     pub fn new(currency: stripe_types::Currency) -> Self {
         Self {
-            active: Default::default(),
-            billing_scheme: Default::default(),
+            active: None,
+            billing_scheme: None,
             currency,
-            currency_options: Default::default(),
-            custom_unit_amount: Default::default(),
-            expand: Default::default(),
-            lookup_key: Default::default(),
-            metadata: Default::default(),
-            nickname: Default::default(),
-            product: Default::default(),
-            product_data: Default::default(),
-            recurring: Default::default(),
-            tax_behavior: Default::default(),
-            tiers: Default::default(),
-            tiers_mode: Default::default(),
-            transfer_lookup_key: Default::default(),
-            transform_quantity: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            currency_options: None,
+            custom_unit_amount: None,
+            expand: None,
+            lookup_key: None,
+            metadata: None,
+            nickname: None,
+            product: None,
+            product_data: None,
+            recurring: None,
+            tax_behavior: None,
+            tiers: None,
+            tiers_mode: None,
+            transfer_lookup_key: None,
+            transform_quantity: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -586,12 +581,7 @@ pub struct CreatePriceCurrencyOptionsCustomUnitAmount {
 }
 impl CreatePriceCurrencyOptionsCustomUnitAmount {
     pub fn new(enabled: bool) -> Self {
-        Self {
-            enabled,
-            maximum: Default::default(),
-            minimum: Default::default(),
-            preset: Default::default(),
-        }
+        Self { enabled, maximum: None, minimum: None, preset: None }
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
@@ -683,10 +673,10 @@ pub struct CreatePriceCurrencyOptionsTiers {
 impl CreatePriceCurrencyOptionsTiers {
     pub fn new(up_to: CreatePriceCurrencyOptionsTiersUpTo) -> Self {
         Self {
-            flat_amount: Default::default(),
-            flat_amount_decimal: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            flat_amount: None,
+            flat_amount_decimal: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
             up_to,
         }
     }
@@ -720,12 +710,7 @@ pub struct CreatePriceCustomUnitAmount {
 }
 impl CreatePriceCustomUnitAmount {
     pub fn new(enabled: bool) -> Self {
-        Self {
-            enabled,
-            maximum: Default::default(),
-            minimum: Default::default(),
-            preset: Default::default(),
-        }
+        Self { enabled, maximum: None, minimum: None, preset: None }
     }
 }
 /// These fields can be used to create a new product that this price will belong to.
@@ -770,13 +755,13 @@ pub struct CreatePriceProductData<'a> {
 impl<'a> CreatePriceProductData<'a> {
     pub fn new(name: &'a str) -> Self {
         Self {
-            active: Default::default(),
-            id: Default::default(),
-            metadata: Default::default(),
+            active: None,
+            id: None,
+            metadata: None,
             name,
-            statement_descriptor: Default::default(),
-            tax_code: Default::default(),
-            unit_label: Default::default(),
+            statement_descriptor: None,
+            tax_code: None,
+            unit_label: None,
         }
     }
 }
@@ -814,11 +799,11 @@ pub struct CreatePriceRecurring {
 impl CreatePriceRecurring {
     pub fn new(interval: CreatePriceRecurringInterval) -> Self {
         Self {
-            aggregate_usage: Default::default(),
+            aggregate_usage: None,
             interval,
-            interval_count: Default::default(),
-            trial_period_days: Default::default(),
-            usage_type: Default::default(),
+            interval_count: None,
+            trial_period_days: None,
+            usage_type: None,
         }
     }
 }
@@ -1086,10 +1071,10 @@ pub struct CreatePriceTiers<'a> {
 impl<'a> CreatePriceTiers<'a> {
     pub fn new(up_to: CreatePriceTiersUpTo) -> Self {
         Self {
-            flat_amount: Default::default(),
-            flat_amount_decimal: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            flat_amount: None,
+            flat_amount_decimal: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
             up_to,
         }
     }
@@ -1353,12 +1338,7 @@ pub struct UpdatePriceCurrencyOptionsCustomUnitAmount {
 }
 impl UpdatePriceCurrencyOptionsCustomUnitAmount {
     pub fn new(enabled: bool) -> Self {
-        Self {
-            enabled,
-            maximum: Default::default(),
-            minimum: Default::default(),
-            preset: Default::default(),
-        }
+        Self { enabled, maximum: None, minimum: None, preset: None }
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
@@ -1450,10 +1430,10 @@ pub struct UpdatePriceCurrencyOptionsTiers {
 impl UpdatePriceCurrencyOptionsTiers {
     pub fn new(up_to: UpdatePriceCurrencyOptionsTiersUpTo) -> Self {
         Self {
-            flat_amount: Default::default(),
-            flat_amount_decimal: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            flat_amount: None,
+            flat_amount_decimal: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
             up_to,
         }
     }

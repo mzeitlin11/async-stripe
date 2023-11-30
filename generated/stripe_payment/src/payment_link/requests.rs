@@ -223,32 +223,32 @@ pub struct CreatePaymentLink<'a> {
 impl<'a> CreatePaymentLink<'a> {
     pub fn new(line_items: &'a [CreatePaymentLinkLineItems<'a>]) -> Self {
         Self {
-            after_completion: Default::default(),
-            allow_promotion_codes: Default::default(),
-            application_fee_amount: Default::default(),
-            application_fee_percent: Default::default(),
-            automatic_tax: Default::default(),
-            billing_address_collection: Default::default(),
-            consent_collection: Default::default(),
-            currency: Default::default(),
-            custom_fields: Default::default(),
-            custom_text: Default::default(),
-            customer_creation: Default::default(),
-            expand: Default::default(),
-            invoice_creation: Default::default(),
+            after_completion: None,
+            allow_promotion_codes: None,
+            application_fee_amount: None,
+            application_fee_percent: None,
+            automatic_tax: None,
+            billing_address_collection: None,
+            consent_collection: None,
+            currency: None,
+            custom_fields: None,
+            custom_text: None,
+            customer_creation: None,
+            expand: None,
+            invoice_creation: None,
             line_items,
-            metadata: Default::default(),
-            on_behalf_of: Default::default(),
-            payment_intent_data: Default::default(),
-            payment_method_collection: Default::default(),
-            payment_method_types: Default::default(),
-            phone_number_collection: Default::default(),
-            shipping_address_collection: Default::default(),
-            shipping_options: Default::default(),
-            submit_type: Default::default(),
-            subscription_data: Default::default(),
-            tax_id_collection: Default::default(),
-            transfer_data: Default::default(),
+            metadata: None,
+            on_behalf_of: None,
+            payment_intent_data: None,
+            payment_method_collection: None,
+            payment_method_types: None,
+            phone_number_collection: None,
+            shipping_address_collection: None,
+            shipping_options: None,
+            submit_type: None,
+            subscription_data: None,
+            tax_id_collection: None,
+            transfer_data: None,
         }
     }
 }
@@ -269,7 +269,7 @@ pub struct CreatePaymentLinkAfterCompletion<'a> {
 }
 impl<'a> CreatePaymentLinkAfterCompletion<'a> {
     pub fn new(type_: CreatePaymentLinkAfterCompletionType) -> Self {
-        Self { hosted_confirmation: Default::default(), redirect: Default::default(), type_ }
+        Self { hosted_confirmation: None, redirect: None, type_ }
     }
 }
 /// Configuration when `type=hosted_confirmation`.
@@ -572,15 +572,7 @@ impl<'a> CreatePaymentLinkCustomFields<'a> {
         label: CreatePaymentLinkCustomFieldsLabel<'a>,
         type_: CreatePaymentLinkCustomFieldsType,
     ) -> Self {
-        Self {
-            dropdown: Default::default(),
-            key,
-            label,
-            numeric: Default::default(),
-            optional: Default::default(),
-            text: Default::default(),
-            type_,
-        }
+        Self { dropdown: None, key, label, numeric: None, optional: None, text: None, type_ }
     }
 }
 /// Configuration for `type=dropdown` fields.
@@ -877,7 +869,7 @@ pub struct CreatePaymentLinkInvoiceCreation<'a> {
 }
 impl<'a> CreatePaymentLinkInvoiceCreation<'a> {
     pub fn new(enabled: bool) -> Self {
-        Self { enabled, invoice_data: Default::default() }
+        Self { enabled, invoice_data: None }
     }
 }
 /// Invoice PDF configuration.
@@ -1026,7 +1018,7 @@ pub struct CreatePaymentLinkLineItems<'a> {
 }
 impl<'a> CreatePaymentLinkLineItems<'a> {
     pub fn new(price: &'a str, quantity: u64) -> Self {
-        Self { adjustable_quantity: Default::default(), price, quantity }
+        Self { adjustable_quantity: None, price, quantity }
     }
 }
 /// When set, provides configuration for this item’s quantity to be adjusted by the customer during checkout.
@@ -1049,7 +1041,7 @@ pub struct CreatePaymentLinkLineItemsAdjustableQuantity {
 }
 impl CreatePaymentLinkLineItemsAdjustableQuantity {
     pub fn new(enabled: bool) -> Self {
-        Self { enabled, maximum: Default::default(), minimum: Default::default() }
+        Self { enabled, maximum: None, minimum: None }
     }
 }
 /// A subset of parameters to be passed to PaymentIntent creation for Checkout Sessions in `payment` mode.
@@ -2318,7 +2310,7 @@ pub struct CreatePaymentLinkTransferData<'a> {
 }
 impl<'a> CreatePaymentLinkTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount: Default::default(), destination }
+        Self { amount: None, destination }
     }
 }
 impl<'a> CreatePaymentLink<'a> {
@@ -2421,7 +2413,7 @@ pub struct UpdatePaymentLinkAfterCompletion<'a> {
 }
 impl<'a> UpdatePaymentLinkAfterCompletion<'a> {
     pub fn new(type_: UpdatePaymentLinkAfterCompletionType) -> Self {
-        Self { hosted_confirmation: Default::default(), redirect: Default::default(), type_ }
+        Self { hosted_confirmation: None, redirect: None, type_ }
     }
 }
 /// Configuration when `type=hosted_confirmation`.
@@ -2599,15 +2591,7 @@ impl<'a> UpdatePaymentLinkCustomFields<'a> {
         label: UpdatePaymentLinkCustomFieldsLabel<'a>,
         type_: UpdatePaymentLinkCustomFieldsType,
     ) -> Self {
-        Self {
-            dropdown: Default::default(),
-            key,
-            label,
-            numeric: Default::default(),
-            optional: Default::default(),
-            text: Default::default(),
-            type_,
-        }
+        Self { dropdown: None, key, label, numeric: None, optional: None, text: None, type_ }
     }
 }
 /// Configuration for `type=dropdown` fields.
@@ -2904,7 +2888,7 @@ pub struct UpdatePaymentLinkInvoiceCreation<'a> {
 }
 impl<'a> UpdatePaymentLinkInvoiceCreation<'a> {
     pub fn new(enabled: bool) -> Self {
-        Self { enabled, invoice_data: Default::default() }
+        Self { enabled, invoice_data: None }
     }
 }
 /// Invoice PDF configuration.
@@ -3054,7 +3038,7 @@ pub struct UpdatePaymentLinkLineItems<'a> {
 }
 impl<'a> UpdatePaymentLinkLineItems<'a> {
     pub fn new(id: &'a str) -> Self {
-        Self { adjustable_quantity: Default::default(), id, quantity: Default::default() }
+        Self { adjustable_quantity: None, id, quantity: None }
     }
 }
 /// When set, provides configuration for this item’s quantity to be adjusted by the customer during checkout.
@@ -3077,7 +3061,7 @@ pub struct UpdatePaymentLinkLineItemsAdjustableQuantity {
 }
 impl UpdatePaymentLinkLineItemsAdjustableQuantity {
     pub fn new(enabled: bool) -> Self {
-        Self { enabled, maximum: Default::default(), minimum: Default::default() }
+        Self { enabled, maximum: None, minimum: None }
     }
 }
 /// A subset of parameters to be passed to PaymentIntent creation for Checkout Sessions in `payment` mode.

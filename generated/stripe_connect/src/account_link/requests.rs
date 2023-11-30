@@ -28,14 +28,7 @@ pub struct CreateAccountLink<'a> {
 }
 impl<'a> CreateAccountLink<'a> {
     pub fn new(account: &'a str, type_: CreateAccountLinkType) -> Self {
-        Self {
-            account,
-            collect: Default::default(),
-            expand: Default::default(),
-            refresh_url: Default::default(),
-            return_url: Default::default(),
-            type_,
-        }
+        Self { account, collect: None, expand: None, refresh_url: None, return_url: None, type_ }
     }
 }
 /// Which information the platform needs to collect from the user.

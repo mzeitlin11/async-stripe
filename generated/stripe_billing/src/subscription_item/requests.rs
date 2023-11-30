@@ -25,13 +25,7 @@ pub struct ListSubscriptionItem<'a> {
 }
 impl<'a> ListSubscriptionItem<'a> {
     pub fn new(subscription: &'a str) -> Self {
-        Self {
-            ending_before: Default::default(),
-            expand: Default::default(),
-            limit: Default::default(),
-            starting_after: Default::default(),
-            subscription,
-        }
+        Self { ending_before: None, expand: None, limit: None, starting_after: None, subscription }
     }
 }
 impl<'a> ListSubscriptionItem<'a> {
@@ -133,18 +127,18 @@ pub struct CreateSubscriptionItem<'a> {
 impl<'a> CreateSubscriptionItem<'a> {
     pub fn new(subscription: &'a str) -> Self {
         Self {
-            billing_thresholds: Default::default(),
-            expand: Default::default(),
-            metadata: Default::default(),
-            payment_behavior: Default::default(),
-            plan: Default::default(),
-            price: Default::default(),
-            price_data: Default::default(),
-            proration_behavior: Default::default(),
-            proration_date: Default::default(),
-            quantity: Default::default(),
+            billing_thresholds: None,
+            expand: None,
+            metadata: None,
+            payment_behavior: None,
+            plan: None,
+            price: None,
+            price_data: None,
+            proration_behavior: None,
+            proration_date: None,
+            quantity: None,
             subscription,
-            tax_rates: Default::default(),
+            tax_rates: None,
         }
     }
 }
@@ -266,9 +260,9 @@ impl<'a> CreateSubscriptionItemPriceData<'a> {
             currency,
             product,
             recurring,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -288,7 +282,7 @@ pub struct CreateSubscriptionItemPriceDataRecurring {
 }
 impl CreateSubscriptionItemPriceDataRecurring {
     pub fn new(interval: CreateSubscriptionItemPriceDataRecurringInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies billing frequency.
@@ -663,9 +657,9 @@ impl<'a> UpdateSubscriptionItemPriceData<'a> {
             currency,
             product,
             recurring,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -685,7 +679,7 @@ pub struct UpdateSubscriptionItemPriceDataRecurring {
 }
 impl UpdateSubscriptionItemPriceDataRecurring {
     pub fn new(interval: UpdateSubscriptionItemPriceDataRecurringInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies billing frequency.

@@ -79,11 +79,11 @@ impl<'a> CreatePortalConfiguration<'a> {
     ) -> Self {
         Self {
             business_profile,
-            default_return_url: Default::default(),
-            expand: Default::default(),
+            default_return_url: None,
+            expand: None,
             features,
-            login_page: Default::default(),
-            metadata: Default::default(),
+            login_page: None,
+            metadata: None,
         }
     }
 }
@@ -146,7 +146,7 @@ pub struct CreatePortalConfigurationFeaturesCustomerUpdate<'a> {
 }
 impl<'a> CreatePortalConfigurationFeaturesCustomerUpdate<'a> {
     pub fn new(enabled: bool) -> Self {
-        Self { allowed_updates: Default::default(), enabled }
+        Self { allowed_updates: None, enabled }
     }
 }
 /// The types of customer updates that are supported.
@@ -258,12 +258,7 @@ pub struct CreatePortalConfigurationFeaturesSubscriptionCancel<'a> {
 }
 impl<'a> CreatePortalConfigurationFeaturesSubscriptionCancel<'a> {
     pub fn new(enabled: bool) -> Self {
-        Self {
-            cancellation_reason: Default::default(),
-            enabled,
-            mode: Default::default(),
-            proration_behavior: Default::default(),
-        }
+        Self { cancellation_reason: None, enabled, mode: None, proration_behavior: None }
     }
 }
 /// Whether the cancellation reasons will be collected in the portal and which options are exposed to the customer.
@@ -505,7 +500,7 @@ impl<'a> CreatePortalConfigurationFeaturesSubscriptionUpdate<'a> {
         enabled: bool,
         products: &'a [CreatePortalConfigurationFeaturesSubscriptionUpdateProducts<'a>],
     ) -> Self {
-        Self { default_allowed_updates, enabled, products, proration_behavior: Default::default() }
+        Self { default_allowed_updates, enabled, products, proration_behavior: None }
     }
 }
 /// The types of subscription updates that are supported.
@@ -884,7 +879,7 @@ pub struct UpdatePortalConfigurationFeaturesSubscriptionCancelCancellationReason
 }
 impl<'a> UpdatePortalConfigurationFeaturesSubscriptionCancelCancellationReason<'a> {
     pub fn new(enabled: bool) -> Self {
-        Self { enabled, options: Default::default() }
+        Self { enabled, options: None }
     }
 }
 /// Which cancellation reasons will be given as options to the customer.

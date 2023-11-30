@@ -3,12 +3,11 @@ use std::path::{Path, PathBuf};
 
 use anyhow::Context;
 use indoc::formatdoc;
-use tabled::settings::Style;
-use tabled::{Table, Tabled};
 use tracing::debug;
 
 use crate::components::{get_components, Components};
 use crate::crate_inference::{Crate, ALL_CRATES};
+use crate::crate_table::write_crate_table;
 use crate::object_writing::{gen_obj, gen_requests, ObjectGenInfo};
 use crate::rust_object::ObjectMetadata;
 use crate::spec::Spec;
@@ -107,32 +106,7 @@ impl CodeGen {
         self.write_components()?;
         write_generated_for_webhooks(&self.components)
             .context("Could not write webhook generated code")?;
-        self.write_crate_info()
-    }
-
-    fn write_crate_info(&self) -> anyhow::Result<()> {
-        #[derive(Tabled)]
-        struct CrateDisplay {
-            name: String,
-            krate: String,
-        }
-
-        let mut comps = vec![];
-        for (_, obj) in &self.components.components {
-            if obj.requests.is_empty() {
-                continue;
-            }
-            comps.push(CrateDisplay {
-                name: obj.resource.ident().to_string(),
-                krate: obj.krate_unwrapped().base().name(),
-            })
-        }
-        comps.sort_by_key(|c| c.krate.clone());
-        let mut table = Table::new(comps);
-        table.with(Style::markdown());
-        let display = table.to_string();
-        write_to_file(display, "crate_info.md")?;
-        Ok(())
+        write_crate_table(&self.components)
     }
 
     fn write_crate_base(&self) -> anyhow::Result<()> {

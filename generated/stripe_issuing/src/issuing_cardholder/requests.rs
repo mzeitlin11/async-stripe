@@ -232,17 +232,17 @@ impl<'a> CreateIssuingCardholder<'a> {
     pub fn new(billing: CreateIssuingCardholderBilling<'a>, name: &'a str) -> Self {
         Self {
             billing,
-            company: Default::default(),
-            email: Default::default(),
-            expand: Default::default(),
-            individual: Default::default(),
-            metadata: Default::default(),
+            company: None,
+            email: None,
+            expand: None,
+            individual: None,
+            metadata: None,
             name,
-            phone_number: Default::default(),
-            preferred_locales: Default::default(),
-            spending_controls: Default::default(),
-            status: Default::default(),
-            type_: Default::default(),
+            phone_number: None,
+            preferred_locales: None,
+            spending_controls: None,
+            status: None,
+            type_: None,
         }
     }
 }
@@ -277,14 +277,7 @@ pub struct CreateIssuingCardholderBillingAddress<'a> {
 }
 impl<'a> CreateIssuingCardholderBillingAddress<'a> {
     pub fn new(city: &'a str, country: &'a str, line1: &'a str, postal_code: &'a str) -> Self {
-        Self {
-            city,
-            country,
-            line1,
-            line2: Default::default(),
-            postal_code,
-            state: Default::default(),
-        }
+        Self { city, country, line1, line2: None, postal_code, state: None }
     }
 }
 /// Additional information about a `company` cardholder.
@@ -2579,7 +2572,7 @@ impl<'a> CreateIssuingCardholderSpendingControlsSpendingLimits<'a> {
         amount: i64,
         interval: CreateIssuingCardholderSpendingControlsSpendingLimitsInterval,
     ) -> Self {
-        Self { amount, categories: Default::default(), interval }
+        Self { amount, categories: None, interval }
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) this limit applies to.
@@ -3889,14 +3882,7 @@ pub struct UpdateIssuingCardholderBillingAddress<'a> {
 }
 impl<'a> UpdateIssuingCardholderBillingAddress<'a> {
     pub fn new(city: &'a str, country: &'a str, line1: &'a str, postal_code: &'a str) -> Self {
-        Self {
-            city,
-            country,
-            line1,
-            line2: Default::default(),
-            postal_code,
-            state: Default::default(),
-        }
+        Self { city, country, line1, line2: None, postal_code, state: None }
     }
 }
 /// Additional information about a `company` cardholder.
@@ -6191,7 +6177,7 @@ impl<'a> UpdateIssuingCardholderSpendingControlsSpendingLimits<'a> {
         amount: i64,
         interval: UpdateIssuingCardholderSpendingControlsSpendingLimitsInterval,
     ) -> Self {
-        Self { amount, categories: Default::default(), interval }
+        Self { amount, categories: None, interval }
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) this limit applies to.

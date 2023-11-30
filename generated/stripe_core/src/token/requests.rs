@@ -831,13 +831,13 @@ pub struct CreateTokenBankAccount<'a> {
 impl<'a> CreateTokenBankAccount<'a> {
     pub fn new(account_number: &'a str, country: &'a str) -> Self {
         Self {
-            account_holder_name: Default::default(),
-            account_holder_type: Default::default(),
+            account_holder_name: None,
+            account_holder_type: None,
             account_number,
-            account_type: Default::default(),
+            account_type: None,
             country,
-            currency: Default::default(),
-            routing_number: Default::default(),
+            currency: None,
+            routing_number: None,
         }
     }
 }
@@ -1012,17 +1012,17 @@ pub struct CreateTokenCreditCardSpecs<'a> {
 impl<'a> CreateTokenCreditCardSpecs<'a> {
     pub fn new(exp_month: &'a str, exp_year: &'a str, number: &'a str) -> Self {
         Self {
-            address_city: Default::default(),
-            address_country: Default::default(),
-            address_line1: Default::default(),
-            address_line2: Default::default(),
-            address_state: Default::default(),
-            address_zip: Default::default(),
-            currency: Default::default(),
-            cvc: Default::default(),
+            address_city: None,
+            address_country: None,
+            address_line1: None,
+            address_line2: None,
+            address_state: None,
+            address_zip: None,
+            currency: None,
+            cvc: None,
             exp_month,
             exp_year,
-            name: Default::default(),
+            name: None,
             number,
         }
     }

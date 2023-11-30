@@ -194,11 +194,11 @@ impl<'a> UpdateInvoiceLineItemPriceData<'a> {
     pub fn new(currency: stripe_types::Currency) -> Self {
         Self {
             currency,
-            product: Default::default(),
-            product_data: Default::default(),
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            product: None,
+            product_data: None,
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -230,13 +230,7 @@ pub struct UpdateInvoiceLineItemPriceDataProductData<'a> {
 }
 impl<'a> UpdateInvoiceLineItemPriceDataProductData<'a> {
     pub fn new(name: &'a str) -> Self {
-        Self {
-            description: Default::default(),
-            images: Default::default(),
-            metadata: Default::default(),
-            name,
-            tax_code: Default::default(),
-        }
+        Self { description: None, images: None, metadata: None, name, tax_code: None }
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
@@ -369,14 +363,14 @@ pub struct UpdateInvoiceLineItemTaxAmountsTaxRateData<'a> {
 impl<'a> UpdateInvoiceLineItemTaxAmountsTaxRateData<'a> {
     pub fn new(display_name: &'a str, inclusive: bool, percentage: f64) -> Self {
         Self {
-            country: Default::default(),
-            description: Default::default(),
+            country: None,
+            description: None,
             display_name,
             inclusive,
-            jurisdiction: Default::default(),
+            jurisdiction: None,
             percentage,
-            state: Default::default(),
-            tax_type: Default::default(),
+            state: None,
+            tax_type: None,
         }
     }
 }

@@ -330,7 +330,7 @@ pub struct CreateSubscriptionScheduleDefaultSettingsTransferData<'a> {
 }
 impl<'a> CreateSubscriptionScheduleDefaultSettingsTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount_percent: Default::default(), destination }
+        Self { amount_percent: None, destination }
     }
 }
 /// Behavior of the subscription schedule and underlying subscription when it ends.
@@ -504,27 +504,27 @@ pub struct CreateSubscriptionSchedulePhases<'a> {
 impl<'a> CreateSubscriptionSchedulePhases<'a> {
     pub fn new(items: &'a [CreateSubscriptionSchedulePhasesItems<'a>]) -> Self {
         Self {
-            add_invoice_items: Default::default(),
-            application_fee_percent: Default::default(),
-            automatic_tax: Default::default(),
-            billing_cycle_anchor: Default::default(),
-            billing_thresholds: Default::default(),
-            collection_method: Default::default(),
-            coupon: Default::default(),
-            currency: Default::default(),
-            default_payment_method: Default::default(),
-            default_tax_rates: Default::default(),
-            description: Default::default(),
-            end_date: Default::default(),
-            invoice_settings: Default::default(),
+            add_invoice_items: None,
+            application_fee_percent: None,
+            automatic_tax: None,
+            billing_cycle_anchor: None,
+            billing_thresholds: None,
+            collection_method: None,
+            coupon: None,
+            currency: None,
+            default_payment_method: None,
+            default_tax_rates: None,
+            description: None,
+            end_date: None,
+            invoice_settings: None,
             items,
-            iterations: Default::default(),
-            metadata: Default::default(),
-            on_behalf_of: Default::default(),
-            proration_behavior: Default::default(),
-            transfer_data: Default::default(),
-            trial: Default::default(),
-            trial_end: Default::default(),
+            iterations: None,
+            metadata: None,
+            on_behalf_of: None,
+            proration_behavior: None,
+            transfer_data: None,
+            trial: None,
+            trial_end: None,
         }
     }
 }
@@ -582,13 +582,7 @@ pub struct CreateSubscriptionSchedulePhasesAddInvoiceItemsPriceData<'a> {
 }
 impl<'a> CreateSubscriptionSchedulePhasesAddInvoiceItemsPriceData<'a> {
     pub fn new(currency: stripe_types::Currency, product: &'a str) -> Self {
-        Self {
-            currency,
-            product,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
-        }
+        Self { currency, product, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
@@ -895,9 +889,9 @@ impl<'a> CreateSubscriptionSchedulePhasesItemsPriceData<'a> {
             currency,
             product,
             recurring,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -917,7 +911,7 @@ pub struct CreateSubscriptionSchedulePhasesItemsPriceDataRecurring {
 }
 impl CreateSubscriptionSchedulePhasesItemsPriceDataRecurring {
     pub fn new(interval: CreateSubscriptionSchedulePhasesItemsPriceDataRecurringInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies billing frequency.
@@ -1109,7 +1103,7 @@ pub struct CreateSubscriptionSchedulePhasesTransferData<'a> {
 }
 impl<'a> CreateSubscriptionSchedulePhasesTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount_percent: Default::default(), destination }
+        Self { amount_percent: None, destination }
     }
 }
 /// When the subscription schedule starts.
@@ -1419,7 +1413,7 @@ pub struct UpdateSubscriptionScheduleDefaultSettingsTransferData<'a> {
 }
 impl<'a> UpdateSubscriptionScheduleDefaultSettingsTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount_percent: Default::default(), destination }
+        Self { amount_percent: None, destination }
     }
 }
 /// Behavior of the subscription schedule and underlying subscription when it ends.
@@ -1599,28 +1593,28 @@ pub struct UpdateSubscriptionSchedulePhases<'a> {
 impl<'a> UpdateSubscriptionSchedulePhases<'a> {
     pub fn new(items: &'a [UpdateSubscriptionSchedulePhasesItems<'a>]) -> Self {
         Self {
-            add_invoice_items: Default::default(),
-            application_fee_percent: Default::default(),
-            automatic_tax: Default::default(),
-            billing_cycle_anchor: Default::default(),
-            billing_thresholds: Default::default(),
-            collection_method: Default::default(),
-            coupon: Default::default(),
-            currency: Default::default(),
-            default_payment_method: Default::default(),
-            default_tax_rates: Default::default(),
-            description: Default::default(),
-            end_date: Default::default(),
-            invoice_settings: Default::default(),
+            add_invoice_items: None,
+            application_fee_percent: None,
+            automatic_tax: None,
+            billing_cycle_anchor: None,
+            billing_thresholds: None,
+            collection_method: None,
+            coupon: None,
+            currency: None,
+            default_payment_method: None,
+            default_tax_rates: None,
+            description: None,
+            end_date: None,
+            invoice_settings: None,
             items,
-            iterations: Default::default(),
-            metadata: Default::default(),
-            on_behalf_of: Default::default(),
-            proration_behavior: Default::default(),
-            start_date: Default::default(),
-            transfer_data: Default::default(),
-            trial: Default::default(),
-            trial_end: Default::default(),
+            iterations: None,
+            metadata: None,
+            on_behalf_of: None,
+            proration_behavior: None,
+            start_date: None,
+            transfer_data: None,
+            trial: None,
+            trial_end: None,
         }
     }
 }
@@ -1678,13 +1672,7 @@ pub struct UpdateSubscriptionSchedulePhasesAddInvoiceItemsPriceData<'a> {
 }
 impl<'a> UpdateSubscriptionSchedulePhasesAddInvoiceItemsPriceData<'a> {
     pub fn new(currency: stripe_types::Currency, product: &'a str) -> Self {
-        Self {
-            currency,
-            product,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
-        }
+        Self { currency, product, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
@@ -2000,9 +1988,9 @@ impl<'a> UpdateSubscriptionSchedulePhasesItemsPriceData<'a> {
             currency,
             product,
             recurring,
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -2022,7 +2010,7 @@ pub struct UpdateSubscriptionSchedulePhasesItemsPriceDataRecurring {
 }
 impl UpdateSubscriptionSchedulePhasesItemsPriceDataRecurring {
     pub fn new(interval: UpdateSubscriptionSchedulePhasesItemsPriceDataRecurringInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies billing frequency.
@@ -2223,7 +2211,7 @@ pub struct UpdateSubscriptionSchedulePhasesTransferData<'a> {
 }
 impl<'a> UpdateSubscriptionSchedulePhasesTransferData<'a> {
     pub fn new(destination: &'a str) -> Self {
-        Self { amount_percent: Default::default(), destination }
+        Self { amount_percent: None, destination }
     }
 }
 /// Sets the phase to trialing from the start date to this date.

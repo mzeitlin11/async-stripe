@@ -50,7 +50,7 @@ pub struct CreateTreasuryInboundTransfersResourceInboundTransfer<'a> {
 }
 impl<'a> CreateTreasuryInboundTransfersResourceInboundTransfer<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency, financial_account: &'a str, origin_payment_method: &'a str) -> Self {
-        Self { amount, currency, description: Default::default(), expand: Default::default(), financial_account, metadata: Default::default(), origin_payment_method, statement_descriptor: Default::default() }
+        Self { amount, currency, description: None, expand: None, financial_account, metadata: None, origin_payment_method, statement_descriptor: None }
     }
 }
 impl<'a> CreateTreasuryInboundTransfersResourceInboundTransfer<'a> {
@@ -106,7 +106,7 @@ pub struct ListTreasuryInboundTransfersResourceInboundTransfer<'a> {
 }
 impl<'a> ListTreasuryInboundTransfersResourceInboundTransfer<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self { ending_before: Default::default(), expand: Default::default(), financial_account, limit: Default::default(), starting_after: Default::default(), status: Default::default() }
+        Self { ending_before: None, expand: None, financial_account, limit: None, starting_after: None, status: None }
     }
 }
 /// Only return InboundTransfers that have the given status: `processing`, `succeeded`, `failed` or `canceled`.

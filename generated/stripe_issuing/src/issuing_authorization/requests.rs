@@ -293,16 +293,16 @@ impl<'a> CreateIssuingAuthorization<'a> {
     pub fn new(amount: i64, card: &'a str) -> Self {
         Self {
             amount,
-            amount_details: Default::default(),
-            authorization_method: Default::default(),
+            amount_details: None,
+            authorization_method: None,
             card,
-            currency: Default::default(),
-            expand: Default::default(),
-            is_amount_controllable: Default::default(),
-            merchant_data: Default::default(),
-            network_data: Default::default(),
-            verification_data: Default::default(),
-            wallet: Default::default(),
+            currency: None,
+            expand: None,
+            is_amount_controllable: None,
+            merchant_data: None,
+            network_data: None,
+            verification_data: None,
+            wallet: None,
         }
     }
 }
@@ -1983,11 +1983,7 @@ pub struct IncrementIssuingAuthorization<'a> {
 }
 impl<'a> IncrementIssuingAuthorization<'a> {
     pub fn new(increment_amount: i64) -> Self {
-        Self {
-            expand: Default::default(),
-            increment_amount,
-            is_amount_controllable: Default::default(),
-        }
+        Self { expand: None, increment_amount, is_amount_controllable: None }
     }
 }
 impl<'a> IncrementIssuingAuthorization<'a> {

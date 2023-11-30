@@ -21,12 +21,7 @@ pub struct SearchCustomer<'a> {
 }
 impl<'a> SearchCustomer<'a> {
     pub fn new(query: &'a str) -> Self {
-        Self {
-            expand: Default::default(),
-            limit: Default::default(),
-            page: Default::default(),
-            query,
-        }
+        Self { expand: None, limit: None, page: None, query }
     }
 }
 impl<'a> SearchCustomer<'a> {
@@ -503,7 +498,7 @@ pub struct CreateCustomerShipping<'a> {
 }
 impl<'a> CreateCustomerShipping<'a> {
     pub fn new(address: CreateCustomerShippingAddress<'a>, name: &'a str) -> Self {
-        Self { address, name, phone: Default::default() }
+        Self { address, name, phone: None }
     }
 }
 /// Customer shipping address.
@@ -1233,7 +1228,7 @@ pub struct UpdateCustomerShipping<'a> {
 }
 impl<'a> UpdateCustomerShipping<'a> {
     pub fn new(address: UpdateCustomerShippingAddress<'a>, name: &'a str) -> Self {
-        Self { address, name, phone: Default::default() }
+        Self { address, name, phone: None }
     }
 }
 /// Customer shipping address.
@@ -1662,7 +1657,7 @@ pub struct FundCashBalanceCustomer<'a> {
 }
 impl<'a> FundCashBalanceCustomer<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency) -> Self {
-        Self { amount, currency, expand: Default::default(), reference: Default::default() }
+        Self { amount, currency, expand: None, reference: None }
     }
 }
 impl<'a> FundCashBalanceCustomer<'a> {
@@ -1699,7 +1694,7 @@ impl<'a> CreateFundingInstructionsCustomer<'a> {
         currency: stripe_types::Currency,
         funding_type: CreateFundingInstructionsCustomerFundingType,
     ) -> Self {
-        Self { bank_transfer, currency, expand: Default::default(), funding_type }
+        Self { bank_transfer, currency, expand: None, funding_type }
     }
 }
 /// Additional parameters for `bank_transfer` funding types.
@@ -1720,11 +1715,7 @@ pub struct CreateFundingInstructionsCustomerBankTransfer<'a> {
 }
 impl<'a> CreateFundingInstructionsCustomerBankTransfer<'a> {
     pub fn new(type_: CreateFundingInstructionsCustomerBankTransferType) -> Self {
-        Self {
-            eu_bank_transfer: Default::default(),
-            requested_address_types: Default::default(),
-            type_,
-        }
+        Self { eu_bank_transfer: None, requested_address_types: None, type_ }
     }
 }
 /// Configuration for eu_bank_transfer funding type.

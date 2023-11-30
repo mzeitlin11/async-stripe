@@ -21,12 +21,7 @@ pub struct SearchProduct<'a> {
 }
 impl<'a> SearchProduct<'a> {
     pub fn new(query: &'a str) -> Self {
-        Self {
-            expand: Default::default(),
-            limit: Default::default(),
-            page: Default::default(),
-            query,
-        }
+        Self { expand: None, limit: None, page: None, query }
     }
 }
 impl<'a> SearchProduct<'a> {
@@ -190,22 +185,22 @@ pub struct CreateProduct<'a> {
 impl<'a> CreateProduct<'a> {
     pub fn new(name: &'a str) -> Self {
         Self {
-            active: Default::default(),
-            default_price_data: Default::default(),
-            description: Default::default(),
-            expand: Default::default(),
-            features: Default::default(),
-            id: Default::default(),
-            images: Default::default(),
-            metadata: Default::default(),
+            active: None,
+            default_price_data: None,
+            description: None,
+            expand: None,
+            features: None,
+            id: None,
+            images: None,
+            metadata: None,
             name,
-            package_dimensions: Default::default(),
-            shippable: Default::default(),
-            statement_descriptor: Default::default(),
-            tax_code: Default::default(),
-            type_: Default::default(),
-            unit_label: Default::default(),
-            url: Default::default(),
+            package_dimensions: None,
+            shippable: None,
+            statement_descriptor: None,
+            tax_code: None,
+            type_: None,
+            unit_label: None,
+            url: None,
         }
     }
 }
@@ -253,11 +248,11 @@ impl<'a> CreateProductDefaultPriceData<'a> {
     pub fn new(currency: stripe_types::Currency) -> Self {
         Self {
             currency,
-            currency_options: Default::default(),
-            recurring: Default::default(),
-            tax_behavior: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            currency_options: None,
+            recurring: None,
+            tax_behavior: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
         }
     }
 }
@@ -315,12 +310,7 @@ pub struct CreateProductDefaultPriceDataCurrencyOptionsCustomUnitAmount {
 }
 impl CreateProductDefaultPriceDataCurrencyOptionsCustomUnitAmount {
     pub fn new(enabled: bool) -> Self {
-        Self {
-            enabled,
-            maximum: Default::default(),
-            minimum: Default::default(),
-            preset: Default::default(),
-        }
+        Self { enabled, maximum: None, minimum: None, preset: None }
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
@@ -412,10 +402,10 @@ pub struct CreateProductDefaultPriceDataCurrencyOptionsTiers {
 impl CreateProductDefaultPriceDataCurrencyOptionsTiers {
     pub fn new(up_to: CreateProductDefaultPriceDataCurrencyOptionsTiersUpTo) -> Self {
         Self {
-            flat_amount: Default::default(),
-            flat_amount_decimal: Default::default(),
-            unit_amount: Default::default(),
-            unit_amount_decimal: Default::default(),
+            flat_amount: None,
+            flat_amount_decimal: None,
+            unit_amount: None,
+            unit_amount_decimal: None,
             up_to,
         }
     }
@@ -446,7 +436,7 @@ pub struct CreateProductDefaultPriceDataRecurring {
 }
 impl CreateProductDefaultPriceDataRecurring {
     pub fn new(interval: CreateProductDefaultPriceDataRecurringInterval) -> Self {
-        Self { interval, interval_count: Default::default() }
+        Self { interval, interval_count: None }
     }
 }
 /// Specifies billing frequency.

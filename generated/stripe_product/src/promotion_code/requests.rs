@@ -66,15 +66,15 @@ pub struct CreatePromotionCode<'a> {
 impl<'a> CreatePromotionCode<'a> {
     pub fn new(coupon: &'a str) -> Self {
         Self {
-            active: Default::default(),
-            code: Default::default(),
+            active: None,
+            code: None,
             coupon,
-            customer: Default::default(),
-            expand: Default::default(),
-            expires_at: Default::default(),
-            max_redemptions: Default::default(),
-            metadata: Default::default(),
-            restrictions: Default::default(),
+            customer: None,
+            expand: None,
+            expires_at: None,
+            max_redemptions: None,
+            metadata: None,
+            restrictions: None,
         }
     }
 }

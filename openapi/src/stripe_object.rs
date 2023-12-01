@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use heck::ToSnakeCase;
 use indexmap::IndexMap;
+use lazy_static::lazy_static;
 use openapiv3::Schema;
 use serde::{Deserialize, Serialize};
 
@@ -255,17 +256,16 @@ impl StripeResource {
     }
 }
 
-fn object_renames() -> HashMap<&'static str, &'static str> {
-    return HashMap::from([
-        ("invoiceitem", "invoice_item"),
-        ("item", "checkout_session_item"),
-        ("line_item", "invoice_line_item"),
-        ("fee_refund", "application_fee_refund"),
-    ]);
-}
-
 fn infer_object_ident(path: &ComponentPath) -> RustIdent {
-    if let Some(renamed) = object_renames().get(path.as_ref()) {
+    lazy_static! {
+        static ref OBJECT_RENAMES: HashMap<&'static str, &'static str> = HashMap::from([
+            ("invoiceitem", "invoice_item"),
+            ("item", "checkout_session_item"),
+            ("line_item", "invoice_line_item"),
+            ("fee_refund", "application_fee_refund"),
+        ]);
+    }
+    if let Some(renamed) = OBJECT_RENAMES.get(path.as_ref()) {
         RustIdent::create(renamed)
     } else {
         RustIdent::create(path)

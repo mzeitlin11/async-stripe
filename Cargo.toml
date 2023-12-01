@@ -19,11 +19,12 @@ exclude = ["openapi"]
 [workspace.package]
 version = "0.22.2"
 description = "API bindings for the Stripe HTTP API"
-rust-version = "1.67.0"
+rust-version = "1.68.0"
 authors = [
     "Anna Baldwin <abaldwin@developers.wyyerd.com>",
     "Kevin Stenerson <kestred@users.noreply.github.com>",
     "Alexander Lyon <arlyon@me.com>",
+    "Matthew Zeitlin <mzeitlin11@gmail.com>"
 ]
 license = "MIT OR Apache-2.0"
 readme = "README.md"

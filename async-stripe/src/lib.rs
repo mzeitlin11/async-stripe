@@ -7,7 +7,6 @@
 // except according to those terms.
 
 #![doc(html_root_url = "https://docs.rs/async-stripe/")]
-#![recursion_limit = "128"]
 
 //! This crate provides Rust bindings to the Stripe HTTP API.
 //!

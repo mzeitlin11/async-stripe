@@ -1,6 +1,11 @@
 #![recursion_limit = "256"]
 #![allow(clippy::large_enum_variant)]
 #![allow(rustdoc::invalid_html_tags)]
+
+//! This crate provides Rust bindings to the Stripe HTTP API, specifically
+//! for requests mentioned in the `Tax`, `Identity`, `Reporting`, `Sigma`, `Financial Connections`
+//! and `Webhooks` sections of the [Stripe API docs](https://stripe.com/docs/api)
+
 extern crate self as stripe_misc;
 pub mod apple_pay_domain;
 pub use apple_pay_domain::ApplePayDomain;

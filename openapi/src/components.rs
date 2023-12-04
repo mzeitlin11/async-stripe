@@ -269,7 +269,7 @@ pub fn get_components(spec: &Spec) -> anyhow::Result<Components> {
                 resource: resource.clone(),
                 data,
                 krate: inferred_krate.map(CrateInfo::new),
-                extra_types: Default::default(),
+                stripe_doc_url: None,
             },
         );
     }

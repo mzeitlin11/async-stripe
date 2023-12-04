@@ -1,12 +1,10 @@
 use std::collections::HashMap;
 
 use heck::ToSnakeCase;
-use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use openapiv3::Schema;
 use serde::{Deserialize, Serialize};
 
-use crate::components::TypeSpec;
 use crate::crate_inference::Crate;
 use crate::object_writing::ObjectGenInfo;
 use crate::rust_object::RustObject;
@@ -53,7 +51,7 @@ pub struct StripeObject {
     pub resource: StripeResource,
     pub data: StripeObjectData,
     pub krate: Option<CrateInfo>,
-    pub extra_types: IndexMap<RustIdent, TypeSpec>,
+    pub stripe_doc_url: Option<String>,
 }
 
 impl StripeObject {

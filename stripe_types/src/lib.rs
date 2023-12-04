@@ -1,3 +1,4 @@
+//! This crate provides Rust bindings for core types to the Stripe HTTP API.
 // FIXME: could be worked around in the codegen
 #![allow(clippy::large_enum_variant)]
 // FIXME: probably fixable with better doc comment formatting, but stripe might also just have doc typos at times that break the regex

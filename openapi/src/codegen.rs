@@ -6,7 +6,7 @@ use indoc::formatdoc;
 use tracing::debug;
 
 use crate::components::{get_components, Components};
-use crate::crate_inference::{Crate, ALL_CRATES};
+use crate::crate_inference::{get_crate_doc_comment, Crate, ALL_CRATES};
 use crate::crate_table::write_crate_table;
 use crate::object_writing::{gen_obj, gen_requests, ObjectGenInfo};
 use crate::rust_object::ObjectMetadata;
@@ -14,6 +14,7 @@ use crate::spec::Spec;
 use crate::spec_inference::infer_doc_comment;
 use crate::stripe_object::StripeObject;
 use crate::templates::cargo_toml::gen_crate_toml;
+use crate::templates::utils::write_top_level_doc_comment;
 use crate::url_finder::UrlFinder;
 use crate::utils::{append_to_file, write_to_file};
 use crate::webhook::write_generated_for_webhooks;
@@ -21,14 +22,20 @@ use crate::webhook::write_generated_for_webhooks;
 pub struct CodeGen {
     pub components: Components,
     pub spec: Spec,
-    pub url_finder: UrlFinder,
 }
 
 impl CodeGen {
     pub fn new(spec: Spec, url_finder: UrlFinder) -> anyhow::Result<Self> {
-        let components = get_components(&spec)?;
+        let mut components = get_components(&spec)?;
 
-        Ok(Self { components, spec, url_finder })
+        // Attach doc urls for top-level components
+        for comp in components.components.values_mut() {
+            if let Some(doc_url) = url_finder.url_for_object(comp.path()) {
+                comp.stripe_doc_url = Some(doc_url);
+            }
+        }
+
+        Ok(Self { components, spec })
     }
 
     fn write_generated_for_types_crate(&self) -> anyhow::Result<()> {
@@ -130,6 +137,9 @@ impl CodeGen {
                 write_to_file(toml, base_path.join("Cargo.toml"))?;
 
                 let crate_name = krate.name();
+                let doc_comment = write_top_level_doc_comment(
+                    &get_crate_doc_comment(*krate).expect("No doc comment for crate"),
+                );
 
                 // We set up some things in the base `mod.rs` file:
                 // 1. Without this recursion limit increase, `cargo doc` fails
@@ -140,6 +150,8 @@ impl CodeGen {
             #![recursion_limit = "256"]
             #![allow(clippy::large_enum_variant)]
             #![allow(rustdoc::invalid_html_tags)]
+            
+            {doc_comment}
             extern crate self as {crate_name};
             "#
                 };
@@ -172,9 +184,8 @@ impl CodeGen {
 
     fn gen_struct_definitions_for_component(&self, comp: &StripeObject) -> String {
         let base_obj = comp.rust_obj();
-        let doc_url = self.url_finder.url_for_object(comp.path());
         let schema = self.spec.get_component_schema(comp.path());
-        let doc_comment = infer_doc_comment(schema, doc_url.as_deref());
+        let doc_comment = infer_doc_comment(schema, comp.stripe_doc_url.as_deref());
         let meta =
             ObjectMetadata::new(comp.ident().clone(), ObjectGenInfo::new_deser()).doc(doc_comment);
 

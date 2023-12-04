@@ -57,6 +57,7 @@ pub fn gen_crate_toml(
         docs_rs_features.push_str(r#", "full""#);
     }
     docs_rs_features.push(']');
+
     formatdoc! {
         r#"
         [package]

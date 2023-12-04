@@ -48,6 +48,25 @@ pub fn write_doc_comment(description: &str, depth: u8) -> String {
     out
 }
 
+pub fn write_top_level_doc_comment(description: &str) -> String {
+    let doc = format_doc_comment(description);
+
+    let mut out = String::new();
+    for (i, line) in doc.split('\n').enumerate() {
+        if i > 0 {
+            out.push('\n');
+        }
+        if !line.is_empty() {
+            out.push_str("//! ");
+            out.push_str(line);
+        } else {
+            out.push_str("//!");
+        }
+    }
+    out.push('\n');
+    out
+}
+
 fn print_indent(out: &mut String, depth: u8) {
     for _ in 0..depth {
         out.push_str("    ");

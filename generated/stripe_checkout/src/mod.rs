@@ -1,6 +1,10 @@
 #![recursion_limit = "256"]
 #![allow(clippy::large_enum_variant)]
 #![allow(rustdoc::invalid_html_tags)]
+
+//! This crate provides Rust bindings to the Stripe HTTP API,
+//! centered around [Checkout Sessions](https://stripe.com/docs/api/checkout/sessions).
+
 extern crate self as stripe_checkout;
 pub mod checkout_session;
 pub use checkout_session::CheckoutSession;

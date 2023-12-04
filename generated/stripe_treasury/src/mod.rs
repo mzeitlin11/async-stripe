@@ -1,6 +1,10 @@
 #![recursion_limit = "256"]
 #![allow(clippy::large_enum_variant)]
 #![allow(rustdoc::invalid_html_tags)]
+
+//! This crate provides Rust bindings to the Stripe HTTP API, specifically
+//! for requests mentioned in the `Treasury` section of the [Stripe API docs](https://stripe.com/docs/api)
+
 extern crate self as stripe_treasury;
 pub mod inbound_transfers;
 pub use inbound_transfers::InboundTransfers;

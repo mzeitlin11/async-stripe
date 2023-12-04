@@ -6,15 +6,11 @@ use lazy_static::lazy_static;
 use petgraph::algo::is_cyclic_directed;
 use petgraph::Direction;
 use serde::Deserialize;
-use tracing::{error, trace};
+use tracing::{debug, error, trace};
 
 use crate::components::Components;
 use crate::graph::ComponentGraph;
 use crate::types::ComponentPath;
-
-/// Paths for components required to live in the `stripe_types` crate. Adding `event` is
-/// used for webhooks
-const PATHS_IN_TYPES: &[&str] = &["event"];
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Crate(&'static str);
@@ -48,13 +44,19 @@ impl Crate {
     }
 }
 
+/// Information about an automatically generated crate.
 #[derive(Deserialize)]
 struct CrateGen {
+    /// Short name of the crate, such that the actual name becomes `stripe_{}`
     name: String,
+    /// Component paths which should live in this crate
     #[serde(default)]
     paths: Vec<String>,
+    /// Package names which should live in this crate
     #[serde(default)]
     packages: Vec<String>,
+    /// Used to generate a top-level comment for the crate.
+    description: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -69,11 +71,24 @@ fn load_crate_info() -> anyhow::Result<CrateInfo> {
 }
 
 lazy_static! {
+    /// Content of `gen_crates.toml`
     static ref CRATE_INFO: CrateInfo = load_crate_info().expect("Could not load crate info");
+    /// All crate names
     pub static ref ALL_CRATES: Vec<Crate> =
         CRATE_INFO.crates.iter().map(|c| Crate(&c.name)).collect();
 }
 
+#[track_caller]
+fn crate_info_unwrapped(krate: Crate) -> &'static CrateGen {
+    CRATE_INFO.crates.iter().find(|k| k.name == krate.0).expect("Crate not found")
+}
+
+pub fn get_crate_doc_comment(krate: Crate) -> Option<&'static str> {
+    crate_info_unwrapped(krate).description.as_deref()
+}
+
+/// Do some easy work to sanity check `gen_crates.toml` does not have any spurious or
+/// misspelled entries.
 pub fn validate_crate_info(components: &Components) -> anyhow::Result<()> {
     for krate in &CRATE_INFO.crates {
         for name in &krate.paths {
@@ -85,6 +100,8 @@ pub fn validate_crate_info(components: &Components) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Assign the crate a package should live in. Each package is expected to be
+/// specified in `gen_crates.toml`, so the assignment is hardcoded.
 pub fn infer_crate_by_package(package: &str) -> Crate {
     for krate in &CRATE_INFO.crates {
         if krate.packages.iter().any(|p| p == package) {
@@ -94,6 +111,8 @@ pub fn infer_crate_by_package(package: &str) -> Crate {
     panic!("Package {} requires a mapping in gen_crates.toml", package);
 }
 
+/// Use a hardcoded assignment if available to determine the crate we should assign
+/// to this component.
 pub fn maybe_infer_crate_by_path(path: &str) -> Option<Crate> {
     // Make sure deleted variants end up in the same place as the non-deleted version
     let path = path.trim_start_matches("deleted_");
@@ -139,7 +158,7 @@ impl Components {
                 }
             }
         }
-        trace!("Inferred based on naming: {new_assignments:#?} ");
+        debug!("Inferred based on naming: {new_assignments:#?} ");
         for (path, krate) in new_assignments {
             self.get_mut(&path).assign_crate(krate);
         }
@@ -151,6 +170,8 @@ impl Components {
         self.validate_crate_assignment()
     }
 
+    /// If we find a component with no assigned crate, return an error with some
+    /// additional dependency graph information to help determine why.
     fn ensure_no_missing_crates(&self) -> anyhow::Result<()> {
         let missing_crates = self
             .components
@@ -203,6 +224,10 @@ impl Components {
     }
 
     fn assign_paths_required_to_live_in_types_crate(&mut self) {
+        // Paths for components required to live in the `stripe_types` crate. Adding `event` is
+        // used for webhooks
+        const PATHS_IN_TYPES: &[&str] = &["event"];
+
         let mut required = vec![];
         loop {
             let graph = self.gen_component_dep_graph();

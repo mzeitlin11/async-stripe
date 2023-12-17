@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use heck::ToSnakeCase;
 use reqwest::blocking::Client;
+use tracing::warn;
 
 // we use a common user agent, otherwise stripe rejects the connection
 const APP_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36";
@@ -27,7 +28,8 @@ impl UrlFinder {
                     .expect("should be valid json"),
                 })
             } else {
-                Err(anyhow!("stripe api returned unexpected document"))
+                warn!("Stripe API returned unexpected document, not collecting doc URL's");
+                Ok(Self { flattened_api_sections: serde_json::Map::new() })
             }
         } else {
             tracing::error!("{}", resp.text()?);

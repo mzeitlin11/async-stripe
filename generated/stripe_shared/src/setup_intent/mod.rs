@@ -303,8 +303,8 @@ impl<'de> serde::Deserialize<'de> for SetupIntentStatus {
 }
 impl stripe_types::Object for SetupIntent {
     type Id = stripe_shared::setup_intent::SetupIntentId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(SetupIntentId, "seti_");

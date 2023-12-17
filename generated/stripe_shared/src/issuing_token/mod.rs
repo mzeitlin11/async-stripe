@@ -220,8 +220,8 @@ impl<'de> serde::Deserialize<'de> for IssuingTokenWalletProvider {
 }
 impl stripe_types::Object for IssuingToken {
     type Id = stripe_shared::issuing_token::IssuingTokenId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(IssuingTokenId);

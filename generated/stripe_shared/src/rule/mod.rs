@@ -9,8 +9,8 @@ pub struct Rule {
 }
 impl stripe_types::Object for Rule {
     type Id = stripe_shared::rule::RuleId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(RuleId);

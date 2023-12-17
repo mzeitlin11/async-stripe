@@ -243,8 +243,8 @@ impl<'de> serde::Deserialize<'de> for BillingPortalSessionLocale {
 }
 impl stripe_types::Object for BillingPortalSession {
     type Id = stripe_billing::billing_portal_session::BillingPortalSessionId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(BillingPortalSessionId, "bps_");

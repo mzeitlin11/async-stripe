@@ -7,8 +7,8 @@ pub struct Application {
 }
 impl stripe_types::Object for Application {
     type Id = stripe_shared::application::ApplicationId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(ApplicationId, "ca_");

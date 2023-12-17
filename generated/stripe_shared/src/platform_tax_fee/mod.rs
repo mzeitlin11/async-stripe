@@ -12,8 +12,8 @@ pub struct PlatformTaxFee {
 }
 impl stripe_types::Object for PlatformTaxFee {
     type Id = stripe_shared::platform_tax_fee::PlatformTaxFeeId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(PlatformTaxFeeId, "ptf_");

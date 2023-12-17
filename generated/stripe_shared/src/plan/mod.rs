@@ -402,8 +402,8 @@ impl<'de> serde::Deserialize<'de> for PlanUsageType {
 }
 impl stripe_types::Object for Plan {
     type Id = stripe_shared::plan::PlanId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(PlanId);

@@ -159,8 +159,8 @@ impl<'de> serde::Deserialize<'de> for PersonPoliticalExposure {
 }
 impl stripe_types::Object for Person {
     type Id = stripe_shared::person::PersonId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(PersonId, "person_");

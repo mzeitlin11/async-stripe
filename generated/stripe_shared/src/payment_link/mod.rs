@@ -464,8 +464,8 @@ impl<'de> serde::Deserialize<'de> for PaymentLinkSubmitType {
 }
 impl stripe_types::Object for PaymentLink {
     type Id = stripe_shared::payment_link::PaymentLinkId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(PaymentLinkId, "plink_");

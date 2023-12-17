@@ -151,8 +151,8 @@ impl<'de> serde::Deserialize<'de> for FinancialConnectionsSessionPrefetch {
 }
 impl stripe_types::Object for FinancialConnectionsSession {
     type Id = stripe_misc::financial_connections_session::FinancialConnectionsSessionId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(FinancialConnectionsSessionId);

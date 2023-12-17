@@ -7,7 +7,7 @@ pub struct DeletedSubscriptionItem {
 }
 impl stripe_types::Object for DeletedSubscriptionItem {
     type Id = stripe_shared::subscription_item::SubscriptionItemId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }

@@ -7,7 +7,7 @@ pub struct DeletedWebhookEndpoint {
 }
 impl stripe_types::Object for DeletedWebhookEndpoint {
     type Id = stripe_misc::webhook_endpoint::WebhookEndpointId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }

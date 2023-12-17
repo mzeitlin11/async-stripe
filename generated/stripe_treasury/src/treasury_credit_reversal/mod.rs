@@ -159,8 +159,8 @@ impl<'de> serde::Deserialize<'de> for TreasuryCreditReversalStatus {
 }
 impl stripe_types::Object for TreasuryCreditReversal {
     type Id = stripe_treasury::treasury_credit_reversal::TreasuryCreditReversalId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(TreasuryCreditReversalId);

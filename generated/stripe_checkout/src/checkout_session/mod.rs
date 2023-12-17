@@ -902,8 +902,8 @@ impl<'de> serde::Deserialize<'de> for CheckoutSessionUiMode {
 }
 impl stripe_types::Object for CheckoutSession {
     type Id = stripe_checkout::checkout_session::CheckoutSessionId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(CheckoutSessionId, "cs_");

@@ -32,8 +32,8 @@ pub struct Token {
 }
 impl stripe_types::Object for Token {
     type Id = stripe_core::token::TokenId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(TokenId);

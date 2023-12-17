@@ -131,8 +131,8 @@ impl<'de> serde::Deserialize<'de> for CustomerCashBalanceTransactionType {
 }
 impl stripe_types::Object for CustomerCashBalanceTransaction {
     type Id = stripe_shared::customer_cash_balance_transaction::CustomerCashBalanceTransactionId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(CustomerCashBalanceTransactionId);

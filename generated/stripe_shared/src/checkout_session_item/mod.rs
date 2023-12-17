@@ -37,8 +37,8 @@ pub struct CheckoutSessionItem {
 }
 impl stripe_types::Object for CheckoutSessionItem {
     type Id = stripe_shared::checkout_session_item::CheckoutSessionItemId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(CheckoutSessionItemId, "li_");

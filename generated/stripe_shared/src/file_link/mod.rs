@@ -27,8 +27,8 @@ pub struct FileLink {
 }
 impl stripe_types::Object for FileLink {
     type Id = stripe_shared::file_link::FileLinkId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(FileLinkId, "link_");

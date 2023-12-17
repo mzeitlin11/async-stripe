@@ -8,11 +8,11 @@ pub enum ExternalAccount {
     Card(stripe_shared::Card),
 }
 impl stripe_types::Object for ExternalAccount {
-    type Id = String;
-    fn id(&self) -> Option<&str> {
+    type Id = smol_str::SmolStr;
+    fn id(&self) -> &Self::Id {
         match self {
-            Self::BankAccount(v) => Some(v.id.as_str()),
-            Self::Card(v) => Some(v.id.as_str()),
+            Self::BankAccount(v) => v.id.inner(),
+            Self::Card(v) => v.id.inner(),
         }
     }
 }

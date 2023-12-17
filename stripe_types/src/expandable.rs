@@ -40,6 +40,13 @@ impl<T: Object> Expandable<T> {
         }
     }
 
+    pub fn id(&self) -> &T::Id {
+        match self {
+            Expandable::Id(id) => id,
+            Expandable::Object(obj) => obj.id(),
+        }
+    }
+
     pub fn into_object(self) -> Option<T> {
         match self {
             Expandable::Id(_) => None,

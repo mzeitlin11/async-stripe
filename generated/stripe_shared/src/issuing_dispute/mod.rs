@@ -102,8 +102,8 @@ impl<'de> serde::Deserialize<'de> for IssuingDisputeStatus {
 }
 impl stripe_types::Object for IssuingDispute {
     type Id = stripe_shared::issuing_dispute::IssuingDisputeId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(IssuingDisputeId, "idp_");

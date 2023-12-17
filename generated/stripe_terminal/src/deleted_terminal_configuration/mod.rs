@@ -7,7 +7,7 @@ pub struct DeletedTerminalConfiguration {
 }
 impl stripe_types::Object for DeletedTerminalConfiguration {
     type Id = stripe_terminal::terminal_configuration::TerminalConfigurationId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }

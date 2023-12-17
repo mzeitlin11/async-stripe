@@ -28,8 +28,8 @@ pub struct CountrySpec {
 }
 impl stripe_types::Object for CountrySpec {
     type Id = stripe_connect::country_spec::CountrySpecId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(CountrySpecId);

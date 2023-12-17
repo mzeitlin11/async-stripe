@@ -100,8 +100,8 @@ pub struct PaymentMethodConfiguration {
 }
 impl stripe_types::Object for PaymentMethodConfiguration {
     type Id = stripe_payment::payment_method_configuration::PaymentMethodConfigurationId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(PaymentMethodConfigurationId);

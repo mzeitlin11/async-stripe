@@ -7,7 +7,7 @@ pub struct DeletedAccount {
 }
 impl stripe_types::Object for DeletedAccount {
     type Id = stripe_shared::account::AccountId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }

@@ -172,8 +172,8 @@ impl<'de> serde::Deserialize<'de> for CardAvailablePayoutMethods {
 }
 impl stripe_types::Object for Card {
     type Id = stripe_shared::card::CardId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(CardId, "card_");

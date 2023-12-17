@@ -244,8 +244,8 @@ impl<'de> serde::Deserialize<'de> for IssuingCardholderType {
 }
 impl stripe_types::Object for IssuingCardholder {
     type Id = stripe_shared::issuing_cardholder::IssuingCardholderId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(IssuingCardholderId, "ich_");

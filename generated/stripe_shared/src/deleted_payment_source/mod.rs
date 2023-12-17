@@ -8,11 +8,11 @@ pub enum DeletedPaymentSource {
     DeletedCard(stripe_shared::DeletedCard),
 }
 impl stripe_types::Object for DeletedPaymentSource {
-    type Id = String;
-    fn id(&self) -> Option<&str> {
+    type Id = smol_str::SmolStr;
+    fn id(&self) -> &Self::Id {
         match self {
-            Self::DeletedBankAccount(v) => Some(v.id.as_str()),
-            Self::DeletedCard(v) => Some(v.id.as_str()),
+            Self::DeletedBankAccount(v) => v.id.inner(),
+            Self::DeletedCard(v) => v.id.inner(),
         }
     }
 }

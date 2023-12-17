@@ -206,8 +206,8 @@ impl<'de> serde::Deserialize<'de> for AccountType {
 }
 impl stripe_types::Object for Account {
     type Id = stripe_shared::account::AccountId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(AccountId, "acct_");

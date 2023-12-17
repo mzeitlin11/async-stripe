@@ -3,9 +3,35 @@ use serde::{Deserialize, Serialize};
 /// Implemented by types which represent stripe objects.
 pub trait Object {
     /// The canonical id type for this object.
-    type Id;
+    type Id: AsCursorOpt;
     /// The id of the object.
-    fn id(&self) -> Option<&str>;
+    fn id(&self) -> &Self::Id;
+}
+
+pub trait AsCursorOpt {
+    fn as_cursor_opt(&self) -> Option<&str>;
+}
+
+pub trait AsCursor {
+    fn as_cursor(&self) -> &str;
+}
+
+impl AsCursor for smol_str::SmolStr {
+    fn as_cursor(&self) -> &str {
+        self.as_str()
+    }
+}
+
+impl<T: AsCursor> AsCursorOpt for T {
+    fn as_cursor_opt(&self) -> Option<&str> {
+        Some(self.as_cursor())
+    }
+}
+
+impl<T: AsCursor> AsCursorOpt for Option<T> {
+    fn as_cursor_opt(&self) -> Option<&str> {
+        self.as_ref().map(|id| id.as_cursor())
+    }
 }
 
 /// A single page of a cursor-paginated list of an object.

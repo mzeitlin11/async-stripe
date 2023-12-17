@@ -116,14 +116,12 @@ pub fn gen_obj(
     if let Some(id_typ) = comp.id_type() {
         let id_type = components.construct_printable_type(id_typ);
         match &obj {
-            RustObject::Struct(_) => {
-                write_object_trait(&mut out, ident, &id_type, id_typ.is_option())
-            }
+            RustObject::Struct(_) => write_object_trait(&mut out, ident, &id_type),
             RustObject::Enum(variants) => {
                 let Some(object_names) = as_enum_of_objects(components, variants) else {
                     panic!("Object {} is an enum that is not a union of stripe objects", ident);
                 };
-                write_object_trait_for_enum(components, &mut out, ident, &id_type, &object_names)
+                write_object_trait_for_enum(components, &mut out, ident, &object_names)
             }
             RustObject::FieldlessEnum(_) => {
                 panic!("Did not expect enum to have an id");

@@ -224,8 +224,8 @@ impl<'de> serde::Deserialize<'de> for QuoteStatus {
 }
 impl stripe_types::Object for Quote {
     type Id = stripe_shared::quote::QuoteId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(QuoteId, "qt_");

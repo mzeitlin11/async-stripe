@@ -7,7 +7,7 @@ pub struct DeletedTaxId {
 }
 impl stripe_types::Object for DeletedTaxId {
     type Id = stripe_shared::tax_id::TaxIdId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }

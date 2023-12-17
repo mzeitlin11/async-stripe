@@ -7,7 +7,7 @@ pub struct DeletedTerminalLocation {
 }
 impl stripe_types::Object for DeletedTerminalLocation {
     type Id = stripe_terminal::terminal_location::TerminalLocationId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }

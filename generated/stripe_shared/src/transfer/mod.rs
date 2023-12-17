@@ -59,8 +59,8 @@ pub struct Transfer {
 }
 impl stripe_types::Object for Transfer {
     type Id = stripe_shared::transfer::TransferId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(TransferId, "tr_");

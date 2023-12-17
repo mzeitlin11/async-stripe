@@ -126,8 +126,8 @@ impl<'de> serde::Deserialize<'de> for InvoiceLineItemType {
 }
 impl stripe_types::Object for InvoiceLineItem {
     type Id = stripe_shared::invoice_line_item::InvoiceLineItemId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(InvoiceLineItemId);

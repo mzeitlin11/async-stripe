@@ -38,26 +38,26 @@ pub enum BalanceTransactionSource {
     TransferReversal(stripe_shared::TransferReversal),
 }
 impl stripe_types::Object for BalanceTransactionSource {
-    type Id = String;
-    fn id(&self) -> Option<&str> {
+    type Id = smol_str::SmolStr;
+    fn id(&self) -> &Self::Id {
         match self {
-            Self::ApplicationFee(v) => Some(v.id.as_str()),
-            Self::Charge(v) => Some(v.id.as_str()),
-            Self::ConnectCollectionTransfer(v) => Some(v.id.as_str()),
-            Self::CustomerCashBalanceTransaction(v) => Some(v.id.as_str()),
-            Self::Dispute(v) => Some(v.id.as_str()),
-            Self::ApplicationFeeRefund(v) => Some(v.id.as_str()),
-            Self::IssuingAuthorization(v) => Some(v.id.as_str()),
-            Self::IssuingDispute(v) => Some(v.id.as_str()),
-            Self::IssuingTransaction(v) => Some(v.id.as_str()),
-            Self::Payout(v) => Some(v.id.as_str()),
-            Self::PlatformTaxFee(v) => Some(v.id.as_str()),
-            Self::Refund(v) => Some(v.id.as_str()),
-            Self::ReserveTransaction(v) => Some(v.id.as_str()),
-            Self::TaxDeductedAtSource(v) => Some(v.id.as_str()),
-            Self::Topup(v) => Some(v.id.as_str()),
-            Self::Transfer(v) => Some(v.id.as_str()),
-            Self::TransferReversal(v) => Some(v.id.as_str()),
+            Self::ApplicationFee(v) => v.id.inner(),
+            Self::Charge(v) => v.id.inner(),
+            Self::ConnectCollectionTransfer(v) => v.id.inner(),
+            Self::CustomerCashBalanceTransaction(v) => v.id.inner(),
+            Self::Dispute(v) => v.id.inner(),
+            Self::ApplicationFeeRefund(v) => v.id.inner(),
+            Self::IssuingAuthorization(v) => v.id.inner(),
+            Self::IssuingDispute(v) => v.id.inner(),
+            Self::IssuingTransaction(v) => v.id.inner(),
+            Self::Payout(v) => v.id.inner(),
+            Self::PlatformTaxFee(v) => v.id.inner(),
+            Self::Refund(v) => v.id.inner(),
+            Self::ReserveTransaction(v) => v.id.inner(),
+            Self::TaxDeductedAtSource(v) => v.id.inner(),
+            Self::Topup(v) => v.id.inner(),
+            Self::Transfer(v) => v.id.inner(),
+            Self::TransferReversal(v) => v.id.inner(),
         }
     }
 }

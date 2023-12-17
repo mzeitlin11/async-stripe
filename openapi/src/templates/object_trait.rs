@@ -9,20 +9,14 @@ use crate::rust_object::ObjectRef;
 use crate::types::RustIdent;
 use crate::STRIPE_TYPES;
 
-pub fn write_object_trait(
-    out: &mut String,
-    ident: &RustIdent,
-    id_type: &PrintableType,
-    is_optional: bool,
-) {
-    let body = if is_optional { "self.id.as_deref()" } else { "Some(self.id.as_str())" };
+pub fn write_object_trait(out: &mut String, ident: &RustIdent, id_type: &PrintableType) {
     let _ = writedoc!(
         out,
         r#"
             impl {STRIPE_TYPES}::Object for {ident} {{
                 type Id = {id_type};
-                fn id(&self) -> Option<&str> {{
-                    {body}
+                fn id(&self) -> &Self::Id {{
+                    &self.id
                 }}
             }}
             "#
@@ -33,21 +27,20 @@ pub fn write_object_trait_for_enum(
     components: &Components,
     out: &mut String,
     ident: &RustIdent,
-    id_type: &PrintableType,
     variants: &IndexMap<&str, ObjectRef>,
 ) {
     let mut match_inner = String::with_capacity(32);
     for obj in variants.values() {
         let comp = components.get(&obj.path);
         let ident = comp.ident();
-        let _ = writeln!(match_inner, "Self::{ident}(v) => Some(v.id.as_str()),");
+        let _ = writeln!(match_inner, "Self::{ident}(v) => v.id.inner(),");
     }
     let _ = writedoc!(
         out,
         r#"
             impl {STRIPE_TYPES}::Object for {ident} {{
-                type Id = {id_type};
-                fn id(&self) -> Option<&str> {{
+                type Id = smol_str::SmolStr;
+                fn id(&self) -> &Self::Id {{
                     match self {{
                     {match_inner}
                     }}

@@ -13,8 +13,8 @@ pub owners: stripe_types::List<stripe_misc::FinancialConnectionsAccountOwner>,
 }
 impl stripe_types::Object for FinancialConnectionsAccountOwnership {
     type Id = stripe_misc::financial_connections_account_ownership::FinancialConnectionsAccountOwnershipId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(FinancialConnectionsAccountOwnershipId);

@@ -7,7 +7,7 @@ pub struct DeletedTestHelpersTestClock {
 }
 impl stripe_types::Object for DeletedTestHelpersTestClock {
     type Id = stripe_shared::test_helpers_test_clock::TestHelpersTestClockId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }

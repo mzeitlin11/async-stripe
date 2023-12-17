@@ -7,7 +7,7 @@ pub struct DeletedRadarValueList {
 }
 impl stripe_types::Object for DeletedRadarValueList {
     type Id = stripe_fraud::radar_value_list::RadarValueListId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }

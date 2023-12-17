@@ -130,8 +130,8 @@ impl<'de> serde::Deserialize<'de> for TreasuryInboundTransferStatus {
 }
 impl stripe_types::Object for TreasuryInboundTransfer {
     type Id = stripe_treasury::treasury_inbound_transfer::TreasuryInboundTransferId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(TreasuryInboundTransferId);

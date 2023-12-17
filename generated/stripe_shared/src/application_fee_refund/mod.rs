@@ -27,8 +27,8 @@ pub struct ApplicationFeeRefund {
 }
 impl stripe_types::Object for ApplicationFeeRefund {
     type Id = stripe_shared::application_fee_refund::ApplicationFeeRefundId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(ApplicationFeeRefundId, "fr_");

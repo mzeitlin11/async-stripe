@@ -786,8 +786,8 @@ impl<'de> serde::Deserialize<'de> for EventType {
 }
 impl stripe_types::Object for Event {
     type Id = stripe_shared::event::EventId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(EventId, "evt_");

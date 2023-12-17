@@ -227,8 +227,8 @@ impl<'de> serde::Deserialize<'de> for SourceType {
 }
 impl stripe_types::Object for Source {
     type Id = stripe_shared::source::SourceId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(SourceId, "src_");

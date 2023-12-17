@@ -12,13 +12,13 @@ pub enum PaymentSource {
     Source(stripe_shared::Source),
 }
 impl stripe_types::Object for PaymentSource {
-    type Id = String;
-    fn id(&self) -> Option<&str> {
+    type Id = smol_str::SmolStr;
+    fn id(&self) -> &Self::Id {
         match self {
-            Self::Account(v) => Some(v.id.as_str()),
-            Self::BankAccount(v) => Some(v.id.as_str()),
-            Self::Card(v) => Some(v.id.as_str()),
-            Self::Source(v) => Some(v.id.as_str()),
+            Self::Account(v) => v.id.inner(),
+            Self::BankAccount(v) => v.id.inner(),
+            Self::Card(v) => v.id.inner(),
+            Self::Source(v) => v.id.inner(),
         }
     }
 }

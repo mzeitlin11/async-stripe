@@ -36,6 +36,18 @@ macro_rules! def_id {
             pub fn as_str(&self) -> &str {
                 self.0.as_str()
             }
+
+            /// Obtain a reference to the underlying `SmolStr`.
+            #[inline]
+            pub fn inner(&self) -> &smol_str::SmolStr {
+                &self.0
+            }
+        }
+
+        impl stripe_types::AsCursor for $struct_name {
+            fn as_cursor(&self) -> &str {
+                self.0.as_str()
+            }
         }
 
         impl PartialEq<str> for $struct_name {
@@ -119,9 +131,21 @@ macro_rules! def_id {
                 self.0.as_str()
             }
 
+            /// Obtain a reference to the underlying `SmolStr`.
+            #[inline]
+            pub fn inner(&self) -> &smol_str::SmolStr {
+                &self.0
+            }
+
             /// Check is provided prefix would be a valid prefix for id's of this type
             pub fn is_valid_prefix(prefix: &str) -> bool {
                 prefix == $prefix $( || prefix == $alt_prefix )*
+            }
+        }
+
+        impl stripe_types::AsCursor for $struct_name {
+            fn as_cursor(&self) -> &str {
+                self.0.as_str()
             }
         }
 

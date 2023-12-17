@@ -2,7 +2,7 @@
 #![allow(clippy::missing_errors_doc)]
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use stripe_types::{List, Object};
+use stripe_types::{AsCursorOpt, List, Object};
 
 use crate::{Client, Response};
 
@@ -27,6 +27,7 @@ pub trait PaginationExt<T> {
 impl<T> PaginationExt<T> for List<T>
 where
     T: Object + DeserializeOwned + Send + Sync + 'static,
+    T::Id: ToString,
 {
     fn into_paginator(self) -> ListPaginator<T> {
         let mut paginator = ListPaginator {
@@ -37,7 +38,7 @@ where
             total_count: self.total_count,
             params: Default::default(),
         };
-        if let Some(curr_cursor) = paginator.data.last().and_then(|t| t.id()) {
+        if let Some(curr_cursor) = paginator.data.last().and_then(|t| t.id().as_cursor_opt()) {
             paginator.update_cursor(curr_cursor.to_string());
         }
         paginator
@@ -147,7 +148,7 @@ where
     fn update_with_new_data(&mut self, list: List<T>) {
         self.has_more = list.has_more;
         self.total_count = list.total_count;
-        if let Some(new_cursor) = list.data.last().and_then(|l| l.id()) {
+        if let Some(new_cursor) = list.data.last().and_then(|l| l.id().as_cursor_opt()) {
             self.update_cursor(new_cursor.to_string());
         } else {
             self.has_more = false;

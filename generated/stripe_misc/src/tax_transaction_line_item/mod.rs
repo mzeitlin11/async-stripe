@@ -158,8 +158,8 @@ impl<'de> serde::Deserialize<'de> for TaxTransactionLineItemType {
 }
 impl stripe_types::Object for TaxTransactionLineItem {
     type Id = stripe_misc::tax_transaction_line_item::TaxTransactionLineItemId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(TaxTransactionLineItemId);

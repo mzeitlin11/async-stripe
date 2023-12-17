@@ -85,8 +85,8 @@ impl<'de> serde::Deserialize<'de> for TestHelpersTestClockStatus {
 }
 impl stripe_types::Object for TestHelpersTestClock {
     type Id = stripe_shared::test_helpers_test_clock::TestHelpersTestClockId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(TestHelpersTestClockId, "clock_");

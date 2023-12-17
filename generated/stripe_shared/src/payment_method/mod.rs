@@ -262,8 +262,8 @@ impl<'de> serde::Deserialize<'de> for PaymentMethodType {
 }
 impl stripe_types::Object for PaymentMethod {
     type Id = stripe_shared::payment_method::PaymentMethodId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(PaymentMethodId, "pm_" | "card_" | "src_" | "ba_");

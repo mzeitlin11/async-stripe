@@ -129,8 +129,8 @@ impl<'de> serde::Deserialize<'de> for TreasuryOutboundTransferStatus {
 }
 impl stripe_types::Object for TreasuryOutboundTransfer {
     type Id = stripe_treasury::treasury_outbound_transfer::TreasuryOutboundTransferId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(TreasuryOutboundTransferId);

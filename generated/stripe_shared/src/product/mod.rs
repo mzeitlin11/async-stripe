@@ -127,8 +127,8 @@ impl<'de> serde::Deserialize<'de> for ProductType {
 }
 impl stripe_types::Object for Product {
     type Id = stripe_shared::product::ProductId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(ProductId);

@@ -28,8 +28,8 @@ pub struct SubscriptionItem {
 }
 impl stripe_types::Object for SubscriptionItem {
     type Id = stripe_shared::subscription_item::SubscriptionItemId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(SubscriptionItemId, "si_");

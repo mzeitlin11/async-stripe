@@ -297,8 +297,8 @@ impl<'de> serde::Deserialize<'de> for SubscriptionStatus {
 }
 impl stripe_types::Object for Subscription {
     type Id = stripe_shared::subscription::SubscriptionId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(SubscriptionId, "sub_");

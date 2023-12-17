@@ -33,8 +33,8 @@ pub struct TaxCalculation {
 }
 impl stripe_types::Object for TaxCalculation {
     type Id = Option<stripe_misc::tax_calculation::TaxCalculationId>;
-    fn id(&self) -> Option<&str> {
-        self.id.as_deref()
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(TaxCalculationId);

@@ -15,8 +15,8 @@ pub struct TaxDeductedAtSource {
 }
 impl stripe_types::Object for TaxDeductedAtSource {
     type Id = stripe_shared::tax_deducted_at_source::TaxDeductedAtSourceId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(TaxDeductedAtSourceId, "itds_");

@@ -36,8 +36,8 @@ pub struct PromotionCode {
 }
 impl stripe_types::Object for PromotionCode {
     type Id = stripe_shared::promotion_code::PromotionCodeId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(PromotionCodeId, "promo_");

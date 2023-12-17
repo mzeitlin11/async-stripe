@@ -216,8 +216,8 @@ impl<'de> serde::Deserialize<'de> for IssuingAuthorizationStatus {
 }
 impl stripe_types::Object for IssuingAuthorization {
     type Id = stripe_shared::issuing_authorization::IssuingAuthorizationId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(IssuingAuthorizationId, "iauth_");

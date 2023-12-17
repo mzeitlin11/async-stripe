@@ -168,8 +168,8 @@ impl<'de> serde::Deserialize<'de> for ShippingRateType {
 }
 impl stripe_types::Object for ShippingRate {
     type Id = stripe_shared::shipping_rate::ShippingRateId;
-    fn id(&self) -> Option<&str> {
-        Some(self.id.as_str())
+    fn id(&self) -> &Self::Id {
+        &self.id
     }
 }
 stripe_types::def_id!(ShippingRateId, "shr_");

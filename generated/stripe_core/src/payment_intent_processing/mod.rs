@@ -1,1 +1,1 @@
-pub use stripe_types::payment_intent_processing::*;
+pub use stripe_shared::payment_intent_processing::*;

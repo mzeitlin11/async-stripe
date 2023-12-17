@@ -1,1 +1,1 @@
-pub use stripe_types::funding_instructions_bank_transfer::*;
+pub use stripe_shared::funding_instructions_bank_transfer::*;

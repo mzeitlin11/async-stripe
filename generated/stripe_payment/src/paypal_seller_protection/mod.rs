@@ -1,1 +1,1 @@
-pub use stripe_types::paypal_seller_protection::*;
+pub use stripe_shared::paypal_seller_protection::*;

@@ -1,1 +1,1 @@
-pub use stripe_types::level3_line_items::*;
+pub use stripe_shared::level3_line_items::*;

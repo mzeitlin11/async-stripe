@@ -35,3 +35,27 @@ impl<T: Clone> Clone for List<T> {
         }
     }
 }
+
+/// A single page of a cursor-paginated list of a search object.
+///
+/// For more details, see <https://stripe.com/docs/api/pagination/search>
+#[derive(Debug, Deserialize, Serialize)]
+pub struct SearchList<T> {
+    pub url: String,
+    pub has_more: bool,
+    pub data: Vec<T>,
+    pub next_page: Option<String>,
+    pub total_count: Option<usize>,
+}
+
+impl<T: Clone> Clone for SearchList<T> {
+    fn clone(&self) -> Self {
+        SearchList {
+            data: self.data.clone(),
+            has_more: self.has_more,
+            total_count: self.total_count,
+            url: self.url.clone(),
+            next_page: self.next_page.clone(),
+        }
+    }
+}

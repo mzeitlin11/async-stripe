@@ -1,1 +1,1 @@
-pub use stripe_types::email_sent::*;
+pub use stripe_shared::email_sent::*;

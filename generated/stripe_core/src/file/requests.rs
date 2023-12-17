@@ -136,10 +136,10 @@ impl<'a> ListFile<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::File>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::File>> {
         client.get_query("/files", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::File> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::File> {
         stripe::ListPaginator::from_params("/files", self)
     }
 }
@@ -163,8 +163,8 @@ impl<'a> RetrieveFile<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        file: &stripe_types::file::FileId,
-    ) -> stripe::Response<stripe_types::File> {
+        file: &stripe_shared::file::FileId,
+    ) -> stripe::Response<stripe_shared::File> {
         client.get_query(&format!("/files/{file}"), self)
     }
 }

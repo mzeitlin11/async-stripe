@@ -1,3 +1,4 @@
+mod headers;
 mod request_strategy;
 mod stripe;
 

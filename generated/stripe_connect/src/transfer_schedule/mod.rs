@@ -1,1 +1,1 @@
-pub use stripe_types::transfer_schedule::*;
+pub use stripe_shared::transfer_schedule::*;

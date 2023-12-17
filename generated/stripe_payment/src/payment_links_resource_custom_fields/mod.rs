@@ -1,1 +1,1 @@
-pub use stripe_types::payment_links_resource_custom_fields::*;
+pub use stripe_shared::payment_links_resource_custom_fields::*;

@@ -1,1 +1,1 @@
-pub use stripe_types::account_dashboard_settings::*;
+pub use stripe_shared::account_dashboard_settings::*;

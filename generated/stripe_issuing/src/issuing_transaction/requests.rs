@@ -101,10 +101,10 @@ impl<'a> ListIssuingTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::IssuingTransaction>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::IssuingTransaction>> {
         client.get_query("/issuing/transactions", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::IssuingTransaction> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::IssuingTransaction> {
         stripe::ListPaginator::from_params("/issuing/transactions", self)
     }
 }
@@ -125,8 +125,8 @@ impl<'a> RetrieveIssuingTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        transaction: &stripe_types::issuing_transaction::IssuingTransactionId,
-    ) -> stripe::Response<stripe_types::IssuingTransaction> {
+        transaction: &stripe_shared::issuing_transaction::IssuingTransactionId,
+    ) -> stripe::Response<stripe_shared::IssuingTransaction> {
         client.get_query(&format!("/issuing/transactions/{transaction}"), self)
     }
 }
@@ -155,8 +155,8 @@ impl<'a> UpdateIssuingTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        transaction: &stripe_types::issuing_transaction::IssuingTransactionId,
-    ) -> stripe::Response<stripe_types::IssuingTransaction> {
+        transaction: &stripe_shared::issuing_transaction::IssuingTransactionId,
+    ) -> stripe::Response<stripe_shared::IssuingTransaction> {
         client.send_form(
             &format!("/issuing/transactions/{transaction}"),
             self,
@@ -1520,7 +1520,7 @@ impl<'a> CreateForceCaptureIssuingTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::IssuingTransaction> {
+    ) -> stripe::Response<stripe_shared::IssuingTransaction> {
         client.send_form(
             "/test_helpers/issuing/transactions/create_force_capture",
             self,
@@ -2884,7 +2884,7 @@ impl<'a> CreateUnlinkedRefundIssuingTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::IssuingTransaction> {
+    ) -> stripe::Response<stripe_shared::IssuingTransaction> {
         client.send_form(
             "/test_helpers/issuing/transactions/create_unlinked_refund",
             self,
@@ -2914,7 +2914,7 @@ impl<'a> RefundIssuingTransaction<'a> {
         &self,
         client: &stripe::Client,
         transaction: &str,
-    ) -> stripe::Response<stripe_types::IssuingTransaction> {
+    ) -> stripe::Response<stripe_shared::IssuingTransaction> {
         client.send_form(
             &format!("/test_helpers/issuing/transactions/{transaction}/refund"),
             self,

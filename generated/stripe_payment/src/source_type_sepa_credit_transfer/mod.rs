@@ -1,1 +1,1 @@
-pub use stripe_types::source_type_sepa_credit_transfer::*;
+pub use stripe_shared::source_type_sepa_credit_transfer::*;

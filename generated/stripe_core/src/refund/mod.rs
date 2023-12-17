@@ -1,4 +1,4 @@
-pub use stripe_types::refund::*;
+pub use stripe_shared::refund::*;
 #[cfg(feature = "refund")]
 mod requests;
 #[cfg(feature = "refund")]

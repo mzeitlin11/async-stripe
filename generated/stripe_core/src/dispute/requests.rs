@@ -39,10 +39,10 @@ impl<'a> ListDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Dispute>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Dispute>> {
         client.get_query("/disputes", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::Dispute> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Dispute> {
         stripe::ListPaginator::from_params("/disputes", self)
     }
 }
@@ -63,8 +63,8 @@ impl<'a> RetrieveDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_types::dispute::DisputeId,
-    ) -> stripe::Response<stripe_types::Dispute> {
+        dispute: &stripe_shared::dispute::DisputeId,
+    ) -> stripe::Response<stripe_shared::Dispute> {
         client.get_query(&format!("/disputes/{dispute}"), self)
     }
 }
@@ -232,8 +232,8 @@ impl<'a> UpdateDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_types::dispute::DisputeId,
-    ) -> stripe::Response<stripe_types::Dispute> {
+        dispute: &stripe_shared::dispute::DisputeId,
+    ) -> stripe::Response<stripe_shared::Dispute> {
         client.send_form(&format!("/disputes/{dispute}"), self, http_types::Method::Post)
     }
 }
@@ -257,8 +257,8 @@ impl<'a> CloseDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_types::dispute::DisputeId,
-    ) -> stripe::Response<stripe_types::Dispute> {
+        dispute: &stripe_shared::dispute::DisputeId,
+    ) -> stripe::Response<stripe_shared::Dispute> {
         client.send_form(&format!("/disputes/{dispute}/close"), self, http_types::Method::Post)
     }
 }

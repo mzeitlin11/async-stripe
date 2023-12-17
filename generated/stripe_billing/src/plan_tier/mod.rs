@@ -1,1 +1,1 @@
-pub use stripe_types::plan_tier::*;
+pub use stripe_shared::plan_tier::*;

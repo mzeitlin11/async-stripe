@@ -1,1 +1,1 @@
-pub use stripe_types::notification_event_request::*;
+pub use stripe_shared::notification_event_request::*;

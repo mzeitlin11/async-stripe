@@ -4,12 +4,12 @@ pub struct BankConnectionsResourceAccountholder {
     ///
     /// Should only be present if `account_holder.type` is `account`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub account: Option<stripe_types::Expandable<stripe_types::Account>>,
+    pub account: Option<stripe_types::Expandable<stripe_shared::Account>>,
     /// ID of the Stripe customer this account belongs to.
     ///
     /// Present if and only if `account_holder.type` is `customer`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub customer: Option<stripe_types::Expandable<stripe_types::Customer>>,
+    pub customer: Option<stripe_types::Expandable<stripe_shared::Customer>>,
     /// Type of account holder that this account belongs to.
     #[serde(rename = "type")]
     pub type_: BankConnectionsResourceAccountholderType,

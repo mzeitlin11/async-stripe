@@ -1,1 +1,1 @@
-pub use stripe_types::setup_intent_next_action::*;
+pub use stripe_shared::setup_intent_next_action::*;

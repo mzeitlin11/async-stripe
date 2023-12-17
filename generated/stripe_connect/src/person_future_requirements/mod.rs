@@ -1,1 +1,1 @@
-pub use stripe_types::person_future_requirements::*;
+pub use stripe_shared::person_future_requirements::*;

@@ -1,1 +1,1 @@
-pub use stripe_types::three_d_secure_details::*;
+pub use stripe_shared::three_d_secure_details::*;

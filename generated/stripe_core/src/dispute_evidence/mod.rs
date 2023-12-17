@@ -1,1 +1,1 @@
-pub use stripe_types::dispute_evidence::*;
+pub use stripe_shared::dispute_evidence::*;

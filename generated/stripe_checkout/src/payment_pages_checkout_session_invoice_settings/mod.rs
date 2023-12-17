@@ -1,9 +1,9 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct PaymentPagesCheckoutSessionInvoiceSettings {
     /// The account tax IDs associated with the invoice.
-    pub account_tax_ids: Option<Vec<stripe_types::Expandable<stripe_types::TaxId>>>,
+    pub account_tax_ids: Option<Vec<stripe_types::Expandable<stripe_shared::TaxId>>>,
     /// Custom fields displayed on the invoice.
-    pub custom_fields: Option<Vec<stripe_types::InvoiceSettingCustomField>>,
+    pub custom_fields: Option<Vec<stripe_shared::InvoiceSettingCustomField>>,
     /// An arbitrary string attached to the object.
     ///
     /// Often useful for displaying to users.
@@ -15,5 +15,5 @@ pub struct PaymentPagesCheckoutSessionInvoiceSettings {
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: Option<std::collections::HashMap<String, String>>,
     /// Options for invoice PDF rendering.
-    pub rendering_options: Option<stripe_types::InvoiceSettingRenderingOptions>,
+    pub rendering_options: Option<stripe_shared::InvoiceSettingRenderingOptions>,
 }

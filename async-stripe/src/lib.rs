@@ -60,6 +60,9 @@ mod error;
 mod pagination;
 
 pub use pagination::{ListPaginator, PaginationExt, PaginationParams};
+pub use stripe_shared::account::AccountId;
+pub use stripe_shared::application::ApplicationId;
+pub use stripe_shared::ApiVersion;
 
 // N.B. Ideally we would support both a blocking client and
 //      an async client without a feature flag, but the originally

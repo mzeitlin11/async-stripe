@@ -1,1 +1,1 @@
-pub use stripe_types::deleted_customer::*;
+pub use stripe_shared::deleted_customer::*;

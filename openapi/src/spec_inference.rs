@@ -192,12 +192,16 @@ impl<'a> Inference<'a> {
     }
 
     fn infer_object_typ(&self, typ: &ObjectType, field: &Schema) -> RustType {
-        if as_object_enum_name(field).as_deref() == Some("list") {
+        // Should we infer a `List<T>` or `SearchList<T>`?
+        if let Some(list_kind) = infer_list_container_kind(field) {
             let element = as_data_array_item(typ).unwrap_or_else(|| {
                 panic!("Expected to find array item but found {:?}", field.schema_kind)
             });
             let element_type = self.required(true).infer_schema_or_ref_type(element);
-            return RustType::list(element_type);
+            return match list_kind {
+                ListContainerKind::List => RustType::list(element_type),
+                ListContainerKind::SearchList => RustType::search_list(element_type),
+            };
         }
 
         if let Some(AdditionalProperties::Schema(additional)) = &typ.additional_properties {
@@ -453,4 +457,21 @@ pub fn infer_doc_comment(schema: &Schema, doc_url: Option<&str>) -> String {
         let _ = writeln!(doc_comment, "\n\nFor more details see <{doc}>");
     }
     doc_comment
+}
+
+#[derive(Copy, Clone)]
+enum ListContainerKind {
+    List,
+    SearchList,
+}
+
+/// We can distinguish the `List` and `SearchList` types by the presence of a field named "object"
+/// which is an enum with only the option of `list` or `search_result`
+fn infer_list_container_kind(field: &Schema) -> Option<ListContainerKind> {
+    let obj_enum_name = as_object_enum_name(field);
+    match obj_enum_name.as_deref() {
+        Some("list") => Some(ListContainerKind::List),
+        Some("search_result") => Some(ListContainerKind::SearchList),
+        _ => None,
+    }
 }

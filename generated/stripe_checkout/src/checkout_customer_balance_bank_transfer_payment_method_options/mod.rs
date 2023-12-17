@@ -1,7 +1,7 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct CheckoutCustomerBalanceBankTransferPaymentMethodOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub eu_bank_transfer: Option<stripe_types::PaymentMethodOptionsCustomerBalanceEuBankAccount>,
+    pub eu_bank_transfer: Option<stripe_shared::PaymentMethodOptionsCustomerBalanceEuBankAccount>,
     /// List of address types that should be returned in the financial_addresses response.
     ///
     /// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.

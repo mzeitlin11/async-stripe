@@ -1,1 +1,1 @@
-pub use stripe_types::issuing_card_spending_limit::*;
+pub use stripe_shared::issuing_card_spending_limit::*;

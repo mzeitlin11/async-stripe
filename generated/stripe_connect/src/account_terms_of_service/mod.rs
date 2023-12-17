@@ -1,1 +1,1 @@
-pub use stripe_types::account_terms_of_service::*;
+pub use stripe_shared::account_terms_of_service::*;

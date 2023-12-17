@@ -162,10 +162,10 @@ impl<'a> ListIssuingCardholder<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::IssuingCardholder>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::IssuingCardholder>> {
         client.get_query("/issuing/cardholders", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::IssuingCardholder> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::IssuingCardholder> {
         stripe::ListPaginator::from_params("/issuing/cardholders", self)
     }
 }
@@ -3777,7 +3777,7 @@ impl<'a> CreateIssuingCardholder<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::IssuingCardholder> {
+    ) -> stripe::Response<stripe_shared::IssuingCardholder> {
         client.send_form("/issuing/cardholders", self, http_types::Method::Post)
     }
 }
@@ -3797,8 +3797,8 @@ impl<'a> RetrieveIssuingCardholder<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        cardholder: &stripe_types::issuing_cardholder::IssuingCardholderId,
-    ) -> stripe::Response<stripe_types::IssuingCardholder> {
+        cardholder: &stripe_shared::issuing_cardholder::IssuingCardholderId,
+    ) -> stripe::Response<stripe_shared::IssuingCardholder> {
         client.get_query(&format!("/issuing/cardholders/{cardholder}"), self)
     }
 }
@@ -7329,8 +7329,8 @@ impl<'a> UpdateIssuingCardholder<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        cardholder: &stripe_types::issuing_cardholder::IssuingCardholderId,
-    ) -> stripe::Response<stripe_types::IssuingCardholder> {
+        cardholder: &stripe_shared::issuing_cardholder::IssuingCardholderId,
+    ) -> stripe::Response<stripe_shared::IssuingCardholder> {
         client.send_form(
             &format!("/issuing/cardholders/{cardholder}"),
             self,

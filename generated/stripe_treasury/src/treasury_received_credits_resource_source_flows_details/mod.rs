@@ -5,7 +5,7 @@ pub struct TreasuryReceivedCreditsResourceSourceFlowsDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub outbound_payment: Option<stripe_treasury::TreasuryOutboundPayment>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub payout: Option<stripe_types::Payout>,
+    pub payout: Option<stripe_shared::Payout>,
     /// The type of the source flow that originated the ReceivedCredit.
     #[serde(rename = "type")]
     pub type_: TreasuryReceivedCreditsResourceSourceFlowsDetailsType,

@@ -1,1 +1,1 @@
-pub use stripe_types::subscription_details_data::*;
+pub use stripe_shared::subscription_details_data::*;

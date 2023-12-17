@@ -1,1 +1,1 @@
-pub use stripe_types::us_bank_account_networks::*;
+pub use stripe_shared::us_bank_account_networks::*;

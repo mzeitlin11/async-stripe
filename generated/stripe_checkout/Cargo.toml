@@ -14,17 +14,18 @@ categories.workspace = true
 [lib]
 path = "src/mod.rs"
 
-[package.metadata.docs.rs]
-features = ["runtime-tokio-hyper", "full"]
-
 [dependencies]
 serde.workspace = true
-http-types.workspace = true
 smol_str.workspace = true
 serde_json.workspace = true
+stripe_types = {path = "../../stripe_types"}
+
+http-types.workspace = true
 async-stripe = {path = "../../async-stripe"}
 
-stripe_types = {path = "../../stripe_types"}
+
+stripe_shared = {path = "../../generated/stripe_shared"}
+
 
 [features]
 runtime-tokio-hyper = ["async-stripe/runtime-tokio-hyper"]
@@ -38,4 +39,8 @@ runtime-async-std-surf = ["async-stripe/runtime-async-std-surf"]
 checkout_session = []
 
 full = ["checkout_session"]
+
+
+[package.metadata.docs.rs]
+features = ["runtime-tokio-hyper", "full"]
 

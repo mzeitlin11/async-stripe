@@ -1273,7 +1273,7 @@ impl<'a> CreatePaymentMethod<'a> {
     /// Creates a PaymentMethod object.
     ///
     /// Read the [Stripe.js reference](https://stripe.com/docs/stripe-js/reference#stripe-create-payment-method) to learn how to create PaymentMethods via Stripe.js.  Instead of creating a PaymentMethod directly, we recommend using the [PaymentIntents](https://stripe.com/docs/payments/accept-a-payment) API to accept a payment immediately or the [SetupIntent](https://stripe.com/docs/payments/save-and-reuse) API to collect payment method details ahead of a future payment.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::PaymentMethod> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.send_form("/payment_methods", self, http_types::Method::Post)
     }
 }
@@ -1295,8 +1295,8 @@ impl<'a> RetrievePaymentMethod<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_method: &stripe_types::payment_method::PaymentMethodId,
-    ) -> stripe::Response<stripe_types::PaymentMethod> {
+        payment_method: &stripe_shared::payment_method::PaymentMethodId,
+    ) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.get_query(&format!("/payment_methods/{payment_method}"), self)
     }
 }
@@ -1463,8 +1463,8 @@ impl<'a> UpdatePaymentMethod<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_method: &stripe_types::payment_method::PaymentMethodId,
-    ) -> stripe::Response<stripe_types::PaymentMethod> {
+        payment_method: &stripe_shared::payment_method::PaymentMethodId,
+    ) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.send_form(
             &format!("/payment_methods/{payment_method}"),
             self,
@@ -1665,10 +1665,10 @@ impl<'a> ListPaymentMethod<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::PaymentMethod>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::PaymentMethod>> {
         client.get_query("/payment_methods", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::PaymentMethod> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::PaymentMethod> {
         stripe::ListPaginator::from_params("/payment_methods", self)
     }
 }
@@ -1697,8 +1697,8 @@ impl<'a> AttachPaymentMethod<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_method: &stripe_types::payment_method::PaymentMethodId,
-    ) -> stripe::Response<stripe_types::PaymentMethod> {
+        payment_method: &stripe_shared::payment_method::PaymentMethodId,
+    ) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.send_form(
             &format!("/payment_methods/{payment_method}/attach"),
             self,
@@ -1724,8 +1724,8 @@ impl<'a> DetachPaymentMethod<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_method: &stripe_types::payment_method::PaymentMethodId,
-    ) -> stripe::Response<stripe_types::PaymentMethod> {
+        payment_method: &stripe_shared::payment_method::PaymentMethodId,
+    ) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.send_form(
             &format!("/payment_methods/{payment_method}/detach"),
             self,

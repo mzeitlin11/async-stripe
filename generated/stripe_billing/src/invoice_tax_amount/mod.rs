@@ -1,1 +1,1 @@
-pub use stripe_types::invoice_tax_amount::*;
+pub use stripe_shared::invoice_tax_amount::*;

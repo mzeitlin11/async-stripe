@@ -1,1 +1,1 @@
-pub use stripe_types::issuing_authorization_network_data::*;
+pub use stripe_shared::issuing_authorization_network_data::*;

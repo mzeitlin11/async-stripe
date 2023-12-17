@@ -1,1 +1,1 @@
-pub use stripe_types::automatic_tax::*;
+pub use stripe_shared::automatic_tax::*;

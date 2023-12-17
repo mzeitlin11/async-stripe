@@ -3,9 +3,11 @@
 use http_types::{Body, Method, Request, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use stripe_types::version::VERSION;
-use stripe_types::{AccountId, AppInfo, ApplicationId, Headers};
+use stripe_shared::account::AccountId;
+use stripe_shared::application::ApplicationId;
+use stripe_shared::version::VERSION;
 
+use crate::client::headers::{AppInfo, Headers};
 use crate::{
     client::{request_strategy::RequestStrategy, BaseClient, Response},
     config::err,

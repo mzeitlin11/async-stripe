@@ -1,4 +1,4 @@
-pub use stripe_types::file_link::*;
+pub use stripe_shared::file_link::*;
 #[cfg(feature = "file_link")]
 mod requests;
 #[cfg(feature = "file_link")]

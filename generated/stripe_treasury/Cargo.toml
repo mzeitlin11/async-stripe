@@ -14,17 +14,18 @@ categories.workspace = true
 [lib]
 path = "src/mod.rs"
 
-[package.metadata.docs.rs]
-features = ["runtime-tokio-hyper", "full"]
-
 [dependencies]
 serde.workspace = true
-http-types.workspace = true
 smol_str.workspace = true
 serde_json.workspace = true
+stripe_types = {path = "../../stripe_types"}
+
+http-types.workspace = true
 async-stripe = {path = "../../async-stripe"}
 
-stripe_types = {path = "../../stripe_types"}
+
+stripe_shared = {path = "../../generated/stripe_shared"}
+
 
 [features]
 runtime-tokio-hyper = ["async-stripe/runtime-tokio-hyper"]
@@ -56,4 +57,8 @@ full = ["treasury_credit_reversal",
 "treasury_received_debit",
 "treasury_transaction",
 "treasury_transaction_entry"]
+
+
+[package.metadata.docs.rs]
+features = ["runtime-tokio-hyper", "full"]
 

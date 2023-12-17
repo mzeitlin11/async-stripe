@@ -1,1 +1,1 @@
-pub use stripe_types::issuing_transaction_flight_data_leg::*;
+pub use stripe_shared::issuing_transaction_flight_data_leg::*;

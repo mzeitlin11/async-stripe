@@ -34,10 +34,10 @@ impl<'a> ListPaymentLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::PaymentLink>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::PaymentLink>> {
         client.get_query("/payment_links", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::PaymentLink> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::PaymentLink> {
         stripe::ListPaginator::from_params("/payment_links", self)
     }
 }
@@ -58,8 +58,8 @@ impl<'a> RetrievePaymentLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_link: &stripe_types::payment_link::PaymentLinkId,
-    ) -> stripe::Response<stripe_types::PaymentLink> {
+        payment_link: &stripe_shared::payment_link::PaymentLinkId,
+    ) -> stripe::Response<stripe_shared::PaymentLink> {
         client.get_query(&format!("/payment_links/{payment_link}"), self)
     }
 }
@@ -98,14 +98,14 @@ impl<'a> ListLineItemsPaymentLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_link: &stripe_types::payment_link::PaymentLinkId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::CheckoutSessionItem>> {
+        payment_link: &stripe_shared::payment_link::PaymentLinkId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
         client.get_query(&format!("/payment_links/{payment_link}/line_items"), self)
     }
     pub fn paginate(
         self,
-        payment_link: &stripe_types::payment_link::PaymentLinkId,
-    ) -> stripe::ListPaginator<stripe_types::CheckoutSessionItem> {
+        payment_link: &stripe_shared::payment_link::PaymentLinkId,
+    ) -> stripe::ListPaginator<stripe_shared::CheckoutSessionItem> {
         stripe::ListPaginator::from_params(
             &format!("/payment_links/{payment_link}/line_items"),
             self,
@@ -2315,7 +2315,7 @@ impl<'a> CreatePaymentLinkTransferData<'a> {
 }
 impl<'a> CreatePaymentLink<'a> {
     /// Creates a payment link.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::PaymentLink> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::PaymentLink> {
         client.send_form("/payment_links", self, http_types::Method::Post)
     }
 }
@@ -4084,8 +4084,8 @@ impl<'a> UpdatePaymentLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_link: &stripe_types::payment_link::PaymentLinkId,
-    ) -> stripe::Response<stripe_types::PaymentLink> {
+        payment_link: &stripe_shared::payment_link::PaymentLinkId,
+    ) -> stripe::Response<stripe_shared::PaymentLink> {
         client.send_form(&format!("/payment_links/{payment_link}"), self, http_types::Method::Post)
     }
 }

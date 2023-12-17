@@ -11,7 +11,7 @@ impl<'a> RetrieveForMyAccountAccount<'a> {
 }
 impl<'a> RetrieveForMyAccountAccount<'a> {
     /// Retrieves the details of an account.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::Account> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Account> {
         client.get_query("/account", self)
     }
 }
@@ -31,8 +31,8 @@ impl<'a> RetrieveAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::Response<stripe_types::Account> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::Response<stripe_shared::Account> {
         client.get_query(&format!("/accounts/{account}"), self)
     }
 }
@@ -2140,8 +2140,8 @@ impl<'a> UpdateAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::Response<stripe_types::Account> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::Response<stripe_shared::Account> {
         client.send_form(&format!("/accounts/{account}"), self, http_types::Method::Post)
     }
 }
@@ -2182,10 +2182,10 @@ impl<'a> ListAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Account>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Account>> {
         client.get_query("/accounts", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::Account> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Account> {
         stripe::ListPaginator::from_params("/accounts", self)
     }
 }
@@ -4360,7 +4360,7 @@ impl<'a> CreateAccount<'a> {
     /// creating the account.
     ///
     /// Connect Onboarding won’t ask for the prefilled information during account onboarding. You can prefill any information on the account.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::Account> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Account> {
         client.send_form("/accounts", self, http_types::Method::Post)
     }
 }
@@ -4381,8 +4381,8 @@ impl DeleteAccount {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::Response<stripe_types::DeletedAccount> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::Response<stripe_shared::DeletedAccount> {
         client.send_form(&format!("/accounts/{account}"), self, http_types::Method::Delete)
     }
 }
@@ -4410,8 +4410,8 @@ impl<'a> RejectAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::Response<stripe_types::Account> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::Response<stripe_shared::Account> {
         client.send_form(&format!("/accounts/{account}/reject"), self, http_types::Method::Post)
     }
 }
@@ -4477,14 +4477,14 @@ impl<'a> PersonsAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Person>> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Person>> {
         client.get_query(&format!("/accounts/{account}/persons"), self)
     }
     pub fn paginate(
         self,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::ListPaginator<stripe_types::Person> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::ListPaginator<stripe_shared::Person> {
         stripe::ListPaginator::from_params(&format!("/accounts/{account}/persons"), self)
     }
 }
@@ -4507,14 +4507,14 @@ impl<'a> CapabilitiesAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Capability>> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Capability>> {
         client.get_query(&format!("/accounts/{account}/capabilities"), self)
     }
     pub fn paginate(
         self,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::ListPaginator<stripe_types::Capability> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::ListPaginator<stripe_shared::Capability> {
         stripe::ListPaginator::from_params(&format!("/accounts/{account}/capabilities"), self)
     }
 }

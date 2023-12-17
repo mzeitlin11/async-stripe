@@ -1,4 +1,4 @@
-use stripe_types::ApiErrors;
+use stripe_shared::ApiErrors;
 use thiserror::Error;
 
 /// An error encountered when communicating with the Stripe API.

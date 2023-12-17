@@ -158,7 +158,7 @@ impl<'a> UpdateCustomerCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_types::customer::CustomerId,
+        customer: &stripe_shared::customer::CustomerId,
         id: &str,
     ) -> stripe::Response<UpdateCustomerReturned> {
         client.send_form(
@@ -172,11 +172,11 @@ impl<'a> UpdateCustomerCard<'a> {
 #[serde(tag = "object")]
 pub enum UpdateCustomerReturned {
     #[serde(rename = "card")]
-    Card(stripe_types::Card),
+    Card(stripe_shared::Card),
     #[serde(rename = "bank_account")]
-    BankAccount(stripe_types::BankAccount),
+    BankAccount(stripe_shared::BankAccount),
     #[serde(rename = "source")]
-    Source(stripe_types::Source),
+    Source(stripe_shared::Source),
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct DeleteCustomerCard<'a> {
@@ -194,7 +194,7 @@ impl<'a> DeleteCustomerCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_types::customer::CustomerId,
+        customer: &stripe_shared::customer::CustomerId,
         id: &str,
     ) -> stripe::Response<DeleteCustomerReturned> {
         client.send_form(
@@ -207,8 +207,8 @@ impl<'a> DeleteCustomerCard<'a> {
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
 pub enum DeleteCustomerReturned {
-    PaymentSource(stripe_types::PaymentSource),
-    DeletedPaymentSource(stripe_types::DeletedPaymentSource),
+    PaymentSource(stripe_shared::PaymentSource),
+    DeletedPaymentSource(stripe_shared::DeletedPaymentSource),
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateAccountCard<'a> {
@@ -424,9 +424,9 @@ impl<'a> UpdateAccountCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account: &stripe_shared::account::AccountId,
         id: &str,
-    ) -> stripe::Response<stripe_types::ExternalAccount> {
+    ) -> stripe::Response<stripe_shared::ExternalAccount> {
         client.send_form(
             &format!("/accounts/{account}/external_accounts/{id}"),
             self,
@@ -446,9 +446,9 @@ impl DeleteAccountCard {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account: &stripe_shared::account::AccountId,
         id: &str,
-    ) -> stripe::Response<stripe_types::DeletedExternalAccount> {
+    ) -> stripe::Response<stripe_shared::DeletedExternalAccount> {
         client.send_form(
             &format!("/accounts/{account}/external_accounts/{id}"),
             self,

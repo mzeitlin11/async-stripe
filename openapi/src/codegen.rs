@@ -6,8 +6,8 @@ use indoc::formatdoc;
 use tracing::debug;
 
 use crate::components::{get_components, Components};
-use crate::crate_inference::{get_crate_doc_comment, Crate, ALL_CRATES};
 use crate::crate_table::write_crate_table;
+use crate::crates::{get_crate_doc_comment, Crate, ALL_CRATES};
 use crate::object_writing::{gen_obj, gen_requests, ObjectGenInfo};
 use crate::rust_object::ObjectMetadata;
 use crate::spec::Spec;
@@ -38,8 +38,8 @@ impl CodeGen {
         Ok(Self { components, spec })
     }
 
-    fn write_generated_for_types_crate(&self) -> anyhow::Result<()> {
-        let base_path = PathBuf::from(Crate::TYPES.generated_out_path());
+    fn write_api_version_file(&self) -> anyhow::Result<()> {
+        let base_path = PathBuf::from(Crate::SHARED.generate_to());
         let mut mod_rs_contents = String::new();
         let mod_rs_path = base_path.join("mod.rs");
 
@@ -68,17 +68,18 @@ impl CodeGen {
 
             let mod_path = component.mod_path();
 
-            // Reexport in this crate if we wrote types to `stripe_types` instead of the
+            // Reexport in this crate if we wrote types to `stripe_shared` instead of the
             // component's base crate.
-            if crate_for_types == Crate::TYPES && base_crate != Crate::TYPES {
+            if crate_for_types == Crate::SHARED && base_crate != Crate::SHARED {
                 append_to_file(
-                    format!("pub use stripe_types::{mod_path}::*;"),
+                    format!("pub use {}::{mod_path}::*;", Crate::SHARED),
                     base_path.join(&mod_path).join("mod.rs"),
                 )?;
                 append_to_file(
                     format!(
-                        "pub use stripe_types::{};pub mod {mod_path};",
-                        component.resource.ident()
+                        "pub use {}::{};pub mod {mod_path};",
+                        Crate::SHARED,
+                        component.resource.ident(),
                     ),
                     base_path.join("mod.rs"),
                 )?;
@@ -90,7 +91,7 @@ impl CodeGen {
             }
         }
 
-        let crate_path = PathBuf::from(Crate::TYPES.generate_to());
+        let crate_path = PathBuf::from(Crate::SHARED.generate_to());
         let crate_mod_path = crate_path.join("mod.rs");
         for (ident, typ_info) in &self.components.extra_types {
             let mut out = String::new();
@@ -111,6 +112,7 @@ impl CodeGen {
     pub fn write_files(&self) -> anyhow::Result<()> {
         self.write_crate_base()?;
         self.write_components()?;
+        self.write_api_version_file()?;
         write_generated_for_webhooks(&self.components)
             .context("Could not write webhook generated code")?;
         write_crate_table(&self.components)
@@ -121,32 +123,27 @@ impl CodeGen {
 
         for krate in &*ALL_CRATES {
             let neighbors = crate_graph.neighbors(*krate);
-            if *krate == Crate::TYPES {
-                self.write_generated_for_types_crate()?;
-            } else {
-                let base_path = PathBuf::from(krate.generated_out_path());
-                let request_features = self
-                    .components
-                    .get_crate_members(*krate)
-                    .into_iter()
-                    .filter(|c| !self.components.get(c).requests.is_empty())
-                    .map(|c| self.components.get(c).mod_path())
-                    .collect();
+            let base_path = PathBuf::from(krate.generated_out_path());
+            let request_features = self
+                .components
+                .get_crate_members(*krate)
+                .into_iter()
+                .filter(|c| !self.components.get(c).requests.is_empty() && *krate != Crate::SHARED)
+                .map(|c| self.components.get(c).mod_path())
+                .collect();
 
-                let toml = gen_crate_toml(*krate, neighbors.collect(), request_features);
-                write_to_file(toml, base_path.join("Cargo.toml"))?;
+            let toml = gen_crate_toml(*krate, neighbors.collect(), request_features);
+            write_to_file(toml, base_path.join("Cargo.toml"))?;
 
-                let crate_name = krate.name();
-                let doc_comment = write_top_level_doc_comment(
-                    &get_crate_doc_comment(*krate).expect("No doc comment for crate"),
-                );
+            let crate_name = krate.name();
+            let doc_comment = write_top_level_doc_comment(get_crate_doc_comment(*krate));
 
-                // We set up some things in the base `mod.rs` file:
-                // 1. Without this recursion limit increase, `cargo doc` fails
-                // 2. The `extern` allows generated code to use absolute paths starting with the crate name instead of `crate`
-                // 3. Allow some warnings that are not currently fixed, but could be.
-                let mod_rs = formatdoc! {
-                    r#"
+            // We set up some things in the base `mod.rs` file:
+            // 1. Without this recursion limit increase, `cargo doc` fails
+            // 2. The `extern` allows generated code to use absolute paths starting with the crate name instead of `crate`
+            // 3. Allow some warnings that are not currently fixed, but could be.
+            let mod_rs = formatdoc! {
+                r#"
             #![recursion_limit = "256"]
             #![allow(clippy::large_enum_variant)]
             #![allow(rustdoc::invalid_html_tags)]
@@ -154,11 +151,10 @@ impl CodeGen {
             {doc_comment}
             extern crate self as {crate_name};
             "#
-                };
+            };
 
-                let mod_path = base_path.join("src/mod.rs");
-                write_to_file(mod_rs, &mod_path)?;
-            }
+            let mod_path = base_path.join("src/mod.rs");
+            write_to_file(mod_rs, &mod_path)?;
         }
         Ok(())
     }

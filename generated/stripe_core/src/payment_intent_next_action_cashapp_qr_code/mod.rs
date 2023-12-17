@@ -1,1 +1,1 @@
-pub use stripe_types::payment_intent_next_action_cashapp_qr_code::*;
+pub use stripe_shared::payment_intent_next_action_cashapp_qr_code::*;

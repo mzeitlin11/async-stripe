@@ -1,1 +1,1 @@
-pub use stripe_types::subscription_automatic_tax::*;
+pub use stripe_shared::subscription_automatic_tax::*;

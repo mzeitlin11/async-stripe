@@ -1,1 +1,1 @@
-pub use stripe_types::invoices_payment_settings::*;
+pub use stripe_shared::invoices_payment_settings::*;

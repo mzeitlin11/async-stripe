@@ -14,8 +14,8 @@ impl<'a> RetrieveQuote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::Response<stripe_types::Quote> {
+        quote: &stripe_shared::quote::QuoteId,
+    ) -> stripe::Response<stripe_shared::Quote> {
         client.get_query(&format!("/quotes/{quote}"), self)
     }
 }
@@ -517,7 +517,7 @@ impl<'a> CreateQuote<'a> {
     /// A quote models prices and services for a customer.
     ///
     /// Default options for `header`, `description`, `footer`, and `expires_at` can be set in the dashboard via the [quote template](https://dashboard.stripe.com/settings/billing/quote).
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::Quote> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Quote> {
         client.send_form("/quotes", self, http_types::Method::Post)
     }
 }
@@ -990,8 +990,8 @@ impl<'a> UpdateQuote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::Response<stripe_types::Quote> {
+        quote: &stripe_shared::quote::QuoteId,
+    ) -> stripe::Response<stripe_shared::Quote> {
         client.send_form(&format!("/quotes/{quote}"), self, http_types::Method::Post)
     }
 }
@@ -1011,8 +1011,8 @@ impl<'a> CancelQuote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::Response<stripe_types::Quote> {
+        quote: &stripe_shared::quote::QuoteId,
+    ) -> stripe::Response<stripe_shared::Quote> {
         client.send_form(&format!("/quotes/{quote}/cancel"), self, http_types::Method::Post)
     }
 }
@@ -1037,8 +1037,8 @@ impl<'a> FinalizeQuoteQuote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::Response<stripe_types::Quote> {
+        quote: &stripe_shared::quote::QuoteId,
+    ) -> stripe::Response<stripe_shared::Quote> {
         client.send_form(&format!("/quotes/{quote}/finalize"), self, http_types::Method::Post)
     }
 }
@@ -1058,8 +1058,8 @@ impl<'a> AcceptQuote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::Response<stripe_types::Quote> {
+        quote: &stripe_shared::quote::QuoteId,
+    ) -> stripe::Response<stripe_shared::Quote> {
         client.send_form(&format!("/quotes/{quote}/accept"), self, http_types::Method::Post)
     }
 }
@@ -1164,10 +1164,10 @@ impl<'a> ListQuote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Quote>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Quote>> {
         client.get_query("/quotes", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::Quote> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Quote> {
         stripe::ListPaginator::from_params("/quotes", self)
     }
 }
@@ -1207,14 +1207,14 @@ impl<'a> ListLineItemsQuote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::CheckoutSessionItem>> {
+        quote: &stripe_shared::quote::QuoteId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
         client.get_query(&format!("/quotes/{quote}/line_items"), self)
     }
     pub fn paginate(
         self,
-        quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::ListPaginator<stripe_types::CheckoutSessionItem> {
+        quote: &stripe_shared::quote::QuoteId,
+    ) -> stripe::ListPaginator<stripe_shared::CheckoutSessionItem> {
         stripe::ListPaginator::from_params(&format!("/quotes/{quote}/line_items"), self)
     }
 }
@@ -1254,14 +1254,14 @@ impl<'a> ListComputedUpfrontLineItemsQuote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::CheckoutSessionItem>> {
+        quote: &stripe_shared::quote::QuoteId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
         client.get_query(&format!("/quotes/{quote}/computed_upfront_line_items"), self)
     }
     pub fn paginate(
         self,
-        quote: &stripe_types::quote::QuoteId,
-    ) -> stripe::ListPaginator<stripe_types::CheckoutSessionItem> {
+        quote: &stripe_shared::quote::QuoteId,
+    ) -> stripe::ListPaginator<stripe_shared::CheckoutSessionItem> {
         stripe::ListPaginator::from_params(
             &format!("/quotes/{quote}/computed_upfront_line_items"),
             self,

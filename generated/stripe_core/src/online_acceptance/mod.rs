@@ -1,1 +1,1 @@
-pub use stripe_types::online_acceptance::*;
+pub use stripe_shared::online_acceptance::*;

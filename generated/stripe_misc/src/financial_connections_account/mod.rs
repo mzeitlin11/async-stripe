@@ -1,6 +1,4 @@
 /// A Financial Connections Account represents an account that exists outside of Stripe, to which you have been granted some degree of access.
-///
-/// For more details see <<https://stripe.com/docs/api/financial_connections/accounts/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct FinancialConnectionsAccount {
     /// The account holder that this account belongs to.

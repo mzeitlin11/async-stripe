@@ -1,1 +1,1 @@
-pub use stripe_types::dispute_payment_method_details_card::*;
+pub use stripe_shared::dispute_payment_method_details_card::*;

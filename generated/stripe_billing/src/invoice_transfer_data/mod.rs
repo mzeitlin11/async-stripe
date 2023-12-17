@@ -1,1 +1,1 @@
-pub use stripe_types::invoice_transfer_data::*;
+pub use stripe_shared::invoice_transfer_data::*;

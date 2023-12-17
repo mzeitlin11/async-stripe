@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use indoc::formatdoc;
 
-use crate::crate_inference::Crate;
+use crate::crates::Crate;
 
 const CORE_FEATURES: &[&str] = &[
     "runtime-tokio-hyper",
@@ -14,21 +14,61 @@ const CORE_FEATURES: &[&str] = &[
     "runtime-async-std-surf",
 ];
 
-pub fn gen_crate_toml(
-    krate: Crate,
-    crate_deps: Vec<Crate>,
-    mut crate_features: Vec<String>,
-) -> String {
-    let crate_name = krate.name();
+pub fn gen_crate_toml(krate: Crate, crate_deps: Vec<Crate>, crate_features: Vec<String>) -> String {
     let mut crate_dep_section = String::new();
     for dep in crate_deps {
-        let dep_path = if dep == Crate::TYPES {
-            "../../stripe_types".into()
-        } else {
-            format!("../../generated/{}", dep.name())
-        };
+        let dep_path = format!("../../generated/{}", dep.name());
         let _ = writeln!(crate_dep_section, r#"{} = {{path = "{}"}}"#, dep.name(), dep_path);
     }
+
+    // Dependencies only needed for libraries which implement Stripe requests
+    let request_deps = if krate == Crate::SHARED {
+        "".into()
+    } else {
+        formatdoc! {
+            r#"
+            http-types.workspace = true
+            async-stripe = {{path = "../../async-stripe"}}
+            "#
+        }
+    };
+
+    let features =
+        if krate == Crate::SHARED { "".into() } else { gen_feature_section(crate_features) };
+    formatdoc! {
+        r#"
+        [package]
+        name = "{krate}"
+        version.workspace = true
+        description.workspace = true
+        edition.workspace = true
+        rust-version.workspace = true
+        authors.workspace = true
+        license.workspace = true
+        homepage.workspace = true
+        repository.workspace = true
+        keywords.workspace = true
+        categories.workspace = true
+        
+        [lib]
+        path = "src/mod.rs"
+        
+        [dependencies]
+        serde.workspace = true
+        smol_str.workspace = true
+        serde_json.workspace = true
+        stripe_types = {{path = "../../stripe_types"}}
+        
+        {request_deps}
+        
+        {crate_dep_section}
+        
+        {features}
+        "#
+    }
+}
+
+fn gen_feature_section(mut crate_features: Vec<String>) -> String {
     let mut feature_section = String::new();
     for feature in CORE_FEATURES {
         let _ = writeln!(feature_section, r#"{feature} = ["async-stripe/{feature}"]"#);
@@ -57,38 +97,13 @@ pub fn gen_crate_toml(
         docs_rs_features.push_str(r#", "full""#);
     }
     docs_rs_features.push(']');
-
     formatdoc! {
         r#"
-        [package]
-        name = "{crate_name}"
-        version.workspace = true
-        description.workspace = true
-        edition.workspace = true
-        rust-version.workspace = true
-        authors.workspace = true
-        license.workspace = true
-        homepage.workspace = true
-        repository.workspace = true
-        keywords.workspace = true
-        categories.workspace = true
-        
-        [lib]
-        path = "src/mod.rs"
+        [features]
+        {feature_section}
         
         [package.metadata.docs.rs]
         features = {docs_rs_features}
-        
-        [dependencies]
-        serde.workspace = true
-        http-types.workspace = true
-        smol_str.workspace = true
-        serde_json.workspace = true
-        async-stripe = {{path = "../../async-stripe"}}
-        
-        {crate_dep_section}
-        [features]
-        {feature_section}
         "#
     }
 }

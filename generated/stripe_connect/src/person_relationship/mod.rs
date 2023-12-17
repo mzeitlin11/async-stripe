@@ -1,1 +1,1 @@
-pub use stripe_types::person_relationship::*;
+pub use stripe_shared::person_relationship::*;

@@ -33,14 +33,14 @@ impl<'a> ListInvoiceLineItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoice: &stripe_types::invoice::InvoiceId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::InvoiceLineItem>> {
+        invoice: &stripe_shared::invoice::InvoiceId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::InvoiceLineItem>> {
         client.get_query(&format!("/invoices/{invoice}/lines"), self)
     }
     pub fn paginate(
         self,
-        invoice: &stripe_types::invoice::InvoiceId,
-    ) -> stripe::ListPaginator<stripe_types::InvoiceLineItem> {
+        invoice: &stripe_shared::invoice::InvoiceId,
+    ) -> stripe::ListPaginator<stripe_shared::InvoiceLineItem> {
         stripe::ListPaginator::from_params(&format!("/invoices/{invoice}/lines"), self)
     }
 }
@@ -470,9 +470,9 @@ impl<'a> UpdateInvoiceLineItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoice: &stripe_types::invoice::InvoiceId,
+        invoice: &stripe_shared::invoice::InvoiceId,
         line_item_id: &str,
-    ) -> stripe::Response<stripe_types::InvoiceLineItem> {
+    ) -> stripe::Response<stripe_shared::InvoiceLineItem> {
         client.send_form(
             &format!("/invoices/{invoice}/lines/{line_item_id}"),
             self,

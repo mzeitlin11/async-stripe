@@ -1,1 +1,1 @@
-pub use stripe_types::reserve_transaction::*;
+pub use stripe_shared::reserve_transaction::*;

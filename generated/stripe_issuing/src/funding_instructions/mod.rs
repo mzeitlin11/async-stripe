@@ -1,1 +1,1 @@
-pub use stripe_types::funding_instructions::*;
+pub use stripe_shared::funding_instructions::*;

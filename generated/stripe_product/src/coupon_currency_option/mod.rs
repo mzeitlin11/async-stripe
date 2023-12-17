@@ -1,1 +1,1 @@
-pub use stripe_types::coupon_currency_option::*;
+pub use stripe_shared::coupon_currency_option::*;

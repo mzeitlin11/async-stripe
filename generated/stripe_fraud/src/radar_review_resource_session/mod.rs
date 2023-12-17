@@ -1,1 +1,1 @@
-pub use stripe_types::radar_review_resource_session::*;
+pub use stripe_shared::radar_review_resource_session::*;

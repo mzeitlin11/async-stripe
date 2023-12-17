@@ -14,9 +14,9 @@ impl<'a> RetrieveCustomerCashBalanceTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_types::customer::CustomerId,
+        customer: &stripe_shared::customer::CustomerId,
         transaction: &str,
-    ) -> stripe::Response<stripe_types::CustomerCashBalanceTransaction> {
+    ) -> stripe::Response<stripe_shared::CustomerCashBalanceTransaction> {
         client.get_query(
             &format!("/customers/{customer}/cash_balance_transactions/{transaction}"),
             self,
@@ -56,14 +56,14 @@ impl<'a> ListCustomerCashBalanceTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_types::customer::CustomerId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::CustomerCashBalanceTransaction>> {
+        customer: &stripe_shared::customer::CustomerId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::CustomerCashBalanceTransaction>> {
         client.get_query(&format!("/customers/{customer}/cash_balance_transactions"), self)
     }
     pub fn paginate(
         self,
-        customer: &stripe_types::customer::CustomerId,
-    ) -> stripe::ListPaginator<stripe_types::CustomerCashBalanceTransaction> {
+        customer: &stripe_shared::customer::CustomerId,
+    ) -> stripe::ListPaginator<stripe_shared::CustomerCashBalanceTransaction> {
         stripe::ListPaginator::from_params(
             &format!("/customers/{customer}/cash_balance_transactions"),
             self,

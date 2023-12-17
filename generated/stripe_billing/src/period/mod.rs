@@ -1,1 +1,1 @@
-pub use stripe_types::period::*;
+pub use stripe_shared::period::*;

@@ -1,1 +1,1 @@
-pub use stripe_types::mandate_link::*;
+pub use stripe_shared::mandate_link::*;

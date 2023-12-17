@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use stripe_product::price::{UpdatePrice, UpdatePriceCurrencyOptions};
-use stripe_types::price::PriceTaxBehavior;
+use stripe_product::price::{PriceTaxBehavior, UpdatePrice, UpdatePriceCurrencyOptions};
 use stripe_types::Currency;
 
 use crate::mock;

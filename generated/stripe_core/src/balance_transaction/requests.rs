@@ -53,10 +53,10 @@ impl<'a> ListBalanceTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::BalanceTransaction>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::BalanceTransaction>> {
         client.get_query("/balance_transactions", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::BalanceTransaction> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::BalanceTransaction> {
         stripe::ListPaginator::from_params("/balance_transactions", self)
     }
 }
@@ -79,8 +79,8 @@ impl<'a> RetrieveBalanceTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::balance_transaction::BalanceTransactionId,
-    ) -> stripe::Response<stripe_types::BalanceTransaction> {
+        id: &stripe_shared::balance_transaction::BalanceTransactionId,
+    ) -> stripe::Response<stripe_shared::BalanceTransaction> {
         client.get_query(&format!("/balance_transactions/{id}"), self)
     }
 }

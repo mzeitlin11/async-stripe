@@ -1,1 +1,1 @@
-pub use stripe_types::subscription_billing_thresholds::*;
+pub use stripe_shared::subscription_billing_thresholds::*;

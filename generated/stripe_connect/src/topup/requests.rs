@@ -52,7 +52,7 @@ impl<'a> CreateTopup<'a> {
 }
 impl<'a> CreateTopup<'a> {
     /// Top up the balance of an account.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::Topup> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Topup> {
         client.send_form("/topups", self, http_types::Method::Post)
     }
 }
@@ -161,10 +161,10 @@ impl<'a> ListTopup<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Topup>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Topup>> {
         client.get_query("/topups", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::Topup> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Topup> {
         stripe::ListPaginator::from_params("/topups", self)
     }
 }
@@ -187,8 +187,8 @@ impl<'a> RetrieveTopup<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        topup: &stripe_types::topup::TopupId,
-    ) -> stripe::Response<stripe_types::Topup> {
+        topup: &stripe_shared::topup::TopupId,
+    ) -> stripe::Response<stripe_shared::Topup> {
         client.get_query(&format!("/topups/{topup}"), self)
     }
 }
@@ -222,8 +222,8 @@ impl<'a> UpdateTopup<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        topup: &stripe_types::topup::TopupId,
-    ) -> stripe::Response<stripe_types::Topup> {
+        topup: &stripe_shared::topup::TopupId,
+    ) -> stripe::Response<stripe_shared::Topup> {
         client.send_form(&format!("/topups/{topup}"), self, http_types::Method::Post)
     }
 }
@@ -245,8 +245,8 @@ impl<'a> CancelTopup<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        topup: &stripe_types::topup::TopupId,
-    ) -> stripe::Response<stripe_types::Topup> {
+        topup: &stripe_shared::topup::TopupId,
+    ) -> stripe::Response<stripe_shared::Topup> {
         client.send_form(&format!("/topups/{topup}/cancel"), self, http_types::Method::Post)
     }
 }

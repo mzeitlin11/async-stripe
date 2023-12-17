@@ -1,1 +1,1 @@
-pub use stripe_types::subscriptions_trials_resource_trial_settings::*;
+pub use stripe_shared::subscriptions_trials_resource_trial_settings::*;

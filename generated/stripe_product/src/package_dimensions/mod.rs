@@ -1,1 +1,1 @@
-pub use stripe_types::package_dimensions::*;
+pub use stripe_shared::package_dimensions::*;

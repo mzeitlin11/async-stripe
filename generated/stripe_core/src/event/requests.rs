@@ -52,10 +52,10 @@ impl<'a> ListEvent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Event>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Event>> {
         client.get_query("/events", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::Event> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Event> {
         stripe::ListPaginator::from_params("/events", self)
     }
 }
@@ -78,8 +78,8 @@ impl<'a> RetrieveEvent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::event::EventId,
-    ) -> stripe::Response<stripe_types::Event> {
+        id: &stripe_shared::event::EventId,
+    ) -> stripe::Response<stripe_shared::Event> {
         client.get_query(&format!("/events/{id}"), self)
     }
 }

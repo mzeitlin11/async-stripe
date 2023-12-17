@@ -1,1 +1,1 @@
-pub use stripe_types::subscription_schedules_resource_default_settings::*;
+pub use stripe_shared::subscription_schedules_resource_default_settings::*;

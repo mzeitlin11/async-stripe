@@ -1,1 +1,1 @@
-pub use stripe_types::invoice_mandate_options_card::*;
+pub use stripe_shared::invoice_mandate_options_card::*;

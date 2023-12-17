@@ -104,10 +104,10 @@ impl<'a> ListIssuingToken<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::IssuingToken>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::IssuingToken>> {
         client.get_query("/issuing/tokens", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::IssuingToken> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::IssuingToken> {
         stripe::ListPaginator::from_params("/issuing/tokens", self)
     }
 }
@@ -128,8 +128,8 @@ impl<'a> RetrieveIssuingToken<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        token: &stripe_types::issuing_token::IssuingTokenId,
-    ) -> stripe::Response<stripe_types::IssuingToken> {
+        token: &stripe_shared::issuing_token::IssuingTokenId,
+    ) -> stripe::Response<stripe_shared::IssuingToken> {
         client.get_query(&format!("/issuing/tokens/{token}"), self)
     }
 }
@@ -205,8 +205,8 @@ impl<'a> UpdateIssuingToken<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        token: &stripe_types::issuing_token::IssuingTokenId,
-    ) -> stripe::Response<stripe_types::IssuingToken> {
+        token: &stripe_shared::issuing_token::IssuingTokenId,
+    ) -> stripe::Response<stripe_shared::IssuingToken> {
         client.send_form(&format!("/issuing/tokens/{token}"), self, http_types::Method::Post)
     }
 }

@@ -1,4 +1,4 @@
-pub use stripe_types::charge::*;
+pub use stripe_shared::charge::*;
 #[cfg(feature = "charge")]
 mod requests;
 #[cfg(feature = "charge")]

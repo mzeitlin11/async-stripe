@@ -3,7 +3,7 @@ use std::path::Path;
 use indexmap::IndexMap;
 
 use crate::components::Components;
-use crate::crate_inference::Crate;
+use crate::crates::Crate;
 use crate::rust_object::ObjectRef;
 use crate::templates::ObjectWriter;
 use crate::types::{ComponentPath, RustIdent};
@@ -74,8 +74,8 @@ fn write_event_object(components: &Components, out_path: &Path) -> anyhow::Resul
             obj_name,
             ObjectRef {
                 path: comp_path,
-                feature_gate: if belonging_crate != Crate::TYPES {
-                    Some(belonging_crate.name())
+                feature_gate: if belonging_crate != Crate::SHARED {
+                    Some(belonging_crate.name().into())
                 } else {
                     None
                 },

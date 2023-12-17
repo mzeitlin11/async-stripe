@@ -42,10 +42,10 @@ impl<'a> ListPlan<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Plan>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Plan>> {
         client.get_query("/plans", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::Plan> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Plan> {
         stripe::ListPaginator::from_params("/plans", self)
     }
 }
@@ -625,7 +625,7 @@ impl<'a> CreatePlan<'a> {
     /// You can now model subscriptions more flexibly using the [Prices API](https://stripe.com/docs/api#prices).
     ///
     /// It replaces the Plans API and is backwards compatible to simplify your migration.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::Plan> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Plan> {
         client.send_form("/plans", self, http_types::Method::Post)
     }
 }
@@ -645,8 +645,8 @@ impl<'a> RetrievePlan<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        plan: &stripe_types::plan::PlanId,
-    ) -> stripe::Response<stripe_types::Plan> {
+        plan: &stripe_shared::plan::PlanId,
+    ) -> stripe::Response<stripe_shared::Plan> {
         client.get_query(&format!("/plans/{plan}"), self)
     }
 }
@@ -690,8 +690,8 @@ impl<'a> UpdatePlan<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        plan: &stripe_types::plan::PlanId,
-    ) -> stripe::Response<stripe_types::Plan> {
+        plan: &stripe_shared::plan::PlanId,
+    ) -> stripe::Response<stripe_shared::Plan> {
         client.send_form(&format!("/plans/{plan}"), self, http_types::Method::Post)
     }
 }
@@ -709,8 +709,8 @@ impl DeletePlan {
     pub fn send(
         &self,
         client: &stripe::Client,
-        plan: &stripe_types::plan::PlanId,
-    ) -> stripe::Response<stripe_types::DeletedPlan> {
+        plan: &stripe_shared::plan::PlanId,
+    ) -> stripe::Response<stripe_shared::DeletedPlan> {
         client.send_form(&format!("/plans/{plan}"), self, http_types::Method::Delete)
     }
 }

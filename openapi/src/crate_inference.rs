@@ -1,91 +1,13 @@
-use std::fs::read_to_string;
-
 use anyhow::bail;
 use indexmap::{IndexMap, IndexSet};
-use lazy_static::lazy_static;
 use petgraph::algo::is_cyclic_directed;
 use petgraph::Direction;
-use serde::Deserialize;
 use tracing::{debug, error, trace};
 
 use crate::components::Components;
+use crate::crates::{Crate, CRATE_INFO};
 use crate::graph::ComponentGraph;
 use crate::types::ComponentPath;
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct Crate(&'static str);
-
-impl Crate {
-    pub const TYPES: Self = Self("types");
-
-    pub fn generate_to(self) -> String {
-        let out_path = self.generated_out_path();
-        if self == Self::TYPES {
-            out_path
-        } else {
-            format!("{out_path}/src")
-        }
-    }
-
-    pub fn generated_out_path(self) -> String {
-        if self == Self::TYPES {
-            "stripe_types".into()
-        } else {
-            format!("crates/{}", self.name())
-        }
-    }
-
-    pub fn name(self) -> String {
-        format!("stripe_{}", self.suffix())
-    }
-
-    pub const fn suffix(self) -> &'static str {
-        self.0
-    }
-}
-
-/// Information about an automatically generated crate.
-#[derive(Deserialize)]
-struct CrateGen {
-    /// Short name of the crate, such that the actual name becomes `stripe_{}`
-    name: String,
-    /// Component paths which should live in this crate
-    #[serde(default)]
-    paths: Vec<String>,
-    /// Package names which should live in this crate
-    #[serde(default)]
-    packages: Vec<String>,
-    /// Used to generate a top-level comment for the crate.
-    description: Option<String>,
-}
-
-#[derive(Deserialize)]
-struct CrateInfo {
-    crates: Vec<CrateGen>,
-}
-
-fn load_crate_info() -> anyhow::Result<CrateInfo> {
-    let toml_str = read_to_string("gen_crates.toml")?;
-    let loaded = toml::from_str(&toml_str)?;
-    Ok(loaded)
-}
-
-lazy_static! {
-    /// Content of `gen_crates.toml`
-    static ref CRATE_INFO: CrateInfo = load_crate_info().expect("Could not load crate info");
-    /// All crate names
-    pub static ref ALL_CRATES: Vec<Crate> =
-        CRATE_INFO.crates.iter().map(|c| Crate(&c.name)).collect();
-}
-
-#[track_caller]
-fn crate_info_unwrapped(krate: Crate) -> &'static CrateGen {
-    CRATE_INFO.crates.iter().find(|k| k.name == krate.0).expect("Crate not found")
-}
-
-pub fn get_crate_doc_comment(krate: Crate) -> Option<&'static str> {
-    crate_info_unwrapped(krate).description.as_deref()
-}
 
 /// Do some easy work to sanity check `gen_crates.toml` does not have any spurious or
 /// misspelled entries.
@@ -98,30 +20,6 @@ pub fn validate_crate_info(components: &Components) -> anyhow::Result<()> {
         }
     }
     Ok(())
-}
-
-/// Assign the crate a package should live in. Each package is expected to be
-/// specified in `gen_crates.toml`, so the assignment is hardcoded.
-pub fn infer_crate_by_package(package: &str) -> Crate {
-    for krate in &CRATE_INFO.crates {
-        if krate.packages.iter().any(|p| p == package) {
-            return Crate(&krate.name);
-        }
-    }
-    panic!("Package {} requires a mapping in gen_crates.toml", package);
-}
-
-/// Use a hardcoded assignment if available to determine the crate we should assign
-/// to this component.
-pub fn maybe_infer_crate_by_path(path: &str) -> Option<Crate> {
-    // Make sure deleted variants end up in the same place as the non-deleted version
-    let path = path.trim_start_matches("deleted_");
-    for krate in &CRATE_INFO.crates {
-        if krate.paths.iter().any(|p| p == path) {
-            return Some(Crate(&krate.name));
-        }
-    }
-    None
 }
 
 impl Components {
@@ -166,7 +64,7 @@ impl Components {
         infer_crates_using_deps(self, Self::maybe_infer_crate_by_what_depends_on_it);
         infer_crates_using_deps(self, Self::maybe_infer_crate_by_deps);
         self.ensure_no_missing_crates()?;
-        self.assign_paths_required_to_live_in_types_crate();
+        self.assign_paths_required_to_share_types();
         self.validate_crate_assignment()
     }
 
@@ -199,11 +97,11 @@ impl Components {
 
     fn validate_crate_assignment(&self) -> anyhow::Result<()> {
         let graph = self.gen_crate_dep_graph();
-        let deps_for_types_crate = graph.neighbors(Crate::TYPES).collect::<Vec<_>>();
-        if !deps_for_types_crate.is_empty() {
+        let deps_for_shared_crate = graph.neighbors(Crate::SHARED).collect::<Vec<_>>();
+        if !deps_for_shared_crate.is_empty() {
             bail!(
-                "Types crate should not have dependencies, but has dependencies {:#?}!",
-                deps_for_types_crate
+                "Shared types crate should not have dependencies, but has dependencies {:#?}!",
+                deps_for_shared_crate
             );
         }
         if is_cyclic_directed(&graph) {
@@ -213,7 +111,7 @@ impl Components {
             .components
             .iter()
             .filter(|(_, comp)| {
-                comp.krate_unwrapped().base() == Crate::TYPES && !comp.requests.is_empty()
+                comp.krate_unwrapped().base() == Crate::SHARED && !comp.requests.is_empty()
             })
             .map(|(path, _)| path)
             .collect::<Vec<_>>();
@@ -223,8 +121,8 @@ impl Components {
         Ok(())
     }
 
-    fn assign_paths_required_to_live_in_types_crate(&mut self) {
-        // Paths for components required to live in the `stripe_types` crate. Adding `event` is
+    fn assign_paths_required_to_share_types(&mut self) {
+        // Paths for components required to live in the `stripe_shared` crate. Adding `event` is
         // used for webhooks
         const PATHS_IN_TYPES: &[&str] = &["event"];
 
@@ -232,7 +130,7 @@ impl Components {
         loop {
             let graph = self.gen_component_dep_graph();
             for (path, component) in &self.components {
-                if component.krate_unwrapped().are_type_defs_types_crate() {
+                if component.krate_unwrapped().are_type_defs_shared() {
                     continue;
                 }
                 if PATHS_IN_TYPES.contains(&path.as_ref()) {
@@ -247,7 +145,8 @@ impl Components {
                     .map(|m| self.get(m).krate_unwrapped().for_types())
                     .filter(|c| *c != my_crate)
                     .collect::<IndexSet<_>>();
-                if !depended_crates.is_empty() || depended_crates.iter().any(|d| *d == Crate::TYPES)
+                if !depended_crates.is_empty()
+                    || depended_crates.iter().any(|d| *d == Crate::SHARED)
                 {
                     required.push(path.clone());
                 }
@@ -258,7 +157,7 @@ impl Components {
                 break;
             }
             for req in required.drain(..) {
-                self.get_mut(&req).krate_unwrapped_mut().set_type_defs_in_types_crate();
+                self.get_mut(&req).krate_unwrapped_mut().set_share_type_defs();
             }
         }
     }

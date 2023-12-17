@@ -77,8 +77,9 @@ The usage should be unchanged, but instead of importing from `stripe` and enabli
 should include the dependency `stripe_webhook` and import from that crate instead.
 
 ### Generated Type Definitions
-- `Deleted*` objects (such `DeletedAccount`) no longer expose a boolean `deleted`. This was always `true` and only
-  used internally as a discriminant when deserializing.
+- `Deleted<>` objects (such `Deleted<Account>`) no longer expose a boolean `deleted`. This was always `true` and only
+used internally as a discriminant when deserializing. The generic type `Deleted` has been removed and replaced by 
+generated types such as `DeletedAccount`, which sometimes contain additional fields.
 - Types used only for requests now use borrowed types more consistently (and more often). For example, previously the top-level
 `CreateCustomer.description` expected `Option<&str>`, but `CreateCustomerShipping.phone` expected `Option<String>`. Now
 both expect `Option<&str>`. In general, the following changes are made to request parameters that required owned data:

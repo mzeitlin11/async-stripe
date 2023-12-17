@@ -1,1 +1,1 @@
-pub use stripe_types::payment_links_resource_shipping_option::*;
+pub use stripe_shared::payment_links_resource_shipping_option::*;

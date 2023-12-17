@@ -38,10 +38,10 @@ impl<'a> ListApplicationFee<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::ApplicationFee>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::ApplicationFee>> {
         client.get_query("/application_fees", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::ApplicationFee> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::ApplicationFee> {
         stripe::ListPaginator::from_params("/application_fees", self)
     }
 }
@@ -64,8 +64,8 @@ impl<'a> RetrieveApplicationFee<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::application_fee::ApplicationFeeId,
-    ) -> stripe::Response<stripe_types::ApplicationFee> {
+        id: &stripe_shared::application_fee::ApplicationFeeId,
+    ) -> stripe::Response<stripe_shared::ApplicationFee> {
         client.get_query(&format!("/application_fees/{id}"), self)
     }
 }

@@ -1,1 +1,1 @@
-pub use stripe_types::customer_tax_location::*;
+pub use stripe_shared::customer_tax_location::*;

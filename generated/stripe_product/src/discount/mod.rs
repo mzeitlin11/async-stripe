@@ -1,1 +1,1 @@
-pub use stripe_types::discount::*;
+pub use stripe_shared::discount::*;

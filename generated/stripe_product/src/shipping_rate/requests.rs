@@ -42,10 +42,10 @@ impl<'a> ListShippingRate<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::ShippingRate>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::ShippingRate>> {
         client.get_query("/shipping_rates", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::ShippingRate> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::ShippingRate> {
         stripe::ListPaginator::from_params("/shipping_rates", self)
     }
 }
@@ -66,8 +66,8 @@ impl<'a> RetrieveShippingRate<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        shipping_rate_token: &stripe_types::shipping_rate::ShippingRateId,
-    ) -> stripe::Response<stripe_types::ShippingRate> {
+        shipping_rate_token: &stripe_shared::shipping_rate::ShippingRateId,
+    ) -> stripe::Response<stripe_shared::ShippingRate> {
         client.get_query(&format!("/shipping_rates/{shipping_rate_token}"), self)
     }
 }
@@ -508,7 +508,7 @@ impl serde::Serialize for CreateShippingRateType {
 }
 impl<'a> CreateShippingRate<'a> {
     /// Creates a new shipping rate object.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::ShippingRate> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::ShippingRate> {
         client.send_form("/shipping_rates", self, http_types::Method::Post)
     }
 }
@@ -702,8 +702,8 @@ impl<'a> UpdateShippingRate<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        shipping_rate_token: &stripe_types::shipping_rate::ShippingRateId,
-    ) -> stripe::Response<stripe_types::ShippingRate> {
+        shipping_rate_token: &stripe_shared::shipping_rate::ShippingRateId,
+    ) -> stripe::Response<stripe_shared::ShippingRate> {
         client.send_form(
             &format!("/shipping_rates/{shipping_rate_token}"),
             self,

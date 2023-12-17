@@ -1,1 +1,1 @@
-pub use stripe_types::subscriptions_resource_pending_update::*;
+pub use stripe_shared::subscriptions_resource_pending_update::*;

@@ -33,10 +33,10 @@ impl<'a> ListSubscriptionItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::SubscriptionItem>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::SubscriptionItem>> {
         client.get_query("/subscription_items", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::SubscriptionItem> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::SubscriptionItem> {
         stripe::ListPaginator::from_params("/subscription_items", self)
     }
 }
@@ -57,8 +57,8 @@ impl<'a> RetrieveSubscriptionItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        item: &stripe_types::subscription_item::SubscriptionItemId,
-    ) -> stripe::Response<stripe_types::SubscriptionItem> {
+        item: &stripe_shared::subscription_item::SubscriptionItemId,
+    ) -> stripe::Response<stripe_shared::SubscriptionItem> {
         client.get_query(&format!("/subscription_items/{item}"), self)
     }
 }
@@ -465,7 +465,7 @@ impl<'a> CreateSubscriptionItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::SubscriptionItem> {
+    ) -> stripe::Response<stripe_shared::SubscriptionItem> {
         client.send_form("/subscription_items", self, http_types::Method::Post)
     }
 }
@@ -860,8 +860,8 @@ impl<'a> UpdateSubscriptionItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        item: &stripe_types::subscription_item::SubscriptionItemId,
-    ) -> stripe::Response<stripe_types::SubscriptionItem> {
+        item: &stripe_shared::subscription_item::SubscriptionItemId,
+    ) -> stripe::Response<stripe_shared::SubscriptionItem> {
         client.send_form(&format!("/subscription_items/{item}"), self, http_types::Method::Post)
     }
 }
@@ -951,8 +951,8 @@ impl DeleteSubscriptionItem {
     pub fn send(
         &self,
         client: &stripe::Client,
-        item: &stripe_types::subscription_item::SubscriptionItemId,
-    ) -> stripe::Response<stripe_types::DeletedSubscriptionItem> {
+        item: &stripe_shared::subscription_item::SubscriptionItemId,
+    ) -> stripe::Response<stripe_shared::DeletedSubscriptionItem> {
         client.send_form(&format!("/subscription_items/{item}"), self, http_types::Method::Delete)
     }
 }
@@ -993,8 +993,8 @@ impl<'a> UsageRecordSummariesSubscriptionItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        subscription_item: &stripe_types::subscription_item::SubscriptionItemId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::UsageRecordSummary>> {
+        subscription_item: &stripe_shared::subscription_item::SubscriptionItemId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::UsageRecordSummary>> {
         client.get_query(
             &format!("/subscription_items/{subscription_item}/usage_record_summaries"),
             self,
@@ -1002,8 +1002,8 @@ impl<'a> UsageRecordSummariesSubscriptionItem<'a> {
     }
     pub fn paginate(
         self,
-        subscription_item: &stripe_types::subscription_item::SubscriptionItemId,
-    ) -> stripe::ListPaginator<stripe_types::UsageRecordSummary> {
+        subscription_item: &stripe_shared::subscription_item::SubscriptionItemId,
+    ) -> stripe::ListPaginator<stripe_shared::UsageRecordSummary> {
         stripe::ListPaginator::from_params(
             &format!("/subscription_items/{subscription_item}/usage_record_summaries"),
             self,

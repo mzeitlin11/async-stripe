@@ -6,6 +6,7 @@ use lazy_static::lazy_static;
 use serde::Deserialize;
 
 use crate::types::{ComponentPath, RustIdent};
+use crate::STRIPE_TYPES;
 
 /// The kind of prefix an id is required to follow
 #[derive(Deserialize)]
@@ -29,18 +30,17 @@ lazy_static! {
 }
 
 pub fn write_object_id(out: &mut String, path: &ComponentPath, ident: &RustIdent) {
-    let crate_name = "stripe_types";
     match ID_PREFIXES.get(path.as_ref()) {
         Some(IdPrefix::Single(prefix)) => {
-            let _ = writeln!(out, r#"{crate_name}::def_id!({ident}, "{prefix}_");"#);
+            let _ = writeln!(out, r#"{STRIPE_TYPES}::def_id!({ident}, "{prefix}_");"#);
         }
         Some(IdPrefix::Multi(prefixes)) => {
             let prefix_arg =
                 prefixes.iter().map(|p| format!(r#""{p}_""#)).collect::<Vec<_>>().join("|");
-            let _ = writeln!(out, "{crate_name}::def_id!({ident}, {prefix_arg});");
+            let _ = writeln!(out, "{STRIPE_TYPES}::def_id!({ident}, {prefix_arg});");
         }
         None => {
-            let _ = writeln!(out, "{crate_name}::def_id!({ident});");
+            let _ = writeln!(out, "{STRIPE_TYPES}::def_id!({ident});");
         }
     }
 }

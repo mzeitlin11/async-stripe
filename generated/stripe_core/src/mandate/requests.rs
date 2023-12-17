@@ -14,8 +14,8 @@ impl<'a> RetrieveMandate<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        mandate: &stripe_types::mandate::MandateId,
-    ) -> stripe::Response<stripe_types::Mandate> {
+        mandate: &stripe_shared::mandate::MandateId,
+    ) -> stripe::Response<stripe_shared::Mandate> {
         client.get_query(&format!("/mandates/{mandate}"), self)
     }
 }

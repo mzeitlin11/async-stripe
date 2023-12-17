@@ -1,1 +1,1 @@
-pub use stripe_types::issuing_authorization_three_d_secure::*;
+pub use stripe_shared::issuing_authorization_three_d_secure::*;

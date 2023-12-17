@@ -1,1 +1,1 @@
-pub use stripe_types::deleted_discount::*;
+pub use stripe_shared::deleted_discount::*;

@@ -1,1 +1,1 @@
-pub use stripe_types::payment_links_resource_invoice_settings::*;
+pub use stripe_shared::payment_links_resource_invoice_settings::*;

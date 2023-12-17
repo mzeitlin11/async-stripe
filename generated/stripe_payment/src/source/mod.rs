@@ -1,4 +1,4 @@
-pub use stripe_types::source::*;
+pub use stripe_shared::source::*;
 #[cfg(feature = "source")]
 mod requests;
 #[cfg(feature = "source")]

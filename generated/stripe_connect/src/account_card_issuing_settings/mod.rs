@@ -1,1 +1,1 @@
-pub use stripe_types::account_card_issuing_settings::*;
+pub use stripe_shared::account_card_issuing_settings::*;

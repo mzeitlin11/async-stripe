@@ -1,1 +1,1 @@
-pub use stripe_types::payment_intent_processing_customer_notification::*;
+pub use stripe_shared::payment_intent_processing_customer_notification::*;

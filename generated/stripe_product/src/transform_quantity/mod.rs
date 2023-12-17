@@ -1,1 +1,1 @@
-pub use stripe_types::transform_quantity::*;
+pub use stripe_shared::transform_quantity::*;

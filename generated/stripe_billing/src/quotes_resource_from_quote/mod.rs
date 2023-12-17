@@ -1,1 +1,1 @@
-pub use stripe_types::quotes_resource_from_quote::*;
+pub use stripe_shared::quotes_resource_from_quote::*;

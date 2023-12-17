@@ -1,1 +1,1 @@
-pub use stripe_types::price_tier::*;
+pub use stripe_shared::price_tier::*;

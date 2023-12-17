@@ -1,1 +1,1 @@
-pub use stripe_types::issuing_cardholder_id_document::*;
+pub use stripe_shared::issuing_cardholder_id_document::*;

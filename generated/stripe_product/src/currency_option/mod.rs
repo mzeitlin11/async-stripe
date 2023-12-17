@@ -1,1 +1,1 @@
-pub use stripe_types::currency_option::*;
+pub use stripe_shared::currency_option::*;

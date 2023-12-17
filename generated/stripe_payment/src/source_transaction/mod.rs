@@ -1,1 +1,1 @@
-pub use stripe_types::source_transaction::*;
+pub use stripe_shared::source_transaction::*;

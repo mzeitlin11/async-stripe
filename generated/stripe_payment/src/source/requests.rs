@@ -14,7 +14,7 @@ impl<'a> DetachSource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_types::customer::CustomerId,
+        customer: &stripe_shared::customer::CustomerId,
         id: &str,
     ) -> stripe::Response<DetachReturned> {
         client.send_form(
@@ -27,8 +27,8 @@ impl<'a> DetachSource<'a> {
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
 pub enum DetachReturned {
-    PaymentSource(stripe_types::PaymentSource),
-    DeletedPaymentSource(stripe_types::DeletedPaymentSource),
+    PaymentSource(stripe_shared::PaymentSource),
+    DeletedPaymentSource(stripe_shared::DeletedPaymentSource),
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveSource<'a> {
@@ -53,8 +53,8 @@ impl<'a> RetrieveSource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        source: &stripe_types::source::SourceId,
-    ) -> stripe::Response<stripe_types::Source> {
+        source: &stripe_shared::source::SourceId,
+    ) -> stripe::Response<stripe_shared::Source> {
         client.get_query(&format!("/sources/{source}"), self)
     }
 }
@@ -880,7 +880,7 @@ impl serde::Serialize for CreateSourceUsage {
 }
 impl<'a> CreateSource<'a> {
     /// Creates a new source object.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::Source> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Source> {
         client.send_form("/sources", self, http_types::Method::Post)
     }
 }
@@ -1468,8 +1468,8 @@ impl<'a> UpdateSource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        source: &stripe_types::source::SourceId,
-    ) -> stripe::Response<stripe_types::Source> {
+        source: &stripe_shared::source::SourceId,
+    ) -> stripe::Response<stripe_shared::Source> {
         client.send_form(&format!("/sources/{source}"), self, http_types::Method::Post)
     }
 }
@@ -1491,8 +1491,8 @@ impl<'a> VerifySource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        source: &stripe_types::source::SourceId,
-    ) -> stripe::Response<stripe_types::Source> {
+        source: &stripe_shared::source::SourceId,
+    ) -> stripe::Response<stripe_shared::Source> {
         client.send_form(&format!("/sources/{source}/verify"), self, http_types::Method::Post)
     }
 }
@@ -1529,14 +1529,14 @@ impl<'a> SourceTransactionsSource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        source: &stripe_types::source::SourceId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::SourceTransaction>> {
+        source: &stripe_shared::source::SourceId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::SourceTransaction>> {
         client.get_query(&format!("/sources/{source}/source_transactions"), self)
     }
     pub fn paginate(
         self,
-        source: &stripe_types::source::SourceId,
-    ) -> stripe::ListPaginator<stripe_types::SourceTransaction> {
+        source: &stripe_shared::source::SourceId,
+    ) -> stripe::ListPaginator<stripe_shared::SourceTransaction> {
         stripe::ListPaginator::from_params(&format!("/sources/{source}/source_transactions"), self)
     }
 }

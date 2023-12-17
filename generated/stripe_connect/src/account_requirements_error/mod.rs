@@ -1,1 +1,1 @@
-pub use stripe_types::account_requirements_error::*;
+pub use stripe_shared::account_requirements_error::*;

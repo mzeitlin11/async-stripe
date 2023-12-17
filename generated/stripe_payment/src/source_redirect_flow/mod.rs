@@ -1,1 +1,1 @@
-pub use stripe_types::source_redirect_flow::*;
+pub use stripe_shared::source_redirect_flow::*;

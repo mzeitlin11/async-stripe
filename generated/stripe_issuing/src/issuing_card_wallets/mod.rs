@@ -1,1 +1,1 @@
-pub use stripe_types::issuing_card_wallets::*;
+pub use stripe_shared::issuing_card_wallets::*;

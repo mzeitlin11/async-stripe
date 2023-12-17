@@ -79,6 +79,7 @@ hyper-rustls-webpki = ["hyper-rustls", "hyper-rustls/webpki-tokio"]
 
 [dependencies]
 stripe_types = {path = "../stripe_types"}
+stripe_shared = {path = "../generated/stripe_shared"}
 async-std = {version = "1.8,<1.11", optional = true}
 
 thiserror = "1.0.24"

@@ -42,10 +42,10 @@ impl<'a> ListTaxRate<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::TaxRate>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::TaxRate>> {
         client.get_query("/tax_rates", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::TaxRate> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::TaxRate> {
         stripe::ListPaginator::from_params("/tax_rates", self)
     }
 }
@@ -66,8 +66,8 @@ impl<'a> RetrieveTaxRate<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        tax_rate: &stripe_types::tax_rate::TaxRateId,
-    ) -> stripe::Response<stripe_types::TaxRate> {
+        tax_rate: &stripe_shared::tax_rate::TaxRateId,
+    ) -> stripe::Response<stripe_shared::TaxRate> {
         client.get_query(&format!("/tax_rates/{tax_rate}"), self)
     }
 }
@@ -224,7 +224,7 @@ impl serde::Serialize for CreateTaxRateTaxType {
 }
 impl<'a> CreateTaxRate<'a> {
     /// Creates a new tax rate.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::TaxRate> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::TaxRate> {
         client.send_form("/tax_rates", self, http_types::Method::Post)
     }
 }
@@ -369,8 +369,8 @@ impl<'a> UpdateTaxRate<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        tax_rate: &stripe_types::tax_rate::TaxRateId,
-    ) -> stripe::Response<stripe_types::TaxRate> {
+        tax_rate: &stripe_shared::tax_rate::TaxRateId,
+    ) -> stripe::Response<stripe_shared::TaxRate> {
         client.send_form(&format!("/tax_rates/{tax_rate}"), self, http_types::Method::Post)
     }
 }

@@ -1,1 +1,1 @@
-pub use stripe_types::recurring::*;
+pub use stripe_shared::recurring::*;

@@ -1,1 +1,1 @@
-pub use stripe_types::subscription_schedule_current_phase::*;
+pub use stripe_shared::subscription_schedule_current_phase::*;

@@ -1,11 +1,9 @@
 /// A Location represents a grouping of readers.
 ///
-/// Related guide: [Fleet management](https://stripe.com/docs/terminal/fleet/locations)
-///
-/// For more details see <<https://stripe.com/docs/api/terminal/locations/object>>.
+/// Related guide: [Fleet management](https://stripe.com/docs/terminal/fleet/locations).
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TerminalLocation {
-    pub address: stripe_types::Address,
+    pub address: stripe_shared::Address,
     /// The ID of a configuration that will be used to customize all readers in this location.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub configuration_overrides: Option<String>,

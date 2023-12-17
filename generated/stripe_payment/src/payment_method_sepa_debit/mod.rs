@@ -1,1 +1,1 @@
-pub use stripe_types::payment_method_sepa_debit::*;
+pub use stripe_shared::payment_method_sepa_debit::*;

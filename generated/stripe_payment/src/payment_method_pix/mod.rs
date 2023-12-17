@@ -1,1 +1,1 @@
-pub use stripe_types::payment_method_pix::*;
+pub use stripe_shared::payment_method_pix::*;

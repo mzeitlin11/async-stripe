@@ -1,1 +1,1 @@
-pub use stripe_types::legal_entity_dob::*;
+pub use stripe_shared::legal_entity_dob::*;

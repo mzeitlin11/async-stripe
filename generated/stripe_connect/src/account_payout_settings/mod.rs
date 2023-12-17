@@ -1,1 +1,1 @@
-pub use stripe_types::account_payout_settings::*;
+pub use stripe_shared::account_payout_settings::*;

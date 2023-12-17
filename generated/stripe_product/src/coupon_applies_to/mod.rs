@@ -1,1 +1,1 @@
-pub use stripe_types::coupon_applies_to::*;
+pub use stripe_shared::coupon_applies_to::*;

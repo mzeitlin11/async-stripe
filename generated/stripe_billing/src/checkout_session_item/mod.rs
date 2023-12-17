@@ -1,1 +1,1 @@
-pub use stripe_types::checkout_session_item::*;
+pub use stripe_shared::checkout_session_item::*;

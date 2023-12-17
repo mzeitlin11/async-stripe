@@ -2,7 +2,7 @@
 /// created.
 ///
 /// These requirements can differ depending on the account's country.
-/// The Country Specs API makes these rules available to your integration.  You can also view the information from this API call as [an online guide](/docs/connect/required-verification-information).  For more details see <<https://stripe.com/docs/api/country_specs/object>>.
+/// The Country Specs API makes these rules available to your integration.  You can also view the information from this API call as [an online guide](/docs/connect/required-verification-information).
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct CountrySpec {
     /// The default currency for this country.

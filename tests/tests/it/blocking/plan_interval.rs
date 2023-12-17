@@ -1,12 +1,11 @@
 //! Basic tests to ensure that the plan interval types
 //! are exported properly. Mainly just needs to compile.
 
-use stripe_billing::plan::RetrievePlan;
+use stripe_billing::plan::{PlanInterval, RetrievePlan};
 use stripe_billing::subscription_item::{
     CreateSubscriptionItem, CreateSubscriptionItemPriceData,
     CreateSubscriptionItemPriceDataRecurring, CreateSubscriptionItemPriceDataRecurringInterval,
 };
-use stripe_types::plan::PlanInterval;
 
 use crate::mock;
 

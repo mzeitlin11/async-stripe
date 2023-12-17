@@ -1,8 +1,6 @@
 /// A Tax Transaction records the tax collected from or refunded to your customer.
 ///
-/// Related guide: [Calculate tax in your custom payment flow](https://stripe.com/docs/tax/custom#tax-transaction)
-///
-/// For more details see <<https://stripe.com/docs/api/tax/transactions/object>>.
+/// Related guide: [Calculate tax in your custom payment flow](https://stripe.com/docs/tax/custom#tax-transaction).
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TaxTransaction {
     /// Time at which the object was created.

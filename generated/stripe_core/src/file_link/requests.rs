@@ -14,8 +14,8 @@ impl<'a> RetrieveFileLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        link: &stripe_types::file_link::FileLinkId,
-    ) -> stripe::Response<stripe_types::FileLink> {
+        link: &stripe_shared::file_link::FileLinkId,
+    ) -> stripe::Response<stripe_shared::FileLink> {
         client.get_query(&format!("/file_links/{link}"), self)
     }
 }
@@ -46,7 +46,7 @@ impl<'a> CreateFileLink<'a> {
 }
 impl<'a> CreateFileLink<'a> {
     /// Creates a new file link object.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::FileLink> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::FileLink> {
         client.send_form("/file_links", self, http_types::Method::Post)
     }
 }
@@ -85,8 +85,8 @@ impl<'a> UpdateFileLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        link: &stripe_types::file_link::FileLinkId,
-    ) -> stripe::Response<stripe_types::FileLink> {
+        link: &stripe_shared::file_link::FileLinkId,
+    ) -> stripe::Response<stripe_shared::FileLink> {
         client.send_form(&format!("/file_links/{link}"), self, http_types::Method::Post)
     }
 }
@@ -133,10 +133,10 @@ impl<'a> ListFileLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::FileLink>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::FileLink>> {
         client.get_query("/file_links", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::FileLink> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::FileLink> {
         stripe::ListPaginator::from_params("/file_links", self)
     }
 }

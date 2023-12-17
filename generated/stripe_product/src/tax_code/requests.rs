@@ -31,10 +31,10 @@ impl<'a> ListTaxCode<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::TaxCode>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::TaxCode>> {
         client.get_query("/tax_codes", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::TaxCode> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::TaxCode> {
         stripe::ListPaginator::from_params("/tax_codes", self)
     }
 }
@@ -57,8 +57,8 @@ impl<'a> RetrieveTaxCode<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::tax_code::TaxCodeId,
-    ) -> stripe::Response<stripe_types::TaxCode> {
+        id: &stripe_shared::tax_code::TaxCodeId,
+    ) -> stripe::Response<stripe_shared::TaxCode> {
         client.get_query(&format!("/tax_codes/{id}"), self)
     }
 }

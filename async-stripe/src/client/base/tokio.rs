@@ -155,7 +155,7 @@ async fn send_inner(
                     tries += 1;
                     let json_deserializer = &mut serde_json::Deserializer::from_slice(&bytes);
                     last_error = serde_path_to_error::deserialize(json_deserializer)
-                        .map(|e: stripe_types::Error| {
+                        .map(|e: stripe_shared::Error| {
                             StripeError::Stripe(*e.error, status.as_u16())
                         })
                         .unwrap_or_else(StripeError::from);
@@ -191,7 +191,7 @@ mod tests {
     use httpmock::prelude::*;
     use hyper::{body::to_bytes, Body, Request as HyperRequest};
     use serde_json::json;
-    use stripe_types::api_errors::{ApiErrorsCode, ApiErrorsType};
+    use stripe_shared::api_errors::{ApiErrorsCode, ApiErrorsType};
 
     use super::convert_request;
     use super::TokioClient;

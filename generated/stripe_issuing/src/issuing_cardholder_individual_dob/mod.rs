@@ -1,1 +1,1 @@
-pub use stripe_types::issuing_cardholder_individual_dob::*;
+pub use stripe_shared::issuing_cardholder_individual_dob::*;

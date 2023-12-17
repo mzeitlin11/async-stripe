@@ -46,10 +46,10 @@ impl<'a> ListSetupAttempt<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::SetupAttempt>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::SetupAttempt>> {
         client.get_query("/setup_attempts", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::SetupAttempt> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::SetupAttempt> {
         stripe::ListPaginator::from_params("/setup_attempts", self)
     }
 }

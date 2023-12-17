@@ -1,1 +1,1 @@
-pub use stripe_types::refund_next_action_display_details::*;
+pub use stripe_shared::refund_next_action_display_details::*;

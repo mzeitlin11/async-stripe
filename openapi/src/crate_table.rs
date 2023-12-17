@@ -12,7 +12,7 @@ pub fn write_crate_table(components: &Components) -> anyhow::Result<()> {
         #[tabled(rename = "Name")]
         name_cell: String,
         #[tabled(rename = "Crate")]
-        krate: String,
+        krate: &'static str,
         #[tabled(rename = "Feature Gate")]
         feature_gate: String,
     }
@@ -29,7 +29,7 @@ pub fn write_crate_table(components: &Components) -> anyhow::Result<()> {
         })
     }
     // Cloning when sorting definitely inefficient, but not a hot path at all
-    comps.sort_unstable_by_key(|c| (c.krate.clone(), c.name_cell.clone()));
+    comps.sort_unstable_by_key(|c| (c.krate, c.name_cell.clone()));
     let mut table = Table::new(comps);
     table.with(Style::markdown());
     let display = table.to_string();

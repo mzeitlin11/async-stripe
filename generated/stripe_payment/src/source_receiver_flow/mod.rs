@@ -1,1 +1,1 @@
-pub use stripe_types::source_receiver_flow::*;
+pub use stripe_shared::source_receiver_flow::*;

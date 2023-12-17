@@ -1,7 +1,6 @@
-use stripe::Client;
+use stripe::{AccountId, Client};
 use stripe_connect::account::ListAccount;
 use stripe_core::customer::ListCustomer;
-use stripe_types::AccountId;
 
 use crate::mock::get_client;
 

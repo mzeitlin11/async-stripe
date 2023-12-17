@@ -60,14 +60,14 @@ impl<'a> ListPerson<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Person>> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Person>> {
         client.get_query(&format!("/accounts/{account}/persons"), self)
     }
     pub fn paginate(
         self,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::ListPaginator<stripe_types::Person> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::ListPaginator<stripe_shared::Person> {
         stripe::ListPaginator::from_params(&format!("/accounts/{account}/persons"), self)
     }
 }
@@ -88,9 +88,9 @@ impl<'a> RetrievePerson<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account: &stripe_shared::account::AccountId,
         person: &str,
-    ) -> stripe::Response<stripe_types::Person> {
+    ) -> stripe::Response<stripe_shared::Person> {
         client.get_query(&format!("/accounts/{account}/persons/{person}"), self)
     }
 }
@@ -507,8 +507,8 @@ impl<'a> CreatePerson<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::Response<stripe_types::Person> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::Response<stripe_shared::Person> {
         client.send_form(&format!("/accounts/{account}/persons"), self, http_types::Method::Post)
     }
 }
@@ -925,9 +925,9 @@ impl<'a> UpdatePerson<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account: &stripe_shared::account::AccountId,
         person: &str,
-    ) -> stripe::Response<stripe_types::Person> {
+    ) -> stripe::Response<stripe_shared::Person> {
         client.send_form(
             &format!("/accounts/{account}/persons/{person}"),
             self,
@@ -950,9 +950,9 @@ impl DeletePerson {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account: &stripe_shared::account::AccountId,
         person: &str,
-    ) -> stripe::Response<stripe_types::DeletedPerson> {
+    ) -> stripe::Response<stripe_shared::DeletedPerson> {
         client.send_form(
             &format!("/accounts/{account}/persons/{person}"),
             self,

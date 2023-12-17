@@ -1,1 +1,1 @@
-pub use stripe_types::subscription_schedule_add_invoice_item::*;
+pub use stripe_shared::subscription_schedule_add_invoice_item::*;

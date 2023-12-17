@@ -1,1 +1,1 @@
-pub use stripe_types::issuing_dispute_treasury::*;
+pub use stripe_shared::issuing_dispute_treasury::*;

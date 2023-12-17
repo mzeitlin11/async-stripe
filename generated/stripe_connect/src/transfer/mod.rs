@@ -1,4 +1,4 @@
-pub use stripe_types::transfer::*;
+pub use stripe_shared::transfer::*;
 #[cfg(feature = "transfer")]
 mod requests;
 #[cfg(feature = "transfer")]

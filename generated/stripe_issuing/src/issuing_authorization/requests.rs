@@ -103,10 +103,10 @@ impl<'a> ListIssuingAuthorization<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::IssuingAuthorization>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::IssuingAuthorization>> {
         client.get_query("/issuing/authorizations", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::IssuingAuthorization> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::IssuingAuthorization> {
         stripe::ListPaginator::from_params("/issuing/authorizations", self)
     }
 }
@@ -127,8 +127,8 @@ impl<'a> RetrieveIssuingAuthorization<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        authorization: &stripe_types::issuing_authorization::IssuingAuthorizationId,
-    ) -> stripe::Response<stripe_types::IssuingAuthorization> {
+        authorization: &stripe_shared::issuing_authorization::IssuingAuthorizationId,
+    ) -> stripe::Response<stripe_shared::IssuingAuthorization> {
         client.get_query(&format!("/issuing/authorizations/{authorization}"), self)
     }
 }
@@ -157,8 +157,8 @@ impl<'a> UpdateIssuingAuthorization<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        authorization: &stripe_types::issuing_authorization::IssuingAuthorizationId,
-    ) -> stripe::Response<stripe_types::IssuingAuthorization> {
+        authorization: &stripe_shared::issuing_authorization::IssuingAuthorizationId,
+    ) -> stripe::Response<stripe_shared::IssuingAuthorization> {
         client.send_form(
             &format!("/issuing/authorizations/{authorization}"),
             self,
@@ -198,8 +198,8 @@ impl<'a> ApproveIssuingAuthorization<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        authorization: &stripe_types::issuing_authorization::IssuingAuthorizationId,
-    ) -> stripe::Response<stripe_types::IssuingAuthorization> {
+        authorization: &stripe_shared::issuing_authorization::IssuingAuthorizationId,
+    ) -> stripe::Response<stripe_shared::IssuingAuthorization> {
         client.send_form(
             &format!("/issuing/authorizations/{authorization}/approve"),
             self,
@@ -233,8 +233,8 @@ impl<'a> DeclineIssuingAuthorization<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        authorization: &stripe_types::issuing_authorization::IssuingAuthorizationId,
-    ) -> stripe::Response<stripe_types::IssuingAuthorization> {
+        authorization: &stripe_shared::issuing_authorization::IssuingAuthorizationId,
+    ) -> stripe::Response<stripe_shared::IssuingAuthorization> {
         client.send_form(
             &format!("/issuing/authorizations/{authorization}/decline"),
             self,
@@ -1964,7 +1964,7 @@ impl<'a> CreateIssuingAuthorization<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::IssuingAuthorization> {
+    ) -> stripe::Response<stripe_shared::IssuingAuthorization> {
         client.send_form("/test_helpers/issuing/authorizations", self, http_types::Method::Post)
     }
 }
@@ -1992,7 +1992,7 @@ impl<'a> IncrementIssuingAuthorization<'a> {
         &self,
         client: &stripe::Client,
         authorization: &str,
-    ) -> stripe::Response<stripe_types::IssuingAuthorization> {
+    ) -> stripe::Response<stripe_shared::IssuingAuthorization> {
         client.send_form(
             &format!("/test_helpers/issuing/authorizations/{authorization}/increment"),
             self,
@@ -2023,7 +2023,7 @@ impl<'a> ReverseIssuingAuthorization<'a> {
         &self,
         client: &stripe::Client,
         authorization: &str,
-    ) -> stripe::Response<stripe_types::IssuingAuthorization> {
+    ) -> stripe::Response<stripe_shared::IssuingAuthorization> {
         client.send_form(
             &format!("/test_helpers/issuing/authorizations/{authorization}/reverse"),
             self,
@@ -2048,7 +2048,7 @@ impl<'a> ExpireIssuingAuthorization<'a> {
         &self,
         client: &stripe::Client,
         authorization: &str,
-    ) -> stripe::Response<stripe_types::IssuingAuthorization> {
+    ) -> stripe::Response<stripe_shared::IssuingAuthorization> {
         client.send_form(
             &format!("/test_helpers/issuing/authorizations/{authorization}/expire"),
             self,
@@ -2336,7 +2336,7 @@ impl<'a> CaptureIssuingAuthorization<'a> {
         &self,
         client: &stripe::Client,
         authorization: &str,
-    ) -> stripe::Response<stripe_types::IssuingAuthorization> {
+    ) -> stripe::Response<stripe_shared::IssuingAuthorization> {
         client.send_form(
             &format!("/test_helpers/issuing/authorizations/{authorization}/capture"),
             self,

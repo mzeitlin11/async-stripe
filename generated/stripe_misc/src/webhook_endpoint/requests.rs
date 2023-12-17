@@ -64,7 +64,7 @@ impl<'a> RetrieveWebhookEndpoint<'a> {
 pub struct CreateWebhookEndpoint<'a> {
     /// Events sent to this endpoint will be generated with this Stripe Version instead of your account's default Stripe Version.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub api_version: Option<stripe_types::ApiVersion>,
+    pub api_version: Option<stripe_shared::ApiVersion>,
     /// Whether this endpoint should receive events from connected accounts (`true`), or from your account (`false`).
     ///
     /// Defaults to `false`.

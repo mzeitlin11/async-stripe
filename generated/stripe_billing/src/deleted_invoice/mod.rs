@@ -1,1 +1,1 @@
-pub use stripe_types::deleted_invoice::*;
+pub use stripe_shared::deleted_invoice::*;

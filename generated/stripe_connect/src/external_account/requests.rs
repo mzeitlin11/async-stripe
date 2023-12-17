@@ -85,14 +85,14 @@ impl<'a> ListExternalAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::ExternalAccount>> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::ExternalAccount>> {
         client.get_query(&format!("/accounts/{account}/external_accounts"), self)
     }
     pub fn paginate(
         self,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::ListPaginator<stripe_types::ExternalAccount> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::ListPaginator<stripe_shared::ExternalAccount> {
         stripe::ListPaginator::from_params(&format!("/accounts/{account}/external_accounts"), self)
     }
 }
@@ -113,9 +113,9 @@ impl<'a> RetrieveExternalAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account: &stripe_shared::account::AccountId,
         id: &str,
-    ) -> stripe::Response<stripe_types::ExternalAccount> {
+    ) -> stripe::Response<stripe_shared::ExternalAccount> {
         client.get_query(&format!("/accounts/{account}/external_accounts/{id}"), self)
     }
 }
@@ -147,8 +147,8 @@ impl<'a> CreateExternalAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
-    ) -> stripe::Response<stripe_types::ExternalAccount> {
+        account: &stripe_shared::account::AccountId,
+    ) -> stripe::Response<stripe_shared::ExternalAccount> {
         client.send_form(
             &format!("/accounts/{account}/external_accounts"),
             self,
@@ -370,9 +370,9 @@ impl<'a> UpdateExternalAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account: &stripe_shared::account::AccountId,
         id: &str,
-    ) -> stripe::Response<stripe_types::ExternalAccount> {
+    ) -> stripe::Response<stripe_shared::ExternalAccount> {
         client.send_form(
             &format!("/accounts/{account}/external_accounts/{id}"),
             self,
@@ -392,9 +392,9 @@ impl DeleteExternalAccount {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account: &stripe_shared::account::AccountId,
         id: &str,
-    ) -> stripe::Response<stripe_types::DeletedExternalAccount> {
+    ) -> stripe::Response<stripe_shared::DeletedExternalAccount> {
         client.send_form(
             &format!("/accounts/{account}/external_accounts/{id}"),
             self,

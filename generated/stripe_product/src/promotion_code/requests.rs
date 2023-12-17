@@ -16,8 +16,8 @@ impl<'a> RetrievePromotionCode<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        promotion_code: &stripe_types::promotion_code::PromotionCodeId,
-    ) -> stripe::Response<stripe_types::PromotionCode> {
+        promotion_code: &stripe_shared::promotion_code::PromotionCodeId,
+    ) -> stripe::Response<stripe_shared::PromotionCode> {
         client.get_query(&format!("/promotion_codes/{promotion_code}"), self)
     }
 }
@@ -124,7 +124,7 @@ impl<'a> CreatePromotionCode<'a> {
     /// A promotion code points to a coupon.
     ///
     /// You can optionally restrict the code to a specific customer, redemption limit, and expiration date.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::PromotionCode> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::PromotionCode> {
         client.send_form("/promotion_codes", self, http_types::Method::Post)
     }
 }
@@ -194,8 +194,8 @@ impl<'a> UpdatePromotionCode<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        promotion_code: &stripe_types::promotion_code::PromotionCodeId,
-    ) -> stripe::Response<stripe_types::PromotionCode> {
+        promotion_code: &stripe_shared::promotion_code::PromotionCodeId,
+    ) -> stripe::Response<stripe_shared::PromotionCode> {
         client.send_form(
             &format!("/promotion_codes/{promotion_code}"),
             self,
@@ -253,10 +253,10 @@ impl<'a> ListPromotionCode<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::PromotionCode>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::PromotionCode>> {
         client.get_query("/promotion_codes", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::PromotionCode> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::PromotionCode> {
         stripe::ListPaginator::from_params("/promotion_codes", self)
     }
 }

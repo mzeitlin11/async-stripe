@@ -1,1 +1,1 @@
-pub use stripe_types::payment_method_options_sofort::*;
+pub use stripe_shared::payment_method_options_sofort::*;

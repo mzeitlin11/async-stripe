@@ -1,1 +1,1 @@
-pub use stripe_types::issuing_authorization_treasury::*;
+pub use stripe_shared::issuing_authorization_treasury::*;

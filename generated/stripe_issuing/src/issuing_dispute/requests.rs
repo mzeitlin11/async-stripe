@@ -102,10 +102,10 @@ impl<'a> ListIssuingDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::IssuingDispute>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::IssuingDispute>> {
         client.get_query("/issuing/disputes", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::IssuingDispute> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::IssuingDispute> {
         stripe::ListPaginator::from_params("/issuing/disputes", self)
     }
 }
@@ -699,7 +699,7 @@ impl<'a> CreateIssuingDispute<'a> {
     /// Individual pieces of evidence within the `evidence` object are optional at this point.
     /// Stripe only validates that required evidence is present during submission.
     /// Refer to [Dispute reasons and evidence](https://stripe.com/docs/issuing/purchases/disputes#dispute-reasons-and-evidence) for more details about evidence requirements.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::IssuingDispute> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::IssuingDispute> {
         client.send_form("/issuing/disputes", self, http_types::Method::Post)
     }
 }
@@ -1273,8 +1273,8 @@ impl<'a> UpdateIssuingDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_types::issuing_dispute::IssuingDisputeId,
-    ) -> stripe::Response<stripe_types::IssuingDispute> {
+        dispute: &stripe_shared::issuing_dispute::IssuingDisputeId,
+    ) -> stripe::Response<stripe_shared::IssuingDispute> {
         client.send_form(&format!("/issuing/disputes/{dispute}"), self, http_types::Method::Post)
     }
 }
@@ -1294,8 +1294,8 @@ impl<'a> RetrieveIssuingDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_types::issuing_dispute::IssuingDisputeId,
-    ) -> stripe::Response<stripe_types::IssuingDispute> {
+        dispute: &stripe_shared::issuing_dispute::IssuingDisputeId,
+    ) -> stripe::Response<stripe_shared::IssuingDispute> {
         client.get_query(&format!("/issuing/disputes/{dispute}"), self)
     }
 }
@@ -1325,8 +1325,8 @@ impl<'a> SubmitIssuingDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_types::issuing_dispute::IssuingDisputeId,
-    ) -> stripe::Response<stripe_types::IssuingDispute> {
+        dispute: &stripe_shared::issuing_dispute::IssuingDisputeId,
+    ) -> stripe::Response<stripe_shared::IssuingDispute> {
         client.send_form(
             &format!("/issuing/disputes/{dispute}/submit"),
             self,

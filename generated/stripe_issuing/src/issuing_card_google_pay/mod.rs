@@ -1,1 +1,1 @@
-pub use stripe_types::issuing_card_google_pay::*;
+pub use stripe_shared::issuing_card_google_pay::*;

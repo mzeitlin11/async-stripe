@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 use openapiv3::Schema;
 use serde::{Deserialize, Serialize};
 
-use crate::crate_inference::Crate;
+use crate::crates::Crate;
 use crate::object_writing::ObjectGenInfo;
 use crate::rust_object::RustObject;
 use crate::rust_type::RustType;
@@ -16,25 +16,25 @@ use crate::visitor::{Visit, VisitMut};
 #[derive(Debug, Copy, Clone, Hash, Eq, PartialEq)]
 pub struct CrateInfo {
     krate: Crate,
-    type_defs_in_stripe_types: bool,
+    type_defs_are_shared: bool,
 }
 
 impl CrateInfo {
     pub fn new(krate: Crate) -> Self {
-        Self { krate, type_defs_in_stripe_types: false }
+        Self { krate, type_defs_are_shared: false }
     }
 
-    pub fn set_type_defs_in_types_crate(&mut self) {
-        self.type_defs_in_stripe_types = true;
+    pub fn set_share_type_defs(&mut self) {
+        self.type_defs_are_shared = true;
     }
 
-    pub fn are_type_defs_types_crate(&self) -> bool {
-        self.type_defs_in_stripe_types || self.krate == Crate::TYPES
+    pub fn are_type_defs_shared(&self) -> bool {
+        self.type_defs_are_shared || self.krate == Crate::SHARED
     }
 
     pub fn for_types(&self) -> Crate {
-        if self.type_defs_in_stripe_types {
-            Crate::TYPES
+        if self.type_defs_are_shared {
+            Crate::SHARED
         } else {
             self.krate
         }

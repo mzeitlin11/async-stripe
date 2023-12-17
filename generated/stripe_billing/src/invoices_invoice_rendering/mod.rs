@@ -1,1 +1,1 @@
-pub use stripe_types::invoices_invoice_rendering::*;
+pub use stripe_shared::invoices_invoice_rendering::*;

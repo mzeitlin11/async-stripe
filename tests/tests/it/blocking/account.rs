@@ -1,9 +1,9 @@
+use stripe::AccountId;
 use stripe_connect::account::{
     CreateAccount, CreateAccountCapabilities, CreateAccountCapabilitiesAcssDebitPayments,
     ListAccount,
 };
 use stripe_connect::account_capabilities::AccountCapabilitiesCardPayments;
-use stripe_types::AccountId;
 
 use crate::mock;
 

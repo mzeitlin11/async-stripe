@@ -1,1 +1,1 @@
-pub use stripe_types::offline_acceptance::*;
+pub use stripe_shared::offline_acceptance::*;

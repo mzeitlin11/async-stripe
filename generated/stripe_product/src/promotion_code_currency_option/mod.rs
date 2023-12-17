@@ -1,1 +1,1 @@
-pub use stripe_types::promotion_code_currency_option::*;
+pub use stripe_shared::promotion_code_currency_option::*;

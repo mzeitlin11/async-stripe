@@ -1,1 +1,1 @@
-pub use stripe_types::issuing_network_token_address::*;
+pub use stripe_shared::issuing_network_token_address::*;

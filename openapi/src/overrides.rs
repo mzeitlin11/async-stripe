@@ -75,7 +75,7 @@ impl VisitMut for Overrides {
     fn visit_typ_mut(&mut self, typ: &mut RustType) {
         if let Some((obj, _)) = typ.as_object_mut() {
             if let Some(meta) = self.overrides.get(obj) {
-                *typ = RustType::path(PathToType::Type(meta.ident.clone()), false);
+                *typ = RustType::path(PathToType::Shared(meta.ident.clone()), false);
             }
         }
         typ.visit_mut(self);

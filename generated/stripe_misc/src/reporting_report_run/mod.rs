@@ -2,7 +2,7 @@
 /// specific run parameters.
 ///
 /// Once the object is created, Stripe begins processing the report. When the report has finished running, it will give you a reference to a file where you can retrieve your results.
-/// For an overview, see [API Access to Reports](https://stripe.com/docs/reporting/statements/api).  Note that certain report types can only be run based on your live-mode data (not test-mode data), and will error when queried without a [live-mode API key](https://stripe.com/docs/keys#test-live-modes).  For more details see <<https://stripe.com/docs/api/reporting/report_run/object>>.
+/// For an overview, see [API Access to Reports](https://stripe.com/docs/reporting/statements/api).  Note that certain report types can only be run based on your live-mode data (not test-mode data), and will error when queried without a [live-mode API key](https://stripe.com/docs/keys#test-live-modes).
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct ReportingReportRun {
     /// Time at which the object was created.
@@ -21,7 +21,7 @@ pub struct ReportingReportRun {
     pub report_type: String,
     /// The file object representing the result of the report run (populated when
     ///  `status=succeeded`).
-    pub result: Option<stripe_types::File>,
+    pub result: Option<stripe_shared::File>,
     /// Status of this report run.
     ///
     /// This will be `pending` when the run is initially created.  When the run finishes, this will be set to `succeeded` and the `result` field will be populated.  Rarely, we may encounter an error, at which point this will be set to `failed` and the `error` field will be populated.

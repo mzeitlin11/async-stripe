@@ -1,1 +1,1 @@
-pub use stripe_types::invoice_threshold_reason::*;
+pub use stripe_shared::invoice_threshold_reason::*;

@@ -1,1 +1,1 @@
-pub use stripe_types::mandate_acss_debit::*;
+pub use stripe_shared::mandate_acss_debit::*;

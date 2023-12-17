@@ -1,7 +1,7 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct GelatoVerifiedOutputs {
     /// The user's verified address.
-    pub address: Option<stripe_types::Address>,
+    pub address: Option<stripe_shared::Address>,
     /// The user’s verified date of birth.
     pub dob: Option<stripe_misc::GelatoDataVerifiedOutputsDate>,
     /// The user's verified first name.

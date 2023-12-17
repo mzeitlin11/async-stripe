@@ -1,1 +1,1 @@
-pub use stripe_types::source_order_item::*;
+pub use stripe_shared::source_order_item::*;

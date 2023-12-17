@@ -1,4 +1,4 @@
-pub use stripe_types::mandate::*;
+pub use stripe_shared::mandate::*;
 #[cfg(feature = "mandate")]
 mod requests;
 #[cfg(feature = "mandate")]

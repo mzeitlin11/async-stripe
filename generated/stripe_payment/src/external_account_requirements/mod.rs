@@ -1,1 +1,1 @@
-pub use stripe_types::external_account_requirements::*;
+pub use stripe_shared::external_account_requirements::*;

@@ -1,1 +1,1 @@
-pub use stripe_types::mandate_multi_use::*;
+pub use stripe_shared::mandate_multi_use::*;

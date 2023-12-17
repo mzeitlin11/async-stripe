@@ -1,1 +1,1 @@
-pub use stripe_types::issuing_dispute_other_evidence::*;
+pub use stripe_shared::issuing_dispute_other_evidence::*;

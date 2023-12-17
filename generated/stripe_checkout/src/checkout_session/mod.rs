@@ -2,7 +2,7 @@
 /// one-time purchases or subscriptions through [Checkout](https://stripe.com/docs/payments/checkout)
 /// or [Payment Links](https://stripe.com/docs/payments/payment-links).
 ///
-/// We recommend creating a new Session each time your customer attempts to pay.  Once payment is successful, the Checkout Session will contain a reference to the [Customer](https://stripe.com/docs/api/customers), and either the successful [PaymentIntent](https://stripe.com/docs/api/payment_intents) or an active [Subscription](https://stripe.com/docs/api/subscriptions).  You can create a Checkout Session on your server and redirect to its URL to begin Checkout.  Related guide: [Checkout quickstart](https://stripe.com/docs/checkout/quickstart)  For more details see <<https://stripe.com/docs/api/checkout/sessions/object>>.
+/// We recommend creating a new Session each time your customer attempts to pay.  Once payment is successful, the Checkout Session will contain a reference to the [Customer](https://stripe.com/docs/api/customers), and either the successful [PaymentIntent](https://stripe.com/docs/api/payment_intents) or an active [Subscription](https://stripe.com/docs/api/subscriptions).  You can create a Checkout Session on your server and redirect to its URL to begin Checkout.  Related guide: [Checkout quickstart](https://stripe.com/docs/checkout/quickstart).
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct CheckoutSession {
     /// When set, provides configuration for actions to take if this Checkout Session expires.
@@ -48,7 +48,7 @@ pub struct CheckoutSession {
     /// will create a new customer object based on information provided
     /// during the payment flow unless an existing customer was provided when
     /// the Session was created.
-    pub customer: Option<stripe_types::Expandable<stripe_types::Customer>>,
+    pub customer: Option<stripe_types::Expandable<stripe_shared::Customer>>,
     /// Configure whether a Checkout Session creates a Customer when the Checkout Session completes.
     pub customer_creation: Option<CheckoutSessionCustomerCreation>,
     /// The customer details including the customer's tax exempt status and the customer's tax IDs.
@@ -67,12 +67,12 @@ pub struct CheckoutSession {
     /// Unique identifier for the object.
     pub id: stripe_checkout::checkout_session::CheckoutSessionId,
     /// ID of the invoice created by the Checkout Session, if it exists.
-    pub invoice: Option<stripe_types::Expandable<stripe_types::Invoice>>,
+    pub invoice: Option<stripe_types::Expandable<stripe_shared::Invoice>>,
     /// Details on the state of invoice creation for the Checkout Session.
     pub invoice_creation: Option<stripe_checkout::PaymentPagesCheckoutSessionInvoiceCreation>,
     /// The line items purchased by the customer.
     #[serde(default)]
-    pub line_items: stripe_types::List<stripe_types::CheckoutSessionItem>,
+    pub line_items: stripe_types::List<stripe_shared::CheckoutSessionItem>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// The IETF language tag of the locale Checkout is displayed in.
@@ -86,14 +86,14 @@ pub struct CheckoutSession {
     /// The mode of the Checkout Session.
     pub mode: CheckoutSessionMode,
     /// The ID of the PaymentIntent for Checkout Sessions in `payment` mode.
-    pub payment_intent: Option<stripe_types::Expandable<stripe_types::PaymentIntent>>,
+    pub payment_intent: Option<stripe_types::Expandable<stripe_shared::PaymentIntent>>,
     /// The ID of the Payment Link that created this Session.
-    pub payment_link: Option<stripe_types::Expandable<stripe_types::PaymentLink>>,
+    pub payment_link: Option<stripe_types::Expandable<stripe_shared::PaymentLink>>,
     /// Configure whether a Checkout Session should collect a payment method.
     pub payment_method_collection: Option<CheckoutSessionPaymentMethodCollection>,
     /// Information about the payment method configuration used for this Checkout session if using dynamic payment methods.
     pub payment_method_configuration_details:
-        Option<stripe_types::PaymentMethodConfigBizPaymentMethodConfigurationDetails>,
+        Option<stripe_shared::PaymentMethodConfigBizPaymentMethodConfigurationDetails>,
     /// Payment-method-specific configuration for the PaymentIntent or SetupIntent of this CheckoutSession.
     pub payment_method_options: Option<stripe_checkout::CheckoutSessionPaymentMethodOptions>,
     /// A list of the types of payment methods (e.g.
@@ -120,14 +120,14 @@ pub struct CheckoutSession {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_url: Option<String>,
     /// The ID of the SetupIntent for Checkout Sessions in `setup` mode.
-    pub setup_intent: Option<stripe_types::Expandable<stripe_types::SetupIntent>>,
+    pub setup_intent: Option<stripe_types::Expandable<stripe_shared::SetupIntent>>,
     /// When set, provides configuration for Checkout to collect a shipping address from a customer.
     pub shipping_address_collection:
         Option<stripe_checkout::PaymentPagesCheckoutSessionShippingAddressCollection>,
     /// The details of the customer cost of shipping, including the customer chosen ShippingRate.
     pub shipping_cost: Option<stripe_checkout::PaymentPagesCheckoutSessionShippingCost>,
     /// Shipping information for this Checkout Session.
-    pub shipping_details: Option<stripe_types::Shipping>,
+    pub shipping_details: Option<stripe_shared::Shipping>,
     /// The shipping rate options applied to this Session.
     pub shipping_options: Vec<stripe_checkout::PaymentPagesCheckoutSessionShippingOption>,
     /// The status of the Checkout Session, one of `open`, `complete`, or `expired`.
@@ -138,7 +138,7 @@ pub struct CheckoutSession {
     /// `submit_type` can only be specified on Checkout Sessions in `payment` mode, but not Checkout Sessions in `subscription` or `setup` mode.
     pub submit_type: Option<CheckoutSessionSubmitType>,
     /// The ID of the subscription for Checkout Sessions in `subscription` mode.
-    pub subscription: Option<stripe_types::Expandable<stripe_types::Subscription>>,
+    pub subscription: Option<stripe_types::Expandable<stripe_shared::Subscription>>,
     /// The URL the customer will be directed to after the payment or
     /// subscription creation is successful.
     pub success_url: Option<String>,

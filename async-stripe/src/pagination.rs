@@ -6,6 +6,9 @@ use stripe_types::{List, Object};
 
 use crate::{Client, Response};
 
+/// Should only be implemented by `List*` parameter types. Kept public so that
+/// the generated code crates can access this trait.
+#[doc(hidden)]
 pub trait PaginationParams: Serialize {}
 
 #[derive(Debug)]
@@ -13,7 +16,7 @@ pub struct ListPaginator<T> {
     data: Vec<T>,
     url: String,
     has_more: bool,
-    total_count: Option<usize>,
+    total_count: Option<u64>,
     params: serde_json::Value,
 }
 
@@ -26,11 +29,25 @@ where
     T: Object + DeserializeOwned + Send + Sync + 'static,
 {
     fn into_paginator(self) -> ListPaginator<T> {
-        ListPaginator::new_from_list(self)
+        let mut paginator = ListPaginator {
+            data: self.data,
+            // the url we get back is prefixed
+            url: self.url.trim_start_matches("/v1/").to_string(),
+            has_more: self.has_more,
+            total_count: self.total_count,
+            params: Default::default(),
+        };
+        if let Some(curr_cursor) = paginator.data.last().and_then(|t| t.id()) {
+            paginator.update_cursor(curr_cursor.to_string());
+        }
+        paginator
     }
 }
 
 impl<T> ListPaginator<T> {
+    /// Kept public so that the generated code crates can access this trait. Used by `List*` params
+    /// to implement `PaginationExt`.
+    #[doc(hidden)]
     pub fn from_params(url: &str, params: impl PaginationParams) -> Self {
         ListPaginator {
             data: vec![],
@@ -52,7 +69,7 @@ where
     /// Requires `feature = "blocking"`.
     #[cfg(feature = "blocking")]
     pub fn get_all(self, client: &Client) -> Response<Vec<T>> {
-        let mut data = Vec::with_capacity(self.total_count.unwrap_or(0));
+        let mut data = Vec::with_capacity(self.total_count.unwrap_or(0) as usize);
         let mut paginator = self;
         loop {
             if !paginator.has_more {
@@ -123,28 +140,13 @@ where
         client.get_query(&self.url, &self.params)
     }
 
-    fn new_from_list(list: List<T>) -> Self {
-        let mut paginator = Self {
-            data: list.data,
-            // the url we get back is prefixed
-            url: list.url.trim_start_matches("/v1/").to_string(),
-            has_more: list.has_more,
-            total_count: list.total_count.map(|t| t as usize),
-            params: Default::default(),
-        };
-        if let Some(curr_cursor) = paginator.data.last().and_then(|t| t.id()) {
-            paginator.update_cursor(curr_cursor.to_string());
-        }
-        paginator
-    }
-
     fn update_cursor(&mut self, id: String) {
         self.params["starting_after"] = serde_json::Value::String(id);
     }
 
     fn update_with_new_data(&mut self, list: List<T>) {
         self.has_more = list.has_more;
-        self.total_count = list.total_count.map(|t| t as usize);
+        self.total_count = list.total_count;
         if let Some(new_cursor) = list.data.last().and_then(|l| l.id()) {
             self.update_cursor(new_cursor.to_string());
         } else {

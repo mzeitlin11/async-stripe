@@ -9,5 +9,5 @@ pub struct TerminalReaderReaderResourceProcessSetupIntentAction {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub process_config: Option<stripe_terminal::TerminalReaderReaderResourceProcessSetupConfig>,
     /// Most recent SetupIntent processed by the reader.
-    pub setup_intent: stripe_types::Expandable<stripe_types::SetupIntent>,
+    pub setup_intent: stripe_types::Expandable<stripe_shared::SetupIntent>,
 }

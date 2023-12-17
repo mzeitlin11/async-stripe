@@ -1,4 +1,4 @@
-pub use stripe_types::issuing_authorization::*;
+pub use stripe_shared::issuing_authorization::*;
 #[cfg(feature = "issuing_authorization")]
 mod requests;
 #[cfg(feature = "issuing_authorization")]

@@ -31,80 +31,11 @@ impl<'a> SearchPaymentIntent<'a> {
     /// Under normal operating conditions, data is searchable in less than a minute.
     /// Occasionally, propagation of new or updated data can be up to an hour behind during outages.
     /// Search functionality is not available to merchants in India.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<SearchReturned> {
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+    ) -> stripe::Response<stripe_types::SearchList<stripe_shared::PaymentIntent>> {
         client.get_query("/payment_intents/search", self)
-    }
-}
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-pub struct SearchReturned {
-    pub data: Vec<stripe_types::PaymentIntent>,
-    pub has_more: bool,
-    pub next_page: Option<String>,
-    /// String representing the object's type.
-    ///
-    /// Objects of the same type share the same value.
-    pub object: SearchReturnedObject,
-    /// The total number of objects that match the query, only accurate up to 10,000.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub total_count: Option<u64>,
-    pub url: String,
-}
-/// String representing the object's type.
-///
-/// Objects of the same type share the same value.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum SearchReturnedObject {
-    SearchResult,
-}
-impl SearchReturnedObject {
-    pub fn as_str(self) -> &'static str {
-        use SearchReturnedObject::*;
-        match self {
-            SearchResult => "search_result",
-        }
-    }
-}
-
-impl std::str::FromStr for SearchReturnedObject {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use SearchReturnedObject::*;
-        match s {
-            "search_result" => Ok(SearchResult),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for SearchReturnedObject {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for SearchReturnedObject {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for SearchReturnedObject {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for SearchReturnedObject {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for SearchReturnedObject {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for SearchReturnedObject"))
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -6846,7 +6777,7 @@ impl<'a> CreatePaymentIntent<'a> {
     ///
     /// Learn more about [the available payment flows with the Payment Intents API](https://stripe.com/docs/payments/payment-intents).  When you use `confirm=true` during creation, it’s equivalent to creating and confirming the PaymentIntent in the same call.
     /// You can use any parameters available in the [confirm API](https://stripe.com/docs/api/payment_intents/confirm) when you supply `confirm=true`.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::PaymentIntent> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::PaymentIntent> {
         client.send_form("/payment_intents", self, http_types::Method::Post)
     }
 }
@@ -6891,10 +6822,10 @@ impl<'a> ListPaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::PaymentIntent>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::PaymentIntent>> {
         client.get_query("/payment_intents", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::PaymentIntent> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::PaymentIntent> {
         stripe::ListPaginator::from_params("/payment_intents", self)
     }
 }
@@ -6924,8 +6855,8 @@ impl<'a> RetrievePaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::payment_intent::PaymentIntentId,
-    ) -> stripe::Response<stripe_types::PaymentIntent> {
+        intent: &stripe_shared::payment_intent::PaymentIntentId,
+    ) -> stripe::Response<stripe_shared::PaymentIntent> {
         client.get_query(&format!("/payment_intents/{intent}"), self)
     }
 }
@@ -13325,8 +13256,8 @@ impl<'a> UpdatePaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::payment_intent::PaymentIntentId,
-    ) -> stripe::Response<stripe_types::PaymentIntent> {
+        intent: &stripe_shared::payment_intent::PaymentIntentId,
+    ) -> stripe::Response<stripe_shared::PaymentIntent> {
         client.send_form(&format!("/payment_intents/{intent}"), self, http_types::Method::Post)
     }
 }
@@ -19907,8 +19838,8 @@ impl<'a> ConfirmPaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::payment_intent::PaymentIntentId,
-    ) -> stripe::Response<stripe_types::PaymentIntent> {
+        intent: &stripe_shared::payment_intent::PaymentIntentId,
+    ) -> stripe::Response<stripe_shared::PaymentIntent> {
         client.send_form(
             &format!("/payment_intents/{intent}/confirm"),
             self,
@@ -20001,8 +19932,8 @@ impl<'a> CancelPaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::payment_intent::PaymentIntentId,
-    ) -> stripe::Response<stripe_types::PaymentIntent> {
+        intent: &stripe_shared::payment_intent::PaymentIntentId,
+    ) -> stripe::Response<stripe_shared::PaymentIntent> {
         client.send_form(
             &format!("/payment_intents/{intent}/cancel"),
             self,
@@ -20087,8 +20018,8 @@ impl<'a> CapturePaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::payment_intent::PaymentIntentId,
-    ) -> stripe::Response<stripe_types::PaymentIntent> {
+        intent: &stripe_shared::payment_intent::PaymentIntentId,
+    ) -> stripe::Response<stripe_shared::PaymentIntent> {
         client.send_form(
             &format!("/payment_intents/{intent}/capture"),
             self,
@@ -20170,8 +20101,8 @@ impl<'a> IncrementAuthorizationPaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::payment_intent::PaymentIntentId,
-    ) -> stripe::Response<stripe_types::PaymentIntent> {
+        intent: &stripe_shared::payment_intent::PaymentIntentId,
+    ) -> stripe::Response<stripe_shared::PaymentIntent> {
         client.send_form(
             &format!("/payment_intents/{intent}/increment_authorization"),
             self,
@@ -20201,8 +20132,8 @@ impl<'a> VerifyMicrodepositsPaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::payment_intent::PaymentIntentId,
-    ) -> stripe::Response<stripe_types::PaymentIntent> {
+        intent: &stripe_shared::payment_intent::PaymentIntentId,
+    ) -> stripe::Response<stripe_shared::PaymentIntent> {
         client.send_form(
             &format!("/payment_intents/{intent}/verify_microdeposits"),
             self,
@@ -20240,8 +20171,8 @@ impl<'a> ApplyCustomerBalancePaymentIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::payment_intent::PaymentIntentId,
-    ) -> stripe::Response<stripe_types::PaymentIntent> {
+        intent: &stripe_shared::payment_intent::PaymentIntentId,
+    ) -> stripe::Response<stripe_shared::PaymentIntent> {
         client.send_form(
             &format!("/payment_intents/{intent}/apply_customer_balance"),
             self,

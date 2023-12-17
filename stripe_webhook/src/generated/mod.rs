@@ -3,94 +3,94 @@
 #[serde(tag = "object")]
 pub enum EventObject {
     #[serde(rename = "account")]
-    Account(stripe_types::Account),
+    Account(stripe_shared::Account),
     #[serde(rename = "capability")]
-    Capability(stripe_types::Capability),
+    Capability(stripe_shared::Capability),
     #[serde(rename = "application")]
-    Application(stripe_types::Application),
+    Application(stripe_shared::Application),
     #[serde(rename = "application_fee")]
-    ApplicationFee(stripe_types::ApplicationFee),
+    ApplicationFee(stripe_shared::ApplicationFee),
     #[serde(rename = "fee_refund")]
-    ApplicationFeeRefund(stripe_types::ApplicationFeeRefund),
+    ApplicationFeeRefund(stripe_shared::ApplicationFeeRefund),
     #[cfg(feature = "stripe_core")]
     #[serde(rename = "balance")]
     Balance(stripe_core::Balance),
     #[serde(rename = "bank_account")]
-    BankAccount(stripe_types::BankAccount),
+    BankAccount(stripe_shared::BankAccount),
     #[cfg(feature = "stripe_billing")]
     #[serde(rename = "billing_portal.configuration")]
     BillingPortalConfiguration(stripe_billing::BillingPortalConfiguration),
     #[serde(rename = "card")]
-    Card(stripe_types::Card),
+    Card(stripe_shared::Card),
     #[cfg(feature = "stripe_checkout")]
     #[serde(rename = "checkout.session")]
     CheckoutSession(stripe_checkout::CheckoutSession),
     #[serde(rename = "coupon")]
-    Coupon(stripe_types::Coupon),
+    Coupon(stripe_shared::Coupon),
     #[serde(rename = "customer")]
-    Customer(stripe_types::Customer),
+    Customer(stripe_shared::Customer),
     #[serde(rename = "discount")]
-    Discount(stripe_types::Discount),
+    Discount(stripe_shared::Discount),
     #[serde(rename = "dispute")]
-    Dispute(stripe_types::Dispute),
+    Dispute(stripe_shared::Dispute),
     #[serde(rename = "file")]
-    File(stripe_types::File),
+    File(stripe_shared::File),
     #[serde(rename = "invoice")]
-    Invoice(stripe_types::Invoice),
+    Invoice(stripe_shared::Invoice),
     #[serde(rename = "invoiceitem")]
-    InvoiceItem(stripe_types::InvoiceItem),
+    InvoiceItem(stripe_shared::InvoiceItem),
     #[serde(rename = "issuing.authorization")]
-    IssuingAuthorization(stripe_types::IssuingAuthorization),
+    IssuingAuthorization(stripe_shared::IssuingAuthorization),
     #[serde(rename = "issuing.card")]
-    IssuingCard(stripe_types::IssuingCard),
+    IssuingCard(stripe_shared::IssuingCard),
     #[serde(rename = "issuing.cardholder")]
-    IssuingCardholder(stripe_types::IssuingCardholder),
+    IssuingCardholder(stripe_shared::IssuingCardholder),
     #[serde(rename = "issuing.dispute")]
-    IssuingDispute(stripe_types::IssuingDispute),
+    IssuingDispute(stripe_shared::IssuingDispute),
     #[serde(rename = "issuing.transaction")]
-    IssuingTransaction(stripe_types::IssuingTransaction),
+    IssuingTransaction(stripe_shared::IssuingTransaction),
     #[serde(rename = "mandate")]
-    Mandate(stripe_types::Mandate),
+    Mandate(stripe_shared::Mandate),
     #[serde(rename = "payment_intent")]
-    PaymentIntent(stripe_types::PaymentIntent),
+    PaymentIntent(stripe_shared::PaymentIntent),
     #[serde(rename = "payment_link")]
-    PaymentLink(stripe_types::PaymentLink),
+    PaymentLink(stripe_shared::PaymentLink),
     #[serde(rename = "payment_method")]
-    PaymentMethod(stripe_types::PaymentMethod),
+    PaymentMethod(stripe_shared::PaymentMethod),
     #[serde(rename = "payout")]
-    Payout(stripe_types::Payout),
+    Payout(stripe_shared::Payout),
     #[serde(rename = "person")]
-    Person(stripe_types::Person),
+    Person(stripe_shared::Person),
     #[serde(rename = "plan")]
-    Plan(stripe_types::Plan),
+    Plan(stripe_shared::Plan),
     #[serde(rename = "price")]
-    Price(stripe_types::Price),
+    Price(stripe_shared::Price),
     #[serde(rename = "product")]
-    Product(stripe_types::Product),
+    Product(stripe_shared::Product),
     #[serde(rename = "promotion_code")]
-    PromotionCode(stripe_types::PromotionCode),
+    PromotionCode(stripe_shared::PromotionCode),
     #[serde(rename = "quote")]
-    Quote(stripe_types::Quote),
+    Quote(stripe_shared::Quote),
     #[serde(rename = "refund")]
-    Refund(stripe_types::Refund),
+    Refund(stripe_shared::Refund),
     #[serde(rename = "review")]
-    Review(stripe_types::Review),
+    Review(stripe_shared::Review),
     #[serde(rename = "setup_intent")]
-    SetupIntent(stripe_types::SetupIntent),
+    SetupIntent(stripe_shared::SetupIntent),
     #[serde(rename = "subscription")]
-    Subscription(stripe_types::Subscription),
+    Subscription(stripe_shared::Subscription),
     #[serde(rename = "subscription_schedule")]
-    SubscriptionSchedule(stripe_types::SubscriptionSchedule),
+    SubscriptionSchedule(stripe_shared::SubscriptionSchedule),
     #[serde(rename = "tax_id")]
-    TaxId(stripe_types::TaxId),
+    TaxId(stripe_shared::TaxId),
     #[serde(rename = "tax_rate")]
-    TaxRate(stripe_types::TaxRate),
+    TaxRate(stripe_shared::TaxRate),
     #[serde(rename = "test_helpers.test_clock")]
-    TestHelpersTestClock(stripe_types::TestHelpersTestClock),
+    TestHelpersTestClock(stripe_shared::TestHelpersTestClock),
     #[serde(rename = "topup")]
-    Topup(stripe_types::Topup),
+    Topup(stripe_shared::Topup),
     #[serde(rename = "transfer")]
-    Transfer(stripe_types::Transfer),
+    Transfer(stripe_shared::Transfer),
     #[serde(other)]
     Unknown,
 }

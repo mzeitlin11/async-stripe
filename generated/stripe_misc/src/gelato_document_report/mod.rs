@@ -2,7 +2,7 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct GelatoDocumentReport {
     /// Address as it appears in the document.
-    pub address: Option<stripe_types::Address>,
+    pub address: Option<stripe_shared::Address>,
     /// Date of birth as it appears in the document.
     pub dob: Option<stripe_misc::GelatoDataDocumentReportDateOfBirth>,
     /// Details on the verification error.

@@ -274,7 +274,7 @@ impl<'a> CreateCreditNote<'a> {
     /// For a `status=paid` invoice, a credit note does not affect its `amount_due`.
     /// Instead, it can result in any combination of the following:  <ul> <li>Refund: create a new refund (using `refund_amount`) or link an existing refund (using `refund`).</li> <li>Customer balance credit: credit the customer’s balance (using `credit_amount`) which will be automatically applied to their next invoice when it’s finalized.</li> <li>Outside of Stripe credit: record the amount that is or will be credited outside of Stripe (using `out_of_band_amount`).</li> </ul>  For post-payment credit notes the sum of the refund, credit and outside of Stripe amounts must equal the credit note total.  You may issue multiple credit notes for an invoice.
     /// Each credit note will increment the invoice’s `pre_payment_credit_notes_amount` or `post_payment_credit_notes_amount` depending on its `status` at the time of credit note creation.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::CreditNote> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::CreditNote> {
         client.send_form("/credit_notes", self, http_types::Method::Post)
     }
 }
@@ -549,7 +549,7 @@ impl<'a> PreviewCreditNoteShippingCost<'a> {
 }
 impl<'a> PreviewCreditNote<'a> {
     /// Get a preview of a credit note without creating it.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::CreditNote> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::CreditNote> {
         client.get_query("/credit_notes/preview", self)
     }
 }
@@ -569,8 +569,8 @@ impl<'a> RetrieveCreditNote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::credit_note::CreditNoteId,
-    ) -> stripe::Response<stripe_types::CreditNote> {
+        id: &stripe_shared::credit_note::CreditNoteId,
+    ) -> stripe::Response<stripe_shared::CreditNote> {
         client.get_query(&format!("/credit_notes/{id}"), self)
     }
 }
@@ -613,10 +613,10 @@ impl<'a> ListCreditNote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::CreditNote>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::CreditNote>> {
         client.get_query("/credit_notes", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::CreditNote> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::CreditNote> {
         stripe::ListPaginator::from_params("/credit_notes", self)
     }
 }
@@ -647,8 +647,8 @@ impl<'a> UpdateCreditNote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::credit_note::CreditNoteId,
-    ) -> stripe::Response<stripe_types::CreditNote> {
+        id: &stripe_shared::credit_note::CreditNoteId,
+    ) -> stripe::Response<stripe_shared::CreditNote> {
         client.send_form(&format!("/credit_notes/{id}"), self, http_types::Method::Post)
     }
 }
@@ -670,8 +670,8 @@ impl<'a> VoidCreditNoteCreditNote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::credit_note::CreditNoteId,
-    ) -> stripe::Response<stripe_types::CreditNote> {
+        id: &stripe_shared::credit_note::CreditNoteId,
+    ) -> stripe::Response<stripe_shared::CreditNote> {
         client.send_form(&format!("/credit_notes/{id}/void"), self, http_types::Method::Post)
     }
 }
@@ -971,10 +971,10 @@ impl<'a> PreviewLinesCreditNote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::CreditNoteLineItem>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::CreditNoteLineItem>> {
         client.get_query("/credit_notes/preview/lines", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::CreditNoteLineItem> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::CreditNoteLineItem> {
         stripe::ListPaginator::from_params("/credit_notes/preview/lines", self)
     }
 }

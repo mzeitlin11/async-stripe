@@ -35,8 +35,8 @@ impl<'a> ListUsageRecordSummary<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        subscription_item: &stripe_types::subscription_item::SubscriptionItemId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::UsageRecordSummary>> {
+        subscription_item: &stripe_shared::subscription_item::SubscriptionItemId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::UsageRecordSummary>> {
         client.get_query(
             &format!("/subscription_items/{subscription_item}/usage_record_summaries"),
             self,
@@ -44,8 +44,8 @@ impl<'a> ListUsageRecordSummary<'a> {
     }
     pub fn paginate(
         self,
-        subscription_item: &stripe_types::subscription_item::SubscriptionItemId,
-    ) -> stripe::ListPaginator<stripe_types::UsageRecordSummary> {
+        subscription_item: &stripe_shared::subscription_item::SubscriptionItemId,
+    ) -> stripe::ListPaginator<stripe_shared::UsageRecordSummary> {
         stripe::ListPaginator::from_params(
             &format!("/subscription_items/{subscription_item}/usage_record_summaries"),
             self,

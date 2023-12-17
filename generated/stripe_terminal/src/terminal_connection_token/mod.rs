@@ -1,8 +1,6 @@
 /// A Connection Token is used by the Stripe Terminal SDK to connect to a reader.
 ///
-/// Related guide: [Fleet management](https://stripe.com/docs/terminal/fleet/locations)
-///
-/// For more details see <<https://stripe.com/docs/api/terminal/connection_tokens/object>>.
+/// Related guide: [Fleet management](https://stripe.com/docs/terminal/fleet/locations).
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TerminalConnectionToken {
     /// The id of the location that this connection token is scoped to.

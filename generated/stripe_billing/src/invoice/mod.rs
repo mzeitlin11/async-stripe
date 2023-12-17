@@ -1,4 +1,4 @@
-pub use stripe_types::invoice::*;
+pub use stripe_shared::invoice::*;
 #[cfg(feature = "invoice")]
 mod requests;
 #[cfg(feature = "invoice")]

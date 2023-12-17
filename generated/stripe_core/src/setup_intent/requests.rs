@@ -2738,7 +2738,7 @@ impl<'a> CreateSetupIntent<'a> {
     ///
     /// After you create the SetupIntent, attach a payment method and [confirm](https://stripe.com/docs/api/setup_intents/confirm)
     /// it to collect any required permissions to charge the payment method later.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::SetupIntent> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::SetupIntent> {
         client.send_form("/setup_intents", self, http_types::Method::Post)
     }
 }
@@ -2793,10 +2793,10 @@ impl<'a> ListSetupIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::SetupIntent>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::SetupIntent>> {
         client.get_query("/setup_intents", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::SetupIntent> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::SetupIntent> {
         stripe::ListPaginator::from_params("/setup_intents", self)
     }
 }
@@ -2826,8 +2826,8 @@ impl<'a> RetrieveSetupIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::setup_intent::SetupIntentId,
-    ) -> stripe::Response<stripe_types::SetupIntent> {
+        intent: &stripe_shared::setup_intent::SetupIntentId,
+    ) -> stripe::Response<stripe_shared::SetupIntent> {
         client.get_query(&format!("/setup_intents/{intent}"), self)
     }
 }
@@ -5290,8 +5290,8 @@ impl<'a> UpdateSetupIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::setup_intent::SetupIntentId,
-    ) -> stripe::Response<stripe_types::SetupIntent> {
+        intent: &stripe_shared::setup_intent::SetupIntentId,
+    ) -> stripe::Response<stripe_shared::SetupIntent> {
         client.send_form(&format!("/setup_intents/{intent}"), self, http_types::Method::Post)
     }
 }
@@ -7871,8 +7871,8 @@ impl<'a> ConfirmSetupIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::setup_intent::SetupIntentId,
-    ) -> stripe::Response<stripe_types::SetupIntent> {
+        intent: &stripe_shared::setup_intent::SetupIntentId,
+    ) -> stripe::Response<stripe_shared::SetupIntent> {
         client.send_form(
             &format!("/setup_intents/{intent}/confirm"),
             self,
@@ -7959,8 +7959,8 @@ impl<'a> CancelSetupIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::setup_intent::SetupIntentId,
-    ) -> stripe::Response<stripe_types::SetupIntent> {
+        intent: &stripe_shared::setup_intent::SetupIntentId,
+    ) -> stripe::Response<stripe_shared::SetupIntent> {
         client.send_form(&format!("/setup_intents/{intent}/cancel"), self, http_types::Method::Post)
     }
 }
@@ -7986,8 +7986,8 @@ impl<'a> VerifyMicrodepositsSetupIntent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        intent: &stripe_types::setup_intent::SetupIntentId,
-    ) -> stripe::Response<stripe_types::SetupIntent> {
+        intent: &stripe_shared::setup_intent::SetupIntentId,
+    ) -> stripe::Response<stripe_shared::SetupIntent> {
         client.send_form(
             &format!("/setup_intents/{intent}/verify_microdeposits"),
             self,

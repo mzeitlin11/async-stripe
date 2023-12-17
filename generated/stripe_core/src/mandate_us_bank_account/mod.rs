@@ -1,1 +1,1 @@
-pub use stripe_types::mandate_us_bank_account::*;
+pub use stripe_shared::mandate_us_bank_account::*;

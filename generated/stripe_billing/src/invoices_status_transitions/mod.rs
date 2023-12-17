@@ -1,1 +1,1 @@
-pub use stripe_types::invoices_status_transitions::*;
+pub use stripe_shared::invoices_status_transitions::*;

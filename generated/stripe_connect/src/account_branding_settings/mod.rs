@@ -1,1 +1,1 @@
-pub use stripe_types::account_branding_settings::*;
+pub use stripe_shared::account_branding_settings::*;

@@ -1,1 +1,1 @@
-pub use stripe_types::product_feature::*;
+pub use stripe_shared::product_feature::*;

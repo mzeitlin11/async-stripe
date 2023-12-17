@@ -1,1 +1,1 @@
-pub use stripe_types::subscription_pending_invoice_item_interval::*;
+pub use stripe_shared::subscription_pending_invoice_item_interval::*;

@@ -1,1 +1,1 @@
-pub use stripe_types::line_items_discount_amount::*;
+pub use stripe_shared::line_items_discount_amount::*;

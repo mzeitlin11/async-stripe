@@ -1,1 +1,1 @@
-pub use stripe_types::account_capability_future_requirements::*;
+pub use stripe_shared::account_capability_future_requirements::*;

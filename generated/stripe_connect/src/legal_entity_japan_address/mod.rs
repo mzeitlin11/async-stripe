@@ -1,1 +1,1 @@
-pub use stripe_types::legal_entity_japan_address::*;
+pub use stripe_shared::legal_entity_japan_address::*;

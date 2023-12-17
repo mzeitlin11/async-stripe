@@ -6,7 +6,7 @@ pub struct TerminalReaderReaderResourceRefundPaymentAction {
     pub amount: Option<i64>,
     /// Charge that is being refunded.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub charge: Option<stripe_types::Expandable<stripe_types::Charge>>,
+    pub charge: Option<stripe_types::Expandable<stripe_shared::Charge>>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
     ///
     /// This can be useful for storing additional information about the object in a structured format.
@@ -14,13 +14,13 @@ pub struct TerminalReaderReaderResourceRefundPaymentAction {
     pub metadata: Option<std::collections::HashMap<String, String>>,
     /// Payment intent that is being refunded.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub payment_intent: Option<stripe_types::Expandable<stripe_types::PaymentIntent>>,
+    pub payment_intent: Option<stripe_types::Expandable<stripe_shared::PaymentIntent>>,
     /// The reason for the refund.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reason: Option<TerminalReaderReaderResourceRefundPaymentActionReason>,
     /// Unique identifier for the refund object.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub refund: Option<stripe_types::Expandable<stripe_types::Refund>>,
+    pub refund: Option<stripe_types::Expandable<stripe_shared::Refund>>,
     /// Boolean indicating whether the application fee should be refunded when refunding this charge.
     ///
     /// If a full charge refund is given, the full application fee will be refunded.

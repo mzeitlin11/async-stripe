@@ -1,1 +1,1 @@
-pub use stripe_types::invoice_payment_method_options_konbini::*;
+pub use stripe_shared::invoice_payment_method_options_konbini::*;

@@ -16,7 +16,7 @@ impl<'a> CreateLoginLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_types::account::AccountId,
+        account: &stripe_shared::account::AccountId,
     ) -> stripe::Response<stripe_connect::LoginLink> {
         client.send_form(
             &format!("/accounts/{account}/login_links"),

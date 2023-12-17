@@ -1,1 +1,1 @@
-pub use stripe_types::fee::*;
+pub use stripe_shared::fee::*;

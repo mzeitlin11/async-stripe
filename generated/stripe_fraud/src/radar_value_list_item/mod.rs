@@ -1,8 +1,6 @@
 /// Value list items allow you to add specific values to a given Radar value list, which can then be used in rules.
 ///
-/// Related guide: [Managing list items](https://stripe.com/docs/radar/lists#managing-list-items)
-///
-/// For more details see <<https://stripe.com/docs/api/radar/value_list_items/object>>.
+/// Related guide: [Managing list items](https://stripe.com/docs/radar/lists#managing-list-items).
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct RadarValueListItem {
     /// Time at which the object was created.

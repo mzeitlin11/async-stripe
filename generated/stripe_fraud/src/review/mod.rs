@@ -1,4 +1,4 @@
-pub use stripe_types::review::*;
+pub use stripe_shared::review::*;
 #[cfg(feature = "review")]
 mod requests;
 #[cfg(feature = "review")]

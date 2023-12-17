@@ -1,1 +1,1 @@
-pub use stripe_types::tax_id_verification::*;
+pub use stripe_shared::tax_id_verification::*;

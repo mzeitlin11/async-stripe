@@ -1,1 +1,1 @@
-pub use stripe_types::charge_outcome::*;
+pub use stripe_shared::charge_outcome::*;

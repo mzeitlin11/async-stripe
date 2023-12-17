@@ -1,1 +1,1 @@
-pub use stripe_types::schedules_phase_automatic_tax::*;
+pub use stripe_shared::schedules_phase_automatic_tax::*;

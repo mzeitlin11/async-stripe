@@ -1,1 +1,1 @@
-pub use stripe_types::customer_tax::*;
+pub use stripe_shared::customer_tax::*;

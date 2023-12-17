@@ -2,7 +2,7 @@
 /// receive a `sigma.scheduled_query_run.created` webhook each time the query
 /// runs.
 ///
-/// The webhook contains a `ScheduledQueryRun` object, which you can use to retrieve the query results.  For more details see <<https://stripe.com/docs/api/sigma/scheduled_queries/object>>.
+/// The webhook contains a `ScheduledQueryRun` object, which you can use to retrieve the query results.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct ScheduledQueryRun {
     /// Time at which the object was created.
@@ -14,7 +14,7 @@ pub struct ScheduledQueryRun {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<stripe_misc::SigmaScheduledQueryRunError>,
     /// The file object representing the results of the query.
-    pub file: Option<stripe_types::File>,
+    pub file: Option<stripe_shared::File>,
     /// Unique identifier for the object.
     pub id: stripe_misc::scheduled_query_run::ScheduledQueryRunId,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.

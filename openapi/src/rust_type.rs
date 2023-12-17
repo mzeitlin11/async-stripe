@@ -12,8 +12,8 @@ pub enum PathToType {
     Component(ComponentPath),
     /// The id for a top-level component.
     ObjectId(ComponentPath),
-    /// A type defined in `stripe_types`
-    Type(RustIdent),
+    /// A type defined in `stripe_shared`
+    Shared(RustIdent),
 }
 
 impl PathToType {
@@ -27,7 +27,7 @@ impl PathToType {
 
             // Always either backed by `String` or `smol_str::SmolStr`
             PathToType::ObjectId(_) => false,
-            PathToType::Type(ident) => {
+            PathToType::Shared(ident) => {
                 components.get_extra_type(ident).obj.has_reference(components)
             }
         }
@@ -43,7 +43,7 @@ impl PathToType {
 
             // Always either backed by `String` or `smol_str::SmolStr`
             PathToType::ObjectId(_) => false,
-            PathToType::Type(ident) => components.get_extra_type(ident).obj.is_copy(components),
+            PathToType::Shared(ident) => components.get_extra_type(ident).obj.is_copy(components),
         }
     }
 }
@@ -93,6 +93,10 @@ impl RustType {
 
     pub fn list(typ: Self) -> Self {
         Self::Container(Container::List(Box::new(typ)))
+    }
+
+    pub fn search_list(typ: Self) -> Self {
+        Self::Container(Container::SearchList(Box::new(typ)))
     }
 
     /// Construct an `Expandable<{typ}>`.
@@ -161,7 +165,7 @@ impl RustType {
             Self::Simple(typ) => typ.is_copy(),
             Self::Path { path, is_ref } => *is_ref || path.is_copy(components),
             Self::Container(typ) => match typ {
-                List(_) | Vec(_) | Expandable(_) => false,
+                List(_) | Vec(_) | Expandable(_) | SearchList(_) => false,
                 Slice(_) => true,
                 Option(inner) | Box(inner) => inner.is_copy(components),
                 Map { is_ref, .. } => *is_ref,
@@ -286,7 +290,7 @@ impl Display for MapKey {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_str(match self {
             Self::String => "String",
-            Self::Currency => "stripe_types::Currency",
+            Self::Currency => ExtType::Currency.ident(),
         })
     }
 }
@@ -296,6 +300,8 @@ impl Display for MapKey {
 pub enum Container {
     /// List<{typ}>
     List(Box<RustType>),
+    /// SearchList<{typ}>
+    SearchList(Box<RustType>),
     /// Vec<{typ}>
     Vec(Box<RustType>),
     /// &[{typ}]
@@ -323,6 +329,7 @@ impl Container {
         use Container::*;
         match self {
             List(typ) => typ,
+            SearchList(typ) => typ,
             Vec(typ) => typ,
             Slice(typ) => typ,
             Expandable(typ) => typ,
@@ -337,6 +344,7 @@ impl Container {
         use Container::*;
         match self {
             List(typ) => typ,
+            SearchList(typ) => typ,
             Vec(typ) => typ,
             Slice(typ) => typ,
             Expandable(typ) => typ,

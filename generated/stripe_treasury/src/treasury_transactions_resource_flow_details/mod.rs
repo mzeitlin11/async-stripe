@@ -7,7 +7,7 @@ pub struct TreasuryTransactionsResourceFlowDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub inbound_transfer: Option<stripe_treasury::TreasuryInboundTransfer>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub issuing_authorization: Option<stripe_types::IssuingAuthorization>,
+    pub issuing_authorization: Option<stripe_shared::IssuingAuthorization>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub outbound_payment: Option<stripe_treasury::TreasuryOutboundPayment>,
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -6,37 +6,14 @@ use std::path::Path;
 use anyhow::{bail, Context, Result};
 use clap::Parser;
 use petgraph::dot::{Config, Dot};
+use stripe_openapi_codegen::codegen::CodeGen;
+use stripe_openapi_codegen::crates::ALL_CRATES;
+use stripe_openapi_codegen::spec::Spec;
+use stripe_openapi_codegen::spec_fetch;
+use stripe_openapi_codegen::spec_fetch::fetch_spec;
+use stripe_openapi_codegen::url_finder::UrlFinder;
+use stripe_openapi_codegen::utils::write_to_file;
 use tracing::info;
-
-use crate::codegen::CodeGen;
-use crate::crate_inference::{Crate, ALL_CRATES};
-use crate::spec::Spec;
-use crate::spec_fetch::fetch_spec;
-use crate::url_finder::UrlFinder;
-use crate::utils::write_to_file;
-
-mod codegen;
-mod components;
-mod crate_inference;
-mod crate_table;
-mod graph;
-mod ids;
-mod object_writing;
-mod overrides;
-mod printable;
-mod requests;
-mod rust_object;
-mod rust_type;
-mod spec;
-mod spec_fetch;
-mod spec_inference;
-mod stripe_object;
-mod templates;
-mod types;
-mod url_finder;
-mod utils;
-mod visitor;
-mod webhook;
 
 #[derive(Debug, Parser)]
 struct Command {
@@ -112,14 +89,7 @@ fn main() -> Result<()> {
     let mut fmt_cmd = std::process::Command::new("cargo");
     fmt_cmd.arg("+nightly").arg("fmt").arg("--");
     for krate in &*ALL_CRATES {
-        fmt_cmd.arg(format!(
-            "out/{}",
-            if *krate == Crate::TYPES {
-                format!("{}/mod.rs", krate.generated_out_path())
-            } else {
-                format!("{}/src/mod.rs", krate.generated_out_path())
-            }
-        ));
+        fmt_cmd.arg(format!("out/{}", format!("{}/src/mod.rs", krate.generated_out_path())));
     }
     fmt_cmd.arg("out/stripe_webhook/mod.rs");
 
@@ -132,7 +102,6 @@ fn main() -> Result<()> {
 
         info!("Copying generated files");
         run_rsync("out/crates/", "../generated/")?;
-        run_rsync("out/stripe_types/", "../stripe_types/src/generated/")?;
         run_rsync("out/stripe_webhook/", "../stripe_webhook/src/generated/")?;
 
         std::process::Command::new("cp")

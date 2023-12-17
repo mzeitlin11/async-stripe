@@ -1,1 +1,1 @@
-pub use stripe_types::deleted_subscription_item::*;
+pub use stripe_shared::deleted_subscription_item::*;

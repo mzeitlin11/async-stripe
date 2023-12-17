@@ -52,10 +52,10 @@ impl<'a> ListInvoiceItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::InvoiceItem>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::InvoiceItem>> {
         client.get_query("/invoiceitems", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::InvoiceItem> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::InvoiceItem> {
         stripe::ListPaginator::from_params("/invoiceitems", self)
     }
 }
@@ -367,7 +367,7 @@ impl<'a> CreateInvoiceItem<'a> {
     /// Creates an item to be added to a draft invoice (up to 250 items per invoice).
     ///
     /// If no invoice is specified, the item will be on the next invoice created for the customer specified.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::InvoiceItem> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::InvoiceItem> {
         client.send_form("/invoiceitems", self, http_types::Method::Post)
     }
 }
@@ -387,8 +387,8 @@ impl<'a> RetrieveInvoiceItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoiceitem: &stripe_types::invoice_item::InvoiceItemId,
-    ) -> stripe::Response<stripe_types::InvoiceItem> {
+        invoiceitem: &stripe_shared::invoice_item::InvoiceItemId,
+    ) -> stripe::Response<stripe_shared::InvoiceItem> {
         client.get_query(&format!("/invoiceitems/{invoiceitem}"), self)
     }
 }
@@ -669,8 +669,8 @@ impl<'a> UpdateInvoiceItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoiceitem: &stripe_types::invoice_item::InvoiceItemId,
-    ) -> stripe::Response<stripe_types::InvoiceItem> {
+        invoiceitem: &stripe_shared::invoice_item::InvoiceItemId,
+    ) -> stripe::Response<stripe_shared::InvoiceItem> {
         client.send_form(&format!("/invoiceitems/{invoiceitem}"), self, http_types::Method::Post)
     }
 }
@@ -688,8 +688,8 @@ impl DeleteInvoiceItem {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoiceitem: &stripe_types::invoice_item::InvoiceItemId,
-    ) -> stripe::Response<stripe_types::DeletedInvoiceitem> {
+        invoiceitem: &stripe_shared::invoice_item::InvoiceItemId,
+    ) -> stripe::Response<stripe_shared::DeletedInvoiceitem> {
         client.send_form(&format!("/invoiceitems/{invoiceitem}"), self, http_types::Method::Delete)
     }
 }

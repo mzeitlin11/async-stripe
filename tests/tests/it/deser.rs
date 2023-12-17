@@ -1,5 +1,5 @@
 use serde_json::json;
-use stripe_types::Customer;
+use stripe_core::Customer;
 
 #[test]
 fn deserialize_customer_with_card() {
@@ -148,7 +148,7 @@ fn deserialize_customer_with_source() {
 
 #[test]
 fn deserialize_checkout_event() {
-    use stripe_types::Event;
+    use stripe_core::Event;
 
     let example = json!({
       "created": 1326853478,

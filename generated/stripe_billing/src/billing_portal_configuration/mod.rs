@@ -4,7 +4,7 @@ pub struct BillingPortalConfiguration {
     /// Whether the configuration is active and can be used to create portal sessions.
     pub active: bool,
     /// ID of the Connect Application that created the configuration.
-    pub application: Option<stripe_types::Expandable<stripe_types::Application>>,
+    pub application: Option<stripe_types::Expandable<stripe_shared::Application>>,
     pub business_profile: stripe_billing::PortalBusinessProfile,
     /// Time at which the object was created.
     ///

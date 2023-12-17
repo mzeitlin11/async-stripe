@@ -9,7 +9,7 @@ pub struct RadarEarlyFraudWarning {
     /// You may wish to proactively refund a charge that receives an EFW, in order to avoid receiving a dispute later.
     pub actionable: bool,
     /// ID of the charge this early fraud warning is for, optionally expanded.
-    pub charge: stripe_types::Expandable<stripe_types::Charge>,
+    pub charge: stripe_types::Expandable<stripe_shared::Charge>,
     /// Time at which the object was created.
     ///
     /// Measured in seconds since the Unix epoch.
@@ -24,7 +24,7 @@ pub struct RadarEarlyFraudWarning {
     pub livemode: bool,
     /// ID of the Payment Intent this early fraud warning is for, optionally expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub payment_intent: Option<stripe_types::Expandable<stripe_types::PaymentIntent>>,
+    pub payment_intent: Option<stripe_types::Expandable<stripe_shared::PaymentIntent>>,
 }
 impl stripe_types::Object for RadarEarlyFraudWarning {
     type Id = stripe_fraud::radar_early_fraud_warning::RadarEarlyFraudWarningId;

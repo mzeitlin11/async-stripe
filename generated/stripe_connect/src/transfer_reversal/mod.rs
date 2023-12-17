@@ -1,4 +1,4 @@
-pub use stripe_types::transfer_reversal::*;
+pub use stripe_shared::transfer_reversal::*;
 #[cfg(feature = "transfer_reversal")]
 mod requests;
 #[cfg(feature = "transfer_reversal")]

@@ -36,10 +36,10 @@ impl<'a> ListCoupon<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Coupon>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Coupon>> {
         client.get_query("/coupons", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::Coupon> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Coupon> {
         stripe::ListPaginator::from_params("/coupons", self)
     }
 }
@@ -195,7 +195,7 @@ impl<'a> CreateCoupon<'a> {
     /// Coupon creation is also accessible via the API if you need to create coupons on the fly.  A coupon has either a `percent_off` or an `amount_off` and `currency`.
     /// If you set an `amount_off`, that amount will be subtracted from any invoice’s subtotal.
     /// For example, an invoice with a subtotal of $100 will have a final total of $0 if a coupon with an `amount_off` of 20000 is applied to it and an invoice with a subtotal of $300 will have a final total of $100 if a coupon with an `amount_off` of 20000 is applied to it.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::Coupon> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Coupon> {
         client.send_form("/coupons", self, http_types::Method::Post)
     }
 }
@@ -215,8 +215,8 @@ impl<'a> RetrieveCoupon<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        coupon: &stripe_types::coupon::CouponId,
-    ) -> stripe::Response<stripe_types::Coupon> {
+        coupon: &stripe_shared::coupon::CouponId,
+    ) -> stripe::Response<stripe_shared::Coupon> {
         client.get_query(&format!("/coupons/{coupon}"), self)
     }
 }
@@ -269,8 +269,8 @@ impl<'a> UpdateCoupon<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        coupon: &stripe_types::coupon::CouponId,
-    ) -> stripe::Response<stripe_types::Coupon> {
+        coupon: &stripe_shared::coupon::CouponId,
+    ) -> stripe::Response<stripe_shared::Coupon> {
         client.send_form(&format!("/coupons/{coupon}"), self, http_types::Method::Post)
     }
 }
@@ -289,8 +289,8 @@ impl DeleteCoupon {
     pub fn send(
         &self,
         client: &stripe::Client,
-        coupon: &stripe_types::coupon::CouponId,
-    ) -> stripe::Response<stripe_types::DeletedCoupon> {
+        coupon: &stripe_shared::coupon::CouponId,
+    ) -> stripe::Response<stripe_shared::DeletedCoupon> {
         client.send_form(&format!("/coupons/{coupon}"), self, http_types::Method::Delete)
     }
 }

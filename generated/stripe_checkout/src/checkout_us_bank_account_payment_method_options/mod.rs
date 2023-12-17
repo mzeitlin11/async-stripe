@@ -1,7 +1,7 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct CheckoutUsBankAccountPaymentMethodOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub financial_connections: Option<stripe_types::LinkedAccountOptionsUsBankAccount>,
+    pub financial_connections: Option<stripe_shared::LinkedAccountOptionsUsBankAccount>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.

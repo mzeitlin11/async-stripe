@@ -1,3 +1,4 @@
+#[doc(hidden)]
 #[macro_export]
 macro_rules! def_id_serde_impls {
     ($struct_name:ident) => {
@@ -22,6 +23,7 @@ macro_rules! def_id_serde_impls {
     };
 }
 
+#[doc(hidden)]
 #[macro_export]
 macro_rules! def_id {
     ($struct_name:ident) => {
@@ -212,27 +214,28 @@ impl std::error::Error for ParseIdError {
     }
 }
 
+// Allow dead code in the tests to avoid warnings around unused code in macro expansions
+#[allow(dead_code)]
 #[cfg(test)]
 mod tests {
-    use std::fmt::{Debug, Display};
     use std::str::FromStr;
 
     use serde::de::DeserializeOwned;
     use serde::Serialize;
 
-    use crate::charge::ChargeId;
-    use crate::customer::CustomerId;
-    use crate::invoice::InvoiceId;
-    use crate::payment_method::PaymentMethodId;
-    use crate::price::PriceId;
-    use crate::product::ProductId;
-    use crate::refund::RefundId;
-    use crate::subscription::SubscriptionId;
+    def_id!(ChargeId, "ch_" | "py_");
+    def_id!(InvoiceId, "in_");
+    def_id!(CustomerId, "cus_");
+    def_id!(PriceId, "price_");
+    def_id!(ProductId);
+    def_id!(PaymentMethodId, "pm_" | "card_" | "src_" | "ba_");
+    def_id!(RefundId, "re_" | "pyr_");
+    def_id!(SubscriptionId, "sub_");
 
     fn assert_ser_de_roundtrip<T>(id: &str)
     where
-        T: DeserializeOwned + Serialize + FromStr + Display + Debug,
-        <T as FromStr>::Err: Debug,
+        T: DeserializeOwned + Serialize + FromStr + std::fmt::Display + std::fmt::Debug,
+        <T as FromStr>::Err: std::fmt::Debug,
     {
         let parsed_id = T::from_str(id).expect("Could not parse id");
         let ser = serde_json::to_string(&parsed_id).expect("Could not serialize id");
@@ -240,7 +243,7 @@ mod tests {
         assert_eq!(deser.to_string(), id.to_string());
     }
 
-    fn assert_deser_err<T: DeserializeOwned + Debug>(id: &str) {
+    fn assert_deser_err<T: DeserializeOwned + std::fmt::Debug>(id: &str) {
         let json_str = format!(r#""{}""#, id);
         let deser: Result<T, _> = serde_json::from_str(&json_str);
         assert!(deser.is_err(), "Expected error, got {:?}", deser);

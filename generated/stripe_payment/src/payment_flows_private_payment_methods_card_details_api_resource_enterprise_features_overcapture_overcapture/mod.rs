@@ -1,1 +1,1 @@
-pub use stripe_types::payment_flows_private_payment_methods_card_details_api_resource_enterprise_features_overcapture_overcapture::*;
+pub use stripe_shared::payment_flows_private_payment_methods_card_details_api_resource_enterprise_features_overcapture_overcapture::*;

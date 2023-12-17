@@ -1,10 +1,19 @@
 [package]
 name = "stripe_webhook"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+description.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+homepage.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
 
 [dependencies]
 stripe_types = {path = "../stripe_types"}
+stripe_shared = {path = "../generated/stripe_shared"}
 hmac = "0.12"
 sha2 = "0.10"
 hex = "0.4"

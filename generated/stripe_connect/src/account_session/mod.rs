@@ -3,7 +3,7 @@
 /// We recommend that you create an AccountSession each time you need to display an embedded component
 /// to your user.
 ///
-/// Do not save AccountSessions to your database as they expire relatively quickly, and cannot be used more than once.  Related guide: [Connect embedded components](https://stripe.com/docs/connect/get-started-connect-embedded-components)  For more details see <<https://stripe.com/docs/api/account_sessions/object>>.
+/// Do not save AccountSessions to your database as they expire relatively quickly, and cannot be used more than once.  Related guide: [Connect embedded components](https://stripe.com/docs/connect/get-started-connect-embedded-components).
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct AccountSession {
     /// The ID of the account the AccountSession was created for.

@@ -1,1 +1,1 @@
-pub use stripe_types::mandate_paypal::*;
+pub use stripe_shared::mandate_paypal::*;

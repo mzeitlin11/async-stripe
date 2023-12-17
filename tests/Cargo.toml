@@ -17,6 +17,7 @@ stripe_billing = {path = "../generated/stripe_billing", features = ["invoice", "
 stripe_core = {path = "../generated/stripe_core", features = ["customer", "charge", "token"]}
 stripe_checkout = {path = "../generated/stripe_checkout", features = ["checkout_session"]}
 stripe_product = {path = "../generated/stripe_product", features = ["product", "price", "promotion_code"]}
+stripe_misc = {path = "../generated/stripe_misc"}
 
 [features]
 async = []

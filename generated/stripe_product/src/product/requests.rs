@@ -31,80 +31,11 @@ impl<'a> SearchProduct<'a> {
     /// Under normal operating conditions, data is searchable in less than a minute.
     /// Occasionally, propagation of new or updated data can be up to an hour behind during outages.
     /// Search functionality is not available to merchants in India.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<SearchReturned> {
+    pub fn send(
+        &self,
+        client: &stripe::Client,
+    ) -> stripe::Response<stripe_types::SearchList<stripe_shared::Product>> {
         client.get_query("/products/search", self)
-    }
-}
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-pub struct SearchReturned {
-    pub data: Vec<stripe_types::Product>,
-    pub has_more: bool,
-    pub next_page: Option<String>,
-    /// String representing the object's type.
-    ///
-    /// Objects of the same type share the same value.
-    pub object: SearchReturnedObject,
-    /// The total number of objects that match the query, only accurate up to 10,000.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub total_count: Option<u64>,
-    pub url: String,
-}
-/// String representing the object's type.
-///
-/// Objects of the same type share the same value.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum SearchReturnedObject {
-    SearchResult,
-}
-impl SearchReturnedObject {
-    pub fn as_str(self) -> &'static str {
-        use SearchReturnedObject::*;
-        match self {
-            SearchResult => "search_result",
-        }
-    }
-}
-
-impl std::str::FromStr for SearchReturnedObject {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use SearchReturnedObject::*;
-        match s {
-            "search_result" => Ok(SearchResult),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for SearchReturnedObject {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for SearchReturnedObject {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for SearchReturnedObject {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for SearchReturnedObject {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for SearchReturnedObject {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for SearchReturnedObject"))
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -653,7 +584,7 @@ impl serde::Serialize for CreateProductType {
 }
 impl<'a> CreateProduct<'a> {
     /// Creates a new product object.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::Product> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Product> {
         client.send_form("/products", self, http_types::Method::Post)
     }
 }
@@ -675,8 +606,8 @@ impl<'a> RetrieveProduct<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::product::ProductId,
-    ) -> stripe::Response<stripe_types::Product> {
+        id: &stripe_shared::product::ProductId,
+    ) -> stripe::Response<stripe_shared::Product> {
         client.get_query(&format!("/products/{id}"), self)
     }
 }
@@ -793,8 +724,8 @@ impl<'a> UpdateProduct<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::product::ProductId,
-    ) -> stripe::Response<stripe_types::Product> {
+        id: &stripe_shared::product::ProductId,
+    ) -> stripe::Response<stripe_shared::Product> {
         client.send_form(&format!("/products/{id}"), self, http_types::Method::Post)
     }
 }
@@ -905,10 +836,10 @@ impl<'a> ListProduct<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Product>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Product>> {
         client.get_query("/products", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::Product> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Product> {
         stripe::ListPaginator::from_params("/products", self)
     }
 }
@@ -928,8 +859,8 @@ impl DeleteProduct {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_types::product::ProductId,
-    ) -> stripe::Response<stripe_types::DeletedProduct> {
+        id: &stripe_shared::product::ProductId,
+    ) -> stripe::Response<stripe_shared::DeletedProduct> {
         client.send_form(&format!("/products/{id}"), self, http_types::Method::Delete)
     }
 }

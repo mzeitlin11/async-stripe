@@ -1,1 +1,1 @@
-pub use stripe_types::invoice_payment_method_options_card::*;
+pub use stripe_shared::invoice_payment_method_options_card::*;

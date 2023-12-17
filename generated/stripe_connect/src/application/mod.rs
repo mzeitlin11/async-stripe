@@ -1,1 +1,1 @@
-pub use stripe_types::application::*;
+pub use stripe_shared::application::*;

@@ -1,1 +1,1 @@
-pub use stripe_types::deleted_plan::*;
+pub use stripe_shared::deleted_plan::*;

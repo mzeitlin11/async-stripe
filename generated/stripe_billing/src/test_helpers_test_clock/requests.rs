@@ -14,8 +14,8 @@ impl<'a> RetrieveTestHelpersTestClock<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        test_clock: &stripe_types::test_helpers_test_clock::TestHelpersTestClockId,
-    ) -> stripe::Response<stripe_types::TestHelpersTestClock> {
+        test_clock: &stripe_shared::test_helpers_test_clock::TestHelpersTestClockId,
+    ) -> stripe::Response<stripe_shared::TestHelpersTestClock> {
         client.get_query(&format!("/test_helpers/test_clocks/{test_clock}"), self)
     }
 }
@@ -40,7 +40,7 @@ impl<'a> CreateTestHelpersTestClock<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::TestHelpersTestClock> {
+    ) -> stripe::Response<stripe_shared::TestHelpersTestClock> {
         client.send_form("/test_helpers/test_clocks", self, http_types::Method::Post)
     }
 }
@@ -56,8 +56,8 @@ impl DeleteTestHelpersTestClock {
     pub fn send(
         &self,
         client: &stripe::Client,
-        test_clock: &stripe_types::test_helpers_test_clock::TestHelpersTestClockId,
-    ) -> stripe::Response<stripe_types::DeletedTestHelpersTestClock> {
+        test_clock: &stripe_shared::test_helpers_test_clock::TestHelpersTestClockId,
+    ) -> stripe::Response<stripe_shared::DeletedTestHelpersTestClock> {
         client.send_form(
             &format!("/test_helpers/test_clocks/{test_clock}"),
             self,
@@ -89,8 +89,8 @@ impl<'a> AdvanceTestHelpersTestClock<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        test_clock: &stripe_types::test_helpers_test_clock::TestHelpersTestClockId,
-    ) -> stripe::Response<stripe_types::TestHelpersTestClock> {
+        test_clock: &stripe_shared::test_helpers_test_clock::TestHelpersTestClockId,
+    ) -> stripe::Response<stripe_shared::TestHelpersTestClock> {
         client.send_form(
             &format!("/test_helpers/test_clocks/{test_clock}/advance"),
             self,
@@ -131,10 +131,10 @@ impl<'a> ListTestHelpersTestClock<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::TestHelpersTestClock>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::TestHelpersTestClock>> {
         client.get_query("/test_helpers/test_clocks", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::TestHelpersTestClock> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::TestHelpersTestClock> {
         stripe::ListPaginator::from_params("/test_helpers/test_clocks", self)
     }
 }

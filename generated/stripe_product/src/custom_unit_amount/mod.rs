@@ -1,1 +1,1 @@
-pub use stripe_types::custom_unit_amount::*;
+pub use stripe_shared::custom_unit_amount::*;

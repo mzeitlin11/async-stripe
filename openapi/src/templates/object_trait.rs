@@ -7,6 +7,7 @@ use crate::components::Components;
 use crate::printable::PrintableType;
 use crate::rust_object::ObjectRef;
 use crate::types::RustIdent;
+use crate::STRIPE_TYPES;
 
 pub fn write_object_trait(
     out: &mut String,
@@ -18,7 +19,7 @@ pub fn write_object_trait(
     let _ = writedoc!(
         out,
         r#"
-            impl stripe_types::Object for {ident} {{
+            impl {STRIPE_TYPES}::Object for {ident} {{
                 type Id = {id_type};
                 fn id(&self) -> Option<&str> {{
                     {body}
@@ -44,7 +45,7 @@ pub fn write_object_trait_for_enum(
     let _ = writedoc!(
         out,
         r#"
-            impl stripe_types::Object for {ident} {{
+            impl {STRIPE_TYPES}::Object for {ident} {{
                 type Id = {id_type};
                 fn id(&self) -> Option<&str> {{
                     match self {{

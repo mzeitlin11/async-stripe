@@ -1,1 +1,1 @@
-pub use stripe_types::account_tos_acceptance::*;
+pub use stripe_shared::account_tos_acceptance::*;

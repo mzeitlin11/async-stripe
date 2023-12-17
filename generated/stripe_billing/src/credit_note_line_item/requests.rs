@@ -33,14 +33,14 @@ impl<'a> ListCreditNoteLineItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        credit_note: &stripe_types::credit_note::CreditNoteId,
-    ) -> stripe::Response<stripe_types::List<stripe_types::CreditNoteLineItem>> {
+        credit_note: &stripe_shared::credit_note::CreditNoteId,
+    ) -> stripe::Response<stripe_types::List<stripe_shared::CreditNoteLineItem>> {
         client.get_query(&format!("/credit_notes/{credit_note}/lines"), self)
     }
     pub fn paginate(
         self,
-        credit_note: &stripe_types::credit_note::CreditNoteId,
-    ) -> stripe::ListPaginator<stripe_types::CreditNoteLineItem> {
+        credit_note: &stripe_shared::credit_note::CreditNoteId,
+    ) -> stripe::ListPaginator<stripe_shared::CreditNoteLineItem> {
         stripe::ListPaginator::from_params(&format!("/credit_notes/{credit_note}/lines"), self)
     }
 }

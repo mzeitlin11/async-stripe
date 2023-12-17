@@ -1,1 +1,1 @@
-pub use stripe_types::setup_intent_payment_method_options_paypal::*;
+pub use stripe_shared::setup_intent_payment_method_options_paypal::*;

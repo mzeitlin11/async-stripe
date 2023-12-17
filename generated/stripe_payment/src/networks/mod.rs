@@ -1,1 +1,1 @@
-pub use stripe_types::networks::*;
+pub use stripe_shared::networks::*;

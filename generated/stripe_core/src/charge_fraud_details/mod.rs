@@ -1,1 +1,1 @@
-pub use stripe_types::charge_fraud_details::*;
+pub use stripe_shared::charge_fraud_details::*;

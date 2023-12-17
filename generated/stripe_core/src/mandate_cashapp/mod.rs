@@ -1,1 +1,1 @@
-pub use stripe_types::mandate_cashapp::*;
+pub use stripe_shared::mandate_cashapp::*;

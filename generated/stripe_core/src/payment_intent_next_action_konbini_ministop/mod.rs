@@ -1,1 +1,1 @@
-pub use stripe_types::payment_intent_next_action_konbini_ministop::*;
+pub use stripe_shared::payment_intent_next_action_konbini_ministop::*;

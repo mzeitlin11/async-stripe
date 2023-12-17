@@ -1,1 +1,1 @@
-pub use stripe_types::card_mandate_payment_method_details::*;
+pub use stripe_shared::card_mandate_payment_method_details::*;

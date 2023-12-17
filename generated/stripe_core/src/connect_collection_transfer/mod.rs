@@ -1,1 +1,1 @@
-pub use stripe_types::connect_collection_transfer::*;
+pub use stripe_shared::connect_collection_transfer::*;

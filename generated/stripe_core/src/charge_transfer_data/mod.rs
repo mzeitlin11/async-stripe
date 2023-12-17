@@ -1,1 +1,1 @@
-pub use stripe_types::charge_transfer_data::*;
+pub use stripe_shared::charge_transfer_data::*;

@@ -17,6 +17,7 @@
 use std::borrow::Borrow;
 
 use actix_web::{post, web, App, HttpRequest, HttpResponse, HttpServer};
+use stripe_connect::Account;
 use stripe_webhook::{EventObject, EventType, Webhook, WebhookError};
 
 #[actix_web::main]
@@ -62,7 +63,7 @@ fn get_header_value<'b>(req: &'b HttpRequest, key: &'b str) -> Option<&'b str> {
     req.headers().get(key)?.to_str().ok()
 }
 
-fn handle_account_updated(account: stripe_types::Account) -> Result<(), WebhookError> {
+fn handle_account_updated(account: Account) -> Result<(), WebhookError> {
     println!("Received account updated webhook for account: {:?}", account.id);
     Ok(())
 }

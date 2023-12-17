@@ -168,10 +168,10 @@ impl<'a> ListIssuingCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::IssuingCard>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::IssuingCard>> {
         client.get_query("/issuing/cards", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::IssuingCard> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::IssuingCard> {
         stripe::ListPaginator::from_params("/issuing/cards", self)
     }
 }
@@ -3779,7 +3779,7 @@ impl serde::Serialize for CreateIssuingCardType {
 }
 impl<'a> CreateIssuingCard<'a> {
     /// Creates an Issuing `Card` object.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::IssuingCard> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::IssuingCard> {
         client.send_form("/issuing/cards", self, http_types::Method::Post)
     }
 }
@@ -3799,8 +3799,8 @@ impl<'a> RetrieveIssuingCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        card: &stripe_types::issuing_card::IssuingCardId,
-    ) -> stripe::Response<stripe_types::IssuingCard> {
+        card: &stripe_shared::issuing_card::IssuingCardId,
+    ) -> stripe::Response<stripe_shared::IssuingCard> {
         client.get_query(&format!("/issuing/cards/{card}"), self)
     }
 }
@@ -7164,8 +7164,8 @@ impl<'a> UpdateIssuingCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        card: &stripe_types::issuing_card::IssuingCardId,
-    ) -> stripe::Response<stripe_types::IssuingCard> {
+        card: &stripe_shared::issuing_card::IssuingCardId,
+    ) -> stripe::Response<stripe_shared::IssuingCard> {
         client.send_form(&format!("/issuing/cards/{card}"), self, http_types::Method::Post)
     }
 }
@@ -7186,7 +7186,7 @@ impl<'a> DeliverCardIssuingCard<'a> {
         &self,
         client: &stripe::Client,
         card: &str,
-    ) -> stripe::Response<stripe_types::IssuingCard> {
+    ) -> stripe::Response<stripe_shared::IssuingCard> {
         client.send_form(
             &format!("/test_helpers/issuing/cards/{card}/shipping/deliver"),
             self,
@@ -7211,7 +7211,7 @@ impl<'a> ShipCardIssuingCard<'a> {
         &self,
         client: &stripe::Client,
         card: &str,
-    ) -> stripe::Response<stripe_types::IssuingCard> {
+    ) -> stripe::Response<stripe_shared::IssuingCard> {
         client.send_form(
             &format!("/test_helpers/issuing/cards/{card}/shipping/ship"),
             self,
@@ -7236,7 +7236,7 @@ impl<'a> ReturnCardIssuingCard<'a> {
         &self,
         client: &stripe::Client,
         card: &str,
-    ) -> stripe::Response<stripe_types::IssuingCard> {
+    ) -> stripe::Response<stripe_shared::IssuingCard> {
         client.send_form(
             &format!("/test_helpers/issuing/cards/{card}/shipping/return"),
             self,
@@ -7261,7 +7261,7 @@ impl<'a> FailCardIssuingCard<'a> {
         &self,
         client: &stripe::Client,
         card: &str,
-    ) -> stripe::Response<stripe_types::IssuingCard> {
+    ) -> stripe::Response<stripe_shared::IssuingCard> {
         client.send_form(
             &format!("/test_helpers/issuing/cards/{card}/shipping/fail"),
             self,

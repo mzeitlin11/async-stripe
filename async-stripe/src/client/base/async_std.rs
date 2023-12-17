@@ -102,7 +102,7 @@ async fn send_inner(
                     tries += 1;
                     let json_deserializer = &mut serde_json::Deserializer::from_slice(&bytes);
                     last_error = serde_path_to_error::deserialize(json_deserializer)
-                        .map(|e: stripe_types::Error| StripeError::Stripe(*e.error, status.into()))
+                        .map(|e: stripe_shared::Error| StripeError::Stripe(*e.error, status.into()))
                         .unwrap_or_else(StripeError::from);
                     last_status = Some(status);
                     last_retry_header = retry;

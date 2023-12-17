@@ -1,1 +1,1 @@
-pub use stripe_types::deleted_card::*;
+pub use stripe_shared::deleted_card::*;

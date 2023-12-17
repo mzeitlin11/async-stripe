@@ -17,8 +17,8 @@ impl<'a> RetrievePayout<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payout: &stripe_types::payout::PayoutId,
-    ) -> stripe::Response<stripe_types::Payout> {
+        payout: &stripe_shared::payout::PayoutId,
+    ) -> stripe::Response<stripe_shared::Payout> {
         client.get_query(&format!("/payouts/{payout}"), self)
     }
 }
@@ -67,10 +67,10 @@ impl<'a> ListPayout<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Payout>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Payout>> {
         client.get_query("/payouts", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::Payout> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Payout> {
         stripe::ListPaginator::from_params("/payouts", self)
     }
 }
@@ -257,7 +257,7 @@ impl<'a> CreatePayout<'a> {
     /// Your [Stripe balance](https://stripe.com/docs/api#balance) must cover the payout amount.
     /// If it doesn’t, you receive an “Insufficient Funds” error.  If your API key is in test mode, money won’t actually be sent, though every other action occurs as if you’re in live mode.  If you create a manual payout on a Stripe account that uses multiple payment source types, you need to specify the source type balance that the payout draws from.
     /// The [balance object](https://stripe.com/docs/api#balance_object) details available and pending amounts by source type.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::Payout> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Payout> {
         client.send_form("/payouts", self, http_types::Method::Post)
     }
 }
@@ -287,8 +287,8 @@ impl<'a> UpdatePayout<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payout: &stripe_types::payout::PayoutId,
-    ) -> stripe::Response<stripe_types::Payout> {
+        payout: &stripe_shared::payout::PayoutId,
+    ) -> stripe::Response<stripe_shared::Payout> {
         client.send_form(&format!("/payouts/{payout}"), self, http_types::Method::Post)
     }
 }
@@ -311,8 +311,8 @@ impl<'a> CancelPayout<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payout: &stripe_types::payout::PayoutId,
-    ) -> stripe::Response<stripe_types::Payout> {
+        payout: &stripe_shared::payout::PayoutId,
+    ) -> stripe::Response<stripe_shared::Payout> {
         client.send_form(&format!("/payouts/{payout}/cancel"), self, http_types::Method::Post)
     }
 }
@@ -342,8 +342,8 @@ impl<'a> ReversePayout<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payout: &stripe_types::payout::PayoutId,
-    ) -> stripe::Response<stripe_types::Payout> {
+        payout: &stripe_shared::payout::PayoutId,
+    ) -> stripe::Response<stripe_shared::Payout> {
         client.send_form(&format!("/payouts/{payout}/reverse"), self, http_types::Method::Post)
     }
 }

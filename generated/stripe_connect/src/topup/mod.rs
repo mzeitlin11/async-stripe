@@ -1,4 +1,4 @@
-pub use stripe_types::topup::*;
+pub use stripe_shared::topup::*;
 #[cfg(feature = "topup")]
 mod requests;
 #[cfg(feature = "topup")]

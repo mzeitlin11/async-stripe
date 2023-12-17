@@ -1,4 +1,4 @@
-pub use stripe_types::customer::*;
+pub use stripe_shared::customer::*;
 #[cfg(feature = "customer")]
 mod requests;
 #[cfg(feature = "customer")]

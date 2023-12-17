@@ -1,4 +1,4 @@
-pub use stripe_types::coupon::*;
+pub use stripe_shared::coupon::*;
 #[cfg(feature = "coupon")]
 mod requests;
 #[cfg(feature = "coupon")]

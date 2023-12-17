@@ -41,10 +41,10 @@ impl<'a> ListRefund<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Refund>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Refund>> {
         client.get_query("/refunds", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::Refund> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Refund> {
         stripe::ListPaginator::from_params("/refunds", self)
     }
 }
@@ -224,7 +224,7 @@ impl<'a> CreateRefund<'a> {
     /// Once entirely refunded, a charge can’t be refunded again.
     /// This method will raise an error when called on an already-refunded charge,
     /// or when trying to refund more money than is left on a charge.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::Refund> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Refund> {
         client.send_form("/refunds", self, http_types::Method::Post)
     }
 }
@@ -244,8 +244,8 @@ impl<'a> RetrieveRefund<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        refund: &stripe_types::refund::RefundId,
-    ) -> stripe::Response<stripe_types::Refund> {
+        refund: &stripe_shared::refund::RefundId,
+    ) -> stripe::Response<stripe_shared::Refund> {
         client.get_query(&format!("/refunds/{refund}"), self)
     }
 }
@@ -274,8 +274,8 @@ impl<'a> UpdateRefund<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        refund: &stripe_types::refund::RefundId,
-    ) -> stripe::Response<stripe_types::Refund> {
+        refund: &stripe_shared::refund::RefundId,
+    ) -> stripe::Response<stripe_shared::Refund> {
         client.send_form(&format!("/refunds/{refund}"), self, http_types::Method::Post)
     }
 }
@@ -299,8 +299,8 @@ impl<'a> CancelRefund<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        refund: &stripe_types::refund::RefundId,
-    ) -> stripe::Response<stripe_types::Refund> {
+        refund: &stripe_shared::refund::RefundId,
+    ) -> stripe::Response<stripe_shared::Refund> {
         client.send_form(&format!("/refunds/{refund}/cancel"), self, http_types::Method::Post)
     }
 }
@@ -321,7 +321,7 @@ impl<'a> ExpireRefund<'a> {
         &self,
         client: &stripe::Client,
         refund: &str,
-    ) -> stripe::Response<stripe_types::Refund> {
+    ) -> stripe::Response<stripe_shared::Refund> {
         client.send_form(
             &format!("/test_helpers/refunds/{refund}/expire"),
             self,

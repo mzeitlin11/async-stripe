@@ -1,1 +1,1 @@
-pub use stripe_types::cancellation_details::*;
+pub use stripe_shared::cancellation_details::*;

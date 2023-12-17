@@ -6,9 +6,8 @@ use indexmap::{IndexMap, IndexSet};
 use petgraph::Direction;
 use tracing::{debug, info};
 
-use crate::crate_inference::{
-    infer_crate_by_package, maybe_infer_crate_by_path, validate_crate_info, Crate,
-};
+use crate::crate_inference::validate_crate_info;
+use crate::crates::{infer_crate_by_package, maybe_infer_crate_by_path, Crate};
 use crate::object_writing::ObjectGenInfo;
 use crate::overrides::Overrides;
 use crate::printable::{PrintableContainer, PrintableType};
@@ -110,11 +109,11 @@ impl Components {
                     has_ref: false,
                 }
             }
-            RustType::Path { path: PathToType::Type(ident), is_ref } => {
+            RustType::Path { path: PathToType::Shared(ident), is_ref } => {
                 let referred_typ = self.get_extra_type(ident);
                 let has_ref = referred_typ.obj.has_reference(self);
                 PrintableType::QualifiedPath {
-                    path: Some(PathInfo { krate: Crate::TYPES, path: None }),
+                    path: Some(PathInfo { krate: Crate::SHARED, path: None }),
                     has_ref,
                     is_ref: *is_ref,
                     ident: ident.clone(),
@@ -125,6 +124,7 @@ impl Components {
                 let inner = Box::new(self.construct_printable_type(typ.value_typ()));
                 let printable = match typ {
                     Container::List(_) => PrintableContainer::List(inner),
+                    Container::SearchList(_) => PrintableContainer::SearchList(inner),
                     Container::Vec(_) => PrintableContainer::Vec(inner),
                     Container::Slice(_) => PrintableContainer::Slice(inner),
                     Container::Expandable(_) => PrintableContainer::Expandable(inner),

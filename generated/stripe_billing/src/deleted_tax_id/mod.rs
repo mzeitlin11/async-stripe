@@ -1,1 +1,1 @@
-pub use stripe_types::deleted_tax_id::*;
+pub use stripe_shared::deleted_tax_id::*;

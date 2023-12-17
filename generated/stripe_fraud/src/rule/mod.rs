@@ -1,1 +1,1 @@
-pub use stripe_types::rule::*;
+pub use stripe_shared::rule::*;

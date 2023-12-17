@@ -118,7 +118,7 @@ impl<'a> CreateTransfer<'a> {
     /// To send funds from your Stripe account to a connected account, you create a new transfer object.
     ///
     /// Your [Stripe balance](https://stripe.com/docs/api#balance) must be able to cover the transfer amount, or you’ll receive an “Insufficient Funds” error.
-    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::Transfer> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Transfer> {
         client.send_form("/transfers", self, http_types::Method::Post)
     }
 }
@@ -165,10 +165,10 @@ impl<'a> ListTransfer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_types::Transfer>> {
+    ) -> stripe::Response<stripe_types::List<stripe_shared::Transfer>> {
         client.get_query("/transfers", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::Transfer> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Transfer> {
         stripe::ListPaginator::from_params("/transfers", self)
     }
 }
@@ -191,8 +191,8 @@ impl<'a> RetrieveTransfer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        transfer: &stripe_types::transfer::TransferId,
-    ) -> stripe::Response<stripe_types::Transfer> {
+        transfer: &stripe_shared::transfer::TransferId,
+    ) -> stripe::Response<stripe_shared::Transfer> {
         client.get_query(&format!("/transfers/{transfer}"), self)
     }
 }
@@ -226,8 +226,8 @@ impl<'a> UpdateTransfer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        transfer: &stripe_types::transfer::TransferId,
-    ) -> stripe::Response<stripe_types::Transfer> {
+        transfer: &stripe_shared::transfer::TransferId,
+    ) -> stripe::Response<stripe_shared::Transfer> {
         client.send_form(&format!("/transfers/{transfer}"), self, http_types::Method::Post)
     }
 }

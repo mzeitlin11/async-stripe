@@ -1,1 +1,1 @@
-pub use stripe_types::source_owner::*;
+pub use stripe_shared::source_owner::*;

@@ -1,4 +1,3 @@
-/// For more details see <<https://stripe.com/docs/api/treasury/inbound_transfers>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct InboundTransfers {
     pub billing_details: stripe_treasury::TreasurySharedResourceBillingDetails,

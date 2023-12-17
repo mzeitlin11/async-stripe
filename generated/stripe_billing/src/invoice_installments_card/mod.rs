@@ -1,1 +1,1 @@
-pub use stripe_types::invoice_installments_card::*;
+pub use stripe_shared::invoice_installments_card::*;

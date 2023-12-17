@@ -1,1 +1,1 @@
-pub use stripe_types::setup_attempt_payment_method_details_paypal::*;
+pub use stripe_shared::setup_attempt_payment_method_details_paypal::*;

@@ -1,6 +1,8 @@
 /// Issue a credit note to adjust an invoice's amount after the invoice is finalized.
 ///
-/// Related guide: [Credit notes](https://stripe.com/docs/billing/invoices/credit-notes).
+/// Related guide: [Credit notes](https://stripe.com/docs/billing/invoices/credit-notes)
+///
+/// For more details see <<https://stripe.com/docs/api/credit_notes/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct CreditNote {
     /// The integer amount in cents (or local equivalent) representing the total amount of the credit note, including tax.

@@ -1,6 +1,8 @@
 /// You can use Tax `Settings` to manage configurations used by Stripe Tax calculations.
 ///
-/// Related guide: [Using the Settings API](https://stripe.com/docs/tax/settings-api).
+/// Related guide: [Using the Settings API](https://stripe.com/docs/tax/settings-api)
+///
+/// For more details see <<https://stripe.com/docs/api/tax/settings/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TaxSettings {
     pub defaults: stripe_misc::TaxProductResourceTaxSettingsDefaults,

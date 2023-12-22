@@ -1,6 +1,8 @@
 /// A subscription schedule allows you to create and manage the lifecycle of a subscription by predefining expected changes.
 ///
-/// Related guide: [Subscription schedules](https://stripe.com/docs/billing/subscriptions/subscription-schedules).
+/// Related guide: [Subscription schedules](https://stripe.com/docs/billing/subscriptions/subscription-schedules)
+///
+/// For more details see <<https://stripe.com/docs/api/subscription_schedules/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct SubscriptionSchedule {
     /// ID of the Connect Application that created the schedule.

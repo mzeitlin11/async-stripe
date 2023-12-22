@@ -3,7 +3,7 @@
 /// Stripe account](/docs/connect/bank-debit-card-payouts).
 ///
 /// You can retrieve individual payouts, and list all payouts.
-/// Payouts are made on [varying schedules](/docs/connect/manage-payout-schedule), depending on your country and industry.  Related guide: [Receiving payouts](https://stripe.com/docs/payouts).
+/// Payouts are made on [varying schedules](/docs/connect/manage-payout-schedule), depending on your country and industry.  Related guide: [Receiving payouts](https://stripe.com/docs/payouts)  For more details see <<https://stripe.com/docs/api/payouts/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Payout {
     /// The amount (in cents (or local equivalent)) that transfers to your bank account or debit card.

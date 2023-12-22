@@ -1,6 +1,8 @@
 /// As a [card issuer](https://stripe.com/docs/issuing), you can dispute transactions that the cardholder does not recognize, suspects to be fraudulent, or has other issues with.
 ///
-/// Related guide: [Issuing disputes](https://stripe.com/docs/issuing/purchases/disputes).
+/// Related guide: [Issuing disputes](https://stripe.com/docs/issuing/purchases/disputes)
+///
+/// For more details see <<https://stripe.com/docs/api/issuing/disputes/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct IssuingDispute {
     /// Disputed amount in the card's currency and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).

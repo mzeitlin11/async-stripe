@@ -4,7 +4,7 @@
 /// For other accounts, some properties are returned until that account has started to go through Connect Onboarding.
 /// Once you create an [Account Link](https://stripe.com/docs/api/account_links) for a Standard or Express account, some parameters are no longer returned.
 /// These are marked as **Custom Only** or **Custom and Express** below.
-/// Learn about the differences [between accounts](https://stripe.com/docs/connect/accounts).
+/// Learn about the differences [between accounts](https://stripe.com/docs/connect/accounts).  For more details see <<https://stripe.com/docs/api/accounts/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Account {
     /// Business information about the account.

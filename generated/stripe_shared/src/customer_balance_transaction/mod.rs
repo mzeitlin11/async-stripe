@@ -3,7 +3,9 @@
 /// You may modify the value directly by using the [update customer API](https://stripe.com/docs/api/customers/update),
 /// or by creating a Customer Balance Transaction, which increments or decrements the customer's `balance` by the specified `amount`.
 ///
-/// Related guide: [Customer balance](https://stripe.com/docs/billing/customer/balance).
+/// Related guide: [Customer balance](https://stripe.com/docs/billing/customer/balance)
+///
+/// For more details see <<https://stripe.com/docs/api/customer_balance_transactions/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct CustomerBalanceTransaction {
     /// The amount of the transaction.

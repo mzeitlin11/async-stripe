@@ -1,6 +1,8 @@
 /// Subscriptions allow you to charge a customer on a recurring basis.
 ///
-/// Related guide: [Creating subscriptions](https://stripe.com/docs/billing/subscriptions/creating).
+/// Related guide: [Creating subscriptions](https://stripe.com/docs/billing/subscriptions/creating)
+///
+/// For more details see <<https://stripe.com/docs/api/subscriptions/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Subscription {
     /// ID of the Connect Application that created the subscription.

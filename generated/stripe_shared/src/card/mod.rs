@@ -1,7 +1,7 @@
 /// You can store multiple cards on a customer in order to charge the customer
 /// later.
 ///
-/// You can also store multiple debit cards on a recipient in order to transfer to those cards later.  Related guide: [Card payments with Sources](https://stripe.com/docs/sources/cards).
+/// You can also store multiple debit cards on a recipient in order to transfer to those cards later.  Related guide: [Card payments with Sources](https://stripe.com/docs/sources/cards)  For more details see <<https://stripe.com/docs/api/cards/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Card {
     /// The account this card belongs to.

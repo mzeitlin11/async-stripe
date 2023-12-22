@@ -11,7 +11,7 @@ use stripe_openapi_codegen::crates::ALL_CRATES;
 use stripe_openapi_codegen::spec::Spec;
 use stripe_openapi_codegen::spec_fetch;
 use stripe_openapi_codegen::spec_fetch::fetch_spec;
-use stripe_openapi_codegen::url_finder::UrlFinder;
+use stripe_openapi_codegen::url_finder::{update_api_doc_data, UrlFinder};
 use stripe_openapi_codegen::utils::write_to_file;
 use tracing::info;
 
@@ -32,11 +32,12 @@ struct Command {
     /// to `graph.txt`
     #[arg(long)]
     graph: bool,
-    /// Stub the `UrlFinder` instead of making a request to `Stripe`. Meant for use in local
-    /// testing to avoid network requirement / fetch time. Will mean that no `doc_url`'s will
-    /// be found.
+    /// Update the Stripe API docs instead of using the existing data in the repo
     #[arg(long)]
-    stub_url_finder: bool,
+    update_api_docs: bool,
+    /// The URL to target for the stripe docs.
+    #[arg(long, default_value = "https://stripe.com/docs/api")]
+    api_docs_url: String,
     /// Skip the step of copying the generated code from `out` to `generated/`.
     #[arg(long)]
     dry_run: bool,
@@ -64,14 +65,13 @@ fn main() -> Result<()> {
     };
     info!("Finished parsing spec");
 
-    let url_finder = if !args.stub_url_finder {
-        UrlFinder::new().context("couldn't initialize url finder")?
-    } else {
-        UrlFinder::stub()
-    };
-    info!("Initialized URL finder");
-
+    let url_finder = UrlFinder::new().context("couldn't initialize url finder")?;
     let codegen = CodeGen::new(spec, url_finder)?;
+
+    if args.update_api_docs {
+        update_api_doc_data(&args.api_docs_url, &codegen.components)?;
+        return Ok(());
+    }
 
     if args.graph {
         let comp_graph = codegen.components.gen_component_dep_graph();

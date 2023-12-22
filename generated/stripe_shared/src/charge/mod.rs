@@ -2,6 +2,8 @@
 /// PaymentIntent confirmation is the most common way to create Charges, but transferring
 /// money to a different Stripe account through Connect also creates Charges.
 /// Some legacy payment flows create Charges directly, which is not recommended for new integrations.
+///
+/// For more details see <<https://stripe.com/docs/api/charges/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Charge {
     /// Amount intended to be collected by this payment.

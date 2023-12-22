@@ -3,7 +3,7 @@
 ///
 /// It contains details about the type of verification, such as what [verification check](/docs/identity/verification-checks) to perform.
 /// Only create one VerificationSession for each verification in your system.  A VerificationSession transitions through [multiple statuses](/docs/identity/how-sessions-work) throughout its lifetime as it progresses through the verification flow.
-/// The VerificationSession contains the user's verified data after verification checks are complete.  Related guide: [The Verification Sessions API](https://stripe.com/docs/identity/verification-sessions).
+/// The VerificationSession contains the user's verified data after verification checks are complete.  Related guide: [The Verification Sessions API](https://stripe.com/docs/identity/verification-sessions)  For more details see <<https://stripe.com/docs/api/identity/verification_sessions/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct IdentityVerificationSession {
     /// The short-lived client secret used by Stripe.js to [show a verification modal](https://stripe.com/docs/js/identity/modal) inside your app.

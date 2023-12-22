@@ -1,6 +1,6 @@
 /// A Promotion Code represents a customer-redeemable code for a [coupon](https://stripe.com/docs/api#coupons).
 ///
-/// It can be used to create multiple codes for a single coupon.
+/// It can be used to create multiple codes for a single coupon.  For more details see <<https://stripe.com/docs/api/promotion_codes/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PromotionCode {
     /// Whether the promotion code is currently active.

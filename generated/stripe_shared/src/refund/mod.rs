@@ -1,7 +1,7 @@
 /// Refund objects allow you to refund a previously created charge that isn't
 /// refunded yet.
 ///
-/// Funds are refunded to the credit or debit card that's initially charged.  Related guide: [Refunds](https://stripe.com/docs/refunds).
+/// Funds are refunded to the credit or debit card that's initially charged.  Related guide: [Refunds](https://stripe.com/docs/refunds)  For more details see <<https://stripe.com/docs/api/refunds/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Refund {
     /// Amount, in cents (or local equivalent).

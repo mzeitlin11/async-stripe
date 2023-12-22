@@ -1,7 +1,7 @@
 /// To top up your Stripe balance, you create a top-up object.
 ///
 /// You can retrieve individual top-ups, as well as list all top-ups.
-/// Top-ups are identified by a unique, random ID.  Related guide: [Topping up your platform account](https://stripe.com/docs/connect/top-ups).
+/// Top-ups are identified by a unique, random ID.  Related guide: [Topping up your platform account](https://stripe.com/docs/connect/top-ups)  For more details see <<https://stripe.com/docs/api/topups/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Topup {
     /// Amount transferred.

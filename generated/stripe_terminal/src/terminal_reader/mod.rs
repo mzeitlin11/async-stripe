@@ -1,6 +1,8 @@
 /// A Reader represents a physical device for accepting payment details.
 ///
-/// Related guide: [Connecting to a reader](https://stripe.com/docs/terminal/payments/connect-reader).
+/// Related guide: [Connecting to a reader](https://stripe.com/docs/terminal/payments/connect-reader)
+///
+/// For more details see <<https://stripe.com/docs/api/terminal/readers/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TerminalReader {
     /// The most recent action performed by the reader.

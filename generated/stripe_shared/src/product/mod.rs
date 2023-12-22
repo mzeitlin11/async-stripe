@@ -5,7 +5,9 @@
 /// Related guides: [Set up a subscription](https://stripe.com/docs/billing/subscriptions/set-up-subscription),
 /// [share a Payment Link](https://stripe.com/docs/payment-links),
 /// [accept payments with Checkout](https://stripe.com/docs/payments/accept-a-payment#create-product-prices-upfront),
-/// and more about [Products and Prices](https://stripe.com/docs/products-prices/overview).
+/// and more about [Products and Prices](https://stripe.com/docs/products-prices/overview)
+///
+/// For more details see <<https://stripe.com/docs/api/products/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Product {
     /// Whether the product is currently available for purchase.

@@ -2,7 +2,9 @@
 /// When this happens, you have the opportunity to respond to the dispute with
 /// evidence that shows that the charge is legitimate.
 ///
-/// Related guide: [Disputes and fraud](https://stripe.com/docs/disputes).
+/// Related guide: [Disputes and fraud](https://stripe.com/docs/disputes)
+///
+/// For more details see <<https://stripe.com/docs/api/disputes/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Dispute {
     /// Disputed amount.

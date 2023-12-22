@@ -1,4 +1,6 @@
-/// The credit note line item object.
+/// The credit note line item object
+///
+/// For more details see <<https://stripe.com/docs/api/credit_notes/line_item>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct CreditNoteLineItem {
     /// The integer amount in cents (or local equivalent) representing the gross amount being credited for this line item, excluding (exclusive) tax and discounts.

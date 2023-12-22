@@ -4,7 +4,9 @@
 ///
 /// Most users configure webhooks from [the dashboard](https://dashboard.stripe.com/webhooks), which provides a user interface for registering and testing your webhook endpoints.
 ///
-/// Related guide: [Setting up webhooks](https://stripe.com/docs/webhooks/configure).
+/// Related guide: [Setting up webhooks](https://stripe.com/docs/webhooks/configure)
+///
+/// For more details see <<https://stripe.com/docs/api/webhook_endpoints/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct WebhookEndpoint {
     /// The API version events are rendered as for this webhook endpoint.

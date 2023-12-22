@@ -1,3 +1,4 @@
+/// For more details see <<https://stripe.com/docs/api/disputes/evidence_object>>.
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct DisputeEvidence {
     /// Any server or activity logs showing proof that the customer accessed or downloaded the purchased digital product.

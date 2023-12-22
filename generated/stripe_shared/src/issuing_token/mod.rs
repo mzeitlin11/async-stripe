@@ -1,6 +1,6 @@
 /// An issuing token object is created when an issued card is added to a digital wallet.
 ///
-/// As a [card issuer](https://stripe.com/docs/issuing), you can [view and manage these tokens](https://stripe.com/docs/issuing/controls/token-management) through Stripe.
+/// As a [card issuer](https://stripe.com/docs/issuing), you can [view and manage these tokens](https://stripe.com/docs/issuing/controls/token-management) through Stripe.  For more details see <<https://stripe.com/docs/api/issuing/tokens/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct IssuingToken {
     /// Card associated with this token.

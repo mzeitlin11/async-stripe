@@ -1,6 +1,8 @@
 /// A Tax Calculation allows you to calculate the tax to collect from your customer.
 ///
-/// Related guide: [Calculate tax in your custom payment flow](https://stripe.com/docs/tax/custom).
+/// Related guide: [Calculate tax in your custom payment flow](https://stripe.com/docs/tax/custom)
+///
+/// For more details see <<https://stripe.com/docs/api/tax/calculations/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TaxCalculation {
     /// Total after taxes.

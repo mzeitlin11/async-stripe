@@ -1,6 +1,6 @@
 /// This object represents a customer of your business.
 ///
-/// Use it to create recurring charges and track payments that belong to the same customer.  Related guide: [Save a card during payment](https://stripe.com/docs/payments/save-during-payment).
+/// Use it to create recurring charges and track payments that belong to the same customer.  Related guide: [Save a card during payment](https://stripe.com/docs/payments/save-during-payment)  For more details see <<https://stripe.com/docs/api/customers/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Customer {
     /// The customer's address.

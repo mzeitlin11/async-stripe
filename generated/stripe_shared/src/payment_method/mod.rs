@@ -3,6 +3,8 @@
 /// Customer objects to store instrument details for future payments.
 ///
 /// Related guides: [Payment Methods](https://stripe.com/docs/payments/payment-methods) and [More Payment Scenarios](https://stripe.com/docs/payments/more-payment-scenarios).
+///
+/// For more details see <<https://stripe.com/docs/api/payment_methods/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PaymentMethod {
     #[serde(skip_serializing_if = "Option::is_none")]

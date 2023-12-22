@@ -14,9 +14,6 @@ Skipping the `--fetch` argument expects an already downloaded spec, useful for q
   - `crate_graph.txt`: Map of crate dependencies
   - `component_graph.txt`: Map of OpenAPI component dependencies
   
-- `--stub-url-finder`: Skips fetching Stripe API documentation, which are used to construct
-  more informative doc comments. This flag is meant for development only since it avoids a network request.
-
 `openapi` uses `clap`, so running `cargo run -- --help` will print the documentation of each argument.
 
 ## Generated Files

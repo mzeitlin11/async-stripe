@@ -2,7 +2,9 @@
 /// your Stripe account, such as a completed purchase or refund, is represented by an Issuing
 /// `Transaction` object.
 ///
-/// Related guide: [Issued card transactions](https://stripe.com/docs/issuing/purchases/transactions).
+/// Related guide: [Issued card transactions](https://stripe.com/docs/issuing/purchases/transactions)
+///
+/// For more details see <<https://stripe.com/docs/api/issuing/transactions/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct IssuingTransaction {
     /// The transaction amount, which will be reflected in your balance.

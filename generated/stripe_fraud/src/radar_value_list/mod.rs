@@ -1,6 +1,8 @@
 /// Value lists allow you to group values together which can then be referenced in rules.
 ///
-/// Related guide: [Default Stripe lists](https://stripe.com/docs/radar/lists#managing-list-items).
+/// Related guide: [Default Stripe lists](https://stripe.com/docs/radar/lists#managing-list-items)
+///
+/// For more details see <<https://stripe.com/docs/api/radar/value_lists/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct RadarValueList {
     /// The name of the value list for use in rules.

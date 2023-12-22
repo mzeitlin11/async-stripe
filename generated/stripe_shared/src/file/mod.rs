@@ -1,7 +1,7 @@
 /// This object represents files hosted on Stripe's servers.
 ///
 /// You can upload files with the [create file](https://stripe.com/docs/api#create_file) request (for example, when uploading dispute evidence).
-/// Stripe also creates files independetly (for example, the results of a [Sigma scheduled query](#scheduled_queries)).  Related guide: [File upload guide](https://stripe.com/docs/file-upload).
+/// Stripe also creates files independetly (for example, the results of a [Sigma scheduled query](#scheduled_queries)).  Related guide: [File upload guide](https://stripe.com/docs/file-upload)  For more details see <<https://stripe.com/docs/api/files/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct File {
     /// Time at which the object was created.

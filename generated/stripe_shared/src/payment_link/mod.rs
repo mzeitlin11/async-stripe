@@ -1,7 +1,7 @@
 /// A payment link is a shareable URL that will take your customers to a hosted payment page.
 ///
 /// A payment link can be shared and used multiple times.  When a customer opens a payment link it will open a new [checkout session](https://stripe.com/docs/api/checkout/sessions) to render the payment page.
-/// You can use [checkout session events](https://stripe.com/docs/api/events/types#event_types-checkout.session.completed) to track payments through payment links.  Related guide: [Payment Links API](https://stripe.com/docs/payment-links).
+/// You can use [checkout session events](https://stripe.com/docs/api/events/types#event_types-checkout.session.completed) to track payments through payment links.  Related guide: [Payment Links API](https://stripe.com/docs/payment-links)  For more details see <<https://stripe.com/docs/api/payment_links/payment_links/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PaymentLink {
     /// Whether the payment link's `url` is active.

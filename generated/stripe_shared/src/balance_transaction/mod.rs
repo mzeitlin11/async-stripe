@@ -1,7 +1,9 @@
 /// Balance transactions represent funds moving through your Stripe account.
 /// Stripe creates them for every type of transaction that enters or leaves your Stripe account balance.
 ///
-/// Related guide: [Balance transaction types](https://stripe.com/docs/reports/balance-transaction-types).
+/// Related guide: [Balance transaction types](https://stripe.com/docs/reports/balance-transaction-types)
+///
+/// For more details see <<https://stripe.com/docs/api/balance_transactions/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct BalanceTransaction {
     /// Gross amount of this transaction (in cents (or local equivalent)).

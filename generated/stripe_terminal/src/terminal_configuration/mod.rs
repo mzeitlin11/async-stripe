@@ -1,4 +1,6 @@
 /// A Configurations object represents how features should be configured for terminal readers.
+///
+/// For more details see <<https://stripe.com/docs/api/terminal/configuration/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TerminalConfiguration {
     #[serde(skip_serializing_if = "Option::is_none")]

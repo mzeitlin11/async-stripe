@@ -1,4 +1,6 @@
 /// A Financial Connections Session is the secure way to programmatically launch the client-side Stripe.js modal that lets your users link their accounts.
+///
+/// For more details see <<https://stripe.com/docs/api/financial_connections/sessions/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct FinancialConnectionsSession {
     /// The account holder for whom accounts are collected in this session.

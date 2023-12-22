@@ -5,7 +5,7 @@
 /// Stripe account to a card or bank account.
 ///
 /// This behavior has since been split out into a [Payout](https://stripe.com/docs/api#payout_object) object, with corresponding payout endpoints.
-/// For more information, read about the [transfer/payout split](https://stripe.com/docs/transfer-payout-split).  Related guide: [Creating separate charges and transfers](https://stripe.com/docs/connect/separate-charges-and-transfers).
+/// For more information, read about the [transfer/payout split](https://stripe.com/docs/transfer-payout-split).  Related guide: [Creating separate charges and transfers](https://stripe.com/docs/connect/separate-charges-and-transfers)  For more details see <<https://stripe.com/docs/api/transfers/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Transfer {
     /// Amount in cents (or local equivalent) to be transferred.

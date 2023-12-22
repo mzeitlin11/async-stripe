@@ -1,4 +1,6 @@
 /// A Mandate is a record of the permission that your customer gives you to debit their payment method.
+///
+/// For more details see <<https://stripe.com/docs/api/mandates/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Mandate {
     pub customer_acceptance: stripe_shared::CustomerAcceptance,

@@ -1,4 +1,6 @@
 /// You can [create physical or virtual cards](https://stripe.com/docs/issuing/cards) that are issued to cardholders.
+///
+/// For more details see <<https://stripe.com/docs/api/issuing/cards/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct IssuingCard {
     /// The brand of the card.

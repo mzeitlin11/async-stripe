@@ -7,7 +7,7 @@
 /// This guarantees that no sensitive card data touches your server, and allows your integration to operate in a PCI-compliant way.  If you can't use client-side tokenization, you can also create tokens using the API with either your publishable or secret API key.
 /// If your integration uses this method, you're responsible for any PCI compliance that it might require, and you must keep your secret API key safe.
 /// Unlike with client-side tokenization, your customer's information isn't sent directly to Stripe, so we can't determine how it's handled or stored.  You can't store or use tokens more than once.
-/// To store card or bank account information for later use, create [Customer](https://stripe.com/docs/api#customers) objects or [Custom accounts](https://stripe.com/docs/api#external_accounts). [Radar](https://stripe.com/docs/radar), our integrated solution for automatic fraud protection, performs best with integrations that use client-side tokenization.
+/// To store card or bank account information for later use, create [Customer](https://stripe.com/docs/api#customers) objects or [Custom accounts](https://stripe.com/docs/api#external_accounts). [Radar](https://stripe.com/docs/radar), our integrated solution for automatic fraud protection, performs best with integrations that use client-side tokenization.  For more details see <<https://stripe.com/docs/api/tokens/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Token {
     #[serde(skip_serializing_if = "Option::is_none")]

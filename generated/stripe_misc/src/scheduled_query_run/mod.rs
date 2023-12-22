@@ -2,7 +2,7 @@
 /// receive a `sigma.scheduled_query_run.created` webhook each time the query
 /// runs.
 ///
-/// The webhook contains a `ScheduledQueryRun` object, which you can use to retrieve the query results.
+/// The webhook contains a `ScheduledQueryRun` object, which you can use to retrieve the query results.  For more details see <<https://stripe.com/docs/api/sigma/scheduled_queries/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct ScheduledQueryRun {
     /// Time at which the object was created.

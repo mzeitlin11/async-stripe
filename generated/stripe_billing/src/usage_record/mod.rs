@@ -1,7 +1,9 @@
 /// Usage records allow you to report customer usage and metrics to Stripe for
 /// metered billing of subscription prices.
 ///
-/// Related guide: [Metered billing](https://stripe.com/docs/billing/subscriptions/metered-billing).
+/// Related guide: [Metered billing](https://stripe.com/docs/billing/subscriptions/metered-billing)
+///
+/// For more details see <<https://stripe.com/docs/api/usage_records/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct UsageRecord {
     /// Unique identifier for the object.

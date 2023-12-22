@@ -2,6 +2,8 @@
 /// Stripe Elements use registered payment method domains to control where certain payment methods are shown.
 ///
 /// Related guides: [Payment method domains](https://stripe.com/docs/payments/payment-methods/pmd-registration).
+///
+/// For more details see <<https://stripe.com/docs/api/payment_method_domains/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PaymentMethodDomain {
     pub apple_pay: stripe_payment::PaymentMethodDomainResourcePaymentMethodStatus,

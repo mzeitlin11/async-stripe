@@ -1,7 +1,7 @@
 /// A customer's `Cash balance` represents real funds.
 ///
 /// Customers can add funds to their cash balance by sending a bank transfer.
-/// These funds can be used for payment and can eventually be paid out to your bank account.
+/// These funds can be used for payment and can eventually be paid out to your bank account.  For more details see <<https://stripe.com/docs/api/cash_balance/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct CashBalance {
     /// A hash of all cash balances available to this customer.

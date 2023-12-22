@@ -1,7 +1,7 @@
 /// A SetupAttempt describes one attempted confirmation of a SetupIntent,
 /// whether that confirmation is successful or unsuccessful.
 ///
-/// You can use SetupAttempts to inspect details of a specific attempt at setting up a payment method using a SetupIntent.
+/// You can use SetupAttempts to inspect details of a specific attempt at setting up a payment method using a SetupIntent.  For more details see <<https://stripe.com/docs/api/setup_attempts/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct SetupAttempt {
     /// The value of [application](https://stripe.com/docs/api/setup_intents/object#setup_intent_object-application) on the SetupIntent at the time of this confirmation.

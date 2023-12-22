@@ -3,7 +3,9 @@
 /// A platform cannot access a Standard or Express account's persons after the account starts onboarding, such as after generating an account link for the account.
 /// See the [Standard onboarding](https://stripe.com/docs/connect/standard-accounts) or [Express onboarding documentation](https://stripe.com/docs/connect/express-accounts) for information about platform prefilling and account onboarding steps.
 ///
-/// Related guide: [Handling identity verification with the API](https://stripe.com/docs/connect/handling-api-verification#person-information).
+/// Related guide: [Handling identity verification with the API](https://stripe.com/docs/connect/handling-api-verification#person-information)
+///
+/// For more details see <<https://stripe.com/docs/api/persons/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Person {
     /// The account the person is associated with.

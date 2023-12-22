@@ -1,7 +1,7 @@
 /// Shipping rates describe the price of shipping presented to your customers and
 /// applied to a purchase.
 ///
-/// For more information, see [Charge for shipping](https://stripe.com/docs/payments/during-payment/charge-shipping).
+/// For more information, see [Charge for shipping](https://stripe.com/docs/payments/during-payment/charge-shipping).  For more details see <<https://stripe.com/docs/api/shipping_rates/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct ShippingRate {
     /// Whether the shipping rate can be used for new purchases.

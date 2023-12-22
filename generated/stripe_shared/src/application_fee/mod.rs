@@ -1,3 +1,4 @@
+/// For more details see <<https://stripe.com/docs/api/application_fees/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct ApplicationFee {
     /// ID of the Stripe account this fee was taken from.

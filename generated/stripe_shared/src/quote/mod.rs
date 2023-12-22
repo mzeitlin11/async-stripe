@@ -1,5 +1,7 @@
 /// A Quote is a way to model prices that you'd like to provide to a customer.
 /// Once accepted, it will automatically create an invoice, subscription or subscription schedule.
+///
+/// For more details see <<https://stripe.com/docs/api/quotes/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Quote {
     /// Total before any discounts or taxes are applied.

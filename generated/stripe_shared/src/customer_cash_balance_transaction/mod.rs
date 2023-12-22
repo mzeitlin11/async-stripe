@@ -2,7 +2,7 @@
 /// by the customer to a merchant, but have not yet been allocated to a payment.
 ///
 /// Cash Balance Transactions represent when funds are moved into or out of this balance.
-/// This includes funding by the customer, allocation to payments, and refunds to the customer.
+/// This includes funding by the customer, allocation to payments, and refunds to the customer.  For more details see <<https://stripe.com/docs/api/cash_balance_transactions/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct CustomerCashBalanceTransaction {
 #[serde(skip_serializing_if = "Option::is_none")]

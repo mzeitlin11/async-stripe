@@ -1,6 +1,8 @@
 /// Tax rates can be applied to [invoices](https://stripe.com/docs/billing/invoices/tax-rates), [subscriptions](https://stripe.com/docs/billing/subscriptions/taxes) and [Checkout Sessions](https://stripe.com/docs/payments/checkout/set-up-a-subscription#tax-rates) to collect tax.
 ///
-/// Related guide: [Tax rates](https://stripe.com/docs/billing/taxes/tax-rates).
+/// Related guide: [Tax rates](https://stripe.com/docs/billing/taxes/tax-rates)
+///
+/// For more details see <<https://stripe.com/docs/api/tax_rates/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TaxRate {
     /// Defaults to `true`.

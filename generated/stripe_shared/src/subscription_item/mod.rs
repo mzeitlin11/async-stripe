@@ -1,5 +1,7 @@
 /// Subscription items allow you to create customer subscriptions with more than
 /// one plan, making it easy to represent complex billing relationships.
+///
+/// For more details see <<https://stripe.com/docs/api/subscription_items/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct SubscriptionItem {
     /// Define thresholds at which an invoice will be sent, and the related subscription advanced to a new billing period.

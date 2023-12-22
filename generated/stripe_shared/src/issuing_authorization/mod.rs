@@ -1,7 +1,7 @@
 /// When an [issued card](https://stripe.com/docs/issuing) is used to make a purchase, an Issuing `Authorization`
 /// object is created.
 ///
-/// [Authorizations](https://stripe.com/docs/issuing/purchases/authorizations) must be approved for the purchase to be completed successfully.  Related guide: [Issued card authorizations](https://stripe.com/docs/issuing/purchases/authorizations).
+/// [Authorizations](https://stripe.com/docs/issuing/purchases/authorizations) must be approved for the purchase to be completed successfully.  Related guide: [Issued card authorizations](https://stripe.com/docs/issuing/purchases/authorizations)  For more details see <<https://stripe.com/docs/api/issuing/authorizations/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct IssuingAuthorization {
     /// The total amount that was authorized or rejected.

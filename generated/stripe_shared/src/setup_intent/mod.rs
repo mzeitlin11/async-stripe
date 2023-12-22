@@ -18,7 +18,9 @@
 ///
 /// By using SetupIntents, you can reduce friction for your customers, even as regulations change over time.
 ///
-/// Related guide: [Setup Intents API](https://stripe.com/docs/payments/setup-intents).
+/// Related guide: [Setup Intents API](https://stripe.com/docs/payments/setup-intents)
+///
+/// For more details see <<https://stripe.com/docs/api/setup_intents/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct SetupIntent {
     /// ID of the Connect application that created the SetupIntent.

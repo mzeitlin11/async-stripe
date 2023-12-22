@@ -2,6 +2,8 @@
 ///
 /// Learn more about [Radar](/radar) and reviewing payments
 /// [here](https://stripe.com/docs/radar/reviews).
+///
+/// For more details see <<https://stripe.com/docs/api/radar/reviews/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Review {
     /// The ZIP or postal code of the card used, if applicable.

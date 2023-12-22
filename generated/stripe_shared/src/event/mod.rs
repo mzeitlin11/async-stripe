@@ -10,7 +10,7 @@
 /// We also have a separate [webhooks](http://en.wikipedia.org/wiki/Webhook) system for sending the `Event` objects directly to an endpoint on your server.
 /// You can manage webhooks in your [account settings](https://dashboard.stripe.com/account/webhooks).
 /// Learn how to [listen for events](https://stripe.com/docs/webhooks) so that your integration can automatically trigger reactions.  When using [Connect](https://stripe.com/docs/connect), you can also receive event notifications that occur in connected accounts.
-/// For these events, there's an additional `account` attribute in the received `Event` object.  We only guarantee access to events through the [Retrieve Event API](https://stripe.com/docs/api#retrieve_event) for 30 days.
+/// For these events, there's an additional `account` attribute in the received `Event` object.  We only guarantee access to events through the [Retrieve Event API](https://stripe.com/docs/api#retrieve_event) for 30 days.  For more details see <<https://stripe.com/docs/api/events/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Event {
     /// The connected account that originates the event.

@@ -1,7 +1,7 @@
 /// To share the contents of a `File` object with non-Stripe users, you can
 /// create a `FileLink`.
 ///
-/// `FileLink`s contain a URL that you can use to retrieve the contents of the file without authentication.
+/// `FileLink`s contain a URL that you can use to retrieve the contents of the file without authentication.  For more details see <<https://stripe.com/docs/api/file_links/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct FileLink {
     /// Time at which the object was created.

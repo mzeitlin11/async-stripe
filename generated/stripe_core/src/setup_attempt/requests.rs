@@ -49,8 +49,9 @@ impl<'a> ListSetupAttempt<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::SetupAttempt>> {
         client.get_query("/setup_attempts", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::SetupAttempt> {
-        stripe::ListPaginator::from_params("/setup_attempts", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::SetupAttempt>> {
+        stripe::ListPaginator::from_list_params("/setup_attempts", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListSetupAttempt<'a> {}

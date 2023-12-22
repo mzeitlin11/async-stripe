@@ -40,11 +40,12 @@ impl<'a> ListBillingPortalConfiguration<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_billing::BillingPortalConfiguration>> {
         client.get_query("/billing_portal/configurations", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_billing::BillingPortalConfiguration> {
-        stripe::ListPaginator::from_params("/billing_portal/configurations", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_billing::BillingPortalConfiguration>> {
+        stripe::ListPaginator::from_list_params("/billing_portal/configurations", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListBillingPortalConfiguration<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateBillingPortalConfiguration<'a> {
     /// The business information shown to customers in the portal.

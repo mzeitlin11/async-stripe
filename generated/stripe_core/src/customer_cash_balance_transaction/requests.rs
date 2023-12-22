@@ -63,11 +63,11 @@ impl<'a> ListCustomerCashBalanceTransaction<'a> {
     pub fn paginate(
         self,
         customer: &stripe_shared::customer::CustomerId,
-    ) -> stripe::ListPaginator<stripe_shared::CustomerCashBalanceTransaction> {
-        stripe::ListPaginator::from_params(
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CustomerCashBalanceTransaction>>
+    {
+        stripe::ListPaginator::from_list_params(
             &format!("/customers/{customer}/cash_balance_transactions"),
             self,
         )
     }
 }
-impl<'a> stripe::PaginationParams for ListCustomerCashBalanceTransaction<'a> {}

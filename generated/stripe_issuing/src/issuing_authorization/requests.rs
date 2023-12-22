@@ -106,11 +106,12 @@ impl<'a> ListIssuingAuthorization<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::IssuingAuthorization>> {
         client.get_query("/issuing/authorizations", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::IssuingAuthorization> {
-        stripe::ListPaginator::from_params("/issuing/authorizations", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::IssuingAuthorization>> {
+        stripe::ListPaginator::from_list_params("/issuing/authorizations", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListIssuingAuthorization<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveIssuingAuthorization<'a> {
     /// Specifies which fields in the response should be expanded.

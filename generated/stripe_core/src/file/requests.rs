@@ -139,11 +139,10 @@ impl<'a> ListFile<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::File>> {
         client.get_query("/files", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::File> {
-        stripe::ListPaginator::from_params("/files", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::File>> {
+        stripe::ListPaginator::from_list_params("/files", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListFile<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveFile<'a> {
     /// Specifies which fields in the response should be expanded.

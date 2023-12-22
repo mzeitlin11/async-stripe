@@ -697,11 +697,10 @@ impl<'a> ListLineItemsTaxCalculation<'a> {
     pub fn paginate(
         self,
         calculation: &stripe_misc::tax_calculation::TaxCalculationId,
-    ) -> stripe::ListPaginator<stripe_misc::TaxCalculationLineItem> {
-        stripe::ListPaginator::from_params(
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::TaxCalculationLineItem>> {
+        stripe::ListPaginator::from_list_params(
             &format!("/tax/calculations/{calculation}/line_items"),
             self,
         )
     }
 }
-impl<'a> stripe::PaginationParams for ListLineItemsTaxCalculation<'a> {}

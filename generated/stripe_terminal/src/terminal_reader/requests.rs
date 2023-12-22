@@ -263,11 +263,12 @@ impl<'a> ListTerminalReader<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_terminal::TerminalReader>> {
         client.get_query("/terminal/readers", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_terminal::TerminalReader> {
-        stripe::ListPaginator::from_params("/terminal/readers", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_terminal::TerminalReader>> {
+        stripe::ListPaginator::from_list_params("/terminal/readers", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTerminalReader<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct DeleteTerminalReader {}
 impl DeleteTerminalReader {

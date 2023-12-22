@@ -38,11 +38,10 @@ impl<'a> ListReview<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Review>> {
         client.get_query("/reviews", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Review> {
-        stripe::ListPaginator::from_params("/reviews", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Review>> {
+        stripe::ListPaginator::from_list_params("/reviews", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListReview<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveReview<'a> {
     /// Specifies which fields in the response should be expanded.

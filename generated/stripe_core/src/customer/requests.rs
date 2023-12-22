@@ -37,6 +37,11 @@ impl<'a> SearchCustomer<'a> {
     ) -> stripe::Response<stripe_types::SearchList<stripe_shared::Customer>> {
         client.get_query("/customers/search", self)
     }
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Customer>> {
+        stripe::ListPaginator::from_search_params("/customers/search", self)
+    }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListCustomer<'a> {
@@ -88,11 +93,10 @@ impl<'a> ListCustomer<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Customer>> {
         client.get_query("/customers", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Customer> {
-        stripe::ListPaginator::from_params("/customers", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Customer>> {
+        stripe::ListPaginator::from_list_params("/customers", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListCustomer<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCustomer<'a> {
     /// The customer's address.
@@ -1491,11 +1495,13 @@ impl<'a> ListPaymentMethodsCustomer<'a> {
     pub fn paginate(
         self,
         customer: &stripe_shared::customer::CustomerId,
-    ) -> stripe::ListPaginator<stripe_shared::PaymentMethod> {
-        stripe::ListPaginator::from_params(&format!("/customers/{customer}/payment_methods"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PaymentMethod>> {
+        stripe::ListPaginator::from_list_params(
+            &format!("/customers/{customer}/payment_methods"),
+            self,
+        )
     }
 }
-impl<'a> stripe::PaginationParams for ListPaymentMethodsCustomer<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrievePaymentMethodCustomer<'a> {
     /// Specifies which fields in the response should be expanded.
@@ -1558,14 +1564,13 @@ impl<'a> BalanceTransactionsCustomer<'a> {
     pub fn paginate(
         self,
         customer: &stripe_shared::customer::CustomerId,
-    ) -> stripe::ListPaginator<stripe_shared::CustomerBalanceTransaction> {
-        stripe::ListPaginator::from_params(
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CustomerBalanceTransaction>> {
+        stripe::ListPaginator::from_list_params(
             &format!("/customers/{customer}/balance_transactions"),
             self,
         )
     }
 }
-impl<'a> stripe::PaginationParams for BalanceTransactionsCustomer<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct FundCashBalanceCustomer<'a> {
     /// Amount to be used for this test cash balance transaction.

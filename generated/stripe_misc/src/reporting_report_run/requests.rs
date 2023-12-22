@@ -2131,8 +2131,9 @@ impl<'a> ListReportingReportRun<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_misc::ReportingReportRun>> {
         client.get_query("/reporting/report_runs", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_misc::ReportingReportRun> {
-        stripe::ListPaginator::from_params("/reporting/report_runs", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::ReportingReportRun>> {
+        stripe::ListPaginator::from_list_params("/reporting/report_runs", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListReportingReportRun<'a> {}

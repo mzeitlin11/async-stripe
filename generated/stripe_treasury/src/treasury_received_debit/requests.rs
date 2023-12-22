@@ -97,11 +97,12 @@ impl<'a> ListTreasuryReceivedDebit<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryReceivedDebit>> {
         client.get_query("/treasury/received_debits", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_treasury::TreasuryReceivedDebit> {
-        stripe::ListPaginator::from_params("/treasury/received_debits", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_treasury::TreasuryReceivedDebit>> {
+        stripe::ListPaginator::from_list_params("/treasury/received_debits", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTreasuryReceivedDebit<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveTreasuryReceivedDebit<'a> {
     /// Specifies which fields in the response should be expanded.

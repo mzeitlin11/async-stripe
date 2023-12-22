@@ -37,6 +37,11 @@ impl<'a> SearchPaymentIntent<'a> {
     ) -> stripe::Response<stripe_types::SearchList<stripe_shared::PaymentIntent>> {
         client.get_query("/payment_intents/search", self)
     }
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::PaymentIntent>> {
+        stripe::ListPaginator::from_search_params("/payment_intents/search", self)
+    }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentIntent<'a> {
@@ -6825,11 +6830,12 @@ impl<'a> ListPaymentIntent<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::PaymentIntent>> {
         client.get_query("/payment_intents", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::PaymentIntent> {
-        stripe::ListPaginator::from_params("/payment_intents", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PaymentIntent>> {
+        stripe::ListPaginator::from_list_params("/payment_intents", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListPaymentIntent<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrievePaymentIntent<'a> {
     /// The client secret of the PaymentIntent.

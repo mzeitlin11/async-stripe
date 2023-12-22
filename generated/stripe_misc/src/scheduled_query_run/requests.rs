@@ -34,11 +34,12 @@ impl<'a> ListScheduledQueryRun<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_misc::ScheduledQueryRun>> {
         client.get_query("/sigma/scheduled_query_runs", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_misc::ScheduledQueryRun> {
-        stripe::ListPaginator::from_params("/sigma/scheduled_query_runs", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::ScheduledQueryRun>> {
+        stripe::ListPaginator::from_list_params("/sigma/scheduled_query_runs", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListScheduledQueryRun<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveScheduledQueryRun<'a> {
     /// Specifies which fields in the response should be expanded.

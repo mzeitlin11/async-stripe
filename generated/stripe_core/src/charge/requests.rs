@@ -37,6 +37,11 @@ impl<'a> SearchCharge<'a> {
     ) -> stripe::Response<stripe_types::SearchList<stripe_shared::Charge>> {
         client.get_query("/charges/search", self)
     }
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Charge>> {
+        stripe::ListPaginator::from_search_params("/charges/search", self)
+    }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListCharge<'a> {
@@ -87,11 +92,10 @@ impl<'a> ListCharge<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Charge>> {
         client.get_query("/charges", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Charge> {
-        stripe::ListPaginator::from_params("/charges", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Charge>> {
+        stripe::ListPaginator::from_list_params("/charges", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListCharge<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCharge<'a> {
     /// Amount intended to be collected by this payment.

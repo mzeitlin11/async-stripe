@@ -42,11 +42,10 @@ impl<'a> ListDispute<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Dispute>> {
         client.get_query("/disputes", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Dispute> {
-        stripe::ListPaginator::from_params("/disputes", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Dispute>> {
+        stripe::ListPaginator::from_list_params("/disputes", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListDispute<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveDispute<'a> {
     /// Specifies which fields in the response should be expanded.

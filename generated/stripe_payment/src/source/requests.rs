@@ -1536,8 +1536,10 @@ impl<'a> SourceTransactionsSource<'a> {
     pub fn paginate(
         self,
         source: &stripe_shared::source::SourceId,
-    ) -> stripe::ListPaginator<stripe_shared::SourceTransaction> {
-        stripe::ListPaginator::from_params(&format!("/sources/{source}/source_transactions"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::SourceTransaction>> {
+        stripe::ListPaginator::from_list_params(
+            &format!("/sources/{source}/source_transactions"),
+            self,
+        )
     }
 }
-impl<'a> stripe::PaginationParams for SourceTransactionsSource<'a> {}

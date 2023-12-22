@@ -59,11 +59,12 @@ impl<'a> ListFinancialConnectionsAccount<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_misc::FinancialConnectionsAccount>> {
         client.get_query("/financial_connections/accounts", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_misc::FinancialConnectionsAccount> {
-        stripe::ListPaginator::from_params("/financial_connections/accounts", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::FinancialConnectionsAccount>> {
+        stripe::ListPaginator::from_list_params("/financial_connections/accounts", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListFinancialConnectionsAccount<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveFinancialConnectionsAccount<'a> {
     /// Specifies which fields in the response should be expanded.
@@ -127,14 +128,14 @@ impl<'a> ListOwnersFinancialConnectionsAccount<'a> {
     pub fn paginate(
         self,
         account: &stripe_misc::financial_connections_account::FinancialConnectionsAccountId,
-    ) -> stripe::ListPaginator<stripe_misc::FinancialConnectionsAccountOwner> {
-        stripe::ListPaginator::from_params(
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::FinancialConnectionsAccountOwner>>
+    {
+        stripe::ListPaginator::from_list_params(
             &format!("/financial_connections/accounts/{account}/owners"),
             self,
         )
     }
 }
-impl<'a> stripe::PaginationParams for ListOwnersFinancialConnectionsAccount<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct RefreshFinancialConnectionsAccount<'a> {
     /// Specifies which fields in the response should be expanded.

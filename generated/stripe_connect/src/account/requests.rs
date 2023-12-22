@@ -2185,11 +2185,10 @@ impl<'a> ListAccount<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Account>> {
         client.get_query("/accounts", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Account> {
-        stripe::ListPaginator::from_params("/accounts", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Account>> {
+        stripe::ListPaginator::from_list_params("/accounts", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListAccount<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateAccount<'a> {
     /// An [account token](https://stripe.com/docs/api#create_account_token), used to securely provide details to the account.
@@ -4484,11 +4483,10 @@ impl<'a> PersonsAccount<'a> {
     pub fn paginate(
         self,
         account: &stripe_shared::account::AccountId,
-    ) -> stripe::ListPaginator<stripe_shared::Person> {
-        stripe::ListPaginator::from_params(&format!("/accounts/{account}/persons"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Person>> {
+        stripe::ListPaginator::from_list_params(&format!("/accounts/{account}/persons"), self)
     }
 }
-impl<'a> stripe::PaginationParams for PersonsAccount<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CapabilitiesAccount<'a> {
     /// Specifies which fields in the response should be expanded.
@@ -4514,8 +4512,7 @@ impl<'a> CapabilitiesAccount<'a> {
     pub fn paginate(
         self,
         account: &stripe_shared::account::AccountId,
-    ) -> stripe::ListPaginator<stripe_shared::Capability> {
-        stripe::ListPaginator::from_params(&format!("/accounts/{account}/capabilities"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Capability>> {
+        stripe::ListPaginator::from_list_params(&format!("/accounts/{account}/capabilities"), self)
     }
 }
-impl<'a> stripe::PaginationParams for CapabilitiesAccount<'a> {}

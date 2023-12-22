@@ -92,11 +92,13 @@ impl<'a> ListExternalAccount<'a> {
     pub fn paginate(
         self,
         account: &stripe_shared::account::AccountId,
-    ) -> stripe::ListPaginator<stripe_shared::ExternalAccount> {
-        stripe::ListPaginator::from_params(&format!("/accounts/{account}/external_accounts"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::ExternalAccount>> {
+        stripe::ListPaginator::from_list_params(
+            &format!("/accounts/{account}/external_accounts"),
+            self,
+        )
     }
 }
-impl<'a> stripe::PaginationParams for ListExternalAccount<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveExternalAccount<'a> {
     /// Specifies which fields in the response should be expanded.

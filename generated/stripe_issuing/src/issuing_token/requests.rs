@@ -107,11 +107,12 @@ impl<'a> ListIssuingToken<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::IssuingToken>> {
         client.get_query("/issuing/tokens", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::IssuingToken> {
-        stripe::ListPaginator::from_params("/issuing/tokens", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::IssuingToken>> {
+        stripe::ListPaginator::from_list_params("/issuing/tokens", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListIssuingToken<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveIssuingToken<'a> {
     /// Specifies which fields in the response should be expanded.

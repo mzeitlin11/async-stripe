@@ -56,11 +56,12 @@ impl<'a> ListBalanceTransaction<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::BalanceTransaction>> {
         client.get_query("/balance_transactions", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::BalanceTransaction> {
-        stripe::ListPaginator::from_params("/balance_transactions", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::BalanceTransaction>> {
+        stripe::ListPaginator::from_list_params("/balance_transactions", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListBalanceTransaction<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveBalanceTransaction<'a> {
     /// Specifies which fields in the response should be expanded.

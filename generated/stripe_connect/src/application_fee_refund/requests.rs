@@ -82,11 +82,10 @@ impl<'a> ListApplicationFeeRefund<'a> {
     pub fn paginate(
         self,
         id: &stripe_shared::application_fee::ApplicationFeeId,
-    ) -> stripe::ListPaginator<stripe_shared::ApplicationFeeRefund> {
-        stripe::ListPaginator::from_params(&format!("/application_fees/{id}/refunds"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::ApplicationFeeRefund>> {
+        stripe::ListPaginator::from_list_params(&format!("/application_fees/{id}/refunds"), self)
     }
 }
-impl<'a> stripe::PaginationParams for ListApplicationFeeRefund<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveApplicationFeeRefund<'a> {
     /// Specifies which fields in the response should be expanded.

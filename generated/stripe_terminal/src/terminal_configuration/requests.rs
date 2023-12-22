@@ -409,11 +409,12 @@ impl<'a> ListTerminalConfiguration<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_terminal::TerminalConfiguration>> {
         client.get_query("/terminal/configurations", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_terminal::TerminalConfiguration> {
-        stripe::ListPaginator::from_params("/terminal/configurations", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_terminal::TerminalConfiguration>> {
+        stripe::ListPaginator::from_list_params("/terminal/configurations", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTerminalConfiguration<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveTerminalConfiguration<'a> {
     /// Specifies which fields in the response should be expanded.

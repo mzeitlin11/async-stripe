@@ -934,11 +934,12 @@ impl<'a> ListTreasuryFinancialAccount<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryFinancialAccount>> {
         client.get_query("/treasury/financial_accounts", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_treasury::TreasuryFinancialAccount> {
-        stripe::ListPaginator::from_params("/treasury/financial_accounts", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_treasury::TreasuryFinancialAccount>> {
+        stripe::ListPaginator::from_list_params("/treasury/financial_accounts", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTreasuryFinancialAccount<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveTreasuryFinancialAccount<'a> {
     /// Specifies which fields in the response should be expanded.

@@ -62,7 +62,7 @@ async fn create_customer(client: &Client) -> Result<(), stripe::Error> {
 ```
 
 The locations where such a migration is necessary are most easily found due to compiler errors on upgrading. Information
-on determining the crate a request lives in can be found in the [README][README.md/Stripe\ Request\ Crates]. The 
+on determining the crate a request lives in can be found in the [README](README.md#stripe-request-crates). The 
 general steps will be:
 1. Find the required crate and feature for the request by [searching here](crate_info.md)
 2. Using `Account` and `create` as an example, convert the general structure:
@@ -129,7 +129,8 @@ breaking changes we missed here. If so, please open an issue (especially for cha
 ### Non-breaking Changes
 - `List<>` types now are paginable. This allows usage such as paginating the external accounts returned 
 as `List<ExternalAccount>` from retrieving an account.
-- The `smart-default` dependency was removed
+- `SearchList<>` types are now paginable.
+- The `smart-default` dependency was removed.
 
 # [0.26.0](https://github.com/arlyon/async-stripe/compare/v0.25.2...v0.26.0) (2023-10-31)
 

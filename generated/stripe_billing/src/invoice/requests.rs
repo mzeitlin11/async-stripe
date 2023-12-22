@@ -37,6 +37,11 @@ impl<'a> SearchInvoice<'a> {
     ) -> stripe::Response<stripe_types::SearchList<stripe_shared::Invoice>> {
         client.get_query("/invoices/search", self)
     }
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Invoice>> {
+        stripe::ListPaginator::from_search_params("/invoices/search", self)
+    }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpcomingInvoice<'a> {
@@ -4485,11 +4490,12 @@ impl<'a> UpcomingLinesInvoice<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::InvoiceLineItem>> {
         client.get_query("/invoices/upcoming/lines", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::InvoiceLineItem> {
-        stripe::ListPaginator::from_params("/invoices/upcoming/lines", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::InvoiceLineItem>> {
+        stripe::ListPaginator::from_list_params("/invoices/upcoming/lines", self)
     }
 }
-impl<'a> stripe::PaginationParams for UpcomingLinesInvoice<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateInvoice<'a> {
     /// The account tax IDs associated with the invoice.
@@ -6715,11 +6721,10 @@ impl<'a> ListInvoice<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Invoice>> {
         client.get_query("/invoices", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Invoice> {
-        stripe::ListPaginator::from_params("/invoices", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Invoice>> {
+        stripe::ListPaginator::from_list_params("/invoices", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListInvoice<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveInvoice<'a> {
     /// Specifies which fields in the response should be expanded.

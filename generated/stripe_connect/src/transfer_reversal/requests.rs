@@ -93,11 +93,10 @@ impl<'a> ListTransferReversal<'a> {
     pub fn paginate(
         self,
         id: &stripe_shared::transfer::TransferId,
-    ) -> stripe::ListPaginator<stripe_shared::TransferReversal> {
-        stripe::ListPaginator::from_params(&format!("/transfers/{id}/reversals"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::TransferReversal>> {
+        stripe::ListPaginator::from_list_params(&format!("/transfers/{id}/reversals"), self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTransferReversal<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveTransferReversal<'a> {
     /// Specifies which fields in the response should be expanded.

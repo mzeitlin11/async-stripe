@@ -164,11 +164,10 @@ impl<'a> ListTopup<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Topup>> {
         client.get_query("/topups", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Topup> {
-        stripe::ListPaginator::from_params("/topups", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Topup>> {
+        stripe::ListPaginator::from_list_params("/topups", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTopup<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveTopup<'a> {
     /// Specifies which fields in the response should be expanded.

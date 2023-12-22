@@ -40,8 +40,7 @@ impl<'a> ListCreditNoteLineItem<'a> {
     pub fn paginate(
         self,
         credit_note: &stripe_shared::credit_note::CreditNoteId,
-    ) -> stripe::ListPaginator<stripe_shared::CreditNoteLineItem> {
-        stripe::ListPaginator::from_params(&format!("/credit_notes/{credit_note}/lines"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CreditNoteLineItem>> {
+        stripe::ListPaginator::from_list_params(&format!("/credit_notes/{credit_note}/lines"), self)
     }
 }
-impl<'a> stripe::PaginationParams for ListCreditNoteLineItem<'a> {}

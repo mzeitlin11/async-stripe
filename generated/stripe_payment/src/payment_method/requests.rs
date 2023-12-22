@@ -1668,11 +1668,12 @@ impl<'a> ListPaymentMethod<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::PaymentMethod>> {
         client.get_query("/payment_methods", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::PaymentMethod> {
-        stripe::ListPaginator::from_params("/payment_methods", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PaymentMethod>> {
+        stripe::ListPaginator::from_list_params("/payment_methods", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListPaymentMethod<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct AttachPaymentMethod<'a> {
     /// The ID of the customer to which to attach the PaymentMethod.

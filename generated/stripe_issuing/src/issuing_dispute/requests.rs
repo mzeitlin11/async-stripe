@@ -105,11 +105,12 @@ impl<'a> ListIssuingDispute<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::IssuingDispute>> {
         client.get_query("/issuing/disputes", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::IssuingDispute> {
-        stripe::ListPaginator::from_params("/issuing/disputes", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::IssuingDispute>> {
+        stripe::ListPaginator::from_list_params("/issuing/disputes", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListIssuingDispute<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateIssuingDispute<'a> {
     /// The dispute amount in the card's currency and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).

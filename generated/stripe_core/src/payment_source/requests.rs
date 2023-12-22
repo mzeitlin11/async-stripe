@@ -41,11 +41,10 @@ impl<'a> ListPaymentSource<'a> {
     pub fn paginate(
         self,
         customer: &stripe_shared::customer::CustomerId,
-    ) -> stripe::ListPaginator<stripe_shared::PaymentSource> {
-        stripe::ListPaginator::from_params(&format!("/customers/{customer}/sources"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PaymentSource>> {
+        stripe::ListPaginator::from_list_params(&format!("/customers/{customer}/sources"), self)
     }
 }
-impl<'a> stripe::PaginationParams for ListPaymentSource<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrievePaymentSource<'a> {
     /// Specifies which fields in the response should be expanded.

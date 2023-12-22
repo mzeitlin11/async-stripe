@@ -171,11 +171,10 @@ impl<'a> ListIssuingCard<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::IssuingCard>> {
         client.get_query("/issuing/cards", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::IssuingCard> {
-        stripe::ListPaginator::from_params("/issuing/cards", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::IssuingCard>> {
+        stripe::ListPaginator::from_list_params("/issuing/cards", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListIssuingCard<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateIssuingCard<'a> {
     /// The [Cardholder](https://stripe.com/docs/api#issuing_cardholder_object) object with which the card will be associated.

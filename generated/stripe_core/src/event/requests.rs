@@ -55,11 +55,10 @@ impl<'a> ListEvent<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Event>> {
         client.get_query("/events", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Event> {
-        stripe::ListPaginator::from_params("/events", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Event>> {
+        stripe::ListPaginator::from_list_params("/events", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListEvent<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveEvent<'a> {
     /// Specifies which fields in the response should be expanded.

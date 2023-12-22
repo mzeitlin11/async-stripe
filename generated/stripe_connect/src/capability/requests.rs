@@ -23,11 +23,10 @@ impl<'a> ListCapability<'a> {
     pub fn paginate(
         self,
         account: &stripe_shared::account::AccountId,
-    ) -> stripe::ListPaginator<stripe_shared::Capability> {
-        stripe::ListPaginator::from_params(&format!("/accounts/{account}/capabilities"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Capability>> {
+        stripe::ListPaginator::from_list_params(&format!("/accounts/{account}/capabilities"), self)
     }
 }
-impl<'a> stripe::PaginationParams for ListCapability<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveCapability<'a> {
     /// Specifies which fields in the response should be expanded.

@@ -210,11 +210,12 @@ impl<'a> ListTreasuryInboundTransfer<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryInboundTransfer>> {
         client.get_query("/treasury/inbound_transfers", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_treasury::TreasuryInboundTransfer> {
-        stripe::ListPaginator::from_params("/treasury/inbound_transfers", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_treasury::TreasuryInboundTransfer>> {
+        stripe::ListPaginator::from_list_params("/treasury/inbound_transfers", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTreasuryInboundTransfer<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct SucceedTreasuryInboundTransfer<'a> {
     /// Specifies which fields in the response should be expanded.

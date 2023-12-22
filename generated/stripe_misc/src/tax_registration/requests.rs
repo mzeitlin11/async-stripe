@@ -94,11 +94,12 @@ impl<'a> ListTaxRegistration<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_misc::TaxRegistration>> {
         client.get_query("/tax/registrations", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_misc::TaxRegistration> {
-        stripe::ListPaginator::from_params("/tax/registrations", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::TaxRegistration>> {
+        stripe::ListPaginator::from_list_params("/tax/registrations", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTaxRegistration<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTaxRegistration<'a> {
     /// Time at which the Tax Registration becomes active.

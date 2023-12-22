@@ -45,11 +45,10 @@ impl<'a> ListUsageRecordSummary<'a> {
     pub fn paginate(
         self,
         subscription_item: &stripe_shared::subscription_item::SubscriptionItemId,
-    ) -> stripe::ListPaginator<stripe_shared::UsageRecordSummary> {
-        stripe::ListPaginator::from_params(
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::UsageRecordSummary>> {
+        stripe::ListPaginator::from_list_params(
             &format!("/subscription_items/{subscription_item}/usage_record_summaries"),
             self,
         )
     }
 }
-impl<'a> stripe::PaginationParams for ListUsageRecordSummary<'a> {}

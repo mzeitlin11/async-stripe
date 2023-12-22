@@ -36,11 +36,12 @@ impl<'a> ListSubscriptionItem<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::SubscriptionItem>> {
         client.get_query("/subscription_items", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::SubscriptionItem> {
-        stripe::ListPaginator::from_params("/subscription_items", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::SubscriptionItem>> {
+        stripe::ListPaginator::from_list_params("/subscription_items", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListSubscriptionItem<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveSubscriptionItem<'a> {
     /// Specifies which fields in the response should be expanded.
@@ -1003,11 +1004,10 @@ impl<'a> UsageRecordSummariesSubscriptionItem<'a> {
     pub fn paginate(
         self,
         subscription_item: &stripe_shared::subscription_item::SubscriptionItemId,
-    ) -> stripe::ListPaginator<stripe_shared::UsageRecordSummary> {
-        stripe::ListPaginator::from_params(
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::UsageRecordSummary>> {
+        stripe::ListPaginator::from_list_params(
             &format!("/subscription_items/{subscription_item}/usage_record_summaries"),
             self,
         )
     }
 }
-impl<'a> stripe::PaginationParams for UsageRecordSummariesSubscriptionItem<'a> {}

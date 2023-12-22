@@ -134,8 +134,9 @@ impl<'a> ListTestHelpersTestClock<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::TestHelpersTestClock>> {
         client.get_query("/test_helpers/test_clocks", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::TestHelpersTestClock> {
-        stripe::ListPaginator::from_params("/test_helpers/test_clocks", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::TestHelpersTestClock>> {
+        stripe::ListPaginator::from_list_params("/test_helpers/test_clocks", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTestHelpersTestClock<'a> {}

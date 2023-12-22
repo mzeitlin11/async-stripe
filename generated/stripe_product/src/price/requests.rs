@@ -37,6 +37,9 @@ impl<'a> SearchPrice<'a> {
     ) -> stripe::Response<stripe_types::SearchList<stripe_shared::Price>> {
         client.get_query("/prices/search", self)
     }
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Price>> {
+        stripe::ListPaginator::from_search_params("/prices/search", self)
+    }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListPrice<'a> {
@@ -282,11 +285,10 @@ impl<'a> ListPrice<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Price>> {
         client.get_query("/prices", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Price> {
-        stripe::ListPaginator::from_params("/prices", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Price>> {
+        stripe::ListPaginator::from_list_params("/prices", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListPrice<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePrice<'a> {
     /// Whether the price can be used for new purchases.

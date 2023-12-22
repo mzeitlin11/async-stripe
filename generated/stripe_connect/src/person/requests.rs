@@ -67,11 +67,10 @@ impl<'a> ListPerson<'a> {
     pub fn paginate(
         self,
         account: &stripe_shared::account::AccountId,
-    ) -> stripe::ListPaginator<stripe_shared::Person> {
-        stripe::ListPaginator::from_params(&format!("/accounts/{account}/persons"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Person>> {
+        stripe::ListPaginator::from_list_params(&format!("/accounts/{account}/persons"), self)
     }
 }
-impl<'a> stripe::PaginationParams for ListPerson<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrievePerson<'a> {
     /// Specifies which fields in the response should be expanded.

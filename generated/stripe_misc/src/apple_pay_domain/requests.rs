@@ -36,11 +36,12 @@ impl<'a> ListApplePayDomain<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_misc::ApplePayDomain>> {
         client.get_query("/apple_pay/domains", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_misc::ApplePayDomain> {
-        stripe::ListPaginator::from_params("/apple_pay/domains", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::ApplePayDomain>> {
+        stripe::ListPaginator::from_list_params("/apple_pay/domains", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListApplePayDomain<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateApplePayDomain<'a> {
     pub domain_name: &'a str,

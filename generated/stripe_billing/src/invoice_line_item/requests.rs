@@ -40,11 +40,10 @@ impl<'a> ListInvoiceLineItem<'a> {
     pub fn paginate(
         self,
         invoice: &stripe_shared::invoice::InvoiceId,
-    ) -> stripe::ListPaginator<stripe_shared::InvoiceLineItem> {
-        stripe::ListPaginator::from_params(&format!("/invoices/{invoice}/lines"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::InvoiceLineItem>> {
+        stripe::ListPaginator::from_list_params(&format!("/invoices/{invoice}/lines"), self)
     }
 }
-impl<'a> stripe::PaginationParams for ListInvoiceLineItem<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateInvoiceLineItem<'a> {
     /// The integer amount in cents (or local equivalent) of the charge to be applied to the upcoming invoice.

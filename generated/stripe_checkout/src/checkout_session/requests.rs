@@ -117,11 +117,12 @@ impl<'a> ListCheckoutSession<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_checkout::CheckoutSession>> {
         client.get_query("/checkout/sessions", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_checkout::CheckoutSession> {
-        stripe::ListPaginator::from_params("/checkout/sessions", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_checkout::CheckoutSession>> {
+        stripe::ListPaginator::from_list_params("/checkout/sessions", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListCheckoutSession<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveCheckoutSession<'a> {
     /// Specifies which fields in the response should be expanded.
@@ -7159,14 +7160,13 @@ impl<'a> ListLineItemsCheckoutSession<'a> {
     pub fn paginate(
         self,
         session: &stripe_checkout::checkout_session::CheckoutSessionId,
-    ) -> stripe::ListPaginator<stripe_shared::CheckoutSessionItem> {
-        stripe::ListPaginator::from_params(
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
+        stripe::ListPaginator::from_list_params(
             &format!("/checkout/sessions/{session}/line_items"),
             self,
         )
     }
 }
-impl<'a> stripe::PaginationParams for ListLineItemsCheckoutSession<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ExpireCheckoutSession<'a> {
     /// Specifies which fields in the response should be expanded.

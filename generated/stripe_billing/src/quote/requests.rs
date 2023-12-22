@@ -1167,11 +1167,10 @@ impl<'a> ListQuote<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Quote>> {
         client.get_query("/quotes", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Quote> {
-        stripe::ListPaginator::from_params("/quotes", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Quote>> {
+        stripe::ListPaginator::from_list_params("/quotes", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListQuote<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListLineItemsQuote<'a> {
     /// A cursor for use in pagination.
@@ -1214,11 +1213,10 @@ impl<'a> ListLineItemsQuote<'a> {
     pub fn paginate(
         self,
         quote: &stripe_shared::quote::QuoteId,
-    ) -> stripe::ListPaginator<stripe_shared::CheckoutSessionItem> {
-        stripe::ListPaginator::from_params(&format!("/quotes/{quote}/line_items"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
+        stripe::ListPaginator::from_list_params(&format!("/quotes/{quote}/line_items"), self)
     }
 }
-impl<'a> stripe::PaginationParams for ListLineItemsQuote<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListComputedUpfrontLineItemsQuote<'a> {
     /// A cursor for use in pagination.
@@ -1261,11 +1259,10 @@ impl<'a> ListComputedUpfrontLineItemsQuote<'a> {
     pub fn paginate(
         self,
         quote: &stripe_shared::quote::QuoteId,
-    ) -> stripe::ListPaginator<stripe_shared::CheckoutSessionItem> {
-        stripe::ListPaginator::from_params(
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
+        stripe::ListPaginator::from_list_params(
             &format!("/quotes/{quote}/computed_upfront_line_items"),
             self,
         )
     }
 }
-impl<'a> stripe::PaginationParams for ListComputedUpfrontLineItemsQuote<'a> {}

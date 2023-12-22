@@ -37,6 +37,11 @@ impl<'a> SearchSubscription<'a> {
     ) -> stripe::Response<stripe_types::SearchList<stripe_shared::Subscription>> {
         client.get_query("/subscriptions/search", self)
     }
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Subscription>> {
+        stripe::ListPaginator::from_search_params("/subscriptions/search", self)
+    }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListSubscription<'a> {
@@ -256,11 +261,12 @@ impl<'a> ListSubscription<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Subscription>> {
         client.get_query("/subscriptions", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Subscription> {
-        stripe::ListPaginator::from_params("/subscriptions", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Subscription>> {
+        stripe::ListPaginator::from_list_params("/subscriptions", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListSubscription<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateSubscription<'a> {
     /// A list of prices and quantities that will generate invoice items appended to the next invoice for this subscription.

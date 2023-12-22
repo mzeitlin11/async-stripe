@@ -392,8 +392,7 @@ impl<'a> ListAppsSecret<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_connect::AppsSecret>> {
         client.get_query("/apps/secrets", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_connect::AppsSecret> {
-        stripe::ListPaginator::from_params("/apps/secrets", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_connect::AppsSecret>> {
+        stripe::ListPaginator::from_list_params("/apps/secrets", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListAppsSecret<'a> {}

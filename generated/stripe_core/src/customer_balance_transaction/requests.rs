@@ -60,14 +60,13 @@ impl<'a> ListCustomerBalanceTransaction<'a> {
     pub fn paginate(
         self,
         customer: &stripe_shared::customer::CustomerId,
-    ) -> stripe::ListPaginator<stripe_shared::CustomerBalanceTransaction> {
-        stripe::ListPaginator::from_params(
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CustomerBalanceTransaction>> {
+        stripe::ListPaginator::from_list_params(
             &format!("/customers/{customer}/balance_transactions"),
             self,
         )
     }
 }
-impl<'a> stripe::PaginationParams for ListCustomerBalanceTransaction<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCustomerBalanceTransaction<'a> {
     /// The integer amount in **cents (or local equivalent)** to apply to the customer's credit balance.

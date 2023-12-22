@@ -63,11 +63,12 @@ impl<'a> ListPaymentMethodDomain<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_payment::PaymentMethodDomain>> {
         client.get_query("/payment_method_domains", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_payment::PaymentMethodDomain> {
-        stripe::ListPaginator::from_params("/payment_method_domains", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_payment::PaymentMethodDomain>> {
+        stripe::ListPaginator::from_list_params("/payment_method_domains", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListPaymentMethodDomain<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentMethodDomain<'a> {
     /// The domain name that this payment method domain object represents.

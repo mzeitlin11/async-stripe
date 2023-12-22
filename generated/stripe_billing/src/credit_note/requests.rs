@@ -616,11 +616,10 @@ impl<'a> ListCreditNote<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::CreditNote>> {
         client.get_query("/credit_notes", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::CreditNote> {
-        stripe::ListPaginator::from_params("/credit_notes", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CreditNote>> {
+        stripe::ListPaginator::from_list_params("/credit_notes", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListCreditNote<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateCreditNote<'a> {
     /// Specifies which fields in the response should be expanded.
@@ -974,8 +973,9 @@ impl<'a> PreviewLinesCreditNote<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::CreditNoteLineItem>> {
         client.get_query("/credit_notes/preview/lines", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::CreditNoteLineItem> {
-        stripe::ListPaginator::from_params("/credit_notes/preview/lines", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CreditNoteLineItem>> {
+        stripe::ListPaginator::from_list_params("/credit_notes/preview/lines", self)
     }
 }
-impl<'a> stripe::PaginationParams for PreviewLinesCreditNote<'a> {}

@@ -44,11 +44,12 @@ impl<'a> ListRadarValueList<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_fraud::RadarValueList>> {
         client.get_query("/radar/value_lists", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_fraud::RadarValueList> {
-        stripe::ListPaginator::from_params("/radar/value_lists", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_fraud::RadarValueList>> {
+        stripe::ListPaginator::from_list_params("/radar/value_lists", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListRadarValueList<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveRadarValueList<'a> {
     /// Specifies which fields in the response should be expanded.

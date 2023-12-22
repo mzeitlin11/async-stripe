@@ -117,8 +117,9 @@ impl<'a> ListIdentityVerificationReport<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_misc::IdentityVerificationReport>> {
         client.get_query("/identity/verification_reports", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_misc::IdentityVerificationReport> {
-        stripe::ListPaginator::from_params("/identity/verification_reports", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::IdentityVerificationReport>> {
+        stripe::ListPaginator::from_list_params("/identity/verification_reports", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListIdentityVerificationReport<'a> {}

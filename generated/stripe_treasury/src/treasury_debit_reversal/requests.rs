@@ -209,8 +209,9 @@ impl<'a> ListTreasuryDebitReversal<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryDebitReversal>> {
         client.get_query("/treasury/debit_reversals", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_treasury::TreasuryDebitReversal> {
-        stripe::ListPaginator::from_params("/treasury/debit_reversals", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_treasury::TreasuryDebitReversal>> {
+        stripe::ListPaginator::from_list_params("/treasury/debit_reversals", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTreasuryDebitReversal<'a> {}

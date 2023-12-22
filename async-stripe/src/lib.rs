@@ -59,7 +59,7 @@ mod client;
 mod error;
 mod pagination;
 
-pub use pagination::{ListPaginator, PaginationExt, PaginationParams};
+pub use pagination::{ListPaginator, PaginationExt};
 pub use stripe_shared::account::AccountId;
 pub use stripe_shared::application::ApplicationId;
 pub use stripe_shared::ApiVersion;

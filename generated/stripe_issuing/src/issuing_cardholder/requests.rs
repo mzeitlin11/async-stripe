@@ -165,11 +165,12 @@ impl<'a> ListIssuingCardholder<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::IssuingCardholder>> {
         client.get_query("/issuing/cardholders", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::IssuingCardholder> {
-        stripe::ListPaginator::from_params("/issuing/cardholders", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::IssuingCardholder>> {
+        stripe::ListPaginator::from_list_params("/issuing/cardholders", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListIssuingCardholder<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateIssuingCardholder<'a> {
     /// The cardholder's billing address.

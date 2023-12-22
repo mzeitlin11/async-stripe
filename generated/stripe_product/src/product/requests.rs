@@ -37,6 +37,11 @@ impl<'a> SearchProduct<'a> {
     ) -> stripe::Response<stripe_types::SearchList<stripe_shared::Product>> {
         client.get_query("/products/search", self)
     }
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Product>> {
+        stripe::ListPaginator::from_search_params("/products/search", self)
+    }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateProduct<'a> {
@@ -839,11 +844,10 @@ impl<'a> ListProduct<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Product>> {
         client.get_query("/products", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Product> {
-        stripe::ListPaginator::from_params("/products", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Product>> {
+        stripe::ListPaginator::from_list_params("/products", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListProduct<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct DeleteProduct {}
 impl DeleteProduct {

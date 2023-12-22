@@ -40,11 +40,12 @@ impl<'a> ListRadarEarlyFraudWarning<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_fraud::RadarEarlyFraudWarning>> {
         client.get_query("/radar/early_fraud_warnings", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_fraud::RadarEarlyFraudWarning> {
-        stripe::ListPaginator::from_params("/radar/early_fraud_warnings", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_fraud::RadarEarlyFraudWarning>> {
+        stripe::ListPaginator::from_list_params("/radar/early_fraud_warnings", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListRadarEarlyFraudWarning<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveRadarEarlyFraudWarning<'a> {
     /// Specifies which fields in the response should be expanded.

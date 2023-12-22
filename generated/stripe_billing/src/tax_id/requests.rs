@@ -333,11 +333,10 @@ impl<'a> ListTaxId<'a> {
     pub fn paginate(
         self,
         customer: &stripe_shared::customer::CustomerId,
-    ) -> stripe::ListPaginator<stripe_shared::TaxId> {
-        stripe::ListPaginator::from_params(&format!("/customers/{customer}/tax_ids"), self)
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::TaxId>> {
+        stripe::ListPaginator::from_list_params(&format!("/customers/{customer}/tax_ids"), self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTaxId<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct DeleteTaxId {}
 impl DeleteTaxId {

@@ -203,8 +203,9 @@ impl<'a> ListTreasuryTransaction<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryTransaction>> {
         client.get_query("/treasury/transactions", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_treasury::TreasuryTransaction> {
-        stripe::ListPaginator::from_params("/treasury/transactions", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_treasury::TreasuryTransaction>> {
+        stripe::ListPaginator::from_list_params("/treasury/transactions", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTreasuryTransaction<'a> {}

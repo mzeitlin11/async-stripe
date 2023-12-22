@@ -70,11 +70,10 @@ impl<'a> ListPayout<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Payout>> {
         client.get_query("/payouts", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Payout> {
-        stripe::ListPaginator::from_params("/payouts", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Payout>> {
+        stripe::ListPaginator::from_list_params("/payouts", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListPayout<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePayout<'a> {
     /// A positive integer in cents representing how much to payout.

@@ -36,11 +36,10 @@ impl<'a> ListExchangeRate<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_misc::ExchangeRate>> {
         client.get_query("/exchange_rates", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_misc::ExchangeRate> {
-        stripe::ListPaginator::from_params("/exchange_rates", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_misc::ExchangeRate>> {
+        stripe::ListPaginator::from_list_params("/exchange_rates", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListExchangeRate<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveExchangeRate<'a> {
     /// Specifies which fields in the response should be expanded.

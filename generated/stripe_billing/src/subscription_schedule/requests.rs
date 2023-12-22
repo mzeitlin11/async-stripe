@@ -52,11 +52,12 @@ impl<'a> ListSubscriptionSchedule<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::SubscriptionSchedule>> {
         client.get_query("/subscription_schedules", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::SubscriptionSchedule> {
-        stripe::ListPaginator::from_params("/subscription_schedules", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::SubscriptionSchedule>> {
+        stripe::ListPaginator::from_list_params("/subscription_schedules", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListSubscriptionSchedule<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSubscriptionSchedule<'a> {
     /// The identifier of the customer to create the subscription schedule for.

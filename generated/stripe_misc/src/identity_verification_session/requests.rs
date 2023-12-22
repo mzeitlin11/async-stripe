@@ -310,11 +310,12 @@ impl<'a> ListIdentityVerificationSession<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_misc::IdentityVerificationSession>> {
         client.get_query("/identity/verification_sessions", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_misc::IdentityVerificationSession> {
-        stripe::ListPaginator::from_params("/identity/verification_sessions", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::IdentityVerificationSession>> {
+        stripe::ListPaginator::from_list_params("/identity/verification_sessions", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListIdentityVerificationSession<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CancelIdentityVerificationSession<'a> {
     /// Specifies which fields in the response should be expanded.

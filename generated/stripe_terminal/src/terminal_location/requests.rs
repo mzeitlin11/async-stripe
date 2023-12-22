@@ -194,11 +194,12 @@ impl<'a> ListTerminalLocation<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_terminal::TerminalLocation>> {
         client.get_query("/terminal/locations", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_terminal::TerminalLocation> {
-        stripe::ListPaginator::from_params("/terminal/locations", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_terminal::TerminalLocation>> {
+        stripe::ListPaginator::from_list_params("/terminal/locations", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTerminalLocation<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct DeleteTerminalLocation {}
 impl DeleteTerminalLocation {

@@ -256,8 +256,9 @@ impl<'a> ListPromotionCode<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::PromotionCode>> {
         client.get_query("/promotion_codes", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::PromotionCode> {
-        stripe::ListPaginator::from_params("/promotion_codes", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PromotionCode>> {
+        stripe::ListPaginator::from_list_params("/promotion_codes", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListPromotionCode<'a> {}

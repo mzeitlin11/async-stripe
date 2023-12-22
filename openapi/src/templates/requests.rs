@@ -39,29 +39,21 @@ impl RequestSpec {
             "".into()
         };
         let impl_for = components.construct_printable_type(&self.params);
-        let maybe_inner_list_typ = as_list_inner_typ(&self.returned);
-        if let Some(inner_list_typ) = maybe_inner_list_typ {
+        if let Some(pagination_kind) = as_pagination_kind(&self.returned) {
             self.gen_paginate(
-                components.construct_printable_type(inner_list_typ),
+                components.construct_printable_type(&self.returned),
+                pagination_kind,
                 &mut req_out,
                 components,
-            );
+            )
         }
-        let mut out = formatdoc!(
+        formatdoc!(
             r#"
             impl{lifetime_str} {impl_for}{lifetime_str} {{
                 {req_out}
             }}
         "#
-        );
-
-        if maybe_inner_list_typ.is_some() {
-            let _ = writeln!(
-                out,
-                r"impl{lifetime_str} stripe::PaginationParams for {impl_for}{lifetime_str} {{}}"
-            );
-        }
-        out
+        )
     }
 
     fn write_req_body(&self, out: &mut String, components: &Components) {
@@ -96,28 +88,43 @@ impl RequestSpec {
         );
     }
 
-    pub fn gen_paginate(
+    fn gen_paginate(
         &self,
-        inner_pagination_typ: PrintableType,
+        pagination_typ: PrintableType,
+        kind: PaginationKind,
         out: &mut String,
         components: &Components,
     ) {
         let path = self.gen_path_arg();
         let path_params = self.gen_method_path_params(components);
+
+        let paginate_method_name = match kind {
+            PaginationKind::List => "from_list_params",
+            PaginationKind::Search => "from_search_params",
+        };
         let _ = writedoc!(
             out,
             r#"
-        pub fn paginate(self, {path_params}) -> stripe::ListPaginator<{inner_pagination_typ}> {{
-            stripe::ListPaginator::from_params({path}, self)
+        pub fn paginate(self, {path_params}) -> stripe::ListPaginator<{pagination_typ}> {{
+            stripe::ListPaginator::{paginate_method_name}({path}, self)
         }}
         "#
         );
     }
 }
 
-fn as_list_inner_typ(typ: &RustType) -> Option<&RustType> {
+#[derive(Copy, Clone)]
+enum PaginationKind {
+    /// List<T>
+    List,
+    /// Search<T>
+    Search,
+}
+
+fn as_pagination_kind(typ: &RustType) -> Option<PaginationKind> {
     match typ {
-        RustType::Container(Container::List(typ)) => Some(typ),
+        RustType::Container(Container::List(_)) => Some(PaginationKind::List),
+        RustType::Container(Container::SearchList(_)) => Some(PaginationKind::Search),
         _ => None,
     }
 }

@@ -104,11 +104,12 @@ impl<'a> ListIssuingTransaction<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::IssuingTransaction>> {
         client.get_query("/issuing/transactions", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::IssuingTransaction> {
-        stripe::ListPaginator::from_params("/issuing/transactions", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::IssuingTransaction>> {
+        stripe::ListPaginator::from_list_params("/issuing/transactions", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListIssuingTransaction<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveIssuingTransaction<'a> {
     /// Specifies which fields in the response should be expanded.

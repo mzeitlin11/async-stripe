@@ -45,11 +45,10 @@ impl<'a> ListPlan<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Plan>> {
         client.get_query("/plans", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Plan> {
-        stripe::ListPaginator::from_params("/plans", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Plan>> {
+        stripe::ListPaginator::from_list_params("/plans", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListPlan<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePlan<'a> {
     /// Whether the plan is currently available for new subscriptions.

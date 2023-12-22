@@ -44,11 +44,10 @@ impl<'a> ListRefund<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::Refund>> {
         client.get_query("/refunds", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::Refund> {
-        stripe::ListPaginator::from_params("/refunds", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Refund>> {
+        stripe::ListPaginator::from_list_params("/refunds", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListRefund<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateRefund<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]

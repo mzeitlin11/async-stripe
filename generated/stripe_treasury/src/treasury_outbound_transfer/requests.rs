@@ -277,11 +277,12 @@ impl<'a> ListTreasuryOutboundTransfer<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryOutboundTransfer>> {
         client.get_query("/treasury/outbound_transfers", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_treasury::TreasuryOutboundTransfer> {
-        stripe::ListPaginator::from_params("/treasury/outbound_transfers", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_treasury::TreasuryOutboundTransfer>> {
+        stripe::ListPaginator::from_list_params("/treasury/outbound_transfers", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTreasuryOutboundTransfer<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CancelTreasuryOutboundTransfer<'a> {
     /// Specifies which fields in the response should be expanded.

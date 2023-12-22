@@ -20,11 +20,12 @@ impl<'a> ListPaymentMethodConfiguration<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_payment::PaymentMethodConfiguration>> {
         client.get_query("/payment_method_configurations", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_payment::PaymentMethodConfiguration> {
-        stripe::ListPaginator::from_params("/payment_method_configurations", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_payment::PaymentMethodConfiguration>> {
+        stripe::ListPaginator::from_list_params("/payment_method_configurations", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListPaymentMethodConfiguration<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrievePaymentMethodConfiguration<'a> {
     /// Specifies which fields in the response should be expanded.

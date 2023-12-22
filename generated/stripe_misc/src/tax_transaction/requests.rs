@@ -249,11 +249,10 @@ impl<'a> ListLineItemsTaxTransaction<'a> {
     pub fn paginate(
         self,
         transaction: &stripe_misc::tax_transaction::TaxTransactionId,
-    ) -> stripe::ListPaginator<stripe_misc::TaxTransactionLineItem> {
-        stripe::ListPaginator::from_params(
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::TaxTransactionLineItem>> {
+        stripe::ListPaginator::from_list_params(
             &format!("/tax/transactions/{transaction}/line_items"),
             self,
         )
     }
 }
-impl<'a> stripe::PaginationParams for ListLineItemsTaxTransaction<'a> {}

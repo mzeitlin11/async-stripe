@@ -34,11 +34,12 @@ impl<'a> ListCountrySpec<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_connect::CountrySpec>> {
         client.get_query("/country_specs", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_connect::CountrySpec> {
-        stripe::ListPaginator::from_params("/country_specs", self)
+    pub fn paginate(
+        self,
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_connect::CountrySpec>> {
+        stripe::ListPaginator::from_list_params("/country_specs", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListCountrySpec<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveCountrySpec<'a> {
     /// Specifies which fields in the response should be expanded.

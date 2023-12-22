@@ -37,11 +37,10 @@ impl<'a> ListPaymentLink<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::PaymentLink>> {
         client.get_query("/payment_links", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::PaymentLink> {
-        stripe::ListPaginator::from_params("/payment_links", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PaymentLink>> {
+        stripe::ListPaginator::from_list_params("/payment_links", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListPaymentLink<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrievePaymentLink<'a> {
     /// Specifies which fields in the response should be expanded.
@@ -105,14 +104,13 @@ impl<'a> ListLineItemsPaymentLink<'a> {
     pub fn paginate(
         self,
         payment_link: &stripe_shared::payment_link::PaymentLinkId,
-    ) -> stripe::ListPaginator<stripe_shared::CheckoutSessionItem> {
-        stripe::ListPaginator::from_params(
+    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
+        stripe::ListPaginator::from_list_params(
             &format!("/payment_links/{payment_link}/line_items"),
             self,
         )
     }
 }
-impl<'a> stripe::PaginationParams for ListLineItemsPaymentLink<'a> {}
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentLink<'a> {
     /// Behavior after the purchase is complete.

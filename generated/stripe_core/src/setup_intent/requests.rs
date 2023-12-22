@@ -2796,11 +2796,10 @@ impl<'a> ListSetupIntent<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::SetupIntent>> {
         client.get_query("/setup_intents", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::SetupIntent> {
-        stripe::ListPaginator::from_params("/setup_intents", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::SetupIntent>> {
+        stripe::ListPaginator::from_list_params("/setup_intents", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListSetupIntent<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveSetupIntent<'a> {
     /// The client secret of the SetupIntent.

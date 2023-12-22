@@ -136,8 +136,7 @@ impl<'a> ListFileLink<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::FileLink>> {
         client.get_query("/file_links", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::FileLink> {
-        stripe::ListPaginator::from_params("/file_links", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::FileLink>> {
+        stripe::ListPaginator::from_list_params("/file_links", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListFileLink<'a> {}

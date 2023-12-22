@@ -45,11 +45,10 @@ impl<'a> ListTaxRate<'a> {
     ) -> stripe::Response<stripe_types::List<stripe_shared::TaxRate>> {
         client.get_query("/tax_rates", self)
     }
-    pub fn paginate(self) -> stripe::ListPaginator<stripe_shared::TaxRate> {
-        stripe::ListPaginator::from_params("/tax_rates", self)
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::TaxRate>> {
+        stripe::ListPaginator::from_list_params("/tax_rates", self)
     }
 }
-impl<'a> stripe::PaginationParams for ListTaxRate<'a> {}
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveTaxRate<'a> {
     /// Specifies which fields in the response should be expanded.

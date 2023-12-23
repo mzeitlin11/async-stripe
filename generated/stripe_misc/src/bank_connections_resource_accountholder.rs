@@ -1,12 +1,10 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct BankConnectionsResourceAccountholder {
     /// The ID of the Stripe account this account belongs to.
-    ///
     /// Should only be present if `account_holder.type` is `account`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account: Option<stripe_types::Expandable<stripe_shared::Account>>,
     /// ID of the Stripe customer this account belongs to.
-    ///
     /// Present if and only if `account_holder.type` is `customer`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<stripe_types::Expandable<stripe_shared::Customer>>,

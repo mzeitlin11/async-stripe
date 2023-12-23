@@ -6,11 +6,9 @@ pub struct TaxProductResourceLineItemTaxBreakdown {
     /// Indicates whether the jurisdiction was determined by the origin (merchant's address) or destination (customer's address).
     pub sourcing: TaxProductResourceLineItemTaxBreakdownSourcing,
     /// Details regarding the rate for this tax.
-    ///
     /// This field will be `null` when the tax is not imposed, for example if the product is exempt from tax.
     pub tax_rate_details: Option<stripe_misc::TaxProductResourceLineItemTaxRateDetails>,
     /// The reasoning behind this tax, for example, if the product is tax exempt.
-    ///
     /// The possible values for this field may be extended as new tax rules are supported.
     pub taxability_reason: TaxProductResourceLineItemTaxBreakdownTaxabilityReason,
     /// The amount on which tax is calculated, in integer cents.
@@ -79,7 +77,6 @@ impl<'de> serde::Deserialize<'de> for TaxProductResourceLineItemTaxBreakdownSour
     }
 }
 /// The reasoning behind this tax, for example, if the product is tax exempt.
-///
 /// The possible values for this field may be extended as new tax rules are supported.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]

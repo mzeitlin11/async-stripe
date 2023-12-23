@@ -9,12 +9,10 @@ pub struct LegalEntityCompany {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address_kanji: Option<stripe_shared::LegalEntityJapanAddress>,
     /// Whether the company's directors have been provided.
-    ///
     /// This Boolean will be `true` if you've manually indicated that all directors are provided via [the `directors_provided` parameter](https://stripe.com/docs/api/accounts/update#update_account-company-directors_provided).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub directors_provided: Option<bool>,
     /// Whether the company's executives have been provided.
-    ///
     /// This Boolean will be `true` if you've manually indicated that all executives are provided via [the `executives_provided` parameter](https://stripe.com/docs/api/accounts/update#update_account-company-executives_provided), or if Stripe determined that sufficient executives were provided.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub executives_provided: Option<bool>,
@@ -34,7 +32,6 @@ pub struct LegalEntityCompany {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name_kanji: Option<String>,
     /// Whether the company's owners have been provided.
-    ///
     /// This Boolean will be `true` if you've manually indicated that all owners are provided via [the `owners_provided` parameter](https://stripe.com/docs/api/accounts/update#update_account-company-owners_provided), or if Stripe determined that sufficient owners were provided.
     /// Stripe determines ownership requirements using both the number of owners provided and their total percent ownership (calculated by adding the `percent_ownership` of each owner together).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -46,7 +43,6 @@ pub struct LegalEntityCompany {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone: Option<String>,
     /// The category identifying the legal structure of the company or legal entity.
-    ///
     /// See [Business structure](https://stripe.com/docs/connect/identity-verification#business-structure) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub structure: Option<LegalEntityCompanyStructure>,
@@ -64,7 +60,6 @@ pub struct LegalEntityCompany {
     pub verification: Option<stripe_shared::LegalEntityCompanyVerification>,
 }
 /// The category identifying the legal structure of the company or legal entity.
-///
 /// See [Business structure](https://stripe.com/docs/connect/identity-verification#business-structure) for more details.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]

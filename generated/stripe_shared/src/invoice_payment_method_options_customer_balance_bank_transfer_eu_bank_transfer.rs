@@ -1,12 +1,10 @@
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct InvoicePaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer {
     /// The desired country code of the bank account information.
-    ///
     /// Permitted values include: `BE`, `DE`, `ES`, `FR`, `IE`, or `NL`.
     pub country: InvoicePaymentMethodOptionsCustomerBalanceBankTransferEuBankTransferCountry,
 }
 /// The desired country code of the bank account information.
-///
 /// Permitted values include: `BE`, `DE`, `ES`, `FR`, `IE`, or `NL`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum InvoicePaymentMethodOptionsCustomerBalanceBankTransferEuBankTransferCountry {

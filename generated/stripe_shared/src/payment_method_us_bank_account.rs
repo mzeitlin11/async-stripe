@@ -2,16 +2,13 @@
 pub struct PaymentMethodUsBankAccount {
     /// Account holder type: individual or company.
     pub account_holder_type: Option<PaymentMethodUsBankAccountAccountHolderType>,
-    /// Account type: checkings or savings.
-    ///
-    /// Defaults to checking if omitted.
+    /// Account type: checkings or savings. Defaults to checking if omitted.
     pub account_type: Option<PaymentMethodUsBankAccountAccountType>,
     /// The name of the bank.
     pub bank_name: Option<String>,
     /// The ID of the Financial Connections Account used to create the payment method.
     pub financial_connections_account: Option<String>,
     /// Uniquely identifies this particular bank account.
-    ///
     /// You can use this attribute to check whether two bank accounts are the same.
     pub fingerprint: Option<String>,
     /// Last four digits of the bank account number.
@@ -85,9 +82,7 @@ impl<'de> serde::Deserialize<'de> for PaymentMethodUsBankAccountAccountHolderTyp
         })
     }
 }
-/// Account type: checkings or savings.
-///
-/// Defaults to checking if omitted.
+/// Account type: checkings or savings. Defaults to checking if omitted.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PaymentMethodUsBankAccountAccountType {
     Checking,

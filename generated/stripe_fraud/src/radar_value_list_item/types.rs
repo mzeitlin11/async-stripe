@@ -5,9 +5,7 @@
 /// For more details see <<https://stripe.com/docs/api/radar/value_list_items/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct RadarValueListItem {
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// The name or email address of the user who added this item to the value list.
     pub created_by: String,

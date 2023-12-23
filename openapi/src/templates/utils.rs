@@ -3,47 +3,56 @@ use std::fmt::Write;
 use lazy_static::lazy_static;
 use regex_lite::Regex;
 
+lazy_static! {
+    /// Regex for a period followed by 1 or 2 whitespaces
+    static ref PERIOD_THEN_WHITESPACE: Regex = Regex::new(r"\.\s[\s]?").unwrap();
+}
+
 pub fn write_serde_rename(out: &mut String, rename: &str) {
     let _ = writeln!(out, r#"#[serde(rename = "{rename}")]"#);
 }
 
+/// Write a formatted doc comment.
+///
+/// Where Stripe's description has reasonable line length, we follow their newline usage (happy, simple case).
+/// When Stripe does not include newlines, we manually insert newlines on each sentence end.
 pub fn write_doc_comment(description: &str, depth: u8) -> String {
     if description.trim().is_empty() {
         return String::new();
     }
     let mut out = String::with_capacity(32);
-
     let doc = format_doc_comment(description);
-    let mut doc_parts = doc.splitn(2, ". ");
-    let head = doc_parts.next().unwrap().trim();
-    for (i, line) in head.split('\n').enumerate() {
+
+    for (i, line) in doc.split('\n').enumerate() {
         if i > 0 {
             out.push('\n');
         }
         print_indent(&mut out, depth);
-        if !line.is_empty() {
+        if line.is_empty() {
+            out.push_str("///");
+            continue;
+        }
+        // If a reasonable line, follow Stripe
+        if line.len() < 100 {
             out.push_str("/// ");
             out.push_str(line);
+            // If an unreasonable line, inject newlines after each sentence
         } else {
-            out.push_str("///");
-        }
-    }
-    if !head.ends_with('.') {
-        out.push('.');
-    }
-    out.push('\n');
-    if let Some(tail) = doc_parts.next() {
-        print_indent(&mut out, depth);
-        out.push_str("///\n");
-        for part in tail.split(". ") {
-            print_indent(&mut out, depth);
-            out.push_str("/// ");
-            out.push_str(part.replace('\n', " ").trim());
-            if !part.ends_with('.') {
-                out.push('.');
+            for (i, part) in PERIOD_THEN_WHITESPACE.split(line).enumerate() {
+                if i > 0 {
+                    out.push('\n');
+                }
+                print_indent(&mut out, depth);
+                out.push_str("/// ");
+                out.push_str(part.trim());
+                if !part.is_empty() && !out.ends_with('.') {
+                    out.push('.');
+                }
             }
-            out.push('\n');
         }
+    }
+    if !out.ends_with('\n') {
+        out.push('\n');
     }
     out
 }

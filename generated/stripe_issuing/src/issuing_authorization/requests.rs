@@ -10,7 +10,6 @@ pub struct ListIssuingAuthorization<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -19,19 +18,15 @@ pub struct ListIssuingAuthorization<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub starting_after: Option<&'a str>,
-    /// Only return authorizations with the given status.
-    ///
-    /// One of `pending`, `closed`, or `reversed`.
+    /// Only return authorizations with the given status. One of `pending`, `closed`, or `reversed`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<ListIssuingAuthorizationStatus>,
 }
@@ -40,9 +35,7 @@ impl<'a> ListIssuingAuthorization<'a> {
         Self::default()
     }
 }
-/// Only return authorizations with the given status.
-///
-/// One of `pending`, `closed`, or `reversed`.
+/// Only return authorizations with the given status. One of `pending`, `closed`, or `reversed`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ListIssuingAuthorizationStatus {
     Closed,
@@ -98,7 +91,6 @@ impl serde::Serialize for ListIssuingAuthorizationStatus {
 }
 impl<'a> ListIssuingAuthorization<'a> {
     /// Returns a list of Issuing `Authorization` objects.
-    ///
     /// The objects are sorted in descending order by creation date, with the most recently created object appearing first.
     pub fn send(
         &self,
@@ -139,7 +131,6 @@ pub struct UpdateIssuingAuthorization<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -153,7 +144,6 @@ impl<'a> UpdateIssuingAuthorization<'a> {
 }
 impl<'a> UpdateIssuingAuthorization<'a> {
     /// Updates the specified Issuing `Authorization` object by setting the values of the parameters passed.
-    ///
     /// Any parameters not provided will be left unchanged.
     pub fn send(
         &self,
@@ -170,7 +160,6 @@ impl<'a> UpdateIssuingAuthorization<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ApproveIssuingAuthorization<'a> {
     /// If the authorization's `pending_request.is_amount_controllable` property is `true`, you may provide this value to control how much to hold for the authorization.
-    ///
     /// Must be positive (use [`decline`](https://stripe.com/docs/api/issuing/authorizations/decline) to decline an authorization request).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
@@ -178,7 +167,6 @@ pub struct ApproveIssuingAuthorization<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -192,8 +180,8 @@ impl<'a> ApproveIssuingAuthorization<'a> {
 }
 impl<'a> ApproveIssuingAuthorization<'a> {
     /// \[Deprecated\] Approves a pending Issuing `Authorization` object.
-    ///
     /// This request should be made within the timeout window of the [real-time authorization](https://stripe.com/docs/issuing/controls/real-time-authorizations) flow.
+    ///
     /// This method is deprecated.
     /// Instead, [respond directly to the webhook request to approve an authorization](https://stripe.com/docs/issuing/controls/real-time-authorizations#authorization-handling).
     pub fn send(
@@ -214,7 +202,6 @@ pub struct DeclineIssuingAuthorization<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -228,8 +215,8 @@ impl<'a> DeclineIssuingAuthorization<'a> {
 }
 impl<'a> DeclineIssuingAuthorization<'a> {
     /// \[Deprecated\] Declines a pending Issuing `Authorization` object.
-    ///
-    /// This request should be made within the timeout window of the [real time authorization](https://stripe.com/docs/issuing/controls/real-time-authorizations) flow. This method is deprecated.
+    /// This request should be made within the timeout window of the [real time authorization](https://stripe.com/docs/issuing/controls/real-time-authorizations) flow.
+    /// This method is deprecated.
     /// Instead, [respond directly to the webhook request to decline an authorization](https://stripe.com/docs/issuing/controls/real-time-authorizations#authorization-handling).
     pub fn send(
         &self,
@@ -246,23 +233,18 @@ impl<'a> DeclineIssuingAuthorization<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateIssuingAuthorization<'a> {
     /// The total amount to attempt to authorize.
-    ///
     /// This amount is in the provided currency, or defaults to the cards currency, and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
     pub amount: i64,
     /// Detailed breakdown of amount components.
-    ///
     /// These amounts are denominated in `currency` and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount_details: Option<CreateIssuingAuthorizationAmountDetails>,
-    /// How the card details were provided.
-    ///
-    /// Defaults to online.
+    /// How the card details were provided. Defaults to online.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub authorization_method: Option<CreateIssuingAuthorizationAuthorizationMethod>,
     /// Card associated with this authorization.
     pub card: &'a str,
     /// The currency of the authorization.
-    ///
     /// If not provided, defaults to the currency of the card.
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
@@ -284,7 +266,6 @@ pub struct CreateIssuingAuthorization<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_data: Option<CreateIssuingAuthorizationVerificationData>,
     /// The digital wallet used for this transaction.
-    ///
     /// One of `apple_pay`, `google_pay`, or `samsung_pay`.
     /// Will populate as `null` when no digital wallet was utilized.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -308,7 +289,6 @@ impl<'a> CreateIssuingAuthorization<'a> {
     }
 }
 /// Detailed breakdown of amount components.
-///
 /// These amounts are denominated in `currency` and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateIssuingAuthorizationAmountDetails {
@@ -324,9 +304,7 @@ impl CreateIssuingAuthorizationAmountDetails {
         Self::default()
     }
 }
-/// How the card details were provided.
-///
-/// Defaults to online.
+/// How the card details were provided. Defaults to online.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateIssuingAuthorizationAuthorizationMethod {
     Chip,
@@ -390,34 +368,32 @@ impl serde::Serialize for CreateIssuingAuthorizationAuthorizationMethod {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateIssuingAuthorizationMerchantData<'a> {
     /// A categorization of the seller's type of business.
-    ///
     /// See our [merchant categories guide](https://stripe.com/docs/issuing/merchant-categories) for a list of possible values.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub category: Option<CreateIssuingAuthorizationMerchantDataCategory>,
-    /// City where the seller is located.
+    /// City where the seller is located
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<&'a str>,
-    /// Country where the seller is located.
+    /// Country where the seller is located
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<&'a str>,
-    /// Name of the seller.
+    /// Name of the seller
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<&'a str>,
     /// Identifier assigned to the seller by the card network.
-    ///
     /// Different card networks may assign different network_id fields to the same merchant.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub network_id: Option<&'a str>,
-    /// Postal code where the seller is located.
+    /// Postal code where the seller is located
     #[serde(skip_serializing_if = "Option::is_none")]
     pub postal_code: Option<&'a str>,
-    /// State where the seller is located.
+    /// State where the seller is located
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<&'a str>,
     /// An ID assigned by the seller to the location of the sale.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub terminal_id: Option<&'a str>,
-    /// URL provided by the merchant on a 3DS request.
+    /// URL provided by the merchant on a 3DS request
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<&'a str>,
 }
@@ -427,7 +403,6 @@ impl<'a> CreateIssuingAuthorizationMerchantData<'a> {
     }
 }
 /// A categorization of the seller's type of business.
-///
 /// See our [merchant categories guide](https://stripe.com/docs/issuing/merchant-categories) for a list of possible values.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -1904,7 +1879,6 @@ impl serde::Serialize for CreateIssuingAuthorizationVerificationDataThreeDSecure
     }
 }
 /// The digital wallet used for this transaction.
-///
 /// One of `apple_pay`, `google_pay`, or `samsung_pay`.
 /// Will populate as `null` when no digital wallet was utilized.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1975,7 +1949,6 @@ pub struct IncrementIssuingAuthorization<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// The amount to increment the authorization by.
-    ///
     /// This amount is in the authorization currency and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
     pub increment_amount: i64,
     /// If set `true`, you may provide [amount](https://stripe.com/docs/api/issuing/authorizations/approve#approve_issuing_authorization-amount) to control how much to hold for the authorization.
@@ -2007,7 +1980,6 @@ pub struct ReverseIssuingAuthorization<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// The amount to reverse from the authorization.
-    ///
     /// If not provided, the full amount of the authorization will be reversed.
     /// This amount is in the authorization currency and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2060,13 +2032,11 @@ impl<'a> ExpireIssuingAuthorization<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CaptureIssuingAuthorization<'a> {
     /// The amount to capture from the authorization.
-    ///
     /// If not provided, the full amount of the authorization will be captured.
     /// This amount is in the authorization currency and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_amount: Option<i64>,
     /// Whether to close the authorization after capture.
-    ///
     /// Defaults to true.
     /// Set to false to enable multi-capture flows.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2162,14 +2132,11 @@ impl<'a> CaptureIssuingAuthorizationPurchaseDetailsFlightSegments<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CaptureIssuingAuthorizationPurchaseDetailsFuel<'a> {
     /// The type of fuel that was purchased.
-    ///
     /// One of `diesel`, `unleaded_plus`, `unleaded_regular`, `unleaded_super`, or `other`.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<CaptureIssuingAuthorizationPurchaseDetailsFuelType>,
-    /// The units for `volume_decimal`.
-    ///
-    /// One of `us_gallon` or `liter`.
+    /// The units for `volume_decimal`. One of `us_gallon` or `liter`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit: Option<CaptureIssuingAuthorizationPurchaseDetailsFuelUnit>,
     /// The cost in cents per each unit of fuel, represented as a decimal string with at most 12 decimal places.
@@ -2185,7 +2152,6 @@ impl<'a> CaptureIssuingAuthorizationPurchaseDetailsFuel<'a> {
     }
 }
 /// The type of fuel that was purchased.
-///
 /// One of `diesel`, `unleaded_plus`, `unleaded_regular`, `unleaded_super`, or `other`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CaptureIssuingAuthorizationPurchaseDetailsFuelType {
@@ -2246,9 +2212,7 @@ impl serde::Serialize for CaptureIssuingAuthorizationPurchaseDetailsFuelType {
         serializer.serialize_str(self.as_str())
     }
 }
-/// The units for `volume_decimal`.
-///
-/// One of `us_gallon` or `liter`.
+/// The units for `volume_decimal`. One of `us_gallon` or `liter`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CaptureIssuingAuthorizationPurchaseDetailsFuelUnit {
     Liter,

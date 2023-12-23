@@ -9,12 +9,10 @@ pub struct TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPayment
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_account: Option<stripe_treasury::ReceivedPaymentMethodDetailsFinancialAccount>,
     /// Set when `type` is `issuing_card`.
-    ///
     /// This is an [Issuing Card](https://stripe.com/docs/api#issuing_cards) ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub issuing_card: Option<String>,
     /// Polymorphic type matching the originating money movement's source.
-    ///
     /// This can be an external account, a Stripe balance, or a FinancialAccount.
     #[serde(rename = "type")]
     pub type_:
@@ -91,7 +89,6 @@ impl<'de> serde::Deserialize<'de>
     }
 }
 /// Polymorphic type matching the originating money movement's source.
-///
 /// This can be an external account, a Stripe balance, or a FinancialAccount.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsType {

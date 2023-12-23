@@ -4,14 +4,12 @@ pub struct LineItemsTaxAmount {
     pub amount: i64,
     pub rate: stripe_shared::TaxRate,
     /// The reasoning behind this tax, for example, if the product is tax exempt.
-    ///
     /// The possible values for this field may be extended as new tax rules are supported.
     pub taxability_reason: Option<LineItemsTaxAmountTaxabilityReason>,
     /// The amount on which tax is calculated, in cents (or local equivalent).
     pub taxable_amount: Option<i64>,
 }
 /// The reasoning behind this tax, for example, if the product is tax exempt.
-///
 /// The possible values for this field may be extended as new tax rules are supported.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]

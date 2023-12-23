@@ -1,4 +1,4 @@
-/// Balance information for the FinancialAccount.
+/// Balance information for the FinancialAccount
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryFinancialAccountsResourceBalance {
     /// Funds the user can spend right now.

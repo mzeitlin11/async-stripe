@@ -5,17 +5,13 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct RadarEarlyFraudWarning {
     /// An EFW is actionable if it has not received a dispute and has not been fully refunded.
-    ///
     /// You may wish to proactively refund a charge that receives an EFW, in order to avoid receiving a dispute later.
     pub actionable: bool,
     /// ID of the charge this early fraud warning is for, optionally expanded.
     pub charge: stripe_types::Expandable<stripe_shared::Charge>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// The type of fraud labelled by the issuer.
-    ///
     /// One of `card_never_received`, `fraudulent_card_application`, `made_with_counterfeit_card`, `made_with_lost_card`, `made_with_stolen_card`, `misc`, `unauthorized_use_of_card`.
     pub fraud_type: String,
     /// Unique identifier for the object.

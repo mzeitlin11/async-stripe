@@ -1,7 +1,6 @@
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListExternalAccount<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -10,7 +9,6 @@ pub struct ListExternalAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
@@ -18,7 +16,6 @@ pub struct ListExternalAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub object: Option<ListExternalAccountObject>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -132,7 +129,6 @@ pub struct CreateExternalAccount<'a> {
     /// Please refer to full [documentation](https://stripe.com/docs/api) instead.
     pub external_account: &'a str,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -163,13 +159,10 @@ pub struct UpdateExternalAccount<'a> {
     /// The name of the person or business that owns the bank account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_name: Option<&'a str>,
-    /// The type of entity that holds the account.
-    ///
-    /// This can be either `individual` or `company`.
+    /// The type of entity that holds the account. This can be either `individual` or `company`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_type: Option<UpdateExternalAccountAccountHolderType>,
     /// The bank account type.
-    ///
     /// This can only be `checking` or `savings` in most countries.
     /// In Japan, this can only be `futsu` or `toza`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -208,7 +201,6 @@ pub struct UpdateExternalAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -223,9 +215,7 @@ impl<'a> UpdateExternalAccount<'a> {
         Self::default()
     }
 }
-/// The type of entity that holds the account.
-///
-/// This can be either `individual` or `company`.
+/// The type of entity that holds the account. This can be either `individual` or `company`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateExternalAccountAccountHolderType {
     Company,
@@ -277,7 +267,6 @@ impl serde::Serialize for UpdateExternalAccountAccountHolderType {
     }
 }
 /// The bank account type.
-///
 /// This can only be `checking` or `savings` in most countries.
 /// In Japan, this can only be `futsu` or `toza`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -340,7 +329,6 @@ impl serde::Serialize for UpdateExternalAccountAccountType {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateExternalAccountDocuments<'a> {
     /// One or more documents that support the [Bank account ownership verification](https://support.stripe.com/questions/bank-account-ownership-verification) requirement.
-    ///
     /// Must be a document associated with the bank account that displays the last 4 digits of the account number, either a statement or a voided check.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank_account_ownership_verification:
@@ -352,7 +340,6 @@ impl<'a> UpdateExternalAccountDocuments<'a> {
     }
 }
 /// One or more documents that support the [Bank account ownership verification](https://support.stripe.com/questions/bank-account-ownership-verification) requirement.
-///
 /// Must be a document associated with the bank account that displays the last 4 digits of the account number, either a statement or a voided check.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateExternalAccountDocumentsBankAccountOwnershipVerification<'a> {
@@ -367,8 +354,9 @@ impl<'a> UpdateExternalAccountDocumentsBankAccountOwnershipVerification<'a> {
 }
 impl<'a> UpdateExternalAccount<'a> {
     /// Updates the metadata, account holder name, account holder type of a bank account belonging to a [Custom account](https://stripe.com/docs/connect/custom-accounts), and optionally sets it as the default for its currency.
+    /// Other bank account details are not editable by design.
     ///
-    /// Other bank account details are not editable by design.  You can re-enable a disabled bank account by performing an update call without providing any arguments or changes.
+    /// You can re-enable a disabled bank account by performing an update call without providing any arguments or changes.
     pub fn send(
         &self,
         client: &stripe::Client,

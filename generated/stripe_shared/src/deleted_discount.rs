@@ -1,16 +1,14 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct DeletedDiscount {
     /// The Checkout session that this coupon is applied to, if it is applied to a particular session in payment mode.
-    ///
     /// Will not be present for subscription mode.
     pub checkout_session: Option<String>,
     pub coupon: stripe_shared::Coupon,
     /// The ID of the customer associated with this discount.
     pub customer: Option<stripe_types::Expandable<stripe_shared::Customer>>,
-    /// Always true for a deleted object.
+    /// Always true for a deleted object
     deleted: stripe_types::AlwaysTrue,
     /// The ID of the discount object.
-    ///
     /// Discounts cannot be fetched by ID.
     /// Use `expand[]=discounts` in API calls to expand discount IDs in an array.
     pub id: stripe_shared::DiscountId,

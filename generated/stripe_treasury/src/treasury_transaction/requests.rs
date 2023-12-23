@@ -24,7 +24,6 @@ pub struct ListTreasuryTransaction<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -35,17 +34,14 @@ pub struct ListTreasuryTransaction<'a> {
     /// Returns objects associated with this FinancialAccount.
     pub financial_account: &'a str,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// The results are in reverse chronological order by `created` or `posted_at`.
-    ///
     /// The default is `created`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub order_by: Option<ListTreasuryTransactionOrderBy>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -54,7 +50,6 @@ pub struct ListTreasuryTransaction<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<ListTreasuryTransactionStatus>,
     /// A filter for the `status_transitions.posted_at` timestamp.
-    ///
     /// When using this filter, `status=posted` and `order_by=posted_at` must also be specified.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status_transitions: Option<ListTreasuryTransactionStatusTransitions>,
@@ -75,7 +70,6 @@ impl<'a> ListTreasuryTransaction<'a> {
     }
 }
 /// The results are in reverse chronological order by `created` or `posted_at`.
-///
 /// The default is `created`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ListTreasuryTransactionOrderBy {
@@ -182,7 +176,6 @@ impl serde::Serialize for ListTreasuryTransactionStatus {
     }
 }
 /// A filter for the `status_transitions.posted_at` timestamp.
-///
 /// When using this filter, `status=posted` and `order_by=posted_at` must also be specified.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListTreasuryTransactionStatusTransitions {

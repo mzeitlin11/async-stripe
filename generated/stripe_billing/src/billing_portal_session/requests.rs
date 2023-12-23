@@ -1,7 +1,6 @@
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateBillingPortalSession<'a> {
     /// The ID of an existing [configuration](https://stripe.com/docs/api/customer_portal/configuration) to use for this session, describing its functionality and features.
-    ///
     /// If not specified, the session uses the default configuration.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub configuration: Option<&'a str>,
@@ -11,17 +10,14 @@ pub struct CreateBillingPortalSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Information about a specific flow for the customer to go through.
-    ///
     /// See the [docs](https://stripe.com/docs/customer-management/portal-deep-links) to learn more about using customer portal deep links and flows.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flow_data: Option<CreateBillingPortalSessionFlowData<'a>>,
     /// The IETF language tag of the locale customer portal is displayed in.
-    ///
     /// If blank or auto, the customer’s `preferred_locales` or browser’s locale is used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub locale: Option<CreateBillingPortalSessionLocale>,
     /// The `on_behalf_of` account to use for this session.
-    ///
     /// When specified, only subscriptions and invoices with this `on_behalf_of` account appear in the portal.
     /// For more information, see the [docs](https://stripe.com/docs/connect/separate-charges-and-transfers#on-behalf-of).
     /// Use the [Accounts API](https://stripe.com/docs/api/accounts/object#account_object-settings-branding) to modify the `on_behalf_of` account's branding settings, which the portal displays.
@@ -45,7 +41,6 @@ impl<'a> CreateBillingPortalSession<'a> {
     }
 }
 /// Information about a specific flow for the customer to go through.
-///
 /// See the [docs](https://stripe.com/docs/customer-management/portal-deep-links) to learn more about using customer portal deep links and flows.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateBillingPortalSessionFlowData<'a> {
@@ -278,13 +273,11 @@ impl<'a> CreateBillingPortalSessionFlowDataSubscriptionUpdate<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateBillingPortalSessionFlowDataSubscriptionUpdateConfirm<'a> {
     /// The coupon or promotion code to apply to this subscription update.
-    ///
     /// Currently, only up to one may be specified.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub discounts:
         Option<&'a [CreateBillingPortalSessionFlowDataSubscriptionUpdateConfirmDiscounts<'a>]>,
     /// The [subscription item](https://stripe.com/docs/api/subscription_items) to be updated through this flow.
-    ///
     /// Currently, only up to one may be specified and subscriptions with multiple items are not updatable.
     pub items: &'a [CreateBillingPortalSessionFlowDataSubscriptionUpdateConfirmItems<'a>],
     /// The ID of the subscription to be updated.
@@ -299,7 +292,6 @@ impl<'a> CreateBillingPortalSessionFlowDataSubscriptionUpdateConfirm<'a> {
     }
 }
 /// The coupon or promotion code to apply to this subscription update.
-///
 /// Currently, only up to one may be specified.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateBillingPortalSessionFlowDataSubscriptionUpdateConfirmDiscounts<'a> {
@@ -316,14 +308,12 @@ impl<'a> CreateBillingPortalSessionFlowDataSubscriptionUpdateConfirmDiscounts<'a
     }
 }
 /// The [subscription item](https://stripe.com/docs/api/subscription_items) to be updated through this flow.
-///
 /// Currently, only up to one may be specified and subscriptions with multiple items are not updatable.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateBillingPortalSessionFlowDataSubscriptionUpdateConfirmItems<'a> {
     /// The ID of the [subscription item](https://stripe.com/docs/api/subscriptions/object#subscription_object-items-data-id) to be updated.
     pub id: &'a str,
     /// The price the customer should subscribe to through this flow.
-    ///
     /// The price must also be included in the configuration's [`features.subscription_update.products`](https://stripe.com/docs/api/customer_portal/configuration#portal_configuration_object-features-subscription_update-products).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price: Option<&'a str>,
@@ -394,7 +384,6 @@ impl serde::Serialize for CreateBillingPortalSessionFlowDataType {
     }
 }
 /// The IETF language tag of the locale customer portal is displayed in.
-///
 /// If blank or auto, the customer’s `preferred_locales` or browser’s locale is used.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]

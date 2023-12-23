@@ -8,16 +8,12 @@ pub struct IssuingCard {
     /// The reason why the card was canceled.
     pub cancellation_reason: Option<IssuingCardCancellationReason>,
     pub cardholder: stripe_shared::IssuingCardholder,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Supported currencies are `usd` in the US, `eur` in the EU, and `gbp` in the UK.
     pub currency: stripe_types::Currency,
     /// The card's CVC.
-    ///
     /// For security reasons, this is only available for virtual cards, and will be omitted unless you explicitly request it with [the `expand` parameter](https://stripe.com/docs/api/expanding_objects).
     /// Additionally, it's only available via the ["Retrieve a card" endpoint](https://stripe.com/docs/api/issuing/cards/retrieve), not via "List all cards" or any other endpoint.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -36,11 +32,9 @@ pub struct IssuingCard {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: std::collections::HashMap<String, String>,
     /// The full unredacted card number.
-    ///
     /// For security reasons, this is only available for virtual cards, and will be omitted unless you explicitly request it with [the `expand` parameter](https://stripe.com/docs/api/expanding_objects).
     /// Additionally, it's only available via the ["Retrieve a card" endpoint](https://stripe.com/docs/api/issuing/cards/retrieve), not via "List all cards" or any other endpoint.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -55,7 +49,6 @@ pub struct IssuingCard {
     pub shipping: Option<stripe_shared::IssuingCardShipping>,
     pub spending_controls: stripe_shared::IssuingCardAuthorizationControls,
     /// Whether authorizations can be approved on this card.
-    ///
     /// May be blocked from activating cards depending on past-due Cardholder requirements.
     /// Defaults to `inactive`.
     pub status: IssuingCardStatus,
@@ -194,7 +187,6 @@ impl<'de> serde::Deserialize<'de> for IssuingCardReplacementReason {
     }
 }
 /// Whether authorizations can be approved on this card.
-///
 /// May be blocked from activating cards depending on past-due Cardholder requirements.
 /// Defaults to `inactive`.
 #[derive(Copy, Clone, Eq, PartialEq)]

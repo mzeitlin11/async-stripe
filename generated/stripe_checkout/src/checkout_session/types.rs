@@ -1,8 +1,19 @@
 /// A Checkout Session represents your customer's session as they pay for
 /// one-time purchases or subscriptions through [Checkout](https://stripe.com/docs/payments/checkout)
-/// or [Payment Links](https://stripe.com/docs/payments/payment-links).
+/// or [Payment Links](https://stripe.com/docs/payments/payment-links). We recommend creating a
+/// new Session each time your customer attempts to pay.
 ///
-/// We recommend creating a new Session each time your customer attempts to pay.  Once payment is successful, the Checkout Session will contain a reference to the [Customer](https://stripe.com/docs/api/customers), and either the successful [PaymentIntent](https://stripe.com/docs/api/payment_intents) or an active [Subscription](https://stripe.com/docs/api/subscriptions).  You can create a Checkout Session on your server and redirect to its URL to begin Checkout.  Related guide: [Checkout quickstart](https://stripe.com/docs/checkout/quickstart)  For more details see <<https://stripe.com/docs/api/checkout/sessions/object>>.
+/// Once payment is successful, the Checkout Session will contain a reference
+/// to the [Customer](https://stripe.com/docs/api/customers), and either the successful
+/// [PaymentIntent](https://stripe.com/docs/api/payment_intents) or an active
+/// [Subscription](https://stripe.com/docs/api/subscriptions).
+///
+/// You can create a Checkout Session on your server and redirect to its URL
+/// to begin Checkout.
+///
+/// Related guide: [Checkout quickstart](https://stripe.com/docs/checkout/quickstart)
+///
+/// For more details see <<https://stripe.com/docs/api/checkout/sessions/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct CheckoutSession {
     /// When set, provides configuration for actions to take if this Checkout Session expires.
@@ -18,9 +29,9 @@ pub struct CheckoutSession {
     pub billing_address_collection: Option<CheckoutSessionBillingAddressCollection>,
     /// If set, Checkout displays a back button and customers will be directed to this URL if they decide to cancel payment and return to your website.
     pub cancel_url: Option<String>,
-    /// A unique string to reference the Checkout Session.
-    ///
-    /// This can be a customer ID, a cart ID, or similar, and can be used to reconcile the Session with your internal systems.
+    /// A unique string to reference the Checkout Session. This can be a
+    /// customer ID, a cart ID, or similar, and can be used to reconcile the
+    /// Session with your internal systems.
     pub client_reference_id: Option<String>,
     /// Client secret to be used when initializing Stripe.js embedded checkout.
     pub client_secret: Option<String>,
@@ -28,23 +39,19 @@ pub struct CheckoutSession {
     pub consent: Option<stripe_checkout::PaymentPagesCheckoutSessionConsent>,
     /// When set, provides configuration for the Checkout Session to gather active consent from customers.
     pub consent_collection: Option<stripe_checkout::PaymentPagesCheckoutSessionConsentCollection>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: Option<stripe_types::Currency>,
-    /// Currency conversion details for automatic currency conversion sessions.
+    /// Currency conversion details for automatic currency conversion sessions
     pub currency_conversion: Option<stripe_checkout::PaymentPagesCheckoutSessionCurrencyConversion>,
     /// Collect additional information from your customer using custom fields.
-    ///
     /// Up to 2 fields are supported.
     pub custom_fields: Vec<stripe_checkout::PaymentPagesCheckoutSessionCustomFields>,
     pub custom_text: stripe_checkout::PaymentPagesCheckoutSessionCustomText,
     /// The ID of the customer for this Session.
-    /// For Checkout Sessions in `subscription` mode or Checkout Sessions with `customer_creation` set as `always` in `payment` mode, Checkout
+    /// For Checkout Sessions in `subscription` mode or Checkout Sessions with `customer_creation` set as `always` in `payment` mode, Checkout.
     /// will create a new customer object based on information provided
     /// during the payment flow unless an existing customer was provided when
     /// the Session was created.
@@ -52,15 +59,13 @@ pub struct CheckoutSession {
     /// Configure whether a Checkout Session creates a Customer when the Checkout Session completes.
     pub customer_creation: Option<CheckoutSessionCustomerCreation>,
     /// The customer details including the customer's tax exempt status and the customer's tax IDs.
-    ///
     /// Only the customer's email is present on Sessions in `setup` mode.
     pub customer_details: Option<stripe_checkout::PaymentPagesCheckoutSessionCustomerDetails>,
     /// If provided, this value will be used when the Customer object is created.
     /// If not provided, customers will be asked to enter their email address.
     /// Use this parameter to prefill customer data if you already have an email
-    /// on file.
-    ///
-    /// To access information about the customer once the payment flow is complete, use the `customer` attribute.
+    /// on file. To access information about the customer once the payment flow is
+    /// complete, use the `customer` attribute.
     pub customer_email: Option<String>,
     /// The timestamp at which the Checkout Session will expire.
     pub expires_at: stripe_types::Timestamp,
@@ -76,11 +81,9 @@ pub struct CheckoutSession {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// The IETF language tag of the locale Checkout is displayed in.
-    ///
     /// If blank or `auto`, the browser's locale is used.
     pub locale: Option<CheckoutSessionLocale>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: Option<std::collections::HashMap<String, String>>,
     /// The mode of the Checkout Session.
@@ -96,9 +99,8 @@ pub struct CheckoutSession {
         Option<stripe_shared::PaymentMethodConfigBizPaymentMethodConfigurationDetails>,
     /// Payment-method-specific configuration for the PaymentIntent or SetupIntent of this CheckoutSession.
     pub payment_method_options: Option<stripe_checkout::CheckoutSessionPaymentMethodOptions>,
-    /// A list of the types of payment methods (e.g.
-    ///
-    /// card) this Checkout Session is allowed to accept.
+    /// A list of the types of payment methods (e.g. card) this Checkout
+    /// Session is allowed to accept.
     pub payment_method_types: Vec<String>,
     /// The payment status of the Checkout Session, one of `paid`, `unpaid`, or `no_payment_required`.
     /// You can use this value to decide when to fulfill your customer's order.
@@ -109,13 +111,11 @@ pub struct CheckoutSession {
     /// The ID of the original expired Checkout Session that triggered the recovery flow.
     pub recovered_from: Option<String>,
     /// Applies to Checkout Sessions with `ui_mode: embedded`.
-    ///
     /// By default, Stripe will always redirect to your return_url after a successful confirmation.
     /// If you set `redirect_on_completion: 'if_required'`, then we will only redirect if your user chooses a redirect-based payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub redirect_on_completion: Option<CheckoutSessionRedirectOnCompletion>,
     /// Applies to Checkout Sessions with `ui_mode: embedded`.
-    ///
     /// The URL to redirect your customer back to after they authenticate or cancel their payment on the payment method's app or site.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_url: Option<String>,
@@ -133,9 +133,9 @@ pub struct CheckoutSession {
     /// The status of the Checkout Session, one of `open`, `complete`, or `expired`.
     pub status: Option<CheckoutSessionStatus>,
     /// Describes the type of transaction being performed by Checkout in order to customize
-    /// relevant text on the page, such as the submit button.
-    ///
-    /// `submit_type` can only be specified on Checkout Sessions in `payment` mode, but not Checkout Sessions in `subscription` or `setup` mode.
+    /// relevant text on the page, such as the submit button. `submit_type` can only be
+    /// specified on Checkout Sessions in `payment` mode, but not Checkout Sessions
+    /// in `subscription` or `setup` mode.
     pub submit_type: Option<CheckoutSessionSubmitType>,
     /// The ID of the subscription for Checkout Sessions in `subscription` mode.
     pub subscription: Option<stripe_types::Expandable<stripe_shared::Subscription>>,
@@ -146,15 +146,13 @@ pub struct CheckoutSession {
     pub tax_id_collection: Option<stripe_checkout::PaymentPagesCheckoutSessionTaxIdCollection>,
     /// Tax and discount details for the computed total amount.
     pub total_details: Option<stripe_checkout::PaymentPagesCheckoutSessionTotalDetails>,
-    /// The UI mode of the Session.
-    ///
-    /// Can be `hosted` (default) or `embedded`.
+    /// The UI mode of the Session. Can be `hosted` (default) or `embedded`.
     pub ui_mode: Option<CheckoutSessionUiMode>,
     /// The URL to the Checkout Session.
-    ///
     /// Redirect customers to this URL to take them to Checkout.
     /// If you’re using [Custom Domains](https://stripe.com/docs/payments/checkout/custom-domains), the URL will use your subdomain.
-    /// Otherwise, it’ll use `checkout.stripe.com.` This value is only present when the session is active.
+    /// Otherwise, it’ll use `checkout.stripe.com.`.
+    /// This value is only present when the session is active.
     pub url: Option<String>,
 }
 /// Describes whether Checkout should collect the customer's billing address.
@@ -278,7 +276,6 @@ impl<'de> serde::Deserialize<'de> for CheckoutSessionCustomerCreation {
     }
 }
 /// The IETF language tag of the locale Checkout is displayed in.
-///
 /// If blank or `auto`, the browser's locale is used.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -644,7 +641,6 @@ impl<'de> serde::Deserialize<'de> for CheckoutSessionPaymentStatus {
     }
 }
 /// Applies to Checkout Sessions with `ui_mode: embedded`.
-///
 /// By default, Stripe will always redirect to your return_url after a successful confirmation.
 /// If you set `redirect_on_completion: 'if_required'`, then we will only redirect if your user chooses a redirect-based payment method.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -772,9 +768,9 @@ impl<'de> serde::Deserialize<'de> for CheckoutSessionStatus {
     }
 }
 /// Describes the type of transaction being performed by Checkout in order to customize
-/// relevant text on the page, such as the submit button.
-///
-/// `submit_type` can only be specified on Checkout Sessions in `payment` mode, but not Checkout Sessions in `subscription` or `setup` mode.
+/// relevant text on the page, such as the submit button. `submit_type` can only be
+/// specified on Checkout Sessions in `payment` mode, but not Checkout Sessions
+/// in `subscription` or `setup` mode.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CheckoutSessionSubmitType {
     Auto,
@@ -839,9 +835,7 @@ impl<'de> serde::Deserialize<'de> for CheckoutSessionSubmitType {
             .map_err(|_| serde::de::Error::custom("Unknown value for CheckoutSessionSubmitType"))
     }
 }
-/// The UI mode of the Session.
-///
-/// Can be `hosted` (default) or `embedded`.
+/// The UI mode of the Session. Can be `hosted` (default) or `embedded`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CheckoutSessionUiMode {
     Embedded,

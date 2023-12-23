@@ -6,14 +6,11 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct IssuingDispute {
     /// Disputed amount in the card's currency and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
-    ///
     /// Usually the amount of the `transaction`, but can differ (usually because of currency fluctuation).
     pub amount: i64,
     /// List of balance transactions associated with the dispute.
     pub balance_transactions: Option<Vec<stripe_shared::BalanceTransaction>>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// The currency the `transaction` was made in.
     pub currency: stripe_types::Currency,
@@ -23,7 +20,6 @@ pub struct IssuingDispute {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: std::collections::HashMap<String, String>,
     /// Current status of the dispute.

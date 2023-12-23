@@ -1,6 +1,4 @@
-/// ABA Records contain U.S.
-///
-/// bank account details per the ABA format.
+/// ABA Records contain U.S. bank account details per the ABA format.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryFinancialAccountsResourceAbaRecord {
     /// The name of the person or business that owns the bank account.

@@ -5,12 +5,10 @@ pub struct PaymentIntentNextActionVerifyWithMicrodeposits {
     /// The URL for the hosted verification page, which allows customers to verify their bank account.
     pub hosted_verification_url: String,
     /// The type of the microdeposit sent to the customer.
-    ///
     /// Used to distinguish between different verification methods.
     pub microdeposit_type: Option<PaymentIntentNextActionVerifyWithMicrodepositsMicrodepositType>,
 }
 /// The type of the microdeposit sent to the customer.
-///
 /// Used to distinguish between different verification methods.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PaymentIntentNextActionVerifyWithMicrodepositsMicrodepositType {

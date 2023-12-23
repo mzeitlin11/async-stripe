@@ -8,7 +8,6 @@ pub struct TaxCalculation {
     /// Total after taxes.
     pub amount_total: i64,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// The ID of an existing [Customer](https://stripe.com/docs/api/customers/object) used for the resource.

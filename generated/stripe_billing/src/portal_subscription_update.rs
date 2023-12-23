@@ -1,7 +1,6 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PortalSubscriptionUpdate {
     /// The types of subscription updates that are supported for items listed in the `products` attribute.
-    ///
     /// When empty, subscriptions are not updateable.
     pub default_allowed_updates: Vec<PortalSubscriptionUpdateDefaultAllowedUpdates>,
     /// Whether the feature is enabled.
@@ -9,12 +8,10 @@ pub struct PortalSubscriptionUpdate {
     /// The list of up to 10 products that support subscription updates.
     pub products: Option<Vec<stripe_billing::PortalSubscriptionUpdateProduct>>,
     /// Determines how to handle prorations resulting from subscription updates.
-    ///
     /// Valid values are `none`, `create_prorations`, and `always_invoice`.
     pub proration_behavior: PortalSubscriptionUpdateProrationBehavior,
 }
 /// The types of subscription updates that are supported for items listed in the `products` attribute.
-///
 /// When empty, subscriptions are not updateable.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PortalSubscriptionUpdateDefaultAllowedUpdates {
@@ -81,7 +78,6 @@ impl<'de> serde::Deserialize<'de> for PortalSubscriptionUpdateDefaultAllowedUpda
     }
 }
 /// Determines how to handle prorations resulting from subscription updates.
-///
 /// Valid values are `none`, `create_prorations`, and `always_invoice`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PortalSubscriptionUpdateProrationBehavior {

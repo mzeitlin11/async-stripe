@@ -1,17 +1,17 @@
 #[derive(Copy, Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct PaymentPagesCheckoutSessionConsentCollection {
     /// If set to `auto`, enables the collection of customer consent for promotional communications.
-    ///
-    /// The Checkout Session will determine whether to display an option to opt into promotional communication from the merchant depending on the customer's locale.
-    /// Only available to US merchants.
+    /// The Checkout.
+    /// Session will determine whether to display an option to opt into promotional communication
+    /// from the merchant depending on the customer's locale. Only available to US merchants.
     pub promotions: Option<PaymentPagesCheckoutSessionConsentCollectionPromotions>,
     /// If set to `required`, it requires customers to accept the terms of service before being able to pay.
     pub terms_of_service: Option<PaymentPagesCheckoutSessionConsentCollectionTermsOfService>,
 }
 /// If set to `auto`, enables the collection of customer consent for promotional communications.
-///
-/// The Checkout Session will determine whether to display an option to opt into promotional communication from the merchant depending on the customer's locale.
-/// Only available to US merchants.
+/// The Checkout.
+/// Session will determine whether to display an option to opt into promotional communication
+/// from the merchant depending on the customer's locale. Only available to US merchants.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PaymentPagesCheckoutSessionConsentCollectionPromotions {
     Auto,

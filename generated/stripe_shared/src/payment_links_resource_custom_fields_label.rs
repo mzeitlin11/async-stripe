@@ -1,8 +1,6 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PaymentLinksResourceCustomFieldsLabel {
-    /// Custom text for the label, displayed to the customer.
-    ///
-    /// Up to 50 characters.
+    /// Custom text for the label, displayed to the customer. Up to 50 characters.
     pub custom: Option<String>,
     /// The type of the label.
     #[serde(rename = "type")]

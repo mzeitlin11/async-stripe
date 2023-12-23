@@ -28,13 +28,11 @@ pub struct CreateToken<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank_account: Option<CreateTokenBankAccount<'a>>,
     /// The card this token will represent.
-    ///
     /// If you also pass in a customer, the card must be the ID of a card belonging to the customer.
     /// Otherwise, if you do not pass in a customer, this is a dictionary containing a user's credit card details, with the options described below.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub card: Option<CreateTokenCard<'a>>,
     /// Create a token for the customer, which is owned by the application's account.
-    ///
     /// You can only use this with an [OAuth access token](https://stripe.com/docs/connect/standard-accounts) or [Stripe-Account header](https://stripe.com/docs/connect/authentication).
     /// Learn more about [cloning saved payment methods](https://stripe.com/docs/connect/cloning-saved-payment-methods).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -70,7 +68,6 @@ pub struct CreateTokenAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub individual: Option<CreateTokenAccountIndividual<'a>>,
     /// Whether the user described by the data in the token has been shown [the Stripe Connected Account Agreement](https://stripe.com/docs/connect/account-tokens#stripe-connected-account-agreement).
-    ///
     /// When creating an account token to create a new Connect account, this value must be `true`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tos_shown_and_accepted: Option<bool>,
@@ -150,13 +147,11 @@ pub struct CreateTokenAccountCompany<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address_kanji: Option<CreateTokenAccountCompanyAddressKanji<'a>>,
     /// Whether the company's directors have been provided.
-    ///
     /// Set this Boolean to `true` after creating all the company's directors with [the Persons API](https://stripe.com/docs/api/persons) for accounts with a `relationship.director` requirement.
     /// This value is not automatically set to `true` after creating directors, so it needs to be updated to indicate all directors have been provided.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub directors_provided: Option<bool>,
     /// Whether the company's executives have been provided.
-    ///
     /// Set this Boolean to `true` after creating all the company's executives with [the Persons API](https://stripe.com/docs/api/persons) for accounts with a `relationship.executive` requirement.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub executives_provided: Option<bool>,
@@ -176,7 +171,6 @@ pub struct CreateTokenAccountCompany<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name_kanji: Option<&'a str>,
     /// Whether the company's owners have been provided.
-    ///
     /// Set this Boolean to `true` after creating all the company's owners with [the Persons API](https://stripe.com/docs/api/persons) for accounts with a `relationship.owner` requirement.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub owners_provided: Option<bool>,
@@ -190,17 +184,14 @@ pub struct CreateTokenAccountCompany<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone: Option<&'a str>,
     /// The identification number given to a company when it is registered or incorporated, if distinct from the identification number used for filing taxes.
-    ///
     /// (Examples are the CIN for companies and LLP IN for partnerships in India, and the Company Registration Number in Hong Kong).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub registration_number: Option<&'a str>,
     /// The category identifying the legal structure of the company or legal entity.
-    ///
     /// See [Business structure](https://stripe.com/docs/connect/identity-verification#business-structure) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub structure: Option<CreateTokenAccountCompanyStructure>,
     /// The business ID number of the company, as appropriate for the company’s country.
-    ///
     /// (Examples are an Employer ID Number in the U.S., a Business Number in Canada, or a Company Number in the UK.).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_id: Option<&'a str>,
@@ -325,7 +316,6 @@ impl<'a> CreateTokenAccountCompanyOwnershipDeclaration<'a> {
     }
 }
 /// The category identifying the legal structure of the company or legal entity.
-///
 /// See [Business structure](https://stripe.com/docs/connect/identity-verification#business-structure) for more details.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -457,12 +447,10 @@ impl<'a> CreateTokenAccountCompanyVerification<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateTokenAccountCompanyVerificationDocument<'a> {
     /// The back of a document returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `additional_verification`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub back: Option<&'a str>,
     /// The front of a document returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `additional_verification`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub front: Option<&'a str>,
@@ -506,13 +494,11 @@ pub struct CreateTokenAccountIndividual<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub gender: Option<&'a str>,
     /// The government-issued ID number of the individual, as appropriate for the representative's country.
-    ///
     /// (Examples are a Social Security Number in the U.S., or a Social Insurance Number in Canada).
     /// Instead of the number itself, you can also provide a [PII token created with Stripe.js](https://stripe.com/docs/js/tokens/create_token?type=pii).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id_number: Option<&'a str>,
     /// The government-issued secondary ID number of the individual, as appropriate for the representative's country, will be used for enhanced verification checks.
-    ///
     /// In Thailand, this would be the laser code found on the back of an ID card.
     /// Instead of the number itself, you can also provide a [PII token created with Stripe.js](https://stripe.com/docs/js/tokens/create_token?type=pii).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -530,7 +516,6 @@ pub struct CreateTokenAccountIndividual<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maiden_name: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -545,9 +530,7 @@ pub struct CreateTokenAccountIndividual<'a> {
     /// The individual's registered address.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub registered_address: Option<CreateTokenAccountIndividualRegisteredAddress<'a>>,
-    /// The last four digits of the individual's Social Security Number (U.S.
-    ///
-    /// only).
+    /// The last four digits of the individual's Social Security Number (U.S. only).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ssn_last_4: Option<&'a str>,
     /// The individual's verification document information.
@@ -758,12 +741,10 @@ impl<'a> CreateTokenAccountIndividualVerification<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateTokenAccountIndividualVerificationAdditionalDocument<'a> {
     /// The back of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub back: Option<&'a str>,
     /// The front of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub front: Option<&'a str>,
@@ -777,12 +758,10 @@ impl<'a> CreateTokenAccountIndividualVerificationAdditionalDocument<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateTokenAccountIndividualVerificationDocument<'a> {
     /// The back of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub back: Option<&'a str>,
     /// The front of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub front: Option<&'a str>,
@@ -799,17 +778,13 @@ pub struct CreateTokenBankAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_name: Option<&'a str>,
     /// The type of entity that holds the account.
-    ///
     /// It can be `company` or `individual`.
     /// This field is required when attaching the bank account to a `Customer` object.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_type: Option<CreateTokenBankAccountAccountHolderType>,
-    /// The account number for the bank account, in string form.
-    ///
-    /// Must be a checking account.
+    /// The account number for the bank account, in string form. Must be a checking account.
     pub account_number: &'a str,
     /// The bank account type.
-    ///
     /// This can only be `checking` or `savings` in most countries.
     /// In Japan, this can only be `futsu` or `toza`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -817,12 +792,10 @@ pub struct CreateTokenBankAccount<'a> {
     /// The country in which the bank account is located.
     pub country: &'a str,
     /// The currency the bank account is in.
-    ///
     /// This must be a country/currency pairing that [Stripe supports.](https://stripe.com/docs/payouts).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
     /// The routing number, sort code, or other country-appropriateinstitution number for the bank account.
-    ///
     /// For US bank accounts, this is required and should bethe ACH routing number, not the wire routing number.
     /// If you are providing an IBAN for`account_number`, this field is not required.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -842,7 +815,6 @@ impl<'a> CreateTokenBankAccount<'a> {
     }
 }
 /// The type of entity that holds the account.
-///
 /// It can be `company` or `individual`.
 /// This field is required when attaching the bank account to a `Customer` object.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -896,7 +868,6 @@ impl serde::Serialize for CreateTokenBankAccountAccountHolderType {
     }
 }
 /// The bank account type.
-///
 /// This can only be `checking` or `savings` in most countries.
 /// In Japan, this can only be `futsu` or `toza`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -956,7 +927,6 @@ impl serde::Serialize for CreateTokenBankAccountAccountType {
     }
 }
 /// The card this token will represent.
-///
 /// If you also pass in a customer, the card must be the ID of a card belonging to the customer.
 /// Otherwise, if you do not pass in a customer, this is a dictionary containing a user's credit card details, with the options described below.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -966,7 +936,6 @@ pub enum CreateTokenCard<'a> {
     Str(&'a str),
 }
 /// The card this token will represent.
-///
 /// If you also pass in a customer, the card must be the ID of a card belonging to the customer.
 /// Otherwise, if you do not pass in a customer, this is a dictionary containing a user's credit card details, with the options described below.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -990,13 +959,10 @@ pub struct CreateTokenCreditCardSpecs<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address_zip: Option<&'a str>,
     /// Required in order to add the card to an account; in all other cases, this parameter is not used.
-    ///
     /// When added to an account, the card (which must be a debit card) can be used as a transfer destination for funds in this currency.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
-    /// Card security code.
-    ///
-    /// Highly recommended to always include this value.
+    /// Card security code. Highly recommended to always include this value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cvc: Option<&'a str>,
     /// Two-digit number representing the card's expiration month.
@@ -1078,13 +1044,11 @@ pub struct CreateTokenPerson<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub gender: Option<&'a str>,
     /// The person's ID number, as appropriate for their country.
-    ///
     /// For example, a social security number in the U.S., social insurance number in Canada, etc.
     /// Instead of the number itself, you can also provide a [PII token provided by Stripe.js](https://stripe.com/docs/js/tokens/create_token?type=pii).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id_number: Option<&'a str>,
     /// The person's secondary ID number, as appropriate for their country, will be used for enhanced verification checks.
-    ///
     /// In Thailand, this would be the laser code found on the back of an ID card.
     /// Instead of the number itself, you can also provide a [PII token provided by Stripe.js](https://stripe.com/docs/js/tokens/create_token?type=pii).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1102,14 +1066,12 @@ pub struct CreateTokenPerson<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maiden_name: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// The country where the person is a national.
-    ///
     /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)), or "XX" if unavailable.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub nationality: Option<&'a str>,
@@ -1125,9 +1087,7 @@ pub struct CreateTokenPerson<'a> {
     /// The relationship that this person has with the account's legal entity.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relationship: Option<CreateTokenPersonRelationship<'a>>,
-    /// The last four digits of the person's Social Security number (U.S.
-    ///
-    /// only).
+    /// The last four digits of the person's Social Security number (U.S. only).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ssn_last_4: Option<&'a str>,
     /// The person's verification status.
@@ -1356,7 +1316,6 @@ impl<'a> CreateTokenPersonRegisteredAddress<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateTokenPersonRelationship<'a> {
     /// Whether the person is a director of the account's legal entity.
-    ///
     /// Directors are typically members of the governing board of the company, or responsible for ensuring the company meets its regulatory obligations.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub director: Option<bool>,
@@ -1373,7 +1332,6 @@ pub struct CreateTokenPersonRelationship<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub percent_ownership: Option<f64>,
     /// Whether the person is authorized as the primary representative of the account.
-    ///
     /// This is the person nominated by the business to provide information about themselves, and general information about the account.
     /// There can only be one representative at any given time.
     /// At the time the account is created, this person should be set to the person responsible for opening the account.
@@ -1407,12 +1365,10 @@ impl<'a> CreateTokenPersonVerification<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateTokenPersonVerificationAdditionalDocument<'a> {
     /// The back of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub back: Option<&'a str>,
     /// The front of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub front: Option<&'a str>,
@@ -1426,12 +1382,10 @@ impl<'a> CreateTokenPersonVerificationAdditionalDocument<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateTokenPersonVerificationDocument<'a> {
     /// The back of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub back: Option<&'a str>,
     /// The front of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub front: Option<&'a str>,
@@ -1456,7 +1410,6 @@ impl<'a> CreateTokenPii<'a> {
 impl<'a> CreateToken<'a> {
     /// Creates a single-use token that represents a bank account’s details.
     /// You can use this token with any API method in place of a bank account dictionary.
-    ///
     /// You can only use this token once.
     /// To do so, attach it to a [Custom account](https://stripe.com/docs/api#accounts).
     pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_core::Token> {

@@ -1,6 +1,6 @@
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PaymentPagesCheckoutSessionAutomaticTax {
-    /// Indicates whether automatic tax is enabled for the session.
+    /// Indicates whether automatic tax is enabled for the session
     pub enabled: bool,
     /// The status of the most recent automated tax calculation for this session.
     pub status: Option<PaymentPagesCheckoutSessionAutomaticTaxStatus>,

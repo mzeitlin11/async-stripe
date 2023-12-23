@@ -454,7 +454,7 @@ pub fn infer_doc_comment(schema: &Schema, doc_url: Option<&str>) -> String {
         String::new()
     };
     if let Some(doc) = doc_url {
-        let _ = writeln!(doc_comment, "\n\nFor more details see <{doc}>");
+        let _ = writeln!(doc_comment, "\n\nFor more details see <{doc}>.");
     }
     doc_comment
 }

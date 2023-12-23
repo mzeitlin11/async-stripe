@@ -11,7 +11,6 @@ pub struct IssuingDisputeDuplicateEvidence {
     /// Explanation of why the cardholder is disputing this transaction.
     pub explanation: Option<String>,
     /// Transaction (e.g., ipi_...) that the disputed transaction is a duplicate of.
-    ///
     /// Of the two or more transactions that are copies of each other, this is original undisputed one.
     pub original_transaction: Option<String>,
 }

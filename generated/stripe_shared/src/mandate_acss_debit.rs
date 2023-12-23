@@ -4,7 +4,6 @@ pub struct MandateAcssDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_for: Option<Vec<MandateAcssDebitDefaultFor>>,
     /// Description of the interval.
-    ///
     /// Only required if the 'payment_schedule' parameter is 'interval' or 'combined'.
     pub interval_description: Option<String>,
     /// Payment schedule for the mandate.

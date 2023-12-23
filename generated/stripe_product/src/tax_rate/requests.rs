@@ -7,7 +7,6 @@ pub struct ListTaxRate<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -19,12 +18,10 @@ pub struct ListTaxRate<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub inclusive: Option<bool>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -37,7 +34,6 @@ impl<'a> ListTaxRate<'a> {
 }
 impl<'a> ListTaxRate<'a> {
     /// Returns a list of your tax rates.
-    ///
     /// Tax rates are returned sorted by creation date, with the most recently created tax rates appearing first.
     pub fn send(
         &self,
@@ -61,7 +57,7 @@ impl<'a> RetrieveTaxRate<'a> {
     }
 }
 impl<'a> RetrieveTaxRate<'a> {
-    /// Retrieves a tax rate with the given ID.
+    /// Retrieves a tax rate with the given ID
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -73,7 +69,6 @@ impl<'a> RetrieveTaxRate<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTaxRate<'a> {
     /// Flag determining whether the tax rate is active or inactive (archived).
-    ///
     /// Inactive tax rates cannot be used with new applications or Checkout Sessions, but will still work for subscriptions and invoices that already have it set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
@@ -81,7 +76,6 @@ pub struct CreateTaxRate<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<&'a str>,
     /// An arbitrary string attached to the tax rate for your internal use only.
-    ///
     /// It will not be visible to your customers.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
@@ -93,13 +87,11 @@ pub struct CreateTaxRate<'a> {
     /// This specifies if the tax rate is inclusive or exclusive.
     pub inclusive: bool,
     /// The jurisdiction for the tax rate.
-    ///
     /// You can use this label field for tax reporting purposes.
     /// It also appears on your customer’s invoice.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub jurisdiction: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -108,7 +100,6 @@ pub struct CreateTaxRate<'a> {
     /// This represents the tax rate percent out of 100.
     pub percentage: f64,
     /// [ISO 3166-2 subdivision code](https://en.wikipedia.org/wiki/ISO_3166-2:US), without country prefix.
-    ///
     /// For example, "NY" for New York, United States.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<&'a str>,
@@ -230,7 +221,6 @@ impl<'a> CreateTaxRate<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateTaxRate<'a> {
     /// Flag determining whether the tax rate is active or inactive (archived).
-    ///
     /// Inactive tax rates cannot be used with new applications or Checkout Sessions, but will still work for subscriptions and invoices that already have it set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
@@ -238,7 +228,6 @@ pub struct UpdateTaxRate<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<&'a str>,
     /// An arbitrary string attached to the tax rate for your internal use only.
-    ///
     /// It will not be visible to your customers.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
@@ -249,20 +238,17 @@ pub struct UpdateTaxRate<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// The jurisdiction for the tax rate.
-    ///
     /// You can use this label field for tax reporting purposes.
     /// It also appears on your customer’s invoice.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub jurisdiction: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// [ISO 3166-2 subdivision code](https://en.wikipedia.org/wiki/ISO_3166-2:US), without country prefix.
-    ///
     /// For example, "NY" for New York, United States.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<&'a str>,

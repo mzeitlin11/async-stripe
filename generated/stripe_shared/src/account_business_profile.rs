@@ -1,7 +1,6 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct AccountBusinessProfile {
     /// [The merchant category code for the account](https://stripe.com/docs/connect/setting-mcc).
-    ///
     /// MCCs are used to classify businesses based on the goods or services they provide.
     pub mcc: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -9,7 +8,6 @@ pub struct AccountBusinessProfile {
     /// The customer-facing business name.
     pub name: Option<String>,
     /// Internal-only description of the product sold or service provided by the business.
-    ///
     /// It's used by Stripe for risk and underwriting purposes.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub product_description: Option<String>,

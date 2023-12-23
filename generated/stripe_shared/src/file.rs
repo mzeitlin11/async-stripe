@@ -1,12 +1,15 @@
-/// This object represents files hosted on Stripe's servers.
+/// This object represents files hosted on Stripe's servers. You can upload
+/// files with the [create file](https://stripe.com/docs/api#create_file) request
+/// (for example, when uploading dispute evidence). Stripe also
+/// creates files independetly (for example, the results of a [Sigma scheduled
+/// query](#scheduled_queries)).
 ///
-/// You can upload files with the [create file](https://stripe.com/docs/api#create_file) request (for example, when uploading dispute evidence).
-/// Stripe also creates files independetly (for example, the results of a [Sigma scheduled query](#scheduled_queries)).  Related guide: [File upload guide](https://stripe.com/docs/file-upload)  For more details see <<https://stripe.com/docs/api/files/object>>.
+/// Related guide: [File upload guide](https://stripe.com/docs/file-upload)
+///
+/// For more details see <<https://stripe.com/docs/api/files/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct File {
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// The file expires and isn't available at this time in epoch seconds.
     pub expires_at: Option<stripe_types::Timestamp>,

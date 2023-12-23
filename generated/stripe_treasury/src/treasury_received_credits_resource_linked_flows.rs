@@ -7,7 +7,6 @@ pub struct TreasuryReceivedCreditsResourceLinkedFlows {
     /// Set if the ReceivedCredit is also viewable as an [Issuing transaction](https://stripe.com/docs/api#issuing_transactions) object.
     pub issuing_transaction: Option<String>,
     /// ID of the source flow.
-    ///
     /// Set if `network` is `stripe` and the source flow is visible to the user.
     /// Examples of source flows include OutboundPayments, payouts, or CreditReversals.
     pub source_flow: Option<String>,

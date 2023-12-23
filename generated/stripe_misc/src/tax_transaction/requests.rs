@@ -25,7 +25,6 @@ pub struct CreateReversalTaxTransaction<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A flat amount to reverse across the entire transaction, in negative integer cents.
-    ///
     /// This value represents the total amount to refund from the transaction, including taxes.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flat_amount: Option<i64>,
@@ -33,20 +32,17 @@ pub struct CreateReversalTaxTransaction<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line_items: Option<&'a [CreateReversalTaxTransactionLineItems<'a>]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// If `partial`, the provided line item or shipping cost amounts are reversed.
-    ///
     /// If `full`, the original transaction is fully reversed.
     pub mode: CreateReversalTaxTransactionMode,
     /// The ID of the Transaction to partially or fully reverse.
     pub original_transaction: &'a str,
     /// A custom identifier for this reversal, such as `myOrder_123-refund_1`, which must be unique across all transactions.
-    ///
     /// The reference helps identify this reversal transaction in exported [tax reports](https://stripe.com/docs/tax/reports).
     pub reference: &'a str,
     /// The shipping cost to reverse.
@@ -79,14 +75,12 @@ pub struct CreateReversalTaxTransactionLineItems<'a> {
     /// The amount of tax to reverse, in negative integer cents.
     pub amount_tax: i64,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// The `id` of the line item to reverse in the original transaction.
     pub original_line_item: &'a str,
     /// The quantity reversed.
-    ///
     /// Appears in [tax exports](https://stripe.com/docs/tax/reports), but does not affect the amount of tax reversed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
@@ -104,7 +98,6 @@ impl<'a> CreateReversalTaxTransactionLineItems<'a> {
     }
 }
 /// If `partial`, the provided line item or shipping cost amounts are reversed.
-///
 /// If `full`, the original transaction is fully reversed.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateReversalTaxTransactionMode {
@@ -183,14 +176,12 @@ pub struct CreateFromCalculationTaxTransaction<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// A custom order or sale identifier, such as 'myOrder_123'.
-    ///
     /// Must be unique across all transactions, including reversals.
     pub reference: &'a str,
 }
@@ -212,7 +203,6 @@ impl<'a> CreateFromCalculationTaxTransaction<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListLineItemsTaxTransaction<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -221,12 +211,10 @@ pub struct ListLineItemsTaxTransaction<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]

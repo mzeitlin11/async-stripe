@@ -28,12 +28,9 @@ pub struct CreateTreasuryInboundTransfer<'a> {
     /// Amount (in cents) to be transferred.
     pub amount: i64,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Specifies which fields in the response should be expanded.
@@ -42,7 +39,6 @@ pub struct CreateTreasuryInboundTransfer<'a> {
     /// The FinancialAccount to send funds to.
     pub financial_account: &'a str,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -50,9 +46,7 @@ pub struct CreateTreasuryInboundTransfer<'a> {
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// The origin payment method to be debited for the InboundTransfer.
     pub origin_payment_method: &'a str,
-    /// The complete description that appears on your customers' statements.
-    ///
-    /// Maximum 10 characters.
+    /// The complete description that appears on your customers' statements. Maximum 10 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor: Option<&'a str>,
 }
@@ -108,7 +102,6 @@ impl<'a> RetrieveTreasuryInboundTransfer<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct ListTreasuryInboundTransfer<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -119,12 +112,10 @@ pub struct ListTreasuryInboundTransfer<'a> {
     /// Returns objects associated with this FinancialAccount.
     pub financial_account: &'a str,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -229,7 +220,6 @@ impl<'a> SucceedTreasuryInboundTransfer<'a> {
 }
 impl<'a> SucceedTreasuryInboundTransfer<'a> {
     /// Transitions a test mode created InboundTransfer to the `succeeded` status.
-    ///
     /// The InboundTransfer must already be in the `processing` state.
     pub fn send(
         &self,
@@ -359,7 +349,6 @@ impl serde::Serialize for FailTreasuryInboundTransferFailureDetailsCode {
 }
 impl<'a> FailTreasuryInboundTransfer<'a> {
     /// Transitions a test mode created InboundTransfer to the `failed` status.
-    ///
     /// The InboundTransfer must already be in the `processing` state.
     pub fn send(
         &self,
@@ -386,7 +375,6 @@ impl<'a> ReturnInboundTransferTreasuryInboundTransfer<'a> {
 }
 impl<'a> ReturnInboundTransferTreasuryInboundTransfer<'a> {
     /// Marks the test mode InboundTransfer object as returned and links the InboundTransfer to a ReceivedDebit.
-    ///
     /// The InboundTransfer must already be in the `succeeded` state.
     pub fn send(
         &self,

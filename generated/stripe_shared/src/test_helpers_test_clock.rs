@@ -1,12 +1,11 @@
 /// A test clock enables deterministic control over objects in testmode.
-///
-/// With a test clock, you can create objects at a frozen time in the past or future, and advance to a specific future time to observe webhooks and state changes.
-/// After the clock advances, you can either validate the current state of your scenario (and test your assumptions), change the current state of your scenario (and test more complex scenarios), or keep advancing forward in time.
+/// With a test clock, you can create.
+/// objects at a frozen time in the past or future, and advance to a specific future time to observe webhooks and state changes.
+/// After the clock advances,.
+/// you can either validate the current state of your scenario (and test your assumptions), change the current state of your scenario (and test more complex scenarios), or keep advancing forward in time.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TestHelpersTestClock {
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Time at which this clock is scheduled to auto delete.
     pub deletes_after: stripe_types::Timestamp,

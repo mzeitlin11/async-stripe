@@ -5,7 +5,6 @@ pub struct IssuingNetworkTokenNetworkData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mastercard: Option<stripe_shared::IssuingNetworkTokenMastercard>,
     /// The network that the token is associated with.
-    ///
     /// An additional hash is included with a name matching this value, containing tokenization data specific to the card network.
     #[serde(rename = "type")]
     pub type_: IssuingNetworkTokenNetworkDataType,
@@ -15,7 +14,6 @@ pub struct IssuingNetworkTokenNetworkData {
     pub wallet_provider: Option<stripe_shared::IssuingNetworkTokenWalletProvider>,
 }
 /// The network that the token is associated with.
-///
 /// An additional hash is included with a name matching this value, containing tokenization data specific to the card network.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingNetworkTokenNetworkDataType {

@@ -20,7 +20,6 @@ pub struct FinancialConnectionsSession {
     /// Data features requested to be retrieved upon account creation.
     pub prefetch: Option<Vec<FinancialConnectionsSessionPrefetch>>,
     /// For webview integrations only.
-    ///
     /// Upon completing OAuth login in the native browser, the user will be redirected to this URL to return to your app.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_url: Option<String>,

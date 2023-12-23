@@ -3,7 +3,6 @@ pub struct PaymentLinksResourceConsentCollection {
     /// If set to `auto`, enables the collection of customer consent for promotional communications.
     pub promotions: Option<PaymentLinksResourceConsentCollectionPromotions>,
     /// If set to `required`, it requires cutomers to accept the terms of service before being able to pay.
-    ///
     /// If set to `none`, customers won't be shown a checkbox to accept the terms of service.
     pub terms_of_service: Option<PaymentLinksResourceConsentCollectionTermsOfService>,
 }
@@ -70,7 +69,6 @@ impl<'de> serde::Deserialize<'de> for PaymentLinksResourceConsentCollectionPromo
     }
 }
 /// If set to `required`, it requires cutomers to accept the terms of service before being able to pay.
-///
 /// If set to `none`, customers won't be shown a checkbox to accept the terms of service.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PaymentLinksResourceConsentCollectionTermsOfService {

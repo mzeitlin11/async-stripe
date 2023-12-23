@@ -22,7 +22,6 @@ pub struct TerminalReader {
     /// The location identifier of the reader.
     pub location: Option<stripe_types::Expandable<stripe_terminal::TerminalLocation>>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: std::collections::HashMap<String, String>,
     /// Serial number of the reader.

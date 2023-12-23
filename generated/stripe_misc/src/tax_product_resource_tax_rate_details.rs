@@ -2,9 +2,7 @@
 pub struct TaxProductResourceTaxRateDetails {
     /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
     pub country: Option<String>,
-    /// The tax rate percentage as a string.
-    ///
-    /// For example, 8.5% is represented as `"8.5"`.
+    /// The tax rate percentage as a string. For example, 8.5% is represented as `"8.5"`.
     pub percentage_decimal: String,
     /// State, county, province, or region.
     pub state: Option<String>,

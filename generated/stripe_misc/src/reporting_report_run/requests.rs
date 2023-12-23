@@ -25,7 +25,6 @@ pub struct CreateReportingReportRun<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Parameters specifying how the report should be run.
-    ///
     /// Different Report Types have different required and optional parameters, listed in the [API Access to Reports](https://stripe.com/docs/reporting/statements/api) documentation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<CreateReportingReportRunParameters<'a>>,
@@ -38,12 +37,10 @@ impl<'a> CreateReportingReportRun<'a> {
     }
 }
 /// Parameters specifying how the report should be run.
-///
 /// Different Report Types have different required and optional parameters, listed in the [API Access to Reports](https://stripe.com/docs/reporting/statements/api) documentation.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateReportingReportRunParameters<'a> {
     /// The set of report columns to include in the report output.
-    ///
     /// If omitted, the Report Type is run with its default column set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub columns: Option<&'a [&'a str]>,
@@ -66,7 +63,6 @@ pub struct CreateReportingReportRunParameters<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reporting_category: Option<CreateReportingReportRunParametersReportingCategory>,
     /// Defaults to `Etc/UTC`.
-    ///
     /// The output timezone for all timestamps in the report.
     /// A list of possible time zone values is maintained at the [IANA Time Zone Database](http://www.iana.org/time-zones).
     /// Has no effect on `interval_start` or `interval_end`.
@@ -236,7 +232,6 @@ impl serde::Serialize for CreateReportingReportRunParametersReportingCategory {
     }
 }
 /// Defaults to `Etc/UTC`.
-///
 /// The output timezone for all timestamps in the report.
 /// A list of possible time zone values is maintained at the [IANA Time Zone Database](http://www.iana.org/time-zones).
 /// Has no effect on `interval_start` or `interval_end`.
@@ -2084,7 +2079,6 @@ impl serde::Serialize for CreateReportingReportRunParametersTimezone {
 }
 impl<'a> CreateReportingReportRun<'a> {
     /// Creates a new object and begin running the report.
-    ///
     /// (Certain report types require a [live-mode API key](https://stripe.com/docs/keys#test-live-modes).).
     pub fn send(
         &self,
@@ -2098,7 +2092,6 @@ pub struct ListReportingReportRun<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2107,12 +2100,10 @@ pub struct ListReportingReportRun<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]

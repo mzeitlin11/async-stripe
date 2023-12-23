@@ -3,12 +3,10 @@ pub struct SetupIntentPaymentMethodOptionsCard {
     /// Configuration options for setting up an eMandate for cards issued in India.
     pub mandate_options: Option<stripe_shared::SetupIntentPaymentMethodOptionsCardMandateOptions>,
     /// Selected network to process this SetupIntent on.
-    ///
     /// Depends on the available networks of the card attached to the setup intent.
     /// Can be only set confirm-time.
     pub network: Option<SetupIntentPaymentMethodOptionsCardNetwork>,
     /// We strongly recommend that you rely on our SCA Engine to automatically prompt your customers for authentication based on risk level and [other requirements](https://stripe.com/docs/strong-customer-authentication).
-    ///
     /// However, if you wish to request 3D Secure based on logic from your own fraud engine, provide this option.
     /// Permitted values include: `automatic` or `any`.
     /// If not provided, defaults to `automatic`.
@@ -16,7 +14,6 @@ pub struct SetupIntentPaymentMethodOptionsCard {
     pub request_three_d_secure: Option<SetupIntentPaymentMethodOptionsCardRequestThreeDSecure>,
 }
 /// Selected network to process this SetupIntent on.
-///
 /// Depends on the available networks of the card attached to the setup intent.
 /// Can be only set confirm-time.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -106,7 +103,6 @@ impl<'de> serde::Deserialize<'de> for SetupIntentPaymentMethodOptionsCardNetwork
     }
 }
 /// We strongly recommend that you rely on our SCA Engine to automatically prompt your customers for authentication based on risk level and [other requirements](https://stripe.com/docs/strong-customer-authentication).
-///
 /// However, if you wish to request 3D Secure based on logic from your own fraud engine, provide this option.
 /// Permitted values include: `automatic` or `any`.
 /// If not provided, defaults to `automatic`.

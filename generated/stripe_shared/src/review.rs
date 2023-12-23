@@ -11,41 +11,33 @@ pub struct Review {
     /// The charge associated with this review.
     pub charge: Option<stripe_types::Expandable<stripe_shared::Charge>>,
     /// The reason the review was closed, or null if it has not yet been closed.
-    ///
     /// One of `approved`, `refunded`, `refunded_as_fraud`, `disputed`, or `redacted`.
     pub closed_reason: Option<ReviewClosedReason>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Unique identifier for the object.
     pub id: stripe_shared::ReviewId,
     /// The IP address where the payment originated.
     pub ip_address: Option<String>,
     /// Information related to the location of the payment.
-    ///
     /// Note that this information is an approximation and attempts to locate the nearest population center - it should not be used to determine a specific address.
     pub ip_address_location: Option<stripe_shared::RadarReviewResourceLocation>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// If `true`, the review needs action.
     pub open: bool,
-    /// The reason the review was opened.
-    ///
-    /// One of `rule` or `manual`.
+    /// The reason the review was opened. One of `rule` or `manual`.
     pub opened_reason: ReviewOpenedReason,
     /// The PaymentIntent ID associated with this review, if one exists.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_intent: Option<stripe_types::Expandable<stripe_shared::PaymentIntent>>,
     /// The reason the review is currently open or closed.
-    ///
     /// One of `rule`, `manual`, `approved`, `refunded`, `refunded_as_fraud`, `disputed`, or `redacted`.
     pub reason: String,
     /// Information related to the browsing session of the user who initiated the payment.
     pub session: Option<stripe_shared::RadarReviewResourceSession>,
 }
 /// The reason the review was closed, or null if it has not yet been closed.
-///
 /// One of `approved`, `refunded`, `refunded_as_fraud`, `disputed`, or `redacted`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ReviewClosedReason {
@@ -114,9 +106,7 @@ impl<'de> serde::Deserialize<'de> for ReviewClosedReason {
             .map_err(|_| serde::de::Error::custom("Unknown value for ReviewClosedReason"))
     }
 }
-/// The reason the review was opened.
-///
-/// One of `rule` or `manual`.
+/// The reason the review was opened. One of `rule` or `manual`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ReviewOpenedReason {
     Manual,

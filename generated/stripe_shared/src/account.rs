@@ -1,10 +1,16 @@
-/// This is an object representing a Stripe account.
+/// This is an object representing a Stripe account. You can retrieve it to see
+/// properties on the account like its current requirements or if the account is
+/// enabled to make live charges or receive payouts.
 ///
-/// You can retrieve it to see properties on the account like its current requirements or if the account is enabled to make live charges or receive payouts.  For Custom accounts, the properties below are always returned.
-/// For other accounts, some properties are returned until that account has started to go through Connect Onboarding.
-/// Once you create an [Account Link](https://stripe.com/docs/api/account_links) for a Standard or Express account, some parameters are no longer returned.
-/// These are marked as **Custom Only** or **Custom and Express** below.
-/// Learn about the differences [between accounts](https://stripe.com/docs/connect/accounts).  For more details see <<https://stripe.com/docs/api/accounts/object>>.
+/// For Custom accounts, the properties below are always returned.
+/// For other accounts, some properties are returned until that.
+/// account has started to go through Connect Onboarding.
+/// Once you create an [Account Link](https://stripe.com/docs/api/account_links).
+/// for a Standard or Express account, some parameters are no longer returned.
+/// These are marked as **Custom Only** or **Custom and Express**.
+/// below. Learn about the differences [between accounts](https://stripe.com/docs/connect/accounts).
+///
+/// For more details see <<https://stripe.com/docs/api/accounts/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Account {
     /// Business information about the account.
@@ -25,27 +31,22 @@ pub struct Account {
     /// The account's country.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<String>,
-    /// Time at which the account was connected.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the account was connected. Measured in seconds since the Unix epoch.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::Timestamp>,
     /// Three-letter ISO currency code representing the default currency for the account.
-    ///
     /// This must be a currency that [Stripe supports in the account's country](https://stripe.com/docs/payouts).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_currency: Option<stripe_types::Currency>,
     /// Whether account details have been submitted.
-    ///
     /// Standard accounts cannot receive payouts before this is true.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub details_submitted: Option<bool>,
     /// An email address associated with the account.
-    ///
     /// It's not used for authentication and Stripe doesn't market to this field without explicit approval from the platform.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
-    /// External accounts (bank accounts and debit cards) currently attached to this account.
+    /// External accounts (bank accounts and debit cards) currently attached to this account
     #[serde(skip_serializing_if = "Option::is_none")]
     pub external_accounts: Option<stripe_types::List<stripe_shared::ExternalAccount>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -55,7 +56,6 @@ pub struct Account {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub individual: Option<stripe_shared::Person>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<std::collections::HashMap<String, String>>,
@@ -69,9 +69,7 @@ pub struct Account {
     pub settings: Option<stripe_shared::AccountSettings>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tos_acceptance: Option<stripe_shared::AccountTosAcceptance>,
-    /// The Stripe account type.
-    ///
-    /// Can be `standard`, `express`, or `custom`.
+    /// The Stripe account type. Can be `standard`, `express`, or `custom`.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<AccountType>,
@@ -141,9 +139,7 @@ impl<'de> serde::Deserialize<'de> for AccountBusinessType {
             .map_err(|_| serde::de::Error::custom("Unknown value for AccountBusinessType"))
     }
 }
-/// The Stripe account type.
-///
-/// Can be `standard`, `express`, or `custom`.
+/// The Stripe account type. Can be `standard`, `express`, or `custom`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum AccountType {
     Custom,

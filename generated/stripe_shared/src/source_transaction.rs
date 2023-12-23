@@ -1,8 +1,7 @@
 /// Some payment methods have no required amount that a customer must send.
 /// Customers can be instructed to send any amount, and it can be made up of
-/// multiple transactions.
-///
-/// As such, sources can have multiple associated transactions.
+/// multiple transactions. As such, sources can have multiple associated
+/// transactions.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct SourceTransaction {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -11,12 +10,9 @@ pub struct SourceTransaction {
     pub amount: i64,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub chf_credit_transfer: Option<stripe_shared::SourceTransactionChfCreditTransferData>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     #[serde(skip_serializing_if = "Option::is_none")]

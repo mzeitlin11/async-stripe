@@ -1,42 +1,39 @@
 /// Customers with certain payments enabled have a cash balance, representing funds that were paid
 /// by the customer to a merchant, but have not yet been allocated to a payment.
+/// Cash Balance Transactions.
+/// represent when funds are moved into or out of this balance.
+/// This includes funding by the customer, allocation.
+/// to payments, and refunds to the customer.
 ///
-/// Cash Balance Transactions represent when funds are moved into or out of this balance.
-/// This includes funding by the customer, allocation to payments, and refunds to the customer.  For more details see <<https://stripe.com/docs/api/cash_balance_transactions/object>>.
+/// For more details see <<https://stripe.com/docs/api/cash_balance_transactions/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct CustomerCashBalanceTransaction {
 #[serde(skip_serializing_if = "Option::is_none")]
 pub adjusted_for_overdraft: Option<stripe_shared::CustomerBalanceResourceCashBalanceTransactionResourceAdjustedForOverdraft>,
 #[serde(skip_serializing_if = "Option::is_none")]
 pub applied_to_payment: Option<stripe_shared::CustomerBalanceResourceCashBalanceTransactionResourceAppliedToPaymentTransaction>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
 pub created: stripe_types::Timestamp,
-    /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
+        /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
 pub currency: stripe_types::Currency,
     /// The customer whose available cash balance changed as a result of this transaction.
 pub customer: stripe_types::Expandable<stripe_shared::Customer>,
-    /// The total available cash balance for the specified currency after this transaction was applied.
-    ///
+        /// The total available cash balance for the specified currency after this transaction was applied.
     /// Represented in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
 pub ending_balance: i64,
 #[serde(skip_serializing_if = "Option::is_none")]
 pub funded: Option<stripe_shared::CustomerBalanceResourceCashBalanceTransactionResourceFundedTransaction>,
     /// Unique identifier for the object.
 pub id: stripe_shared::CustomerCashBalanceTransactionId,
-    /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
+        /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
 pub livemode: bool,
-    /// The amount by which the cash balance changed, represented in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
-    ///
+        /// The amount by which the cash balance changed, represented in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
     /// A positive value represents funds being added to the cash balance, a negative value represents funds being removed from the cash balance.
 pub net_amount: i64,
 #[serde(skip_serializing_if = "Option::is_none")]
 pub refunded_from_payment: Option<stripe_shared::CustomerBalanceResourceCashBalanceTransactionResourceRefundedFromPaymentTransaction>,
-    /// The type of the cash balance transaction.
-    ///
+        /// The type of the cash balance transaction.
     /// New types may be added in future.
     /// See [Customer Balance](https://stripe.com/docs/payments/customer-balance#types) to learn more about these types.
 #[serde(rename = "type")]
@@ -46,7 +43,6 @@ pub unapplied_from_payment: Option<stripe_shared::CustomerBalanceResourceCashBal
 
 }
 /// The type of the cash balance transaction.
-///
 /// New types may be added in future.
 /// See [Customer Balance](https://stripe.com/docs/payments/customer-balance#types) to learn more about these types.
 #[derive(Copy, Clone, Eq, PartialEq)]

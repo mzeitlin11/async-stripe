@@ -2,12 +2,9 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryTransactionEntry {
     pub balance_impact: stripe_treasury::TreasuryTransactionsResourceBalanceImpact,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// When the TransactionEntry will impact the FinancialAccount's balance.

@@ -1,4 +1,4 @@
-/// Change to a FinancialAccount's balance.
+/// Change to a FinancialAccount's balance
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryTransactionsResourceBalanceImpact {
     /// The change made to funds the user can spend right now.

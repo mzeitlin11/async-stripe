@@ -1,5 +1,5 @@
 /// PaymentMethod objects represent your customer's payment instruments.
-/// You can use them with [PaymentIntents](https://stripe.com/docs/payments/payment-intents) to collect payments or save them to
+/// You can use them with [PaymentIntents](https://stripe.com/docs/payments/payment-intents) to collect payments or save them to.
 /// Customer objects to store instrument details for future payments.
 ///
 /// Related guides: [Payment Methods](https://stripe.com/docs/payments/payment-methods) and [More Payment Scenarios](https://stripe.com/docs/payments/more-payment-scenarios).
@@ -32,12 +32,9 @@ pub struct PaymentMethod {
     pub card_present: Option<stripe_shared::PaymentMethodCardPresent>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cashapp: Option<stripe_shared::PaymentMethodCashapp>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// The ID of the Customer to which this PaymentMethod is saved.
-    ///
     /// This will not be set when the PaymentMethod has not been saved to a Customer.
     pub customer: Option<stripe_types::Expandable<stripe_shared::Customer>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -65,7 +62,6 @@ pub struct PaymentMethod {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: Option<std::collections::HashMap<String, String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -89,7 +85,6 @@ pub struct PaymentMethod {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sofort: Option<stripe_shared::PaymentMethodSofort>,
     /// The type of the PaymentMethod.
-    ///
     /// An additional hash is included on the PaymentMethod with a name matching this value.
     /// It contains additional information specific to the PaymentMethod type.
     #[serde(rename = "type")]
@@ -102,7 +97,6 @@ pub struct PaymentMethod {
     pub zip: Option<stripe_shared::PaymentMethodZip>,
 }
 /// The type of the PaymentMethod.
-///
 /// An additional hash is included on the PaymentMethod with a name matching this value.
 /// It contains additional information specific to the PaymentMethod type.
 #[derive(Copy, Clone, Eq, PartialEq)]

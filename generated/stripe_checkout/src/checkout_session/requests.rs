@@ -7,7 +7,6 @@ pub struct ListCheckoutSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer_details: Option<ListCheckoutSessionCustomerDetails<'a>>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -16,7 +15,6 @@ pub struct ListCheckoutSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
@@ -27,7 +25,6 @@ pub struct ListCheckoutSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_link: Option<&'a str>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -161,22 +158,20 @@ pub struct CreateCheckoutSession<'a> {
     /// If set, Checkout displays a back button and customers will be directed to this URL if they decide to cancel payment and return to your website.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cancel_url: Option<&'a str>,
-    /// A unique string to reference the Checkout Session.
-    ///
-    /// This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.
+    /// A unique string to reference the Checkout Session. This can be a
+    /// customer ID, a cart ID, or similar, and can be used to reconcile the
+    /// session with your internal systems.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub client_reference_id: Option<&'a str>,
     /// Configure fields for the Checkout Session to gather active consent from customers.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub consent_collection: Option<CreateCheckoutSessionConsentCollection>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     /// Required in `setup` mode when `payment_method_types` is not set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
     /// Collect additional information from your customer using custom fields.
-    ///
     /// Up to 2 fields are supported.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_fields: Option<&'a [CreateCheckoutSessionCustomFields<'a>]>,
@@ -184,46 +179,51 @@ pub struct CreateCheckoutSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_text: Option<CreateCheckoutSessionCustomText<'a>>,
     /// ID of an existing Customer, if one exists.
+    /// In `payment` mode, the customer’s most recently saved card.
+    /// payment method will be used to prefill the email, name, card details, and billing address
+    /// on the Checkout page.
+    /// In `subscription` mode, the customer’s [default payment method](https://stripe.com/docs/api/customers/update#update_customer-invoice_settings-default_payment_method).
+    /// will be used if it’s a card, otherwise the most recently saved card will be used.
+    /// A valid billing address, billing name and billing email are required on the payment method for Checkout to prefill the customer's card details.
     ///
-    /// In `payment` mode, the customer’s most recently saved card payment method will be used to prefill the email, name, card details, and billing address on the Checkout page.
-    /// In `subscription` mode, the customer’s [default payment method](https://stripe.com/docs/api/customers/update#update_customer-invoice_settings-default_payment_method) will be used if it’s a card, otherwise the most recently saved card will be used.
-    /// A valid billing address, billing name and billing email are required on the payment method for Checkout to prefill the customer's card details.  If the Customer already has a valid [email](https://stripe.com/docs/api/customers/object#customer_object-email) set, the email will be prefilled and not editable in Checkout. If the Customer does not have a valid `email`, Checkout will set the email entered during the session on the Customer.  If blank for Checkout Sessions in `subscription` mode or with `customer_creation` set as `always` in `payment` mode, Checkout will create a new Customer object based on information provided during the payment flow.  You can set [`payment_intent_data.setup_future_usage`](https://stripe.com/docs/api/checkout/sessions/create#create_checkout_session-payment_intent_data-setup_future_usage) to have Checkout automatically attach the payment method to the Customer you pass in for future reuse.
+    /// If the Customer already has a valid [email](https://stripe.com/docs/api/customers/object#customer_object-email) set, the email will be prefilled and not editable in Checkout.
+    /// If the Customer does not have a valid `email`, Checkout will set the email entered during the session on the Customer.
+    ///
+    /// If blank for Checkout Sessions in `subscription` mode or with `customer_creation` set as `always` in `payment` mode, Checkout will create a new Customer object based on information provided during the payment flow.
+    ///
+    /// You can set [`payment_intent_data.setup_future_usage`](https://stripe.com/docs/api/checkout/sessions/create#create_checkout_session-payment_intent_data-setup_future_usage) to have Checkout automatically attach the payment method to the Customer you pass in for future reuse.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
     /// Configure whether a Checkout Session creates a [Customer](https://stripe.com/docs/api/customers) during Session confirmation.
     ///
-    /// When a Customer is not created, you can still retrieve email, address, and other customer data entered in Checkout
+    /// When a Customer is not created, you can still retrieve email, address, and other customer data entered in Checkout.
     /// with [customer_details](https://stripe.com/docs/api/checkout/sessions/object#checkout_session_object-customer_details).
     ///
-    /// Sessions that don't create Customers instead are grouped by [guest customers](https://stripe.com/docs/payments/checkout/guest-customers)
+    /// Sessions that don't create Customers instead are grouped by [guest customers](https://stripe.com/docs/payments/checkout/guest-customers).
     /// in the Dashboard.
+    /// Promotion codes limited to first time customers will return invalid for these Sessions.
     ///
-    /// Promotion codes limited to first time customers will return invalid for these Sessions.  Can only be set in `payment` and `setup` mode.
+    /// Can only be set in `payment` and `setup` mode.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer_creation: Option<CreateCheckoutSessionCustomerCreation>,
     /// If provided, this value will be used when the Customer object is created.
     /// If not provided, customers will be asked to enter their email address.
     /// Use this parameter to prefill customer data if you already have an email
-    /// on file.
-    ///
-    /// To access information about the customer once a session is complete, use the `customer` field.
+    /// on file. To access information about the customer once a session is
+    /// complete, use the `customer` field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer_email: Option<&'a str>,
     /// Controls what fields on Customer can be updated by the Checkout Session.
-    ///
     /// Can only be provided when `customer` is provided.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer_update: Option<CreateCheckoutSessionCustomerUpdate>,
-    /// The coupon or promotion code to apply to this Session.
-    ///
-    /// Currently, only up to one may be specified.
+    /// The coupon or promotion code to apply to this Session. Currently, only up to one may be specified.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub discounts: Option<&'a [CreateCheckoutSessionDiscounts<'a>]>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// The Epoch time in seconds at which the Checkout Session will expire.
-    ///
     /// It can be anywhere from 30 minutes to 24 hours after Checkout Session creation.
     /// By default, this value is 24 hours from creation.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -232,25 +232,25 @@ pub struct CreateCheckoutSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_creation: Option<CreateCheckoutSessionInvoiceCreation<'a>>,
     /// A list of items the customer is purchasing.
+    /// Use this parameter to pass one-time or recurring [Prices](https://stripe.com/docs/api/prices).
     ///
-    /// Use this parameter to pass one-time or recurring [Prices](https://stripe.com/docs/api/prices).  For `payment` mode, there is a maximum of 100 line items, however it is recommended to consolidate line items if there are more than a few dozen.  For `subscription` mode, there is a maximum of 20 line items with recurring Prices and 20 line items with one-time Prices.
+    /// For `payment` mode, there is a maximum of 100 line items, however it is recommended to consolidate line items if there are more than a few dozen.
+    ///
+    /// For `subscription` mode, there is a maximum of 20 line items with recurring Prices and 20 line items with one-time Prices.
     /// Line items with one-time Prices will be on the initial invoice only.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line_items: Option<&'a [CreateCheckoutSessionLineItems<'a>]>,
     /// The IETF language tag of the locale Checkout is displayed in.
-    ///
     /// If blank or `auto`, the browser's locale is used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub locale: Option<CreateCheckoutSessionLocale>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// The mode of the Checkout Session.
-    ///
     /// Pass `subscription` if the Checkout Session includes at least one recurring item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mode: Option<CreateCheckoutSessionMode>,
@@ -258,8 +258,12 @@ pub struct CreateCheckoutSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_intent_data: Option<CreateCheckoutSessionPaymentIntentData<'a>>,
     /// Specify whether Checkout should collect a payment method.
+    /// When set to `if_required`, Checkout will not collect a payment method when the total due for the session is 0.
+    /// This may occur if the Checkout Session includes a free trial or a discount.
     ///
-    /// When set to `if_required`, Checkout will not collect a payment method when the total due for the session is 0. This may occur if the Checkout Session includes a free trial or a discount.  Can only be set in `subscription` mode.  If you'd like information on how to collect a payment method outside of Checkout, read the guide on configuring [subscriptions with a free trial](https://stripe.com/docs/payments/checkout/free-trials).
+    /// Can only be set in `subscription` mode.
+    ///
+    /// If you'd like information on how to collect a payment method outside of Checkout, read the guide on configuring [subscriptions with a free trial](https://stripe.com/docs/payments/checkout/free-trials).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_collection: Option<CreateCheckoutSessionPaymentMethodCollection>,
     /// The ID of the payment method configuration to use with this Checkout session.
@@ -285,20 +289,17 @@ pub struct CreateCheckoutSession<'a> {
     ///
     /// We recommend that you review your privacy policy and check with your legal contacts
     /// before using this feature.
-    ///
     /// Learn more about [collecting phone numbers with Checkout](https://stripe.com/docs/payments/checkout/phone-numbers).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone_number_collection: Option<CreateCheckoutSessionPhoneNumberCollection>,
     /// This parameter applies to `ui_mode: embedded`.
-    ///
     /// By default, Stripe will always redirect to your return_url after a successful confirmation.
     /// If you set `redirect_on_completion: 'if_required'`, then we will only redirect if your user chooses a redirect-based payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub redirect_on_completion: Option<CreateCheckoutSessionRedirectOnCompletion>,
     /// The URL to redirect your customer back to after they authenticate or cancel their payment on the
-    /// payment method's app or site.
-    ///
-    /// This parameter is required if ui_mode is `embedded` and redirect-based payment methods are enabled on the session.
+    /// payment method's app or site. This parameter is required if ui_mode is `embedded`
+    /// and redirect-based payment methods are enabled on the session.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_url: Option<&'a str>,
     /// A subset of parameters to be passed to SetupIntent creation for Checkout Sessions in `setup` mode.
@@ -307,15 +308,13 @@ pub struct CreateCheckoutSession<'a> {
     /// When set, provides configuration for Checkout to collect a shipping address from a customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_address_collection: Option<CreateCheckoutSessionShippingAddressCollection<'a>>,
-    /// The shipping rate options to apply to this Session.
-    ///
-    /// Up to a maximum of 5.
+    /// The shipping rate options to apply to this Session. Up to a maximum of 5.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_options: Option<&'a [CreateCheckoutSessionShippingOptions<'a>]>,
     /// Describes the type of transaction being performed by Checkout in order to customize
-    /// relevant text on the page, such as the submit button.
-    ///
-    /// `submit_type` can only be specified on Checkout Sessions in `payment` mode, but not Checkout Sessions in `subscription` or `setup` mode.
+    /// relevant text on the page, such as the submit button. `submit_type` can only be
+    /// specified on Checkout Sessions in `payment` mode, but not Checkout Sessions
+    /// in `subscription` or `setup` mode.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub submit_type: Option<CreateCheckoutSessionSubmitType>,
     /// A subset of parameters to be passed to subscription creation for Checkout Sessions in `subscription` mode.
@@ -323,17 +322,15 @@ pub struct CreateCheckoutSession<'a> {
     pub subscription_data: Option<CreateCheckoutSessionSubscriptionData<'a>>,
     /// The URL to which Stripe should send customers when payment or setup
     /// is complete.
-    /// This parameter is not allowed if ui_mode is `embedded`.
-    ///
-    /// If you’d like to use information from the successful Checkout Session on your page, read the guide on [customizing your success page](https://stripe.com/docs/payments/checkout/custom-success-page).
+    /// This parameter is not allowed if ui_mode is `embedded`. If you’d like to use
+    /// information from the successful Checkout Session on your page, read the
+    /// guide on [customizing your success page](https://stripe.com/docs/payments/checkout/custom-success-page).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub success_url: Option<&'a str>,
     /// Controls tax ID collection settings for the session.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_id_collection: Option<CreateCheckoutSessionTaxIdCollection>,
-    /// `ui_mode` can be `hosted` or `embedded`.
-    ///
-    /// The default is `hosted`.
+    /// `ui_mode` can be `hosted` or `embedded`. The default is `hosted`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ui_mode: Option<CreateCheckoutSessionUiMode>,
 }
@@ -357,15 +354,12 @@ impl CreateCheckoutSessionAfterExpiration {
 /// Configure a Checkout Session that can be used to recover an expired session.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionAfterExpirationRecovery {
-    /// Enables user redeemable promotion codes on the recovered Checkout Sessions.
-    ///
-    /// Defaults to `false`.
+    /// Enables user redeemable promotion codes on the recovered Checkout Sessions. Defaults to `false`
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_promotion_codes: Option<bool>,
     /// If `true`, a recovery URL will be generated to recover this Checkout Session if it
-    /// expires before a successful transaction is completed.
-    ///
-    /// It will be attached to the Checkout Session object upon expiration.
+    /// expires before a successful transaction is completed. It will be attached to the
+    /// Checkout Session object upon expiration.
     pub enabled: bool,
 }
 impl CreateCheckoutSessionAfterExpirationRecovery {
@@ -439,9 +433,9 @@ impl serde::Serialize for CreateCheckoutSessionBillingAddressCollection {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionConsentCollection {
     /// If set to `auto`, enables the collection of customer consent for promotional communications.
-    ///
-    /// The Checkout Session will determine whether to display an option to opt into promotional communication from the merchant depending on the customer's locale.
-    /// Only available to US merchants.
+    /// The Checkout.
+    /// Session will determine whether to display an option to opt into promotional communication
+    /// from the merchant depending on the customer's locale. Only available to US merchants.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub promotions: Option<CreateCheckoutSessionConsentCollectionPromotions>,
     /// If set to `required`, it requires customers to check a terms of service checkbox before being able to pay.
@@ -455,9 +449,9 @@ impl CreateCheckoutSessionConsentCollection {
     }
 }
 /// If set to `auto`, enables the collection of customer consent for promotional communications.
-///
-/// The Checkout Session will determine whether to display an option to opt into promotional communication from the merchant depending on the customer's locale.
-/// Only available to US merchants.
+/// The Checkout.
+/// Session will determine whether to display an option to opt into promotional communication
+/// from the merchant depending on the customer's locale. Only available to US merchants.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionConsentCollectionPromotions {
     Auto,
@@ -561,7 +555,6 @@ impl serde::Serialize for CreateCheckoutSessionConsentCollectionTermsOfService {
     }
 }
 /// Collect additional information from your customer using custom fields.
-///
 /// Up to 2 fields are supported.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionCustomFields<'a> {
@@ -569,7 +562,6 @@ pub struct CreateCheckoutSessionCustomFields<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dropdown: Option<CreateCheckoutSessionCustomFieldsDropdown<'a>>,
     /// String of your choice that your integration can use to reconcile this field.
-    ///
     /// Must be unique to this field, alphanumeric, and up to 200 characters.
     pub key: &'a str,
     /// The label for the field, displayed to the customer.
@@ -578,7 +570,6 @@ pub struct CreateCheckoutSessionCustomFields<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub numeric: Option<CreateCheckoutSessionCustomFieldsNumeric>,
     /// Whether the customer is required to complete the field before completing the Checkout Session.
-    ///
     /// Defaults to `false`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub optional: Option<bool>,
@@ -601,9 +592,7 @@ impl<'a> CreateCheckoutSessionCustomFields<'a> {
 /// Configuration for `type=dropdown` fields.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionCustomFieldsDropdown<'a> {
-    /// The options available for the customer to select.
-    ///
-    /// Up to 200 options allowed.
+    /// The options available for the customer to select. Up to 200 options allowed.
     pub options: &'a [CreateCheckoutSessionCustomFieldsDropdownOptions<'a>],
 }
 impl<'a> CreateCheckoutSessionCustomFieldsDropdown<'a> {
@@ -611,17 +600,12 @@ impl<'a> CreateCheckoutSessionCustomFieldsDropdown<'a> {
         Self { options }
     }
 }
-/// The options available for the customer to select.
-///
-/// Up to 200 options allowed.
+/// The options available for the customer to select. Up to 200 options allowed.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionCustomFieldsDropdownOptions<'a> {
-    /// The label for the option, displayed to the customer.
-    ///
-    /// Up to 100 characters.
+    /// The label for the option, displayed to the customer. Up to 100 characters.
     pub label: &'a str,
     /// The value for this option, not displayed to the customer, used by your integration to reconcile the option selected by the customer.
-    ///
     /// Must be unique to this option, alphanumeric, and up to 100 characters.
     pub value: &'a str,
 }
@@ -633,9 +617,7 @@ impl<'a> CreateCheckoutSessionCustomFieldsDropdownOptions<'a> {
 /// The label for the field, displayed to the customer.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionCustomFieldsLabel<'a> {
-    /// Custom text for the label, displayed to the customer.
-    ///
-    /// Up to 50 characters.
+    /// Custom text for the label, displayed to the customer. Up to 50 characters.
     pub custom: &'a str,
     /// The type of the label.
     #[serde(rename = "type")]
@@ -832,13 +814,14 @@ impl<'a> CreateCheckoutSessionCustomTextTermsOfServiceAcceptance<'a> {
 }
 /// Configure whether a Checkout Session creates a [Customer](https://stripe.com/docs/api/customers) during Session confirmation.
 ///
-/// When a Customer is not created, you can still retrieve email, address, and other customer data entered in Checkout
+/// When a Customer is not created, you can still retrieve email, address, and other customer data entered in Checkout.
 /// with [customer_details](https://stripe.com/docs/api/checkout/sessions/object#checkout_session_object-customer_details).
 ///
-/// Sessions that don't create Customers instead are grouped by [guest customers](https://stripe.com/docs/payments/checkout/guest-customers)
+/// Sessions that don't create Customers instead are grouped by [guest customers](https://stripe.com/docs/payments/checkout/guest-customers).
 /// in the Dashboard.
+/// Promotion codes limited to first time customers will return invalid for these Sessions.
 ///
-/// Promotion codes limited to first time customers will return invalid for these Sessions.  Can only be set in `payment` and `setup` mode.
+/// Can only be set in `payment` and `setup` mode.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionCustomerCreation {
     Always,
@@ -890,25 +873,18 @@ impl serde::Serialize for CreateCheckoutSessionCustomerCreation {
     }
 }
 /// Controls what fields on Customer can be updated by the Checkout Session.
-///
 /// Can only be provided when `customer` is provided.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionCustomerUpdate {
     /// Describes whether Checkout saves the billing address onto `customer.address`.
-    /// To always collect a full billing address, use `billing_address_collection`.
-    ///
-    /// Defaults to `never`.
+    /// To always collect a full billing address, use `billing_address_collection`. Defaults to `never`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<CreateCheckoutSessionCustomerUpdateAddress>,
-    /// Describes whether Checkout saves the name onto `customer.name`.
-    ///
-    /// Defaults to `never`.
+    /// Describes whether Checkout saves the name onto `customer.name`. Defaults to `never`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<CreateCheckoutSessionCustomerUpdateName>,
     /// Describes whether Checkout saves shipping information onto `customer.shipping`.
-    /// To collect shipping information, use `shipping_address_collection`.
-    ///
-    /// Defaults to `never`.
+    /// To collect shipping information, use `shipping_address_collection`. Defaults to `never`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping: Option<CreateCheckoutSessionCustomerUpdateShipping>,
 }
@@ -918,9 +894,7 @@ impl CreateCheckoutSessionCustomerUpdate {
     }
 }
 /// Describes whether Checkout saves the billing address onto `customer.address`.
-/// To always collect a full billing address, use `billing_address_collection`.
-///
-/// Defaults to `never`.
+/// To always collect a full billing address, use `billing_address_collection`. Defaults to `never`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionCustomerUpdateAddress {
     Auto,
@@ -971,9 +945,7 @@ impl serde::Serialize for CreateCheckoutSessionCustomerUpdateAddress {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Describes whether Checkout saves the name onto `customer.name`.
-///
-/// Defaults to `never`.
+/// Describes whether Checkout saves the name onto `customer.name`. Defaults to `never`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionCustomerUpdateName {
     Auto,
@@ -1025,9 +997,7 @@ impl serde::Serialize for CreateCheckoutSessionCustomerUpdateName {
     }
 }
 /// Describes whether Checkout saves shipping information onto `customer.shipping`.
-/// To collect shipping information, use `shipping_address_collection`.
-///
-/// Defaults to `never`.
+/// To collect shipping information, use `shipping_address_collection`. Defaults to `never`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionCustomerUpdateShipping {
     Auto,
@@ -1078,9 +1048,7 @@ impl serde::Serialize for CreateCheckoutSessionCustomerUpdateShipping {
         serializer.serialize_str(self.as_str())
     }
 }
-/// The coupon or promotion code to apply to this Session.
-///
-/// Currently, only up to one may be specified.
+/// The coupon or promotion code to apply to this Session. Currently, only up to one may be specified.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionDiscounts<'a> {
     /// The ID of the coupon to apply to this Session.
@@ -1119,16 +1087,13 @@ pub struct CreateCheckoutSessionInvoiceCreationInvoiceData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_fields:
         Option<&'a [CreateCheckoutSessionInvoiceCreationInvoiceDataCustomFields<'a>]>,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Default footer to be displayed on invoices for this customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub footer: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -1146,13 +1111,9 @@ impl<'a> CreateCheckoutSessionInvoiceCreationInvoiceData<'a> {
 /// Default custom fields to be displayed on invoices for this customer.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionInvoiceCreationInvoiceDataCustomFields<'a> {
-    /// The name of the custom field.
-    ///
-    /// This may be up to 30 characters.
+    /// The name of the custom field. This may be up to 30 characters.
     pub name: &'a str,
-    /// The value of the custom field.
-    ///
-    /// This may be up to 30 characters.
+    /// The value of the custom field. This may be up to 30 characters.
     pub value: &'a str,
 }
 impl<'a> CreateCheckoutSessionInvoiceCreationInvoiceDataCustomFields<'a> {
@@ -1164,7 +1125,6 @@ impl<'a> CreateCheckoutSessionInvoiceCreationInvoiceDataCustomFields<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionInvoiceCreationInvoiceDataRenderingOptions {
     /// How line-item prices and amounts will be displayed with respect to tax on invoice PDFs.
-    ///
     /// One of `exclude_tax` or `include_inclusive_tax`.
     /// `include_inclusive_tax` will include inclusive tax (and exclude exclusive tax) in invoice PDF amounts.
     /// `exclude_tax` will exclude all tax (inclusive and exclusive alike) from invoice PDF amounts.
@@ -1178,7 +1138,6 @@ impl CreateCheckoutSessionInvoiceCreationInvoiceDataRenderingOptions {
     }
 }
 /// How line-item prices and amounts will be displayed with respect to tax on invoice PDFs.
-///
 /// One of `exclude_tax` or `include_inclusive_tax`.
 /// `include_inclusive_tax` will include inclusive tax (and exclude exclusive tax) in invoice PDF amounts.
 /// `exclude_tax` will exclude all tax (inclusive and exclusive alike) from invoice PDF amounts.
@@ -1243,8 +1202,11 @@ impl serde::Serialize
     }
 }
 /// A list of items the customer is purchasing.
+/// Use this parameter to pass one-time or recurring [Prices](https://stripe.com/docs/api/prices).
 ///
-/// Use this parameter to pass one-time or recurring [Prices](https://stripe.com/docs/api/prices).  For `payment` mode, there is a maximum of 100 line items, however it is recommended to consolidate line items if there are more than a few dozen.  For `subscription` mode, there is a maximum of 20 line items with recurring Prices and 20 line items with one-time Prices.
+/// For `payment` mode, there is a maximum of 100 line items, however it is recommended to consolidate line items if there are more than a few dozen.
+///
+/// For `subscription` mode, there is a maximum of 20 line items with recurring Prices and 20 line items with one-time Prices.
 /// Line items with one-time Prices will be on the initial invoice only.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionLineItems<'a> {
@@ -1252,22 +1214,18 @@ pub struct CreateCheckoutSessionLineItems<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub adjustable_quantity: Option<CreateCheckoutSessionLineItemsAdjustableQuantity>,
     /// The [tax rates](https://stripe.com/docs/api/tax_rates) that will be applied to this line item depending on the customer's billing/shipping address.
-    ///
     /// We currently support the following countries: US, GB, AU, and all countries in the EU.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dynamic_tax_rates: Option<&'a [&'a str]>,
     /// The ID of the [Price](https://stripe.com/docs/api/prices) or [Plan](https://stripe.com/docs/api/plans) object.
-    ///
     /// One of `price` or `price_data` is required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price: Option<&'a str>,
     /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
-    ///
     /// One of `price` or `price_data` is required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price_data: Option<CreateCheckoutSessionLineItemsPriceData<'a>>,
     /// The quantity of the line item being purchased.
-    ///
     /// Quantity should not be defined when `recurring.usage_type=metered`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
@@ -1284,17 +1242,14 @@ impl<'a> CreateCheckoutSessionLineItems<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionLineItemsAdjustableQuantity {
     /// Set to true if the quantity can be adjusted to any non-negative integer.
-    ///
     /// By default customers will be able to remove the line item by setting the quantity to 0.
     pub enabled: bool,
     /// The maximum quantity the customer can purchase for the Checkout Session.
-    ///
     /// By default this value is 99.
     /// You can specify a value up to 999999.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<i64>,
     /// The minimum quantity the customer must purchase for the Checkout Session.
-    ///
     /// By default this value is 0.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub minimum: Option<i64>,
@@ -1305,41 +1260,33 @@ impl CreateCheckoutSessionLineItemsAdjustableQuantity {
     }
 }
 /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
-///
 /// One of `price` or `price_data` is required.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionLineItemsPriceData<'a> {
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// The ID of the product that this price will belong to.
-    ///
     /// One of `product` or `product_data` is required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub product: Option<&'a str>,
-    /// Data used to generate a new product object inline.
-    ///
-    /// One of `product` or `product_data` is required.
+    /// Data used to generate a new product object inline. One of `product` or `product_data` is required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub product_data: Option<CreateCheckoutSessionLineItemsPriceDataProductData<'a>>,
     /// The recurring components of a price such as `interval` and `interval_count`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub recurring: Option<CreateCheckoutSessionLineItemsPriceDataRecurring>,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_behavior: Option<CreateCheckoutSessionLineItemsPriceDataTaxBehavior>,
     /// A non-negative integer in cents (or local equivalent) representing how much to charge.
-    ///
     /// One of `unit_amount` or `unit_amount_decimal` is required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<&'a str>,
@@ -1357,13 +1304,10 @@ impl<'a> CreateCheckoutSessionLineItemsPriceData<'a> {
         }
     }
 }
-/// Data used to generate a new product object inline.
-///
-/// One of `product` or `product_data` is required.
+/// Data used to generate a new product object inline. One of `product` or `product_data` is required.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionLineItemsPriceDataProductData<'a> {
     /// The product's description, meant to be displayable to the customer.
-    ///
     /// Use this field to optionally store a long form explanation of the product being sold for your own rendering purposes.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
@@ -1371,7 +1315,6 @@ pub struct CreateCheckoutSessionLineItemsPriceDataProductData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub images: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -1391,12 +1334,9 @@ impl<'a> CreateCheckoutSessionLineItemsPriceDataProductData<'a> {
 /// The recurring components of a price such as `interval` and `interval_count`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionLineItemsPriceDataRecurring {
-    /// Specifies billing frequency.
-    ///
-    /// Either `day`, `week`, `month` or `year`.
+    /// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
     pub interval: CreateCheckoutSessionLineItemsPriceDataRecurringInterval,
     /// The number of intervals between subscription billings.
-    ///
     /// For example, `interval=month` and `interval_count=3` bills every 3 months.
     /// Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1407,9 +1347,7 @@ impl CreateCheckoutSessionLineItemsPriceDataRecurring {
         Self { interval, interval_count: None }
     }
 }
-/// Specifies billing frequency.
-///
-/// Either `day`, `week`, `month` or `year`.
+/// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionLineItemsPriceDataRecurringInterval {
     Day,
@@ -1467,7 +1405,6 @@ impl serde::Serialize for CreateCheckoutSessionLineItemsPriceDataRecurringInterv
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -1525,7 +1462,6 @@ impl serde::Serialize for CreateCheckoutSessionLineItemsPriceDataTaxBehavior {
     }
 }
 /// The IETF language tag of the locale Checkout is displayed in.
-///
 /// If blank or `auto`, the browser's locale is used.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -1699,7 +1635,6 @@ impl serde::Serialize for CreateCheckoutSessionLocale {
     }
 }
 /// The mode of the Checkout Session.
-///
 /// Pass `subscription` if the Checkout Session includes at least one recurring item.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionMode {
@@ -1758,7 +1693,6 @@ impl serde::Serialize for CreateCheckoutSessionMode {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentIntentData<'a> {
     /// The amount of the application fee (if any) that will be requested to be applied to the payment and transferred to the application owner's Stripe account.
-    ///
     /// The amount of the application fee collected will be capped at the total payment amount.
     /// For more information, see the PaymentIntents [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1766,29 +1700,25 @@ pub struct CreateCheckoutSessionPaymentIntentData<'a> {
     /// Controls when the funds will be captured from the customer's account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<CreateCheckoutSessionPaymentIntentDataCaptureMethod>,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
-    /// The Stripe account ID for which these funds are intended.
-    ///
-    /// For details, see the PaymentIntents [use case for connected accounts](/docs/payments/connected-accounts).
+    /// The Stripe account ID for which these funds are intended. For details,
+    /// see the PaymentIntents [use case for connected
+    /// accounts](/docs/payments/connected-accounts).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub on_behalf_of: Option<&'a str>,
     /// Email address that the receipt for the resulting payment will be sent to.
-    ///
     /// If `receipt_email` is specified for a payment in live mode, a receipt will be sent regardless of your [email settings](https://dashboard.stripe.com/account/emails).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub receipt_email: Option<&'a str>,
-    /// Indicates that you intend to [make future payments](https://stripe.com/docs/payments/payment-intents#future-usage) with the payment
+    /// Indicates that you intend to [make future payments](https://stripe.com/docs/payments/payment-intents#future-usage) with the payment.
     /// method collected by this Checkout Session.
     ///
     /// When setting this to `on_session`, Checkout will show a notice to the
@@ -1802,23 +1732,24 @@ pub struct CreateCheckoutSessionPaymentIntentData<'a> {
     /// Checkout will attach the payment method to the Customer.
     ///
     /// If Checkout does not create a Customer, the payment method is not attached
-    /// to a Customer.
+    /// to a Customer. To reuse the payment method, you can retrieve it from the
+    /// Checkout Session's PaymentIntent.
     ///
-    /// To reuse the payment method, you can retrieve it from the Checkout Session's PaymentIntent.  When processing card payments, Checkout also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as SCA.
+    /// When processing card payments, Checkout also uses `setup_future_usage`
+    /// to dynamically optimize your payment flow and comply with regional
+    /// legislation and network rules, such as SCA.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentIntentDataSetupFutureUsage>,
     /// Shipping information for this payment.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping: Option<CreateCheckoutSessionPaymentIntentDataShipping<'a>>,
-    /// Extra information about the payment.
-    ///
-    /// This will appear on your customer's statement when this payment succeeds in creating a charge.
+    /// Extra information about the payment. This will appear on your
+    /// customer's statement when this payment succeeds in creating a charge.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor: Option<&'a str>,
-    /// Provides information about the charge that customers see on their statements.
-    ///
-    /// Concatenated with the prefix (shortened descriptor) or statement descriptor that’s set on the account to form the complete statement descriptor.
-    /// Maximum 22 characters for the concatenated descriptor.
+    /// Provides information about the charge that customers see on their statements. Concatenated with the
+    /// prefix (shortened descriptor) or statement descriptor that’s set on the account to form the complete.
+    /// statement descriptor. Maximum 22 characters for the concatenated descriptor.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor_suffix: Option<&'a str>,
     /// The parameters used to automatically create a Transfer when the payment succeeds.
@@ -1826,7 +1757,6 @@ pub struct CreateCheckoutSessionPaymentIntentData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transfer_data: Option<CreateCheckoutSessionPaymentIntentDataTransferData<'a>>,
     /// A string that identifies the resulting payment as part of a group.
-    ///
     /// See the PaymentIntents [use case for connected accounts](https://stripe.com/docs/connect/separate-charges-and-transfers) for details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transfer_group: Option<&'a str>,
@@ -1890,7 +1820,7 @@ impl serde::Serialize for CreateCheckoutSessionPaymentIntentDataCaptureMethod {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Indicates that you intend to [make future payments](https://stripe.com/docs/payments/payment-intents#future-usage) with the payment
+/// Indicates that you intend to [make future payments](https://stripe.com/docs/payments/payment-intents#future-usage) with the payment.
 /// method collected by this Checkout Session.
 ///
 /// When setting this to `on_session`, Checkout will show a notice to the
@@ -1904,9 +1834,12 @@ impl serde::Serialize for CreateCheckoutSessionPaymentIntentDataCaptureMethod {
 /// Checkout will attach the payment method to the Customer.
 ///
 /// If Checkout does not create a Customer, the payment method is not attached
-/// to a Customer.
+/// to a Customer. To reuse the payment method, you can retrieve it from the
+/// Checkout Session's PaymentIntent.
 ///
-/// To reuse the payment method, you can retrieve it from the Checkout Session's PaymentIntent.  When processing card payments, Checkout also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as SCA.
+/// When processing card payments, Checkout also uses `setup_future_usage`
+/// to dynamically optimize your payment flow and comply with regional
+/// legislation and network rules, such as SCA.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentIntentDataSetupFutureUsage {
     OffSession,
@@ -1971,7 +1904,6 @@ pub struct CreateCheckoutSessionPaymentIntentDataShipping<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone: Option<&'a str>,
     /// The tracking number for a physical product, obtained from the delivery service.
-    ///
     /// If multiple tracking numbers were generated for this purchase, please separate them with commas.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tracking_number: Option<&'a str>,
@@ -2019,9 +1951,8 @@ pub struct CreateCheckoutSessionPaymentIntentDataTransferData<'a> {
     pub amount: Option<i64>,
     /// If specified, successful charges will be attributed to the destination
     /// account for tax reporting, and the funds from charges will be transferred
-    /// to the destination account.
-    ///
-    /// The ID of the resulting transfer will be returned on the successful charge's `transfer` field.
+    /// to the destination account. The ID of the resulting transfer will be
+    /// returned on the successful charge's `transfer` field.
     pub destination: &'a str,
 }
 impl<'a> CreateCheckoutSessionPaymentIntentDataTransferData<'a> {
@@ -2030,8 +1961,12 @@ impl<'a> CreateCheckoutSessionPaymentIntentDataTransferData<'a> {
     }
 }
 /// Specify whether Checkout should collect a payment method.
+/// When set to `if_required`, Checkout will not collect a payment method when the total due for the session is 0.
+/// This may occur if the Checkout Session includes a free trial or a discount.
 ///
-/// When set to `if_required`, Checkout will not collect a payment method when the total due for the session is 0. This may occur if the Checkout Session includes a free trial or a discount.  Can only be set in `subscription` mode.  If you'd like information on how to collect a payment method outside of Checkout, read the guide on configuring [subscriptions with a free trial](https://stripe.com/docs/payments/checkout/free-trials).
+/// Can only be set in `subscription` mode.
+///
+/// If you'd like information on how to collect a payment method outside of Checkout, read the guide on configuring [subscriptions with a free trial](https://stripe.com/docs/payments/checkout/free-trials).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodCollection {
     Always,
@@ -2182,24 +2117,24 @@ impl<'a> CreateCheckoutSessionPaymentMethodOptions<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentMethodOptionsAcssDebit<'a> {
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     /// This is only accepted for Checkout Sessions in `setup` mode.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<CreateCheckoutSessionPaymentMethodOptionsAcssDebitCurrency>,
-    /// Additional fields for Mandate creation.
+    /// Additional fields for Mandate creation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options:
         Option<CreateCheckoutSessionPaymentMethodOptionsAcssDebitMandateOptions<'a>>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsAcssDebitSetupFutureUsage>,
-    /// Verification method for the intent.
+    /// Verification method for the intent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_method:
         Option<CreateCheckoutSessionPaymentMethodOptionsAcssDebitVerificationMethod>,
@@ -2210,7 +2145,6 @@ impl<'a> CreateCheckoutSessionPaymentMethodOptionsAcssDebit<'a> {
     }
 }
 /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-///
 /// Must be a [supported currency](https://stripe.com/docs/currencies).
 /// This is only accepted for Checkout Sessions in `setup` mode.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -2263,22 +2197,20 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsAcssDebitCurr
         serializer.serialize_str(self.as_str())
     }
 }
-/// Additional fields for Mandate creation.
+/// Additional fields for Mandate creation
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentMethodOptionsAcssDebitMandateOptions<'a> {
     /// A URL for custom mandate text to render during confirmation step.
-    /// The URL will be rendered with additional GET parameters `payment_intent` and `payment_intent_client_secret` when confirming a Payment Intent,
+    /// The URL will be rendered with additional GET parameters `payment_intent` and `payment_intent_client_secret` when confirming a Payment Intent,.
     /// or `setup_intent` and `setup_intent_client_secret` when confirming a Setup Intent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_mandate_url: Option<&'a str>,
     /// List of Stripe products where this mandate can be selected automatically.
-    ///
     /// Only usable in `setup` mode.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_for:
         Option<&'a [CreateCheckoutSessionPaymentMethodOptionsAcssDebitMandateOptionsDefaultFor]>,
     /// Description of the mandate interval.
-    ///
     /// Only required if 'payment_schedule' parameter is 'interval' or 'combined'.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interval_description: Option<&'a str>,
@@ -2297,7 +2229,6 @@ impl<'a> CreateCheckoutSessionPaymentMethodOptionsAcssDebitMandateOptions<'a> {
     }
 }
 /// List of Stripe products where this mandate can be selected automatically.
-///
 /// Only usable in `setup` mode.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsAcssDebitMandateOptionsDefaultFor {
@@ -2485,8 +2416,9 @@ impl serde::Serialize
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsAcssDebitSetupFutureUsage {
     None,
@@ -2540,7 +2472,7 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsAcssDebitSetu
         serializer.serialize_str(self.as_str())
     }
 }
-/// Verification method for the intent.
+/// Verification method for the intent
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsAcssDebitVerificationMethod {
     Automatic,
@@ -2600,8 +2532,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsAffirm {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsAffirmSetupFutureUsage>,
 }
@@ -2613,8 +2546,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsAffirm {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsAffirmSetupFutureUsage {
     None,
@@ -2668,8 +2602,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsAfterpayClearpay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsAfterpayClearpaySetupFutureUsage>,
@@ -2682,8 +2617,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsAfterpayClearpay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsAfterpayClearpaySetupFutureUsage {
     None,
@@ -2743,8 +2679,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsAlipay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsAlipaySetupFutureUsage>,
 }
@@ -2756,8 +2693,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsAlipay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsAlipaySetupFutureUsage {
     None,
@@ -2811,8 +2749,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsAuBecsDebit {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsAuBecsDebitSetupFutureUsage>,
@@ -2825,8 +2764,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsAuBecsDebit {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsAuBecsDebitSetupFutureUsage {
     None,
@@ -2880,8 +2820,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsBacsDebit {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsBacsDebitSetupFutureUsage>,
@@ -2894,8 +2835,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsBacsDebit {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsBacsDebitSetupFutureUsage {
     None,
@@ -2955,8 +2897,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsBancontact {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsBancontactSetupFutureUsage>,
@@ -2969,8 +2912,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsBancontact {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsBancontactSetupFutureUsage {
     None,
@@ -3022,15 +2966,15 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsBancontactSet
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentMethodOptionsBoleto {
     /// The number of calendar days before a Boleto voucher expires.
-    ///
     /// For example, if you create a Boleto voucher on Monday and you set expires_after_days to 2, the Boleto invoice will expire on Wednesday at 23:59 America/Sao_Paulo time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsBoletoSetupFutureUsage>,
 }
@@ -3042,8 +2986,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsBoleto {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsBoletoSetupFutureUsage {
     None,
@@ -3100,25 +3045,24 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsBoletoSetupFu
 /// contains details about the Card payment method options.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentMethodOptionsCard<'a> {
-    /// Installment options for card payments.
+    /// Installment options for card payments
     #[serde(skip_serializing_if = "Option::is_none")]
     pub installments: Option<CreateCheckoutSessionPaymentMethodOptionsCardInstallments>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsCardSetupFutureUsage>,
     /// Provides information about a card payment that customers see on their statements.
-    ///
     /// Concatenated with the Kana prefix (shortened Kana descriptor) or Kana statement descriptor that’s set on the account to form the complete statement descriptor.
     /// Maximum 22 characters.
     /// On card statements, the *concatenation* of both prefix and suffix (including separators) will appear truncated to 22 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor_suffix_kana: Option<&'a str>,
     /// Provides information about a card payment that customers see on their statements.
-    ///
     /// Concatenated with the Kanji prefix (shortened Kanji descriptor) or Kanji statement descriptor that’s set on the account to form the complete statement descriptor.
     /// Maximum 17 characters.
     /// On card statements, the *concatenation* of both prefix and suffix (including separators) will appear truncated to 17 characters.
@@ -3130,7 +3074,7 @@ impl<'a> CreateCheckoutSessionPaymentMethodOptionsCard<'a> {
         Self::default()
     }
 }
-/// Installment options for card payments.
+/// Installment options for card payments
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentMethodOptionsCardInstallments {
     /// Setting to true enables installments for this Checkout Session.
@@ -3146,8 +3090,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsCardInstallments {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsCardSetupFutureUsage {
     OffSession,
@@ -3204,8 +3149,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsCashapp {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsCashappSetupFutureUsage>,
@@ -3218,8 +3164,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsCashapp {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsCashappSetupFutureUsage {
     None,
@@ -3281,15 +3228,15 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsCustomerBalance<'a> {
     pub bank_transfer:
         Option<CreateCheckoutSessionPaymentMethodOptionsCustomerBalanceBankTransfer<'a>>,
     /// The funding method type to be used when there are not enough funds in the customer balance.
-    ///
     /// Permitted values include: `bank_transfer`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub funding_type: Option<CreateCheckoutSessionPaymentMethodOptionsCustomerBalanceFundingType>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsCustomerBalanceSetupFutureUsage>,
@@ -3305,9 +3252,10 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsCustomerBalanceBankTransfer<
     /// Configuration for eu_bank_transfer funding type.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub eu_bank_transfer: Option<CreateCheckoutSessionPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<'a>>,
-    /// List of address types that should be returned in the financial_addresses response.
+        /// List of address types that should be returned in the financial_addresses response.
+    /// If not specified, all valid types will be returned.
     ///
-    /// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
+    /// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub requested_address_types: Option<&'a [CreateCheckoutSessionPaymentMethodOptionsCustomerBalanceBankTransferRequestedAddressTypes]>,
     /// The list of bank transfer types that this PaymentIntent is allowed to use for funding.
@@ -3326,7 +3274,6 @@ impl<'a> CreateCheckoutSessionPaymentMethodOptionsCustomerBalanceBankTransfer<'a
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<'a> {
     /// The desired country code of the bank account information.
-    ///
     /// Permitted values include: `BE`, `DE`, `ES`, `FR`, `IE`, or `NL`.
     pub country: &'a str,
 }
@@ -3336,8 +3283,9 @@ impl<'a> CreateCheckoutSessionPaymentMethodOptionsCustomerBalanceBankTransferEuB
     }
 }
 /// List of address types that should be returned in the financial_addresses response.
+/// If not specified, all valid types will be returned.
 ///
-/// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
+/// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsCustomerBalanceBankTransferRequestedAddressTypes {
     Aba,
@@ -3478,7 +3426,6 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsCustomerBalan
     }
 }
 /// The funding method type to be used when there are not enough funds in the customer balance.
-///
 /// Permitted values include: `bank_transfer`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsCustomerBalanceFundingType {
@@ -3530,8 +3477,9 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsCustomerBalan
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsCustomerBalanceSetupFutureUsage {
     None,
@@ -3589,8 +3537,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsEps {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsEpsSetupFutureUsage>,
 }
@@ -3602,8 +3551,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsEps {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsEpsSetupFutureUsage {
     None,
@@ -3657,8 +3607,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsFpx {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsFpxSetupFutureUsage>,
 }
@@ -3670,8 +3621,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsFpx {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsFpxSetupFutureUsage {
     None,
@@ -3725,8 +3677,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsGiropay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsGiropaySetupFutureUsage>,
@@ -3739,8 +3692,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsGiropay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsGiropaySetupFutureUsage {
     None,
@@ -3794,8 +3748,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsGrabpay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsGrabpaySetupFutureUsage>,
@@ -3808,8 +3763,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsGrabpay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsGrabpaySetupFutureUsage {
     None,
@@ -3863,8 +3819,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsIdeal {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsIdealSetupFutureUsage>,
 }
@@ -3876,8 +3833,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsIdeal {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsIdealSetupFutureUsage {
     None,
@@ -3931,8 +3889,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsKlarna {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsKlarnaSetupFutureUsage>,
 }
@@ -3944,8 +3903,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsKlarna {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsKlarnaSetupFutureUsage {
     None,
@@ -3997,7 +3957,6 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsKlarnaSetupFu
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentMethodOptionsKonbini {
     /// The number of calendar days (between 1 and 60) after which Konbini payment instructions will expire.
-    ///
     /// For example, if a PaymentIntent is confirmed with Konbini and `expires_after_days` set to 2 on Monday JST, the instructions will expire on Wednesday 23:59:59 JST.
     /// Defaults to 3 days.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4005,8 +3964,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsKonbini {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsKonbiniSetupFutureUsage>,
@@ -4019,8 +3979,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsKonbini {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsKonbiniSetupFutureUsage {
     None,
@@ -4074,8 +4035,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsLink {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsLinkSetupFutureUsage>,
 }
@@ -4087,8 +4049,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsLink {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsLinkSetupFutureUsage {
     None,
@@ -4143,15 +4106,15 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsLinkSetupFutu
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentMethodOptionsOxxo {
     /// The number of calendar days before an OXXO voucher expires.
-    ///
     /// For example, if you create an OXXO voucher on Monday and you set expires_after_days to 2, the OXXO invoice will expire on Wednesday at 23:59 America/Mexico_City time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsOxxoSetupFutureUsage>,
 }
@@ -4163,8 +4126,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsOxxo {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsOxxoSetupFutureUsage {
     None,
@@ -4218,8 +4182,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsP24 {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsP24SetupFutureUsage>,
     /// Confirm that the payer has accepted the P24 terms and conditions.
@@ -4234,8 +4199,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsP24 {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsP24SetupFutureUsage {
     None,
@@ -4289,8 +4255,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsPaynow {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsPaynowSetupFutureUsage>,
 }
@@ -4302,8 +4269,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsPaynow {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsPaynowSetupFutureUsage {
     None,
@@ -4361,7 +4329,6 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsPaypal<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_locale: Option<CreateCheckoutSessionPaymentMethodOptionsPaypalPreferredLocale>,
     /// A reference of the PayPal transaction visible to customer which is mapped to PayPal's invoice ID.
-    ///
     /// This must be a globally unique ID if you have configured in your PayPal settings to block multiple payments per invoice ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reference: Option<&'a str>,
@@ -4371,8 +4338,11 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsPaypal<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsPaypalSetupFutureUsage>,
 }
@@ -4544,8 +4514,11 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsPaypalPreferr
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsPaypalSetupFutureUsage {
     None,
@@ -4600,7 +4573,6 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsPaypalSetupFu
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentMethodOptionsPix {
     /// The number of seconds (between 10 and 1209600) after which Pix payment will expire.
-    ///
     /// Defaults to 86400 seconds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_seconds: Option<i64>,
@@ -4616,8 +4588,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsRevolutPay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsRevolutPaySetupFutureUsage>,
@@ -4630,8 +4603,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsRevolutPay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsRevolutPaySetupFutureUsage {
     None,
@@ -4688,8 +4662,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsSepaDebit {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsSepaDebitSetupFutureUsage>,
@@ -4702,8 +4677,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsSepaDebit {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsSepaDebitSetupFutureUsage {
     None,
@@ -4763,8 +4739,9 @@ pub struct CreateCheckoutSessionPaymentMethodOptionsSofort {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreateCheckoutSessionPaymentMethodOptionsSofortSetupFutureUsage>,
 }
@@ -4776,8 +4753,9 @@ impl CreateCheckoutSessionPaymentMethodOptionsSofort {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsSofortSetupFutureUsage {
     None,
@@ -4828,19 +4806,20 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsSofortSetupFu
 /// contains details about the Us Bank Account payment method options.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentMethodOptionsUsBankAccount<'a> {
-    /// Additional fields for Financial Connections Session creation.
+    /// Additional fields for Financial Connections Session creation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_connections:
         Option<CreateCheckoutSessionPaymentMethodOptionsUsBankAccountFinancialConnections<'a>>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsUsBankAccountSetupFutureUsage>,
-    /// Verification method for the intent.
+    /// Verification method for the intent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_method:
         Option<CreateCheckoutSessionPaymentMethodOptionsUsBankAccountVerificationMethod>,
@@ -4850,11 +4829,10 @@ impl<'a> CreateCheckoutSessionPaymentMethodOptionsUsBankAccount<'a> {
         Self::default()
     }
 }
-/// Additional fields for Financial Connections Session creation.
+/// Additional fields for Financial Connections Session creation
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentMethodOptionsUsBankAccountFinancialConnections<'a> {
-    /// The list of permissions to request.
-    ///
+        /// The list of permissions to request.
     /// If this parameter is passed, the `payment_method` permission must be included.
     /// Valid permissions include: `balances`, `ownership`, `payment_method`, and `transactions`.
 #[serde(skip_serializing_if = "Option::is_none")]
@@ -4870,7 +4848,6 @@ impl<'a> CreateCheckoutSessionPaymentMethodOptionsUsBankAccountFinancialConnecti
     }
 }
 /// The list of permissions to request.
-///
 /// If this parameter is passed, the `payment_method` permission must be included.
 /// Valid permissions include: `balances`, `ownership`, `payment_method`, and `transactions`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -5000,8 +4977,9 @@ impl serde::Serialize
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsUsBankAccountSetupFutureUsage {
     None,
@@ -5055,7 +5033,7 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsUsBankAccount
         serializer.serialize_str(self.as_str())
     }
 }
-/// Verification method for the intent.
+/// Verification method for the intent
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsUsBankAccountVerificationMethod {
     Automatic,
@@ -5113,18 +5091,17 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsUsBankAccount
 /// contains details about the WeChat Pay payment method options.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionPaymentMethodOptionsWechatPay<'a> {
-    /// The app ID registered with WeChat Pay.
-    ///
-    /// Only required when client is ios or android.
+    /// The app ID registered with WeChat Pay. Only required when client is ios or android.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub app_id: Option<&'a str>,
-    /// The client type that the end customer will pay from.
+    /// The client type that the end customer will pay from
     pub client: CreateCheckoutSessionPaymentMethodOptionsWechatPayClient,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreateCheckoutSessionPaymentMethodOptionsWechatPaySetupFutureUsage>,
@@ -5134,7 +5111,7 @@ impl<'a> CreateCheckoutSessionPaymentMethodOptionsWechatPay<'a> {
         Self { app_id: None, client, setup_future_usage: None }
     }
 }
-/// The client type that the end customer will pay from.
+/// The client type that the end customer will pay from
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsWechatPayClient {
     Android,
@@ -5191,8 +5168,9 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodOptionsWechatPayClie
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionPaymentMethodOptionsWechatPaySetupFutureUsage {
     None,
@@ -5399,7 +5377,6 @@ impl serde::Serialize for CreateCheckoutSessionPaymentMethodTypes {
 ///
 /// We recommend that you review your privacy policy and check with your legal contacts
 /// before using this feature.
-///
 /// Learn more about [collecting phone numbers with Checkout](https://stripe.com/docs/payments/checkout/phone-numbers).
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionPhoneNumberCollection {
@@ -5412,7 +5389,6 @@ impl CreateCheckoutSessionPhoneNumberCollection {
     }
 }
 /// This parameter applies to `ui_mode: embedded`.
-///
 /// By default, Stripe will always redirect to your return_url after a successful confirmation.
 /// If you set `redirect_on_completion: 'if_required'`, then we will only redirect if your user chooses a redirect-based payment method.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -5471,13 +5447,10 @@ impl serde::Serialize for CreateCheckoutSessionRedirectOnCompletion {
 /// A subset of parameters to be passed to SetupIntent creation for Checkout Sessions in `setup` mode.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionSetupIntentData<'a> {
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -5495,9 +5468,8 @@ impl<'a> CreateCheckoutSessionSetupIntentData<'a> {
 /// When set, provides configuration for Checkout to collect a shipping address from a customer.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionShippingAddressCollection<'a> {
-    /// An array of two-letter ISO country codes representing which countries Checkout should provide as options for
+    /// An array of two-letter ISO country codes representing which countries Checkout should provide as options for.
     /// shipping locations.
-    ///
     /// Unsupported country codes: `AS, CX, CC, CU, HM, IR, KP, MH, FM, NF, MP, PW, SD, SY, UM, VI`.
     pub allowed_countries: &'a [CreateCheckoutSessionShippingAddressCollectionAllowedCountries],
 }
@@ -5508,9 +5480,8 @@ impl<'a> CreateCheckoutSessionShippingAddressCollection<'a> {
         Self { allowed_countries }
     }
 }
-/// An array of two-letter ISO country codes representing which countries Checkout should provide as options for
+/// An array of two-letter ISO country codes representing which countries Checkout should provide as options for.
 /// shipping locations.
-///
 /// Unsupported country codes: `AS, CX, CC, CU, HM, IR, KP, MH, FM, NF, MP, PW, SD, SY, UM, VI`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -6271,15 +6242,13 @@ impl serde::Serialize for CreateCheckoutSessionShippingAddressCollectionAllowedC
         serializer.serialize_str(self.as_str())
     }
 }
-/// The shipping rate options to apply to this Session.
-///
-/// Up to a maximum of 5.
+/// The shipping rate options to apply to this Session. Up to a maximum of 5.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionShippingOptions<'a> {
     /// The ID of the Shipping Rate to use for this shipping option.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_rate: Option<&'a str>,
-    /// Parameters to be passed to Shipping Rate creation for this shipping option.
+    /// Parameters to be passed to Shipping Rate creation for this shipping option
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_rate_data: Option<CreateCheckoutSessionShippingOptionsShippingRateData<'a>>,
 }
@@ -6288,44 +6257,35 @@ impl<'a> CreateCheckoutSessionShippingOptions<'a> {
         Self::default()
     }
 }
-/// Parameters to be passed to Shipping Rate creation for this shipping option.
+/// Parameters to be passed to Shipping Rate creation for this shipping option
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionShippingOptionsShippingRateData<'a> {
     /// The estimated range for how long shipping will take, meant to be displayable to the customer.
-    ///
     /// This will appear on CheckoutSessions.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delivery_estimate:
         Option<CreateCheckoutSessionShippingOptionsShippingRateDataDeliveryEstimate>,
     /// The name of the shipping rate, meant to be displayable to the customer.
-    ///
     /// This will appear on CheckoutSessions.
     pub display_name: &'a str,
-    /// Describes a fixed amount to charge for shipping.
-    ///
-    /// Must be present if type is `fixed_amount`.
+    /// Describes a fixed amount to charge for shipping. Must be present if type is `fixed_amount`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fixed_amount: Option<CreateCheckoutSessionShippingOptionsShippingRateDataFixedAmount<'a>>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-    ///
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_behavior: Option<CreateCheckoutSessionShippingOptionsShippingRateDataTaxBehavior>,
     /// A [tax code](https://stripe.com/docs/tax/tax-categories) ID.
-    ///
     /// The Shipping tax code is `txcd_92010001`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_code: Option<&'a str>,
-    /// The type of calculation to use on the shipping rate.
-    ///
-    /// Can only be `fixed_amount` for now.
+    /// The type of calculation to use on the shipping rate. Can only be `fixed_amount` for now.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<CreateCheckoutSessionShippingOptionsShippingRateDataType>,
@@ -6344,19 +6304,14 @@ impl<'a> CreateCheckoutSessionShippingOptionsShippingRateData<'a> {
     }
 }
 /// The estimated range for how long shipping will take, meant to be displayable to the customer.
-///
 /// This will appear on CheckoutSessions.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionShippingOptionsShippingRateDataDeliveryEstimate {
-    /// The upper bound of the estimated range.
-    ///
-    /// If empty, represents no upper bound i.e., infinite.
+    /// The upper bound of the estimated range. If empty, represents no upper bound i.e., infinite.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum:
         Option<CreateCheckoutSessionShippingOptionsShippingRateDataDeliveryEstimateMaximum>,
-    /// The lower bound of the estimated range.
-    ///
-    /// If empty, represents no lower bound.
+    /// The lower bound of the estimated range. If empty, represents no lower bound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub minimum:
         Option<CreateCheckoutSessionShippingOptionsShippingRateDataDeliveryEstimateMinimum>,
@@ -6366,9 +6321,7 @@ impl CreateCheckoutSessionShippingOptionsShippingRateDataDeliveryEstimate {
         Self::default()
     }
 }
-/// The upper bound of the estimated range.
-///
-/// If empty, represents no upper bound i.e., infinite.
+/// The upper bound of the estimated range. If empty, represents no upper bound i.e., infinite.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionShippingOptionsShippingRateDataDeliveryEstimateMaximum {
     /// A unit of time.
@@ -6454,9 +6407,7 @@ impl serde::Serialize
         serializer.serialize_str(self.as_str())
     }
 }
-/// The lower bound of the estimated range.
-///
-/// If empty, represents no lower bound.
+/// The lower bound of the estimated range. If empty, represents no lower bound.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionShippingOptionsShippingRateDataDeliveryEstimateMinimum {
     /// A unit of time.
@@ -6542,19 +6493,15 @@ impl serde::Serialize
         serializer.serialize_str(self.as_str())
     }
 }
-/// Describes a fixed amount to charge for shipping.
-///
-/// Must be present if type is `fixed_amount`.
+/// Describes a fixed amount to charge for shipping. Must be present if type is `fixed_amount`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionShippingOptionsShippingRateDataFixedAmount<'a> {
     /// A non-negative integer in cents representing how much to charge.
     pub amount: i64,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// Shipping rates defined in each available currency option.
-    ///
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency_options: Option<
@@ -6570,14 +6517,12 @@ impl<'a> CreateCheckoutSessionShippingOptionsShippingRateDataFixedAmount<'a> {
     }
 }
 /// Shipping rates defined in each available currency option.
-///
 /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionShippingOptionsShippingRateDataFixedAmountCurrencyOptions {
     /// A non-negative integer in cents representing how much to charge.
     pub amount: i64,
     /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-    ///
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_behavior: Option<
@@ -6590,7 +6535,6 @@ impl CreateCheckoutSessionShippingOptionsShippingRateDataFixedAmountCurrencyOpti
     }
 }
 /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-///
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionShippingOptionsShippingRateDataFixedAmountCurrencyOptionsTaxBehavior {
@@ -6656,7 +6600,6 @@ impl serde::Serialize
     }
 }
 /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-///
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionShippingOptionsShippingRateDataTaxBehavior {
@@ -6711,9 +6654,7 @@ impl serde::Serialize for CreateCheckoutSessionShippingOptionsShippingRateDataTa
         serializer.serialize_str(self.as_str())
     }
 }
-/// The type of calculation to use on the shipping rate.
-///
-/// Can only be `fixed_amount` for now.
+/// The type of calculation to use on the shipping rate. Can only be `fixed_amount` for now.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionShippingOptionsShippingRateDataType {
     FixedAmount,
@@ -6762,9 +6703,9 @@ impl serde::Serialize for CreateCheckoutSessionShippingOptionsShippingRateDataTy
     }
 }
 /// Describes the type of transaction being performed by Checkout in order to customize
-/// relevant text on the page, such as the submit button.
-///
-/// `submit_type` can only be specified on Checkout Sessions in `payment` mode, but not Checkout Sessions in `subscription` or `setup` mode.
+/// relevant text on the page, such as the submit button. `submit_type` can only be
+/// specified on Checkout Sessions in `payment` mode, but not Checkout Sessions
+/// in `subscription` or `setup` mode.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionSubmitType {
     Auto,
@@ -6825,7 +6766,6 @@ impl serde::Serialize for CreateCheckoutSessionSubmitType {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionSubscriptionData<'a> {
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the application owner's Stripe account.
     /// To use an application fee percent, the request must be made on behalf of another account, using the `Stripe-Account` header or an OAuth key.
     /// For more information, see the application fees [documentation](https://stripe.com/docs/connect/subscriptions#collecting-fees-on-subscriptions).
@@ -6835,9 +6775,8 @@ pub struct CreateCheckoutSessionSubscriptionData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_cycle_anchor: Option<stripe_types::Timestamp>,
     /// The tax rates that will apply to any subscription item that does not have
-    /// `tax_rates` set.
-    ///
-    /// Invoices created will have their `default_tax_rates` populated from the subscription.
+    /// `tax_rates` set. Invoices created will have their `default_tax_rates` populated
+    /// from the subscription.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_tax_rates: Option<&'a [&'a str]>,
     /// The subscription's description, meant to be displayable to the customer.
@@ -6846,7 +6785,6 @@ pub struct CreateCheckoutSessionSubscriptionData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -6856,7 +6794,6 @@ pub struct CreateCheckoutSessionSubscriptionData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub on_behalf_of: Option<&'a str>,
     /// Determines how to handle prorations resulting from the `billing_cycle_anchor`.
-    ///
     /// If no value is passed, the default is `create_prorations`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub proration_behavior: Option<CreateCheckoutSessionSubscriptionDataProrationBehavior>,
@@ -6864,15 +6801,12 @@ pub struct CreateCheckoutSessionSubscriptionData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transfer_data: Option<CreateCheckoutSessionSubscriptionDataTransferData<'a>>,
     /// Unix timestamp representing the end of the trial period the customer
-    /// will get before being charged for the first time.
-    ///
-    /// Has to be at least 48 hours in the future.
+    /// will get before being charged for the first time. Has to be at least
+    /// 48 hours in the future.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trial_end: Option<stripe_types::Timestamp>,
     /// Integer representing the number of trial period days before the
-    /// customer is charged for the first time.
-    ///
-    /// Has to be at least 1.
+    /// customer is charged for the first time. Has to be at least 1.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trial_period_days: Option<u32>,
     /// Settings related to subscription trials.
@@ -6885,7 +6819,6 @@ impl<'a> CreateCheckoutSessionSubscriptionData<'a> {
     }
 }
 /// Determines how to handle prorations resulting from the `billing_cycle_anchor`.
-///
 /// If no value is passed, the default is `create_prorations`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionSubscriptionDataProrationBehavior {
@@ -6941,7 +6874,6 @@ impl serde::Serialize for CreateCheckoutSessionSubscriptionDataProrationBehavior
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCheckoutSessionSubscriptionDataTransferData<'a> {
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
     /// By default, the entire amount is transferred to the destination.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -7056,9 +6988,7 @@ impl CreateCheckoutSessionTaxIdCollection {
         Self { enabled }
     }
 }
-/// `ui_mode` can be `hosted` or `embedded`.
-///
-/// The default is `hosted`.
+/// `ui_mode` can be `hosted` or `embedded`. The default is `hosted`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCheckoutSessionUiMode {
     Embedded,
@@ -7121,7 +7051,6 @@ impl<'a> CreateCheckoutSession<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListLineItemsCheckoutSession<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -7130,12 +7059,10 @@ pub struct ListLineItemsCheckoutSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -7148,7 +7075,6 @@ impl<'a> ListLineItemsCheckoutSession<'a> {
 }
 impl<'a> ListLineItemsCheckoutSession<'a> {
     /// When retrieving a Checkout Session, there is an includable **line_items** property containing the first handful of those items.
-    ///
     /// There is also a URL where you can retrieve the full (paginated) list of line items.
     pub fn send(
         &self,

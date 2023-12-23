@@ -1,16 +1,14 @@
-/// The Pause Collection settings determine how we will pause collection for this subscription and for how long the subscription
+/// The Pause Collection settings determine how we will pause collection for this subscription and for how long the subscription.
 /// should be paused.
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct SubscriptionsResourcePauseCollection {
     /// The payment collection behavior for this subscription while paused.
-    ///
     /// One of `keep_as_draft`, `mark_uncollectible`, or `void`.
     pub behavior: SubscriptionsResourcePauseCollectionBehavior,
     /// The time after which the subscription will resume collecting payments.
     pub resumes_at: Option<stripe_types::Timestamp>,
 }
 /// The payment collection behavior for this subscription while paused.
-///
 /// One of `keep_as_draft`, `mark_uncollectible`, or `void`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum SubscriptionsResourcePauseCollectionBehavior {

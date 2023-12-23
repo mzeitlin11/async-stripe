@@ -11,7 +11,6 @@ impl<'a> ListCapability<'a> {
 }
 impl<'a> ListCapability<'a> {
     /// Returns a list of capabilities associated with the account.
-    ///
     /// The capabilities are returned sorted by creation date, with the most recent capability appearing first.
     pub fn send(
         &self,
@@ -55,9 +54,10 @@ pub struct UpdateCapability<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// To request a new capability for an account, pass true.
-    ///
     /// There can be a delay before the requested capability becomes active.
-    /// If the capability has any activation requirements, the response includes them in the `requirements` arrays.  If a capability isn't permanent, you can remove it from the account by passing false.
+    /// If the capability has any activation requirements, the response includes them in the `requirements` arrays.
+    ///
+    /// If a capability isn't permanent, you can remove it from the account by passing false.
     /// Most capabilities are permanent after they've been requested.
     /// Attempting to remove a permanent capability returns an error.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -70,7 +70,6 @@ impl<'a> UpdateCapability<'a> {
 }
 impl<'a> UpdateCapability<'a> {
     /// Updates an existing Account Capability.
-    ///
     /// Request or remove a capability by updating its `requested` parameter.
     pub fn send(
         &self,

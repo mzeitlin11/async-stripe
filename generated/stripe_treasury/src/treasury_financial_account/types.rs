@@ -8,9 +8,7 @@ pub struct TreasuryFinancialAccount {
     pub balance: stripe_treasury::TreasuryFinancialAccountsResourceBalance,
     /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
     pub country: String,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub features: Option<stripe_treasury::TreasuryFinancialAccountFeatures>,
@@ -22,7 +20,6 @@ pub struct TreasuryFinancialAccount {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: Option<std::collections::HashMap<String, String>>,
     /// The array of paths to pending Features in the Features hash.
@@ -39,7 +36,6 @@ pub struct TreasuryFinancialAccount {
     pub status: TreasuryFinancialAccountStatus,
     pub status_details: stripe_treasury::TreasuryFinancialAccountsResourceStatusDetails,
     /// The currencies the FinancialAccount can hold a balance in.
-    ///
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
     pub supported_currencies: Vec<String>,
 }

@@ -4,7 +4,6 @@ pub struct CreateIdentityVerificationSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -41,7 +40,6 @@ impl<'a> CreateIdentityVerificationSessionOptions<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateIdentityVerificationSessionOptionsDocument<'a> {
     /// Array of strings of allowed identity document types.
-    ///
     /// If the provided identity document isn’t one of the allowed types, the verification check will fail with a document_type_not_allowed error code.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_types: Option<&'a [CreateIdentityVerificationSessionOptionsDocumentAllowedTypes]>,
@@ -52,7 +50,6 @@ pub struct CreateIdentityVerificationSessionOptionsDocument<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub require_live_capture: Option<bool>,
     /// Capture a face image and perform a [selfie check](https://stripe.com/docs/identity/verification-checks?type=selfie) comparing a photo ID and a picture of your user’s face.
-    ///
     /// [Learn more](https://stripe.com/docs/identity/selfie).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub require_matching_selfie: Option<bool>,
@@ -63,7 +60,6 @@ impl<'a> CreateIdentityVerificationSessionOptionsDocument<'a> {
     }
 }
 /// Array of strings of allowed identity document types.
-///
 /// If the provided identity document isn’t one of the allowed types, the verification check will fail with a document_type_not_allowed error code.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateIdentityVerificationSessionOptionsDocumentAllowedTypes {
@@ -213,7 +209,6 @@ pub struct ListIdentityVerificationSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -222,18 +217,15 @@ pub struct ListIdentityVerificationSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub starting_after: Option<&'a str>,
     /// Only return VerificationSessions with this status.
-    ///
     /// [Learn more about the lifecycle of sessions](https://stripe.com/docs/identity/how-sessions-work).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<ListIdentityVerificationSessionStatus>,
@@ -244,7 +236,6 @@ impl<'a> ListIdentityVerificationSession<'a> {
     }
 }
 /// Only return VerificationSessions with this status.
-///
 /// [Learn more about the lifecycle of sessions](https://stripe.com/docs/identity/how-sessions-work).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ListIdentityVerificationSessionStatus {
@@ -303,7 +294,7 @@ impl serde::Serialize for ListIdentityVerificationSessionStatus {
     }
 }
 impl<'a> ListIdentityVerificationSession<'a> {
-    /// Returns a list of VerificationSessions.
+    /// Returns a list of VerificationSessions
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -331,7 +322,6 @@ impl<'a> CancelIdentityVerificationSession<'a> {
     /// A VerificationSession object can be canceled when it is in `requires_input` [status](https://stripe.com/docs/identity/how-sessions-work).
     ///
     /// Once canceled, future submission attempts are disabled.
-    ///
     /// This cannot be undone.
     /// [Learn more](https://stripe.com/docs/identity/verification-sessions#cancel).
     pub fn send(
@@ -358,14 +348,26 @@ impl<'a> RedactIdentityVerificationSession<'a> {
     }
 }
 impl<'a> RedactIdentityVerificationSession<'a> {
-    /// Redact a VerificationSession to remove all collected information from Stripe.
+    /// Redact a VerificationSession to remove all collected information from Stripe. This will redact
+    /// the VerificationSession and all objects related to it, including VerificationReports, Events,
+    /// request logs, etc.
     ///
-    /// This will redact the VerificationSession and all objects related to it, including VerificationReports, Events, request logs, etc.  A VerificationSession object can be redacted when it is in `requires_input` or `verified` [status](https://stripe.com/docs/identity/how-sessions-work).
-    /// Redacting a VerificationSession in `requires_action` state will automatically cancel it.  The redaction process may take up to four days.
-    /// When the redaction process is in progress, the VerificationSession’s `redaction.status` field will be set to `processing`; when the process is finished, it will change to `redacted` and an `identity.verification_session.redacted` event will be emitted.  Redaction is irreversible.
-    /// Redacted objects are still accessible in the Stripe API, but all the fields that contain personal data will be replaced by the string `[redacted]` or a similar placeholder.
-    /// The `metadata` field will also be erased.
-    /// Redacted objects cannot be updated or used for any purpose.  [Learn more](https://stripe.com/docs/identity/verification-sessions#redact).
+    /// A VerificationSession object can be redacted when it is in `requires_input` or `verified`
+    /// [status](https://stripe.com/docs/identity/how-sessions-work).
+    /// Redacting a VerificationSession in `requires_action`.
+    /// state will automatically cancel it.
+    ///
+    /// The redaction process may take up to four days. When the redaction process is in progress, the
+    /// VerificationSession’s `redaction.status` field will be set to `processing`; when the process is
+    /// finished, it will change to `redacted` and an `identity.verification_session.redacted` event
+    /// will be emitted.
+    ///
+    /// Redaction is irreversible. Redacted objects are still accessible in the Stripe API, but all the
+    /// fields that contain personal data will be replaced by the string `[redacted]` or a similar
+    /// placeholder. The `metadata` field will also be erased. Redacted objects cannot be updated or
+    /// used for any purpose.
+    ///
+    /// [Learn more](https://stripe.com/docs/identity/verification-sessions#redact).
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -384,7 +386,6 @@ pub struct UpdateIdentityVerificationSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -419,7 +420,6 @@ impl<'a> UpdateIdentityVerificationSessionOptions<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateIdentityVerificationSessionOptionsDocument<'a> {
     /// Array of strings of allowed identity document types.
-    ///
     /// If the provided identity document isn’t one of the allowed types, the verification check will fail with a document_type_not_allowed error code.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_types: Option<&'a [UpdateIdentityVerificationSessionOptionsDocumentAllowedTypes]>,
@@ -430,7 +430,6 @@ pub struct UpdateIdentityVerificationSessionOptionsDocument<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub require_live_capture: Option<bool>,
     /// Capture a face image and perform a [selfie check](https://stripe.com/docs/identity/verification-checks?type=selfie) comparing a photo ID and a picture of your user’s face.
-    ///
     /// [Learn more](https://stripe.com/docs/identity/selfie).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub require_matching_selfie: Option<bool>,
@@ -441,7 +440,6 @@ impl<'a> UpdateIdentityVerificationSessionOptionsDocument<'a> {
     }
 }
 /// Array of strings of allowed identity document types.
-///
 /// If the provided identity document isn’t one of the allowed types, the verification check will fail with a document_type_not_allowed error code.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateIdentityVerificationSessionOptionsDocumentAllowedTypes {

@@ -6,7 +6,6 @@ pub struct PortalSubscriptionCancel {
     /// Whether to cancel subscriptions immediately or at the end of the billing period.
     pub mode: PortalSubscriptionCancelMode,
     /// Whether to create prorations when canceling subscriptions.
-    ///
     /// Possible values are `none` and `create_prorations`.
     pub proration_behavior: PortalSubscriptionCancelProrationBehavior,
 }
@@ -70,7 +69,6 @@ impl<'de> serde::Deserialize<'de> for PortalSubscriptionCancelMode {
     }
 }
 /// Whether to create prorations when canceling subscriptions.
-///
 /// Possible values are `none` and `create_prorations`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PortalSubscriptionCancelProrationBehavior {

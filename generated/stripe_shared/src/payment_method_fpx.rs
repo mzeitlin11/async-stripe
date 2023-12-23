@@ -1,17 +1,12 @@
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PaymentMethodFpx {
-    /// Account holder type, if provided.
-    ///
-    /// Can be one of `individual` or `company`.
+    /// Account holder type, if provided. Can be one of `individual` or `company`.
     pub account_holder_type: Option<PaymentMethodFpxAccountHolderType>,
     /// The customer's bank, if provided.
-    ///
     /// Can be one of `affin_bank`, `agrobank`, `alliance_bank`, `ambank`, `bank_islam`, `bank_muamalat`, `bank_rakyat`, `bsn`, `cimb`, `hong_leong_bank`, `hsbc`, `kfh`, `maybank2u`, `ocbc`, `public_bank`, `rhb`, `standard_chartered`, `uob`, `deutsche_bank`, `maybank2e`, `pb_enterprise`, or `bank_of_china`.
     pub bank: PaymentMethodFpxBank,
 }
-/// Account holder type, if provided.
-///
-/// Can be one of `individual` or `company`.
+/// Account holder type, if provided. Can be one of `individual` or `company`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PaymentMethodFpxAccountHolderType {
     Company,
@@ -72,7 +67,6 @@ impl<'de> serde::Deserialize<'de> for PaymentMethodFpxAccountHolderType {
     }
 }
 /// The customer's bank, if provided.
-///
 /// Can be one of `affin_bank`, `agrobank`, `alliance_bank`, `ambank`, `bank_islam`, `bank_muamalat`, `bank_rakyat`, `bsn`, `cimb`, `hong_leong_bank`, `hsbc`, `kfh`, `maybank2u`, `ocbc`, `public_bank`, `rhb`, `standard_chartered`, `uob`, `deutsche_bank`, `maybank2e`, `pb_enterprise`, or `bank_of_china`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]

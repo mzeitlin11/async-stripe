@@ -36,7 +36,6 @@ impl<'a> UpdateTaxSettings<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateTaxSettingsDefaults<'a> {
     /// Specifies the default [tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#tax-behavior) to be used when the item's price has unspecified tax behavior.
-    ///
     /// One of inclusive, exclusive, or inferred_by_currency.
     /// Once specified, it cannot be changed back to null.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -51,7 +50,6 @@ impl<'a> UpdateTaxSettingsDefaults<'a> {
     }
 }
 /// Specifies the default [tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#tax-behavior) to be used when the item's price has unspecified tax behavior.
-///
 /// One of inclusive, exclusive, or inferred_by_currency.
 /// Once specified, it cannot be changed back to null.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -137,7 +135,6 @@ pub struct UpdateTaxSettingsHeadOfficeAddress<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub postal_code: Option<&'a str>,
     /// State/province as an [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) subdivision code, without country prefix.
-    ///
     /// Example: "NY" or "TX".
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<&'a str>,
@@ -149,7 +146,6 @@ impl<'a> UpdateTaxSettingsHeadOfficeAddress<'a> {
 }
 impl<'a> UpdateTaxSettings<'a> {
     /// Updates Tax `Settings` parameters used in tax calculations.
-    ///
     /// All parameters are editable but none can be removed once set.
     pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_misc::TaxSettings> {
         client.send_form("/tax/settings", self, http_types::Method::Post)

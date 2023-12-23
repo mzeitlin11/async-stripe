@@ -1,11 +1,11 @@
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct IssuingCardApplePay {
-    /// Apple Pay Eligibility.
+    /// Apple Pay Eligibility
     pub eligible: bool,
-    /// Reason the card is ineligible for Apple Pay.
+    /// Reason the card is ineligible for Apple Pay
     pub ineligible_reason: Option<IssuingCardApplePayIneligibleReason>,
 }
-/// Reason the card is ineligible for Apple Pay.
+/// Reason the card is ineligible for Apple Pay
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingCardApplePayIneligibleReason {
     MissingAgreement,

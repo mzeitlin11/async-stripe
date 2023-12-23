@@ -1,6 +1,6 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct SetupIntentPaymentMethodOptionsAcssDebit {
-    /// Currency supported by the bank account.
+    /// Currency supported by the bank account
     pub currency: Option<SetupIntentPaymentMethodOptionsAcssDebitCurrency>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options:
@@ -9,7 +9,7 @@ pub struct SetupIntentPaymentMethodOptionsAcssDebit {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_method: Option<SetupIntentPaymentMethodOptionsAcssDebitVerificationMethod>,
 }
-/// Currency supported by the bank account.
+/// Currency supported by the bank account
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum SetupIntentPaymentMethodOptionsAcssDebitCurrency {
     Cad,

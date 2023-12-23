@@ -1,7 +1,6 @@
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PaymentMethodConfigResourceDisplayPreference {
     /// For child configs, whether or not the account's preference will be observed.
-    ///
     /// If `false`, the parent configuration's default is used.
     pub overridable: Option<bool>,
     /// The account's display preference.

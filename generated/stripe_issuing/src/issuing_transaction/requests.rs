@@ -10,7 +10,6 @@ pub struct ListIssuingTransaction<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -19,19 +18,15 @@ pub struct ListIssuingTransaction<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub starting_after: Option<&'a str>,
-    /// Only return transactions that have the given type.
-    ///
-    /// One of `capture` or `refund`.
+    /// Only return transactions that have the given type. One of `capture` or `refund`.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<ListIssuingTransactionType>,
@@ -41,9 +36,7 @@ impl<'a> ListIssuingTransaction<'a> {
         Self::default()
     }
 }
-/// Only return transactions that have the given type.
-///
-/// One of `capture` or `refund`.
+/// Only return transactions that have the given type. One of `capture` or `refund`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ListIssuingTransactionType {
     Capture,
@@ -96,7 +89,6 @@ impl serde::Serialize for ListIssuingTransactionType {
 }
 impl<'a> ListIssuingTransaction<'a> {
     /// Returns a list of Issuing `Transaction` objects.
-    ///
     /// The objects are sorted in descending order by creation date, with the most recently created object appearing first.
     pub fn send(
         &self,
@@ -137,7 +129,6 @@ pub struct UpdateIssuingTransaction<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -151,7 +142,6 @@ impl<'a> UpdateIssuingTransaction<'a> {
 }
 impl<'a> UpdateIssuingTransaction<'a> {
     /// Updates the specified Issuing `Transaction` object by setting the values of the parameters passed.
-    ///
     /// Any parameters not provided will be left unchanged.
     pub fn send(
         &self,
@@ -168,13 +158,11 @@ impl<'a> UpdateIssuingTransaction<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateForceCaptureIssuingTransaction<'a> {
     /// The total amount to attempt to capture.
-    ///
     /// This amount is in the provided currency, or defaults to the cards currency, and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
     pub amount: i64,
     /// Card associated with this transaction.
     pub card: &'a str,
     /// The currency of the capture.
-    ///
     /// If not provided, defaults to the currency of the card.
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
@@ -206,34 +194,32 @@ impl<'a> CreateForceCaptureIssuingTransaction<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateForceCaptureIssuingTransactionMerchantData<'a> {
     /// A categorization of the seller's type of business.
-    ///
     /// See our [merchant categories guide](https://stripe.com/docs/issuing/merchant-categories) for a list of possible values.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub category: Option<CreateForceCaptureIssuingTransactionMerchantDataCategory>,
-    /// City where the seller is located.
+    /// City where the seller is located
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<&'a str>,
-    /// Country where the seller is located.
+    /// Country where the seller is located
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<&'a str>,
-    /// Name of the seller.
+    /// Name of the seller
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<&'a str>,
     /// Identifier assigned to the seller by the card network.
-    ///
     /// Different card networks may assign different network_id fields to the same merchant.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub network_id: Option<&'a str>,
-    /// Postal code where the seller is located.
+    /// Postal code where the seller is located
     #[serde(skip_serializing_if = "Option::is_none")]
     pub postal_code: Option<&'a str>,
-    /// State where the seller is located.
+    /// State where the seller is located
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<&'a str>,
     /// An ID assigned by the seller to the location of the sale.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub terminal_id: Option<&'a str>,
-    /// URL provided by the merchant on a 3DS request.
+    /// URL provided by the merchant on a 3DS request
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<&'a str>,
 }
@@ -243,7 +229,6 @@ impl<'a> CreateForceCaptureIssuingTransactionMerchantData<'a> {
     }
 }
 /// A categorization of the seller's type of business.
-///
 /// See our [merchant categories guide](https://stripe.com/docs/issuing/merchant-categories) for a list of possible values.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -1347,14 +1332,11 @@ impl<'a> CreateForceCaptureIssuingTransactionPurchaseDetailsFlightSegments<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateForceCaptureIssuingTransactionPurchaseDetailsFuel<'a> {
     /// The type of fuel that was purchased.
-    ///
     /// One of `diesel`, `unleaded_plus`, `unleaded_regular`, `unleaded_super`, or `other`.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<CreateForceCaptureIssuingTransactionPurchaseDetailsFuelType>,
-    /// The units for `volume_decimal`.
-    ///
-    /// One of `us_gallon` or `liter`.
+    /// The units for `volume_decimal`. One of `us_gallon` or `liter`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit: Option<CreateForceCaptureIssuingTransactionPurchaseDetailsFuelUnit>,
     /// The cost in cents per each unit of fuel, represented as a decimal string with at most 12 decimal places.
@@ -1370,7 +1352,6 @@ impl<'a> CreateForceCaptureIssuingTransactionPurchaseDetailsFuel<'a> {
     }
 }
 /// The type of fuel that was purchased.
-///
 /// One of `diesel`, `unleaded_plus`, `unleaded_regular`, `unleaded_super`, or `other`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateForceCaptureIssuingTransactionPurchaseDetailsFuelType {
@@ -1431,9 +1412,7 @@ impl serde::Serialize for CreateForceCaptureIssuingTransactionPurchaseDetailsFue
         serializer.serialize_str(self.as_str())
     }
 }
-/// The units for `volume_decimal`.
-///
-/// One of `us_gallon` or `liter`.
+/// The units for `volume_decimal`. One of `us_gallon` or `liter`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateForceCaptureIssuingTransactionPurchaseDetailsFuelUnit {
     Liter,
@@ -1532,13 +1511,11 @@ impl<'a> CreateForceCaptureIssuingTransaction<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateUnlinkedRefundIssuingTransaction<'a> {
     /// The total amount to attempt to refund.
-    ///
     /// This amount is in the provided currency, or defaults to the cards currency, and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
     pub amount: i64,
     /// Card associated with this unlinked refund transaction.
     pub card: &'a str,
     /// The currency of the unlinked refund.
-    ///
     /// If not provided, defaults to the currency of the card.
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
@@ -1570,34 +1547,32 @@ impl<'a> CreateUnlinkedRefundIssuingTransaction<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateUnlinkedRefundIssuingTransactionMerchantData<'a> {
     /// A categorization of the seller's type of business.
-    ///
     /// See our [merchant categories guide](https://stripe.com/docs/issuing/merchant-categories) for a list of possible values.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub category: Option<CreateUnlinkedRefundIssuingTransactionMerchantDataCategory>,
-    /// City where the seller is located.
+    /// City where the seller is located
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<&'a str>,
-    /// Country where the seller is located.
+    /// Country where the seller is located
     #[serde(skip_serializing_if = "Option::is_none")]
     pub country: Option<&'a str>,
-    /// Name of the seller.
+    /// Name of the seller
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<&'a str>,
     /// Identifier assigned to the seller by the card network.
-    ///
     /// Different card networks may assign different network_id fields to the same merchant.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub network_id: Option<&'a str>,
-    /// Postal code where the seller is located.
+    /// Postal code where the seller is located
     #[serde(skip_serializing_if = "Option::is_none")]
     pub postal_code: Option<&'a str>,
-    /// State where the seller is located.
+    /// State where the seller is located
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<&'a str>,
     /// An ID assigned by the seller to the location of the sale.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub terminal_id: Option<&'a str>,
-    /// URL provided by the merchant on a 3DS request.
+    /// URL provided by the merchant on a 3DS request
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<&'a str>,
 }
@@ -1607,7 +1582,6 @@ impl<'a> CreateUnlinkedRefundIssuingTransactionMerchantData<'a> {
     }
 }
 /// A categorization of the seller's type of business.
-///
 /// See our [merchant categories guide](https://stripe.com/docs/issuing/merchant-categories) for a list of possible values.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -2711,14 +2685,11 @@ impl<'a> CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFlightSegments<'a>
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFuel<'a> {
     /// The type of fuel that was purchased.
-    ///
     /// One of `diesel`, `unleaded_plus`, `unleaded_regular`, `unleaded_super`, or `other`.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFuelType>,
-    /// The units for `volume_decimal`.
-    ///
-    /// One of `us_gallon` or `liter`.
+    /// The units for `volume_decimal`. One of `us_gallon` or `liter`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit: Option<CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFuelUnit>,
     /// The cost in cents per each unit of fuel, represented as a decimal string with at most 12 decimal places.
@@ -2734,7 +2705,6 @@ impl<'a> CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFuel<'a> {
     }
 }
 /// The type of fuel that was purchased.
-///
 /// One of `diesel`, `unleaded_plus`, `unleaded_regular`, `unleaded_super`, or `other`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFuelType {
@@ -2795,9 +2765,7 @@ impl serde::Serialize for CreateUnlinkedRefundIssuingTransactionPurchaseDetailsF
         serializer.serialize_str(self.as_str())
     }
 }
-/// The units for `volume_decimal`.
-///
-/// One of `us_gallon` or `liter`.
+/// The units for `volume_decimal`. One of `us_gallon` or `liter`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFuelUnit {
     Liter,
@@ -2899,7 +2867,6 @@ pub struct RefundIssuingTransaction<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// The total amount to attempt to refund.
-    ///
     /// This amount is in the provided currency, or defaults to the cards currency, and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refund_amount: Option<i64>,

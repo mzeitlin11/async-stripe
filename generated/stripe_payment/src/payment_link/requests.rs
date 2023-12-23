@@ -4,7 +4,6 @@ pub struct ListPaymentLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -13,12 +12,10 @@ pub struct ListPaymentLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -65,7 +62,6 @@ impl<'a> RetrievePaymentLink<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListLineItemsPaymentLink<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -74,12 +70,10 @@ pub struct ListLineItemsPaymentLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -92,7 +86,6 @@ impl<'a> ListLineItemsPaymentLink<'a> {
 }
 impl<'a> ListLineItemsPaymentLink<'a> {
     /// When retrieving a payment link, there is an includable **line_items** property containing the first handful of those items.
-    ///
     /// There is also a URL where you can retrieve the full (paginated) list of line items.
     pub fn send(
         &self,
@@ -120,12 +113,10 @@ pub struct CreatePaymentLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_promotion_codes: Option<bool>,
     /// The amount of the application fee (if any) that will be requested to be applied to the payment and transferred to the application owner's Stripe account.
-    ///
     /// Can only be applied when there are no line items with recurring prices.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub application_fee_amount: Option<i64>,
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the application owner's Stripe account.
     /// There must be at least 1 line item with a recurring price to use this field.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -140,12 +131,10 @@ pub struct CreatePaymentLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub consent_collection: Option<CreatePaymentLinkConsentCollection>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies) and supported by each line item's price.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
     /// Collect additional information from your customer using custom fields.
-    ///
     /// Up to 2 fields are supported.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_fields: Option<&'a [CreatePaymentLinkCustomFields<'a>]>,
@@ -162,12 +151,10 @@ pub struct CreatePaymentLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_creation: Option<CreatePaymentLinkInvoiceCreation<'a>>,
     /// The line items representing what is being sold.
-    ///
     /// Each line item represents an item being sold.
     /// Up to 20 line items are supported.
     pub line_items: &'a [CreatePaymentLinkLineItems<'a>],
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -181,12 +168,14 @@ pub struct CreatePaymentLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_intent_data: Option<CreatePaymentLinkPaymentIntentData<'a>>,
     /// Specify whether Checkout should collect a payment method.
+    /// When set to `if_required`, Checkout will not collect a payment method when the total due for the session is 0.This may occur if the Checkout Session includes a free trial or a discount.
     ///
-    /// When set to `if_required`, Checkout will not collect a payment method when the total due for the session is 0.This may occur if the Checkout Session includes a free trial or a discount.  Can only be set in `subscription` mode.  If you'd like information on how to collect a payment method outside of Checkout, read the guide on [configuring subscriptions with a free trial](https://stripe.com/docs/payments/checkout/free-trials).
+    /// Can only be set in `subscription` mode.
+    ///
+    /// If you'd like information on how to collect a payment method outside of Checkout, read the guide on [configuring subscriptions with a free trial](https://stripe.com/docs/payments/checkout/free-trials).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_collection: Option<CreatePaymentLinkPaymentMethodCollection>,
     /// The list of payment method types that customers can use.
-    ///
     /// If no value is passed, Stripe will dynamically show relevant payment methods from your [payment method settings](https://dashboard.stripe.com/settings/payment_methods) (20+ payment methods [supported](https://stripe.com/docs/payments/payment-methods/integration-options#payment-method-product-support)).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_types: Option<&'a [CreatePaymentLinkPaymentMethodTypes]>,
@@ -202,12 +191,10 @@ pub struct CreatePaymentLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_options: Option<&'a [CreatePaymentLinkShippingOptions<'a>]>,
     /// Describes the type of transaction being performed in order to customize relevant text on the page, such as the submit button.
-    ///
     /// Changing this value will also affect the hostname in the [url](https://stripe.com/docs/api/payment_links/payment_links/object#url) property (example: `donate.stripe.com`).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub submit_type: Option<CreatePaymentLinkSubmitType>,
     /// When creating a subscription, the specified configuration data will be used.
-    ///
     /// There must be at least one line item with a recurring price to use `subscription_data`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subscription_data: Option<CreatePaymentLinkSubscriptionData<'a>>,
@@ -259,9 +246,7 @@ pub struct CreatePaymentLinkAfterCompletion<'a> {
     /// Configuration when `type=redirect`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub redirect: Option<CreatePaymentLinkAfterCompletionRedirect<'a>>,
-    /// The specified behavior after the purchase is complete.
-    ///
-    /// Either `redirect` or `hosted_confirmation`.
+    /// The specified behavior after the purchase is complete. Either `redirect` or `hosted_confirmation`.
     #[serde(rename = "type")]
     pub type_: CreatePaymentLinkAfterCompletionType,
 }
@@ -286,7 +271,6 @@ impl<'a> CreatePaymentLinkAfterCompletionHostedConfirmation<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentLinkAfterCompletionRedirect<'a> {
     /// The URL the customer will be redirected to after the purchase is complete.
-    ///
     /// You can embed `{CHECKOUT_SESSION_ID}` into the URL to have the `id` of the completed [checkout session](https://stripe.com/docs/api/checkout/sessions/object#checkout_session_object-id) included.
     pub url: &'a str,
 }
@@ -295,9 +279,7 @@ impl<'a> CreatePaymentLinkAfterCompletionRedirect<'a> {
         Self { url }
     }
 }
-/// The specified behavior after the purchase is complete.
-///
-/// Either `redirect` or `hosted_confirmation`.
+/// The specified behavior after the purchase is complete. Either `redirect` or `hosted_confirmation`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentLinkAfterCompletionType {
     HostedConfirmation,
@@ -414,9 +396,9 @@ impl serde::Serialize for CreatePaymentLinkBillingAddressCollection {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentLinkConsentCollection {
     /// If set to `auto`, enables the collection of customer consent for promotional communications.
-    ///
-    /// The Checkout Session will determine whether to display an option to opt into promotional communication from the merchant depending on the customer's locale.
-    /// Only available to US merchants.
+    /// The Checkout.
+    /// Session will determine whether to display an option to opt into promotional communication
+    /// from the merchant depending on the customer's locale. Only available to US merchants.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub promotions: Option<CreatePaymentLinkConsentCollectionPromotions>,
     /// If set to `required`, it requires customers to check a terms of service checkbox before being able to pay.
@@ -430,9 +412,9 @@ impl CreatePaymentLinkConsentCollection {
     }
 }
 /// If set to `auto`, enables the collection of customer consent for promotional communications.
-///
-/// The Checkout Session will determine whether to display an option to opt into promotional communication from the merchant depending on the customer's locale.
-/// Only available to US merchants.
+/// The Checkout.
+/// Session will determine whether to display an option to opt into promotional communication
+/// from the merchant depending on the customer's locale. Only available to US merchants.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentLinkConsentCollectionPromotions {
     Auto,
@@ -536,7 +518,6 @@ impl serde::Serialize for CreatePaymentLinkConsentCollectionTermsOfService {
     }
 }
 /// Collect additional information from your customer using custom fields.
-///
 /// Up to 2 fields are supported.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentLinkCustomFields<'a> {
@@ -544,7 +525,6 @@ pub struct CreatePaymentLinkCustomFields<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dropdown: Option<CreatePaymentLinkCustomFieldsDropdown<'a>>,
     /// String of your choice that your integration can use to reconcile this field.
-    ///
     /// Must be unique to this field, alphanumeric, and up to 200 characters.
     pub key: &'a str,
     /// The label for the field, displayed to the customer.
@@ -553,7 +533,6 @@ pub struct CreatePaymentLinkCustomFields<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub numeric: Option<CreatePaymentLinkCustomFieldsNumeric>,
     /// Whether the customer is required to complete the field before completing the Checkout Session.
-    ///
     /// Defaults to `false`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub optional: Option<bool>,
@@ -576,9 +555,7 @@ impl<'a> CreatePaymentLinkCustomFields<'a> {
 /// Configuration for `type=dropdown` fields.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentLinkCustomFieldsDropdown<'a> {
-    /// The options available for the customer to select.
-    ///
-    /// Up to 200 options allowed.
+    /// The options available for the customer to select. Up to 200 options allowed.
     pub options: &'a [CreatePaymentLinkCustomFieldsDropdownOptions<'a>],
 }
 impl<'a> CreatePaymentLinkCustomFieldsDropdown<'a> {
@@ -586,17 +563,12 @@ impl<'a> CreatePaymentLinkCustomFieldsDropdown<'a> {
         Self { options }
     }
 }
-/// The options available for the customer to select.
-///
-/// Up to 200 options allowed.
+/// The options available for the customer to select. Up to 200 options allowed.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentLinkCustomFieldsDropdownOptions<'a> {
-    /// The label for the option, displayed to the customer.
-    ///
-    /// Up to 100 characters.
+    /// The label for the option, displayed to the customer. Up to 100 characters.
     pub label: &'a str,
     /// The value for this option, not displayed to the customer, used by your integration to reconcile the option selected by the customer.
-    ///
     /// Must be unique to this option, alphanumeric, and up to 100 characters.
     pub value: &'a str,
 }
@@ -608,9 +580,7 @@ impl<'a> CreatePaymentLinkCustomFieldsDropdownOptions<'a> {
 /// The label for the field, displayed to the customer.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentLinkCustomFieldsLabel<'a> {
-    /// Custom text for the label, displayed to the customer.
-    ///
-    /// Up to 50 characters.
+    /// Custom text for the label, displayed to the customer. Up to 50 characters.
     pub custom: &'a str,
     /// The type of the label.
     #[serde(rename = "type")]
@@ -859,7 +829,7 @@ impl serde::Serialize for CreatePaymentLinkCustomerCreation {
 /// Generate a post-purchase Invoice for one-time payments.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentLinkInvoiceCreation<'a> {
-    /// Whether the feature is enabled.
+    /// Whether the feature is enabled
     pub enabled: bool,
     /// Invoice PDF configuration.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -879,16 +849,13 @@ pub struct CreatePaymentLinkInvoiceCreationInvoiceData<'a> {
     /// Default custom fields to be displayed on invoices for this customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_fields: Option<&'a [CreatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a>]>,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Default footer to be displayed on invoices for this customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub footer: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -906,13 +873,9 @@ impl<'a> CreatePaymentLinkInvoiceCreationInvoiceData<'a> {
 /// Default custom fields to be displayed on invoices for this customer.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a> {
-    /// The name of the custom field.
-    ///
-    /// This may be up to 30 characters.
+    /// The name of the custom field. This may be up to 30 characters.
     pub name: &'a str,
-    /// The value of the custom field.
-    ///
-    /// This may be up to 30 characters.
+    /// The value of the custom field. This may be up to 30 characters.
     pub value: &'a str,
 }
 impl<'a> CreatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a> {
@@ -924,7 +887,6 @@ impl<'a> CreatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptions {
     /// How line-item prices and amounts will be displayed with respect to tax on invoice PDFs.
-    ///
     /// One of `exclude_tax` or `include_inclusive_tax`.
     /// `include_inclusive_tax` will include inclusive tax (and exclude exclusive tax) in invoice PDF amounts.
     /// `exclude_tax` will exclude all tax (inclusive and exclusive alike) from invoice PDF amounts.
@@ -938,7 +900,6 @@ impl CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptions {
     }
 }
 /// How line-item prices and amounts will be displayed with respect to tax on invoice PDFs.
-///
 /// One of `exclude_tax` or `include_inclusive_tax`.
 /// `include_inclusive_tax` will include inclusive tax (and exclude exclusive tax) in invoice PDF amounts.
 /// `exclude_tax` will exclude all tax (inclusive and exclusive alike) from invoice PDF amounts.
@@ -1001,7 +962,6 @@ impl serde::Serialize
     }
 }
 /// The line items representing what is being sold.
-///
 /// Each line item represents an item being sold.
 /// Up to 20 line items are supported.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -1025,13 +985,11 @@ pub struct CreatePaymentLinkLineItemsAdjustableQuantity {
     /// Set to true if the quantity can be adjusted to any non-negative Integer.
     pub enabled: bool,
     /// The maximum quantity the customer can purchase.
-    ///
     /// By default this value is 99.
     /// You can specify a value up to 999.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<i64>,
     /// The minimum quantity the customer can purchase.
-    ///
     /// By default this value is 0.
     /// If there is only one item in the cart then that item's quantity cannot go down to 0.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1048,13 +1006,10 @@ pub struct CreatePaymentLinkPaymentIntentData<'a> {
     /// Controls when the funds will be captured from the customer's account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<CreatePaymentLinkPaymentIntentDataCaptureMethod>,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that will declaratively set metadata on [Payment Intents](https://stripe.com/docs/api/payment_intents) generated from this payment link.
-    ///
     /// Unlike object-level metadata, this field is declarative.
     /// Updates will clear prior values.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1068,17 +1023,16 @@ pub struct CreatePaymentLinkPaymentIntentData<'a> {
     /// If a Customer has been provided or Checkout creates a new Customer,Checkout will attach the payment method to the Customer.
     ///
     /// If Checkout does not create a Customer, the payment method is not attached to a Customer.
+    /// To reuse the payment method, you can retrieve it from the Checkout Session's PaymentIntent.
     ///
-    /// To reuse the payment method, you can retrieve it from the Checkout Session's PaymentIntent.  When processing card payments, Checkout also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as SCA.
+    /// When processing card payments, Checkout also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as SCA.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentLinkPaymentIntentDataSetupFutureUsage>,
     /// Extra information about the payment.
-    ///
     /// This will appear on your customer's statement when this payment succeeds in creating a charge.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor: Option<&'a str>,
     /// Provides information about the charge that customers see on their statements.
-    ///
     /// Concatenated with the prefix (shortened descriptor) or statement descriptor that's set on the account to form the complete statement descriptor.
     /// Maximum 22 characters for the concatenated descriptor.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1152,8 +1106,9 @@ impl serde::Serialize for CreatePaymentLinkPaymentIntentDataCaptureMethod {
 /// If a Customer has been provided or Checkout creates a new Customer,Checkout will attach the payment method to the Customer.
 ///
 /// If Checkout does not create a Customer, the payment method is not attached to a Customer.
+/// To reuse the payment method, you can retrieve it from the Checkout Session's PaymentIntent.
 ///
-/// To reuse the payment method, you can retrieve it from the Checkout Session's PaymentIntent.  When processing card payments, Checkout also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as SCA.
+/// When processing card payments, Checkout also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as SCA.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentLinkPaymentIntentDataSetupFutureUsage {
     OffSession,
@@ -1205,8 +1160,11 @@ impl serde::Serialize for CreatePaymentLinkPaymentIntentDataSetupFutureUsage {
     }
 }
 /// Specify whether Checkout should collect a payment method.
+/// When set to `if_required`, Checkout will not collect a payment method when the total due for the session is 0.This may occur if the Checkout Session includes a free trial or a discount.
 ///
-/// When set to `if_required`, Checkout will not collect a payment method when the total due for the session is 0.This may occur if the Checkout Session includes a free trial or a discount.  Can only be set in `subscription` mode.  If you'd like information on how to collect a payment method outside of Checkout, read the guide on [configuring subscriptions with a free trial](https://stripe.com/docs/payments/checkout/free-trials).
+/// Can only be set in `subscription` mode.
+///
+/// If you'd like information on how to collect a payment method outside of Checkout, read the guide on [configuring subscriptions with a free trial](https://stripe.com/docs/payments/checkout/free-trials).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentLinkPaymentMethodCollection {
     Always,
@@ -1258,7 +1216,6 @@ impl serde::Serialize for CreatePaymentLinkPaymentMethodCollection {
     }
 }
 /// The list of payment method types that customers can use.
-///
 /// If no value is passed, Stripe will dynamically show relevant payment methods from your [payment method settings](https://dashboard.stripe.com/settings/payment_methods) (20+ payment methods [supported](https://stripe.com/docs/payments/payment-methods/integration-options#payment-method-product-support)).
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -1408,9 +1365,8 @@ impl CreatePaymentLinkPhoneNumberCollection {
 /// Configuration for collecting the customer's shipping address.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentLinkShippingAddressCollection<'a> {
-    /// An array of two-letter ISO country codes representing which countries Checkout should provide as options for
+    /// An array of two-letter ISO country codes representing which countries Checkout should provide as options for.
     /// shipping locations.
-    ///
     /// Unsupported country codes: `AS, CX, CC, CU, HM, IR, KP, MH, FM, NF, MP, PW, SD, SY, UM, VI`.
     pub allowed_countries: &'a [CreatePaymentLinkShippingAddressCollectionAllowedCountries],
 }
@@ -1421,9 +1377,8 @@ impl<'a> CreatePaymentLinkShippingAddressCollection<'a> {
         Self { allowed_countries }
     }
 }
-/// An array of two-letter ISO country codes representing which countries Checkout should provide as options for
+/// An array of two-letter ISO country codes representing which countries Checkout should provide as options for.
 /// shipping locations.
-///
 /// Unsupported country codes: `AS, CX, CC, CU, HM, IR, KP, MH, FM, NF, MP, PW, SD, SY, UM, VI`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -2197,7 +2152,6 @@ impl<'a> CreatePaymentLinkShippingOptions<'a> {
     }
 }
 /// Describes the type of transaction being performed in order to customize relevant text on the page, such as the submit button.
-///
 /// Changing this value will also affect the hostname in the [url](https://stripe.com/docs/api/payment_links/payment_links/object#url) property (example: `donate.stripe.com`).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentLinkSubmitType {
@@ -2256,23 +2210,19 @@ impl serde::Serialize for CreatePaymentLinkSubmitType {
     }
 }
 /// When creating a subscription, the specified configuration data will be used.
-///
 /// There must be at least one line item with a recurring price to use `subscription_data`.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentLinkSubscriptionData<'a> {
     /// The subscription's description, meant to be displayable to the customer.
-    ///
     /// Use this field to optionally store an explanation of the subscription for rendering in Stripe surfaces and certain local payment methods UIs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that will declaratively set metadata on [Subscriptions](https://stripe.com/docs/api/subscriptions) generated from this payment link.
-    ///
     /// Unlike object-level metadata, this field is declarative.
     /// Updates will clear prior values.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// Integer representing the number of trial period days before the customer is charged for the first time.
-    ///
     /// Has to be at least 1.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trial_period_days: Option<u32>,
@@ -2301,9 +2251,8 @@ pub struct CreatePaymentLinkTransferData<'a> {
     pub amount: Option<i64>,
     /// If specified, successful charges will be attributed to the destination
     /// account for tax reporting, and the funds from charges will be transferred
-    /// to the destination account.
-    ///
-    /// The ID of the resulting transfer will be returned on the successful charge's `transfer` field.
+    /// to the destination account. The ID of the resulting transfer will be
+    /// returned on the successful charge's `transfer` field.
     pub destination: &'a str,
 }
 impl<'a> CreatePaymentLinkTransferData<'a> {
@@ -2320,7 +2269,6 @@ impl<'a> CreatePaymentLink<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentLink<'a> {
     /// Whether the payment link's `url` is active.
-    ///
     /// If `false`, customers visiting the URL will be shown a page saying that the link has been deactivated.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
@@ -2337,7 +2285,6 @@ pub struct UpdatePaymentLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_address_collection: Option<UpdatePaymentLinkBillingAddressCollection>,
     /// Collect additional information from your customer using custom fields.
-    ///
     /// Up to 2 fields are supported.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_fields: Option<&'a [UpdatePaymentLinkCustomFields<'a>]>,
@@ -2354,13 +2301,11 @@ pub struct UpdatePaymentLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_creation: Option<UpdatePaymentLinkInvoiceCreation<'a>>,
     /// The line items representing what is being sold.
-    ///
     /// Each line item represents an item being sold.
     /// Up to 20 line items are supported.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line_items: Option<&'a [UpdatePaymentLinkLineItems<'a>]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -2371,12 +2316,14 @@ pub struct UpdatePaymentLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_intent_data: Option<UpdatePaymentLinkPaymentIntentData<'a>>,
     /// Specify whether Checkout should collect a payment method.
+    /// When set to `if_required`, Checkout will not collect a payment method when the total due for the session is 0.This may occur if the Checkout Session includes a free trial or a discount.
     ///
-    /// When set to `if_required`, Checkout will not collect a payment method when the total due for the session is 0.This may occur if the Checkout Session includes a free trial or a discount.  Can only be set in `subscription` mode.  If you'd like information on how to collect a payment method outside of Checkout, read the guide on [configuring subscriptions with a free trial](https://stripe.com/docs/payments/checkout/free-trials).
+    /// Can only be set in `subscription` mode.
+    ///
+    /// If you'd like information on how to collect a payment method outside of Checkout, read the guide on [configuring subscriptions with a free trial](https://stripe.com/docs/payments/checkout/free-trials).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_collection: Option<UpdatePaymentLinkPaymentMethodCollection>,
     /// The list of payment method types that customers can use.
-    ///
     /// Pass an empty string to enable dynamic payment methods that use your [payment method settings](https://dashboard.stripe.com/settings/payment_methods).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_types: Option<&'a [UpdatePaymentLinkPaymentMethodTypes]>,
@@ -2384,7 +2331,6 @@ pub struct UpdatePaymentLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_address_collection: Option<UpdatePaymentLinkShippingAddressCollection<'a>>,
     /// When creating a subscription, the specified configuration data will be used.
-    ///
     /// There must be at least one line item with a recurring price to use `subscription_data`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subscription_data: Option<UpdatePaymentLinkSubscriptionData<'a>>,
@@ -2403,9 +2349,7 @@ pub struct UpdatePaymentLinkAfterCompletion<'a> {
     /// Configuration when `type=redirect`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub redirect: Option<UpdatePaymentLinkAfterCompletionRedirect<'a>>,
-    /// The specified behavior after the purchase is complete.
-    ///
-    /// Either `redirect` or `hosted_confirmation`.
+    /// The specified behavior after the purchase is complete. Either `redirect` or `hosted_confirmation`.
     #[serde(rename = "type")]
     pub type_: UpdatePaymentLinkAfterCompletionType,
 }
@@ -2430,7 +2374,6 @@ impl<'a> UpdatePaymentLinkAfterCompletionHostedConfirmation<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentLinkAfterCompletionRedirect<'a> {
     /// The URL the customer will be redirected to after the purchase is complete.
-    ///
     /// You can embed `{CHECKOUT_SESSION_ID}` into the URL to have the `id` of the completed [checkout session](https://stripe.com/docs/api/checkout/sessions/object#checkout_session_object-id) included.
     pub url: &'a str,
 }
@@ -2439,9 +2382,7 @@ impl<'a> UpdatePaymentLinkAfterCompletionRedirect<'a> {
         Self { url }
     }
 }
-/// The specified behavior after the purchase is complete.
-///
-/// Either `redirect` or `hosted_confirmation`.
+/// The specified behavior after the purchase is complete. Either `redirect` or `hosted_confirmation`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentLinkAfterCompletionType {
     HostedConfirmation,
@@ -2555,7 +2496,6 @@ impl serde::Serialize for UpdatePaymentLinkBillingAddressCollection {
     }
 }
 /// Collect additional information from your customer using custom fields.
-///
 /// Up to 2 fields are supported.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentLinkCustomFields<'a> {
@@ -2563,7 +2503,6 @@ pub struct UpdatePaymentLinkCustomFields<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dropdown: Option<UpdatePaymentLinkCustomFieldsDropdown<'a>>,
     /// String of your choice that your integration can use to reconcile this field.
-    ///
     /// Must be unique to this field, alphanumeric, and up to 200 characters.
     pub key: &'a str,
     /// The label for the field, displayed to the customer.
@@ -2572,7 +2511,6 @@ pub struct UpdatePaymentLinkCustomFields<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub numeric: Option<UpdatePaymentLinkCustomFieldsNumeric>,
     /// Whether the customer is required to complete the field before completing the Checkout Session.
-    ///
     /// Defaults to `false`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub optional: Option<bool>,
@@ -2595,9 +2533,7 @@ impl<'a> UpdatePaymentLinkCustomFields<'a> {
 /// Configuration for `type=dropdown` fields.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentLinkCustomFieldsDropdown<'a> {
-    /// The options available for the customer to select.
-    ///
-    /// Up to 200 options allowed.
+    /// The options available for the customer to select. Up to 200 options allowed.
     pub options: &'a [UpdatePaymentLinkCustomFieldsDropdownOptions<'a>],
 }
 impl<'a> UpdatePaymentLinkCustomFieldsDropdown<'a> {
@@ -2605,17 +2541,12 @@ impl<'a> UpdatePaymentLinkCustomFieldsDropdown<'a> {
         Self { options }
     }
 }
-/// The options available for the customer to select.
-///
-/// Up to 200 options allowed.
+/// The options available for the customer to select. Up to 200 options allowed.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentLinkCustomFieldsDropdownOptions<'a> {
-    /// The label for the option, displayed to the customer.
-    ///
-    /// Up to 100 characters.
+    /// The label for the option, displayed to the customer. Up to 100 characters.
     pub label: &'a str,
     /// The value for this option, not displayed to the customer, used by your integration to reconcile the option selected by the customer.
-    ///
     /// Must be unique to this option, alphanumeric, and up to 100 characters.
     pub value: &'a str,
 }
@@ -2627,9 +2558,7 @@ impl<'a> UpdatePaymentLinkCustomFieldsDropdownOptions<'a> {
 /// The label for the field, displayed to the customer.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentLinkCustomFieldsLabel<'a> {
-    /// Custom text for the label, displayed to the customer.
-    ///
-    /// Up to 50 characters.
+    /// Custom text for the label, displayed to the customer. Up to 50 characters.
     pub custom: &'a str,
     /// The type of the label.
     #[serde(rename = "type")]
@@ -2878,7 +2807,7 @@ impl serde::Serialize for UpdatePaymentLinkCustomerCreation {
 /// Generate a post-purchase Invoice for one-time payments.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentLinkInvoiceCreation<'a> {
-    /// Whether the feature is enabled.
+    /// Whether the feature is enabled
     pub enabled: bool,
     /// Invoice PDF configuration.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2898,16 +2827,13 @@ pub struct UpdatePaymentLinkInvoiceCreationInvoiceData<'a> {
     /// Default custom fields to be displayed on invoices for this customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_fields: Option<&'a [UpdatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a>]>,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Default footer to be displayed on invoices for this customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub footer: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -2925,13 +2851,9 @@ impl<'a> UpdatePaymentLinkInvoiceCreationInvoiceData<'a> {
 /// Default custom fields to be displayed on invoices for this customer.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a> {
-    /// The name of the custom field.
-    ///
-    /// This may be up to 30 characters.
+    /// The name of the custom field. This may be up to 30 characters.
     pub name: &'a str,
-    /// The value of the custom field.
-    ///
-    /// This may be up to 30 characters.
+    /// The value of the custom field. This may be up to 30 characters.
     pub value: &'a str,
 }
 impl<'a> UpdatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a> {
@@ -2943,7 +2865,6 @@ impl<'a> UpdatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptions {
     /// How line-item prices and amounts will be displayed with respect to tax on invoice PDFs.
-    ///
     /// One of `exclude_tax` or `include_inclusive_tax`.
     /// `include_inclusive_tax` will include inclusive tax (and exclude exclusive tax) in invoice PDF amounts.
     /// `exclude_tax` will exclude all tax (inclusive and exclusive alike) from invoice PDF amounts.
@@ -2957,7 +2878,6 @@ impl UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptions {
     }
 }
 /// How line-item prices and amounts will be displayed with respect to tax on invoice PDFs.
-///
 /// One of `exclude_tax` or `include_inclusive_tax`.
 /// `include_inclusive_tax` will include inclusive tax (and exclude exclusive tax) in invoice PDF amounts.
 /// `exclude_tax` will exclude all tax (inclusive and exclusive alike) from invoice PDF amounts.
@@ -3020,7 +2940,6 @@ impl serde::Serialize
     }
 }
 /// The line items representing what is being sold.
-///
 /// Each line item represents an item being sold.
 /// Up to 20 line items are supported.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -3045,13 +2964,11 @@ pub struct UpdatePaymentLinkLineItemsAdjustableQuantity {
     /// Set to true if the quantity can be adjusted to any non-negative Integer.
     pub enabled: bool,
     /// The maximum quantity the customer can purchase.
-    ///
     /// By default this value is 99.
     /// You can specify a value up to 999.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<i64>,
     /// The minimum quantity the customer can purchase.
-    ///
     /// By default this value is 0.
     /// If there is only one item in the cart then that item's quantity cannot go down to 0.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3065,24 +2982,19 @@ impl UpdatePaymentLinkLineItemsAdjustableQuantity {
 /// A subset of parameters to be passed to PaymentIntent creation for Checkout Sessions in `payment` mode.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentLinkPaymentIntentData<'a> {
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that will declaratively set metadata on [Payment Intents](https://stripe.com/docs/api/payment_intents) generated from this payment link.
-    ///
     /// Unlike object-level metadata, this field is declarative.
     /// Updates will clear prior values.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// Extra information about the payment.
-    ///
     /// This will appear on your customer's statement when this payment succeeds in creating a charge.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor: Option<&'a str>,
     /// Provides information about the charge that customers see on their statements.
-    ///
     /// Concatenated with the prefix (shortened descriptor) or statement descriptor that's set on the account to form the complete statement descriptor.
     /// Maximum 22 characters for the concatenated descriptor.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3094,8 +3006,11 @@ impl<'a> UpdatePaymentLinkPaymentIntentData<'a> {
     }
 }
 /// Specify whether Checkout should collect a payment method.
+/// When set to `if_required`, Checkout will not collect a payment method when the total due for the session is 0.This may occur if the Checkout Session includes a free trial or a discount.
 ///
-/// When set to `if_required`, Checkout will not collect a payment method when the total due for the session is 0.This may occur if the Checkout Session includes a free trial or a discount.  Can only be set in `subscription` mode.  If you'd like information on how to collect a payment method outside of Checkout, read the guide on [configuring subscriptions with a free trial](https://stripe.com/docs/payments/checkout/free-trials).
+/// Can only be set in `subscription` mode.
+///
+/// If you'd like information on how to collect a payment method outside of Checkout, read the guide on [configuring subscriptions with a free trial](https://stripe.com/docs/payments/checkout/free-trials).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentLinkPaymentMethodCollection {
     Always,
@@ -3147,7 +3062,6 @@ impl serde::Serialize for UpdatePaymentLinkPaymentMethodCollection {
     }
 }
 /// The list of payment method types that customers can use.
-///
 /// Pass an empty string to enable dynamic payment methods that use your [payment method settings](https://dashboard.stripe.com/settings/payment_methods).
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -3284,9 +3198,8 @@ impl serde::Serialize for UpdatePaymentLinkPaymentMethodTypes {
 /// Configuration for collecting the customer's shipping address.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentLinkShippingAddressCollection<'a> {
-    /// An array of two-letter ISO country codes representing which countries Checkout should provide as options for
+    /// An array of two-letter ISO country codes representing which countries Checkout should provide as options for.
     /// shipping locations.
-    ///
     /// Unsupported country codes: `AS, CX, CC, CU, HM, IR, KP, MH, FM, NF, MP, PW, SD, SY, UM, VI`.
     pub allowed_countries: &'a [UpdatePaymentLinkShippingAddressCollectionAllowedCountries],
 }
@@ -3297,9 +3210,8 @@ impl<'a> UpdatePaymentLinkShippingAddressCollection<'a> {
         Self { allowed_countries }
     }
 }
-/// An array of two-letter ISO country codes representing which countries Checkout should provide as options for
+/// An array of two-letter ISO country codes representing which countries Checkout should provide as options for.
 /// shipping locations.
-///
 /// Unsupported country codes: `AS, CX, CC, CU, HM, IR, KP, MH, FM, NF, MP, PW, SD, SY, UM, VI`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -4061,12 +3973,10 @@ impl serde::Serialize for UpdatePaymentLinkShippingAddressCollectionAllowedCount
     }
 }
 /// When creating a subscription, the specified configuration data will be used.
-///
 /// There must be at least one line item with a recurring price to use `subscription_data`.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentLinkSubscriptionData<'a> {
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that will declaratively set metadata on [Subscriptions](https://stripe.com/docs/api/subscriptions) generated from this payment link.
-    ///
     /// Unlike object-level metadata, this field is declarative.
     /// Updates will clear prior values.
     #[serde(skip_serializing_if = "Option::is_none")]

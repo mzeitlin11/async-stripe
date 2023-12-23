@@ -4,12 +4,10 @@ pub struct InvoicePaymentMethodOptionsCustomerBalance {
     pub bank_transfer:
         Option<stripe_shared::InvoicePaymentMethodOptionsCustomerBalanceBankTransfer>,
     /// The funding method type to be used when there are not enough funds in the customer balance.
-    ///
     /// Permitted values include: `bank_transfer`.
     pub funding_type: Option<InvoicePaymentMethodOptionsCustomerBalanceFundingType>,
 }
 /// The funding method type to be used when there are not enough funds in the customer balance.
-///
 /// Permitted values include: `bank_transfer`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum InvoicePaymentMethodOptionsCustomerBalanceFundingType {

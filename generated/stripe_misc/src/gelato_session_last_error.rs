@@ -1,4 +1,4 @@
-/// Shows last VerificationSession error.
+/// Shows last VerificationSession error
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct GelatoSessionLastError {
     /// A short machine-readable string giving the reason for the verification or user-session failure.

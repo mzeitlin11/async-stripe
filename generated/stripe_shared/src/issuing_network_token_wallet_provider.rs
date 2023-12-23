@@ -4,7 +4,6 @@ pub struct IssuingNetworkTokenWalletProvider {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_id: Option<String>,
     /// An evaluation on the trustworthiness of the wallet account between 1 and 5.
-    ///
     /// A higher score indicates more trustworthy.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_trust_score: Option<i64>,
@@ -16,9 +15,7 @@ pub struct IssuingNetworkTokenWalletProvider {
     /// The name of the cardholder tokenizing the card.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cardholder_name: Option<String>,
-    /// An evaluation on the trustworthiness of the device.
-    ///
-    /// A higher score indicates more trustworthy.
+    /// An evaluation on the trustworthiness of the device. A higher score indicates more trustworthy.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub device_trust_score: Option<i64>,
     /// The hashed email address of the cardholder's account with the wallet provider.

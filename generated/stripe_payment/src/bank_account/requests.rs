@@ -3,9 +3,7 @@ pub struct UpdateCustomerBankAccount<'a> {
     /// The name of the person or business that owns the bank account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_name: Option<&'a str>,
-    /// The type of entity that holds the account.
-    ///
-    /// This can be either `individual` or `company`.
+    /// The type of entity that holds the account. This can be either `individual` or `company`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_type: Option<UpdateCustomerBankAccountAccountHolderType>,
     /// City/District/Suburb/Town/Village.
@@ -36,7 +34,6 @@ pub struct UpdateCustomerBankAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -53,9 +50,7 @@ impl<'a> UpdateCustomerBankAccount<'a> {
         Self::default()
     }
 }
-/// The type of entity that holds the account.
-///
-/// This can be either `individual` or `company`.
+/// The type of entity that holds the account. This can be either `individual` or `company`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateCustomerBankAccountAccountHolderType {
     Company,
@@ -244,13 +239,10 @@ pub struct UpdateAccountBankAccount<'a> {
     /// The name of the person or business that owns the bank account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_name: Option<&'a str>,
-    /// The type of entity that holds the account.
-    ///
-    /// This can be either `individual` or `company`.
+    /// The type of entity that holds the account. This can be either `individual` or `company`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_type: Option<UpdateAccountBankAccountAccountHolderType>,
     /// The bank account type.
-    ///
     /// This can only be `checking` or `savings` in most countries.
     /// In Japan, this can only be `futsu` or `toza`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -289,7 +281,6 @@ pub struct UpdateAccountBankAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -304,9 +295,7 @@ impl<'a> UpdateAccountBankAccount<'a> {
         Self::default()
     }
 }
-/// The type of entity that holds the account.
-///
-/// This can be either `individual` or `company`.
+/// The type of entity that holds the account. This can be either `individual` or `company`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateAccountBankAccountAccountHolderType {
     Company,
@@ -358,7 +347,6 @@ impl serde::Serialize for UpdateAccountBankAccountAccountHolderType {
     }
 }
 /// The bank account type.
-///
 /// This can only be `checking` or `savings` in most countries.
 /// In Japan, this can only be `futsu` or `toza`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -421,7 +409,6 @@ impl serde::Serialize for UpdateAccountBankAccountAccountType {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateAccountBankAccountDocuments<'a> {
     /// One or more documents that support the [Bank account ownership verification](https://support.stripe.com/questions/bank-account-ownership-verification) requirement.
-    ///
     /// Must be a document associated with the bank account that displays the last 4 digits of the account number, either a statement or a voided check.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bank_account_ownership_verification:
@@ -433,7 +420,6 @@ impl<'a> UpdateAccountBankAccountDocuments<'a> {
     }
 }
 /// One or more documents that support the [Bank account ownership verification](https://support.stripe.com/questions/bank-account-ownership-verification) requirement.
-///
 /// Must be a document associated with the bank account that displays the last 4 digits of the account number, either a statement or a voided check.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateAccountBankAccountDocumentsBankAccountOwnershipVerification<'a> {
@@ -448,8 +434,9 @@ impl<'a> UpdateAccountBankAccountDocumentsBankAccountOwnershipVerification<'a> {
 }
 impl<'a> UpdateAccountBankAccount<'a> {
     /// Updates the metadata, account holder name, account holder type of a bank account belonging to a [Custom account](https://stripe.com/docs/connect/custom-accounts), and optionally sets it as the default for its currency.
+    /// Other bank account details are not editable by design.
     ///
-    /// Other bank account details are not editable by design.  You can re-enable a disabled bank account by performing an update call without providing any arguments or changes.
+    /// You can re-enable a disabled bank account by performing an update call without providing any arguments or changes.
     pub fn send(
         &self,
         client: &stripe::Client,

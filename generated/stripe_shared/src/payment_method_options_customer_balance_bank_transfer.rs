@@ -3,8 +3,9 @@ pub struct PaymentMethodOptionsCustomerBalanceBankTransfer {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub eu_bank_transfer: Option<stripe_shared::PaymentMethodOptionsCustomerBalanceEuBankAccount>,
     /// List of address types that should be returned in the financial_addresses response.
+    /// If not specified, all valid types will be returned.
     ///
-    /// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
+    /// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requested_address_types:
         Option<Vec<PaymentMethodOptionsCustomerBalanceBankTransferRequestedAddressTypes>>,
@@ -13,8 +14,9 @@ pub struct PaymentMethodOptionsCustomerBalanceBankTransfer {
     pub type_: Option<PaymentMethodOptionsCustomerBalanceBankTransferType>,
 }
 /// List of address types that should be returned in the financial_addresses response.
+/// If not specified, all valid types will be returned.
 ///
-/// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
+/// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PaymentMethodOptionsCustomerBalanceBankTransferRequestedAddressTypes {
     Aba,

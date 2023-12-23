@@ -1,15 +1,14 @@
 /// An issuing token object is created when an issued card is added to a digital wallet.
+/// As a [card issuer](https://stripe.com/docs/issuing), you can [view and manage these tokens](https://stripe.com/docs/issuing/controls/token-management) through Stripe.
 ///
-/// As a [card issuer](https://stripe.com/docs/issuing), you can [view and manage these tokens](https://stripe.com/docs/issuing/controls/token-management) through Stripe.  For more details see <<https://stripe.com/docs/api/issuing/tokens/object>>.
+/// For more details see <<https://stripe.com/docs/api/issuing/tokens/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct IssuingToken {
     /// Card associated with this token.
     pub card: stripe_types::Expandable<stripe_shared::IssuingCard>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
-    /// The hashed ID derived from the device ID from the card network associated with the token.
+    /// The hashed ID derived from the device ID from the card network associated with the token
     pub device_fingerprint: Option<String>,
     /// Unique identifier for the object.
     pub id: stripe_shared::IssuingTokenId,
@@ -23,7 +22,6 @@ pub struct IssuingToken {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub network_data: Option<stripe_shared::IssuingNetworkTokenNetworkData>,
     /// Time at which the token was last updated by the card network.
-    ///
     /// Measured in seconds since the Unix epoch.
     pub network_updated_at: stripe_types::Timestamp,
     /// The usage state of the token.

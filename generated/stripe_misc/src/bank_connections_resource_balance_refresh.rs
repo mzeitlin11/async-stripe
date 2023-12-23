@@ -1,8 +1,6 @@
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct BankConnectionsResourceBalanceRefresh {
-    /// The time at which the last refresh attempt was initiated.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// The time at which the last refresh attempt was initiated. Measured in seconds since the Unix epoch.
     pub last_attempted_at: stripe_types::Timestamp,
     /// The status of the last refresh attempt.
     pub status: BankConnectionsResourceBalanceRefreshStatus,

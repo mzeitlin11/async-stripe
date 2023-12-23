@@ -1,4 +1,4 @@
-/// Toggle settings for enabling/disabling the ABA address feature.
+/// Toggle settings for enabling/disabling the ABA address feature
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryFinancialAccountsResourceAbaToggleSettings {
     /// Whether the FinancialAccount should have the Feature.

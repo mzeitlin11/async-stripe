@@ -29,7 +29,6 @@ pub struct SetupAttemptPaymentMethodDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sofort: Option<stripe_shared::SetupAttemptPaymentMethodDetailsSofort>,
     /// The type of the payment method used in the SetupIntent (e.g., `card`).
-    ///
     /// An additional hash is included on `payment_method_details` with a name matching this value.
     /// It contains confirmation-specific information for the payment method.
     #[serde(rename = "type")]

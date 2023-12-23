@@ -10,12 +10,10 @@ pub struct FinancialReportingFinanceReportRunRunParameters {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
     /// Ending timestamp of data to be included in the report run.
-    ///
     /// Can be any UTC timestamp between 1 second after the user specified `interval_start` and 1 second before this report's last `data_available_end` value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interval_end: Option<stripe_types::Timestamp>,
     /// Starting timestamp of data to be included in the report run.
-    ///
     /// Can be any UTC timestamp between 1 second after this report's `data_available_start` and 1 second before the user specified `interval_end` value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interval_start: Option<stripe_types::Timestamp>,
@@ -26,7 +24,6 @@ pub struct FinancialReportingFinanceReportRunRunParameters {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reporting_category: Option<String>,
     /// Defaults to `Etc/UTC`.
-    ///
     /// The output timezone for all timestamps in the report.
     /// A list of possible time zone values is maintained at the [IANA Time Zone Database](http://www.iana.org/time-zones).
     /// Has no effect on `interval_start` or `interval_end`.

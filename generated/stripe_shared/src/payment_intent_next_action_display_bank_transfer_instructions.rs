@@ -3,24 +3,22 @@ pub struct PaymentIntentNextActionDisplayBankTransferInstructions {
     /// The remaining amount that needs to be transferred to complete the payment.
     pub amount_remaining: Option<i64>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: Option<stripe_types::Currency>,
-    /// A list of financial addresses that can be used to fund the customer balance.
+    /// A list of financial addresses that can be used to fund the customer balance
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_addresses:
         Option<Vec<stripe_shared::FundingInstructionsBankTransferFinancialAddress>>,
     /// A link to a hosted page that guides your customer through completing the transfer.
     pub hosted_instructions_url: Option<String>,
     /// A string identifying this payment.
-    ///
     /// Instruct your customer to include this code in the reference or memo field of their bank transfer.
     pub reference: Option<String>,
-    /// Type of bank transfer.
+    /// Type of bank transfer
     #[serde(rename = "type")]
     pub type_: PaymentIntentNextActionDisplayBankTransferInstructionsType,
 }
-/// Type of bank transfer.
+/// Type of bank transfer
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PaymentIntentNextActionDisplayBankTransferInstructionsType {
     EuBankTransfer,

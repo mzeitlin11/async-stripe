@@ -6,7 +6,6 @@ pub struct FindAppsSecret<'a> {
     /// A name for the secret that's unique within the scope.
     pub name: &'a str,
     /// Specifies the scoping of the secret.
-    ///
     /// Requests originating from UI extensions can only access account-scoped secrets or secrets scoped to their own user.
     pub scope: FindAppsSecretScope<'a>,
 }
@@ -16,7 +15,6 @@ impl<'a> FindAppsSecret<'a> {
     }
 }
 /// Specifies the scoping of the secret.
-///
 /// Requests originating from UI extensions can only access account-scoped secrets or secrets scoped to their own user.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct FindAppsSecretScope<'a> {
@@ -24,7 +22,6 @@ pub struct FindAppsSecretScope<'a> {
     #[serde(rename = "type")]
     pub type_: FindAppsSecretScopeType,
     /// The user ID.
-    ///
     /// This field is required if `type` is set to `user`, and should not be provided if `type` is set to `account`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<&'a str>,
@@ -104,7 +101,6 @@ pub struct CreateAppsSecret<'a> {
     /// The plaintext secret value to be stored.
     pub payload: &'a str,
     /// Specifies the scoping of the secret.
-    ///
     /// Requests originating from UI extensions can only access account-scoped secrets or secrets scoped to their own user.
     pub scope: CreateAppsSecretScope<'a>,
 }
@@ -114,7 +110,6 @@ impl<'a> CreateAppsSecret<'a> {
     }
 }
 /// Specifies the scoping of the secret.
-///
 /// Requests originating from UI extensions can only access account-scoped secrets or secrets scoped to their own user.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateAppsSecretScope<'a> {
@@ -122,7 +117,6 @@ pub struct CreateAppsSecretScope<'a> {
     #[serde(rename = "type")]
     pub type_: CreateAppsSecretScopeType,
     /// The user ID.
-    ///
     /// This field is required if `type` is set to `user`, and should not be provided if `type` is set to `account`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<&'a str>,
@@ -197,7 +191,6 @@ pub struct DeleteWhereAppsSecret<'a> {
     /// A name for the secret that's unique within the scope.
     pub name: &'a str,
     /// Specifies the scoping of the secret.
-    ///
     /// Requests originating from UI extensions can only access account-scoped secrets or secrets scoped to their own user.
     pub scope: DeleteWhereAppsSecretScope<'a>,
 }
@@ -207,7 +200,6 @@ impl<'a> DeleteWhereAppsSecret<'a> {
     }
 }
 /// Specifies the scoping of the secret.
-///
 /// Requests originating from UI extensions can only access account-scoped secrets or secrets scoped to their own user.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct DeleteWhereAppsSecretScope<'a> {
@@ -215,7 +207,6 @@ pub struct DeleteWhereAppsSecretScope<'a> {
     #[serde(rename = "type")]
     pub type_: DeleteWhereAppsSecretScopeType,
     /// The user ID.
-    ///
     /// This field is required if `type` is set to `user`, and should not be provided if `type` is set to `account`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<&'a str>,
@@ -285,7 +276,6 @@ impl<'a> DeleteWhereAppsSecret<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct ListAppsSecret<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -294,16 +284,13 @@ pub struct ListAppsSecret<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// Specifies the scoping of the secret.
-    ///
     /// Requests originating from UI extensions can only access account-scoped secrets or secrets scoped to their own user.
     pub scope: ListAppsSecretScope<'a>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -315,7 +302,6 @@ impl<'a> ListAppsSecret<'a> {
     }
 }
 /// Specifies the scoping of the secret.
-///
 /// Requests originating from UI extensions can only access account-scoped secrets or secrets scoped to their own user.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct ListAppsSecretScope<'a> {
@@ -323,7 +309,6 @@ pub struct ListAppsSecretScope<'a> {
     #[serde(rename = "type")]
     pub type_: ListAppsSecretScopeType,
     /// The user ID.
-    ///
     /// This field is required if `type` is set to `user`, and should not be provided if `type` is set to `account`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<&'a str>,

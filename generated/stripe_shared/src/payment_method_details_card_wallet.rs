@@ -16,7 +16,6 @@ pub struct PaymentMethodDetailsCardWallet {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub samsung_pay: Option<stripe_shared::PaymentMethodDetailsCardWalletSamsungPay>,
     /// The type of the card wallet, one of `amex_express_checkout`, `apple_pay`, `google_pay`, `masterpass`, `samsung_pay`, `visa_checkout`, or `link`.
-    ///
     /// An additional hash is included on the Wallet subhash with a name matching this value.
     /// It contains additional information specific to the card wallet type.
     #[serde(rename = "type")]
@@ -25,7 +24,6 @@ pub struct PaymentMethodDetailsCardWallet {
     pub visa_checkout: Option<stripe_shared::PaymentMethodDetailsCardWalletVisaCheckout>,
 }
 /// The type of the card wallet, one of `amex_express_checkout`, `apple_pay`, `google_pay`, `masterpass`, `samsung_pay`, `visa_checkout`, or `link`.
-///
 /// An additional hash is included on the Wallet subhash with a name matching this value.
 /// It contains additional information specific to the card wallet type.
 #[derive(Copy, Clone, Eq, PartialEq)]

@@ -1,14 +1,14 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct FundingInstructionsBankTransfer {
-    /// The country of the bank account to fund.
+    /// The country of the bank account to fund
     pub country: String,
-    /// A list of financial addresses that can be used to fund a particular balance.
+    /// A list of financial addresses that can be used to fund a particular balance
     pub financial_addresses: Vec<stripe_shared::FundingInstructionsBankTransferFinancialAddress>,
-    /// The bank_transfer type.
+    /// The bank_transfer type
     #[serde(rename = "type")]
     pub type_: FundingInstructionsBankTransferType,
 }
-/// The bank_transfer type.
+/// The bank_transfer type
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum FundingInstructionsBankTransferType {
     EuBankTransfer,

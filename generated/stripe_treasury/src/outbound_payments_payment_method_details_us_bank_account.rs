@@ -3,14 +3,11 @@ pub struct OutboundPaymentsPaymentMethodDetailsUsBankAccount {
     /// Account holder type: individual or company.
     pub account_holder_type:
         Option<OutboundPaymentsPaymentMethodDetailsUsBankAccountAccountHolderType>,
-    /// Account type: checkings or savings.
-    ///
-    /// Defaults to checking if omitted.
+    /// Account type: checkings or savings. Defaults to checking if omitted.
     pub account_type: Option<OutboundPaymentsPaymentMethodDetailsUsBankAccountAccountType>,
     /// Name of the bank associated with the bank account.
     pub bank_name: Option<String>,
     /// Uniquely identifies this particular bank account.
-    ///
     /// You can use this attribute to check whether two bank accounts are the same.
     pub fingerprint: Option<String>,
     /// Last four digits of the bank account number.
@@ -80,9 +77,7 @@ impl<'de> serde::Deserialize<'de>
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for OutboundPaymentsPaymentMethodDetailsUsBankAccountAccountHolderType"))
     }
 }
-/// Account type: checkings or savings.
-///
-/// Defaults to checking if omitted.
+/// Account type: checkings or savings. Defaults to checking if omitted.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum OutboundPaymentsPaymentMethodDetailsUsBankAccountAccountType {
     Checking,

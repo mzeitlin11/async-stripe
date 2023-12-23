@@ -1,12 +1,10 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PaymentLinksResourceShippingAddressCollection {
     /// An array of two-letter ISO country codes representing which countries Checkout should provide as options for shipping locations.
-    ///
     /// Unsupported country codes: `AS, CX, CC, CU, HM, IR, KP, MH, FM, NF, MP, PW, SD, SY, UM, VI`.
     pub allowed_countries: Vec<PaymentLinksResourceShippingAddressCollectionAllowedCountries>,
 }
 /// An array of two-letter ISO country codes representing which countries Checkout should provide as options for shipping locations.
-///
 /// Unsupported country codes: `AS, CX, CC, CU, HM, IR, KP, MH, FM, NF, MP, PW, SD, SY, UM, VI`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]

@@ -7,7 +7,6 @@ pub struct ListIssuingCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -25,24 +24,18 @@ pub struct ListIssuingCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub last4: Option<&'a str>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub starting_after: Option<&'a str>,
-    /// Only return cards that have the given status.
-    ///
-    /// One of `active`, `inactive`, or `canceled`.
+    /// Only return cards that have the given status. One of `active`, `inactive`, or `canceled`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<ListIssuingCardStatus>,
-    /// Only return cards that have the given type.
-    ///
-    /// One of `virtual` or `physical`.
+    /// Only return cards that have the given type. One of `virtual` or `physical`.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<ListIssuingCardType>,
@@ -52,9 +45,7 @@ impl<'a> ListIssuingCard<'a> {
         Self::default()
     }
 }
-/// Only return cards that have the given status.
-///
-/// One of `active`, `inactive`, or `canceled`.
+/// Only return cards that have the given status. One of `active`, `inactive`, or `canceled`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ListIssuingCardStatus {
     Active,
@@ -108,9 +99,7 @@ impl serde::Serialize for ListIssuingCardStatus {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Only return cards that have the given type.
-///
-/// One of `virtual` or `physical`.
+/// Only return cards that have the given type. One of `virtual` or `physical`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ListIssuingCardType {
     Physical,
@@ -163,7 +152,6 @@ impl serde::Serialize for ListIssuingCardType {
 }
 impl<'a> ListIssuingCard<'a> {
     /// Returns a list of Issuing `Card` objects.
-    ///
     /// The objects are sorted in descending order by creation date, with the most recently created object appearing first.
     pub fn send(
         &self,
@@ -188,7 +176,6 @@ pub struct CreateIssuingCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_account: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -204,19 +191,15 @@ pub struct CreateIssuingCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping: Option<CreateIssuingCardShipping<'a>>,
     /// Rules that control spending for this card.
-    ///
     /// Refer to our [documentation](https://stripe.com/docs/issuing/controls/spending-controls) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub spending_controls: Option<CreateIssuingCardSpendingControls<'a>>,
     /// Whether authorizations can be approved on this card.
-    ///
     /// May be blocked from activating cards depending on past-due Cardholder requirements.
     /// Defaults to `inactive`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<CreateIssuingCardStatus>,
-    /// The type of card to issue.
-    ///
-    /// Possible values are `physical` or `virtual`.
+    /// The type of card to issue. Possible values are `physical` or `virtual`.
     #[serde(rename = "type")]
     pub type_: CreateIssuingCardType,
 }
@@ -358,7 +341,6 @@ impl<'a> CreateIssuingCardShippingAddress<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateIssuingCardShippingCustoms<'a> {
     /// The Economic Operators Registration and Identification (EORI) number to use for Customs.
-    ///
     /// Required for bulk shipments to Europe.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub eori_number: Option<&'a str>,
@@ -474,18 +456,15 @@ impl serde::Serialize for CreateIssuingCardShippingType {
     }
 }
 /// Rules that control spending for this card.
-///
 /// Refer to our [documentation](https://stripe.com/docs/issuing/controls/spending-controls) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateIssuingCardSpendingControls<'a> {
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to allow.
-    ///
     /// All other categories will be blocked.
     /// Cannot be set with `blocked_categories`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_categories: Option<&'a [CreateIssuingCardSpendingControlsAllowedCategories]>,
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to decline.
-    ///
     /// All other categories will be allowed.
     /// Cannot be set with `allowed_categories`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -500,7 +479,6 @@ impl<'a> CreateIssuingCardSpendingControls<'a> {
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to allow.
-///
 /// All other categories will be blocked.
 /// Cannot be set with `blocked_categories`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1529,7 +1507,6 @@ impl serde::Serialize for CreateIssuingCardSpendingControlsAllowedCategories {
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to decline.
-///
 /// All other categories will be allowed.
 /// Cannot be set with `allowed_categories`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -2563,7 +2540,6 @@ pub struct CreateIssuingCardSpendingControlsSpendingLimits<'a> {
     /// Maximum amount allowed to spend per interval.
     pub amount: i64,
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) this limit applies to.
-    ///
     /// Omitting this field will apply the limit to all categories.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub categories: Option<&'a [CreateIssuingCardSpendingControlsSpendingLimitsCategories]>,
@@ -2579,7 +2555,6 @@ impl<'a> CreateIssuingCardSpendingControlsSpendingLimits<'a> {
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) this limit applies to.
-///
 /// Omitting this field will apply the limit to all categories.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -3670,7 +3645,6 @@ impl serde::Serialize for CreateIssuingCardSpendingControlsSpendingLimitsInterva
     }
 }
 /// Whether authorizations can be approved on this card.
-///
 /// May be blocked from activating cards depending on past-due Cardholder requirements.
 /// Defaults to `inactive`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -3723,9 +3697,7 @@ impl serde::Serialize for CreateIssuingCardStatus {
         serializer.serialize_str(self.as_str())
     }
 }
-/// The type of card to issue.
-///
-/// Possible values are `physical` or `virtual`.
+/// The type of card to issue. Possible values are `physical` or `virtual`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateIssuingCardType {
     Physical,
@@ -3812,7 +3784,6 @@ pub struct UpdateIssuingCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -3822,12 +3793,10 @@ pub struct UpdateIssuingCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub pin: Option<UpdateIssuingCardPin<'a>>,
     /// Rules that control spending for this card.
-    ///
     /// Refer to our [documentation](https://stripe.com/docs/issuing/controls/spending-controls) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub spending_controls: Option<UpdateIssuingCardSpendingControls<'a>>,
     /// Dictates whether authorizations can be approved on this card.
-    ///
     /// May be blocked from activating cards depending on past-due Cardholder requirements.
     /// Defaults to `inactive`.
     /// If this card is being canceled because it was lost or stolen, this information should be provided as `cancellation_reason`.
@@ -3903,18 +3872,15 @@ impl<'a> UpdateIssuingCardPin<'a> {
     }
 }
 /// Rules that control spending for this card.
-///
 /// Refer to our [documentation](https://stripe.com/docs/issuing/controls/spending-controls) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateIssuingCardSpendingControls<'a> {
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to allow.
-    ///
     /// All other categories will be blocked.
     /// Cannot be set with `blocked_categories`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_categories: Option<&'a [UpdateIssuingCardSpendingControlsAllowedCategories]>,
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to decline.
-    ///
     /// All other categories will be allowed.
     /// Cannot be set with `allowed_categories`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3929,7 +3895,6 @@ impl<'a> UpdateIssuingCardSpendingControls<'a> {
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to allow.
-///
 /// All other categories will be blocked.
 /// Cannot be set with `blocked_categories`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -4958,7 +4923,6 @@ impl serde::Serialize for UpdateIssuingCardSpendingControlsAllowedCategories {
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to decline.
-///
 /// All other categories will be allowed.
 /// Cannot be set with `allowed_categories`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -5992,7 +5956,6 @@ pub struct UpdateIssuingCardSpendingControlsSpendingLimits<'a> {
     /// Maximum amount allowed to spend per interval.
     pub amount: i64,
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) this limit applies to.
-    ///
     /// Omitting this field will apply the limit to all categories.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub categories: Option<&'a [UpdateIssuingCardSpendingControlsSpendingLimitsCategories]>,
@@ -6008,7 +5971,6 @@ impl<'a> UpdateIssuingCardSpendingControlsSpendingLimits<'a> {
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) this limit applies to.
-///
 /// Omitting this field will apply the limit to all categories.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -7099,7 +7061,6 @@ impl serde::Serialize for UpdateIssuingCardSpendingControlsSpendingLimitsInterva
     }
 }
 /// Dictates whether authorizations can be approved on this card.
-///
 /// May be blocked from activating cards depending on past-due Cardholder requirements.
 /// Defaults to `inactive`.
 /// If this card is being canceled because it was lost or stolen, this information should be provided as `cancellation_reason`.
@@ -7158,7 +7119,6 @@ impl serde::Serialize for UpdateIssuingCardStatus {
 }
 impl<'a> UpdateIssuingCard<'a> {
     /// Updates the specified Issuing `Card` object by setting the values of the parameters passed.
-    ///
     /// Any parameters not provided will be left unchanged.
     pub fn send(
         &self,

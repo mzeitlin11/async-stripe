@@ -3,15 +3,15 @@
 pub struct TreasuryFinancialAccountsResourceFinancialAddress {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub aba: Option<stripe_treasury::TreasuryFinancialAccountsResourceAbaRecord>,
-    /// The list of networks that the address supports.
+    /// The list of networks that the address supports
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supported_networks:
         Option<Vec<TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks>>,
-    /// The type of financial address.
+    /// The type of financial address
     #[serde(rename = "type")]
     pub type_: TreasuryFinancialAccountsResourceFinancialAddressType,
 }
-/// The list of networks that the address supports.
+/// The list of networks that the address supports
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks {
     Ach,
@@ -71,7 +71,7 @@ impl<'de> serde::Deserialize<'de>
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks"))
     }
 }
-/// The type of financial address.
+/// The type of financial address
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryFinancialAccountsResourceFinancialAddressType {
     Aba,

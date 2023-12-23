@@ -2,14 +2,10 @@
 pub struct ReceivedPaymentMethodDetailsFinancialAccount {
     /// The FinancialAccount ID.
     pub id: String,
-    /// The rails the ReceivedCredit was sent over.
-    ///
-    /// A FinancialAccount can only send funds over `stripe`.
+    /// The rails the ReceivedCredit was sent over. A FinancialAccount can only send funds over `stripe`.
     pub network: ReceivedPaymentMethodDetailsFinancialAccountNetwork,
 }
-/// The rails the ReceivedCredit was sent over.
-///
-/// A FinancialAccount can only send funds over `stripe`.
+/// The rails the ReceivedCredit was sent over. A FinancialAccount can only send funds over `stripe`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ReceivedPaymentMethodDetailsFinancialAccountNetwork {
     Stripe,

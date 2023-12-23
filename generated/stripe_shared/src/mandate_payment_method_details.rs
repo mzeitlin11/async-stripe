@@ -17,7 +17,6 @@ pub struct MandatePaymentMethodDetails {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sepa_debit: Option<stripe_shared::MandateSepaDebit>,
     /// This mandate corresponds with a specific payment method type.
-    ///
     /// The `payment_method_details` includes an additional hash with the same name and contains mandate information that's specific to that payment method.
     #[serde(rename = "type")]
     pub type_: String,

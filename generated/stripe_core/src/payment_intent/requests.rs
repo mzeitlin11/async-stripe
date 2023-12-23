@@ -4,18 +4,15 @@ pub struct SearchPaymentIntent<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for pagination across multiple pages of results.
-    ///
     /// Don't include this parameter on the first call.
     /// Use the next_page value returned in a previous response to request subsequent results.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<&'a str>,
     /// The search query string.
-    ///
     /// See [search query language](https://stripe.com/docs/search#search-query-language) and the list of supported [query fields for payment intents](https://stripe.com/docs/search#query-fields-for-payment-intents).
     pub query: &'a str,
 }
@@ -27,10 +24,10 @@ impl<'a> SearchPaymentIntent<'a> {
 impl<'a> SearchPaymentIntent<'a> {
     /// Search for PaymentIntents you’ve previously created using Stripe’s [Search Query Language](https://stripe.com/docs/search#search-query-language).
     /// Don’t use search in read-after-write flows where strict consistency is necessary.
-    ///
-    /// Under normal operating conditions, data is searchable in less than a minute.
-    /// Occasionally, propagation of new or updated data can be up to an hour behind during outages.
-    /// Search functionality is not available to merchants in India.
+    /// Under normal operating.
+    /// conditions, data is searchable in less than a minute.
+    /// Occasionally, propagation of new or updated data can be up.
+    /// to an hour behind during outages. Search functionality is not available to merchants in India.
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -46,13 +43,11 @@ impl<'a> SearchPaymentIntent<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentIntent<'a> {
     /// Amount intended to be collected by this PaymentIntent.
-    ///
     /// A positive integer representing how much to charge in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal) (e.g., 100 cents to charge $1.00 or 100 to charge ¥100, a zero-decimal currency).
     /// The minimum amount is $0.50 US or [equivalent in charge currency](https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts).
     /// The amount value supports up to eight digits (e.g., a value of 99999999 for a USD charge of $999,999.99).
     pub amount: i64,
     /// The amount of the application fee (if any) that will be requested to be applied to the payment and transferred to the application owner's Stripe account.
-    ///
     /// The amount of the application fee collected will be capped at the total payment amount.
     /// For more information, see the PaymentIntents [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -64,7 +59,6 @@ pub struct CreatePaymentIntent<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<CreatePaymentIntentCaptureMethod>,
     /// Set to `true` to attempt to [confirm this PaymentIntent](https://stripe.com/docs/api/payment_intents/confirm) this PaymentIntent immediately.
-    ///
     /// This parameter defaults to `false`.
     /// When creating and confirming a PaymentIntent at the same time, you can also provide the parameters available in the [Confirm API](https://stripe.com/docs/api/payment_intents/confirm).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -72,7 +66,6 @@ pub struct CreatePaymentIntent<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub confirmation_method: Option<CreatePaymentIntentConfirmationMethod>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// ID of the Customer this PaymentIntent belongs to, if one exists.
@@ -82,13 +75,10 @@ pub struct CreatePaymentIntent<'a> {
     /// If present in combination with [setup_future_usage](https://stripe.com/docs/api#payment_intent_object-setup_future_usage), this PaymentIntent's payment method will be attached to the Customer after the PaymentIntent has been confirmed and any required actions from the user are complete.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Set to `true` to fail the payment attempt if the PaymentIntent transitions into `requires_action`.
-    ///
     /// Use this parameter for simpler integrations that don't handle customer actions, such as [saving cards without authentication](https://stripe.com/docs/payments/save-card-without-authentication).
     /// This parameter can only be used with [`confirm=true`](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-confirm).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -97,69 +87,59 @@ pub struct CreatePaymentIntent<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// ID of the mandate that's used for this payment.
-    ///
     /// This parameter can only be used with [`confirm=true`](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-confirm).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate: Option<&'a str>,
     /// This hash contains details about the Mandate to create.
-    ///
     /// This parameter can only be used with [`confirm=true`](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-confirm).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_data: Option<CreatePaymentIntentMandateData<'a>>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// Set to `true` to indicate that the customer isn't in your checkout flow during this payment attempt and can't authenticate.
-    ///
     /// Use this parameter in scenarios where you collect card details and [charge them later](https://stripe.com/docs/payments/cards/charging-saved-cards).
     /// This parameter can only be used with [`confirm=true`](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-confirm).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub off_session: Option<CreatePaymentIntentOffSession>,
     /// The Stripe account ID that these funds are intended for.
-    ///
     /// Learn more about the [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub on_behalf_of: Option<&'a str>,
     /// ID of the payment method (a PaymentMethod, Card, or [compatible Source](https://stripe.com/docs/payments/payment-methods#compatibility) object) to attach to this PaymentIntent.
     ///
     /// If you don't provide the `payment_method` parameter or the `source` parameter with `confirm=true`, `source` automatically populates with `customer.default_source` to improve migration for users of the Charges API.
-    ///
     /// We recommend that you explicitly provide the `payment_method` moving forward.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method: Option<&'a str>,
     /// The ID of the payment method configuration to use with this PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_configuration: Option<&'a str>,
-    /// If provided, this hash will be used to create a PaymentMethod.
-    ///
-    /// The new PaymentMethod will appear in the [payment_method](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method) property on the PaymentIntent.
+    /// If provided, this hash will be used to create a PaymentMethod. The new PaymentMethod will appear
+    /// in the [payment_method](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method).
+    /// property on the PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_data: Option<CreatePaymentIntentPaymentMethodData<'a>>,
     /// Payment method-specific configuration for this PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_options: Option<CreatePaymentIntentPaymentMethodOptions<'a>>,
     /// The list of payment method types (for example, a card) that this PaymentIntent can use.
-    ///
     /// If you don't provide this, it defaults to ["card"].
     /// Use `automatic_payment_methods` to manage payment methods from the [Stripe Dashboard](https://dashboard.stripe.com/settings/payment_methods).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_types: Option<&'a [&'a str]>,
     /// Options to configure Radar.
-    ///
     /// Learn more about [Radar Sessions](https://stripe.com/docs/radar/radar-session).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub radar_options: Option<CreatePaymentIntentRadarOptions<'a>>,
     /// Email address to send the receipt to.
-    ///
     /// If you specify `receipt_email` for a payment in live mode, you send a receipt regardless of your [email settings](https://dashboard.stripe.com/account/emails).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub receipt_email: Option<&'a str>,
     /// The URL to redirect your customer back to after they authenticate or cancel their payment on the payment method's app or site.
-    ///
     /// If you'd prefer to redirect to a mobile application, you can alternatively supply an application URI scheme.
     /// This parameter can only be used with [`confirm=true`](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-confirm).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -167,20 +147,19 @@ pub struct CreatePaymentIntent<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentSetupFutureUsage>,
     /// Shipping information for this PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping: Option<CreatePaymentIntentShipping<'a>>,
     /// For non-card charges, you can use this value as the complete description that appears on your customers’ statements.
-    ///
     /// It must contain at least one letter and be 1–22 characters long.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor: Option<&'a str>,
     /// Provides information about a card payment that customers see on their statements.
-    ///
     /// Concatenated with the prefix (shortened descriptor) or statement descriptor that’s set on the account to form the complete statement descriptor.
     /// The concatenated descriptor must contain 1-22 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -190,7 +169,6 @@ pub struct CreatePaymentIntent<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transfer_data: Option<CreatePaymentIntentTransferData<'a>>,
     /// A string that identifies the resulting payment as part of a group.
-    ///
     /// Learn more about the [use case for connected accounts](https://stripe.com/docs/connect/separate-charges-and-transfers).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transfer_group: Option<&'a str>,
@@ -241,7 +219,6 @@ pub struct CreatePaymentIntentAutomaticPaymentMethods {
     /// Controls whether this PaymentIntent will accept redirect-based payment methods.
     ///
     /// Redirect-based payment methods may require your customer to be redirected to a payment method's app or site for authentication or additional steps.
-    ///
     /// To [confirm](https://stripe.com/docs/api/payment_intents/confirm) this PaymentIntent, you may be required to provide a `return_url` to redirect customers back to your site after they authenticate or complete the payment.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allow_redirects: Option<CreatePaymentIntentAutomaticPaymentMethodsAllowRedirects>,
@@ -256,7 +233,6 @@ impl CreatePaymentIntentAutomaticPaymentMethods {
 /// Controls whether this PaymentIntent will accept redirect-based payment methods.
 ///
 /// Redirect-based payment methods may require your customer to be redirected to a payment method's app or site for authentication or additional steps.
-///
 /// To [confirm](https://stripe.com/docs/api/payment_intents/confirm) this PaymentIntent, you may be required to provide a `return_url` to redirect customers back to your site after they authenticate or complete the payment.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentAutomaticPaymentMethodsAllowRedirects {
@@ -413,7 +389,6 @@ impl serde::Serialize for CreatePaymentIntentConfirmationMethod {
     }
 }
 /// This hash contains details about the Mandate to create.
-///
 /// This parameter can only be used with [`confirm=true`](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-confirm).
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentIntentMandateData<'a> {
@@ -438,7 +413,6 @@ pub struct CreatePaymentIntentMandateDataCustomerAcceptance<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub online: Option<CreatePaymentIntentMandateDataCustomerAcceptanceOnline<'a>>,
     /// The type of customer acceptance information included with the Mandate.
-    ///
     /// One of `online` or `offline`.
     #[serde(rename = "type")]
     pub type_: CreatePaymentIntentMandateDataCustomerAcceptanceType,
@@ -462,7 +436,6 @@ impl<'a> CreatePaymentIntentMandateDataCustomerAcceptanceOnline<'a> {
     }
 }
 /// The type of customer acceptance information included with the Mandate.
-///
 /// One of `online` or `offline`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentMandateDataCustomerAcceptanceType {
@@ -515,7 +488,6 @@ impl serde::Serialize for CreatePaymentIntentMandateDataCustomerAcceptanceType {
     }
 }
 /// Set to `true` to indicate that the customer isn't in your checkout flow during this payment attempt and can't authenticate.
-///
 /// Use this parameter in scenarios where you collect card details and [charge them later](https://stripe.com/docs/payments/cards/charging-saved-cards).
 /// This parameter can only be used with [`confirm=true`](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-confirm).
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -525,9 +497,9 @@ pub enum CreatePaymentIntentOffSession {
     OneOff,
     Recurring,
 }
-/// If provided, this hash will be used to create a PaymentMethod.
-///
-/// The new PaymentMethod will appear in the [payment_method](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method) property on the PaymentIntent.
+/// If provided, this hash will be used to create a PaymentMethod. The new PaymentMethod will appear
+/// in the [payment_method](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method).
+/// property on the PaymentIntent.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodData<'a> {
     /// If this is an `acss_debit` PaymentMethod, this hash contains details about the ACSS Debit payment method.
@@ -594,7 +566,6 @@ pub struct CreatePaymentIntentPaymentMethodData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link: Option<&'a serde_json::Value>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -619,7 +590,6 @@ pub struct CreatePaymentIntentPaymentMethodData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub promptpay: Option<&'a serde_json::Value>,
     /// Options to configure Radar.
-    ///
     /// See [Radar Session](https://stripe.com/docs/radar/radar-session) for more information.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub radar_options: Option<CreatePaymentIntentPaymentMethodDataRadarOptions<'a>>,
@@ -633,7 +603,6 @@ pub struct CreatePaymentIntentPaymentMethodData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sofort: Option<CreatePaymentIntentPaymentMethodDataSofort>,
     /// The type of the PaymentMethod.
-    ///
     /// An additional hash is included on the PaymentMethod with a name matching this value.
     /// It contains additional information specific to the PaymentMethod type.
     #[serde(rename = "type")]
@@ -728,9 +697,7 @@ pub struct CreatePaymentIntentPaymentMethodDataBacsDebit<'a> {
     /// Account number of the bank account that the funds will be debited from.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_number: Option<&'a str>,
-    /// Sort code of the bank account.
-    ///
-    /// (e.g., `10-20-30`).
+    /// Sort code of the bank account. (e.g., `10-20-30`)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sort_code: Option<&'a str>,
 }
@@ -790,7 +757,7 @@ impl<'a> CreatePaymentIntentPaymentMethodDataBillingDetailsAddress<'a> {
 /// If this is a `boleto` PaymentMethod, this hash contains details about the Boleto payment method.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodDataBoleto<'a> {
-    /// The tax ID of the customer (CPF for individual consumers or CNPJ for businesses consumers).
+    /// The tax ID of the customer (CPF for individual consumers or CNPJ for businesses consumers)
     pub tax_id: &'a str,
 }
 impl<'a> CreatePaymentIntentPaymentMethodDataBoleto<'a> {
@@ -946,7 +913,7 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodDataEpsBank {
 /// If this is an `fpx` PaymentMethod, this hash contains details about the FPX payment method.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodDataFpx {
-    /// Account holder type for FPX transaction.
+    /// Account holder type for FPX transaction
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_type: Option<CreatePaymentIntentPaymentMethodDataFpxAccountHolderType>,
     /// The customer's bank.
@@ -957,7 +924,7 @@ impl CreatePaymentIntentPaymentMethodDataFpx {
         Self { account_holder_type: None, bank }
     }
 }
-/// Account holder type for FPX transaction.
+/// Account holder type for FPX transaction
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodDataFpxAccountHolderType {
     Company,
@@ -1232,7 +1199,7 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodDataIdealBank {
 /// If this is a `klarna` PaymentMethod, this hash contains details about the Klarna payment method.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodDataKlarna {
-    /// Customer's date of birth.
+    /// Customer's date of birth
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dob: Option<CreatePaymentIntentPaymentMethodDataKlarnaDob>,
 }
@@ -1241,7 +1208,7 @@ impl CreatePaymentIntentPaymentMethodDataKlarna {
         Self::default()
     }
 }
-/// Customer's date of birth.
+/// Customer's date of birth
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodDataKlarnaDob {
     /// The day of birth, between 1 and 31.
@@ -1393,7 +1360,6 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodDataP24Bank {
     }
 }
 /// Options to configure Radar.
-///
 /// See [Radar Session](https://stripe.com/docs/radar/radar-session) for more information.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodDataRadarOptions<'a> {
@@ -1492,7 +1458,6 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodDataSofortCountry {
     }
 }
 /// The type of the PaymentMethod.
-///
 /// An additional hash is included on the PaymentMethod with a name matching this value.
 /// It contains additional information specific to the PaymentMethod type.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1646,9 +1611,7 @@ pub struct CreatePaymentIntentPaymentMethodDataUsBankAccount<'a> {
     /// Account number of the bank account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_number: Option<&'a str>,
-    /// Account type: checkings or savings.
-    ///
-    /// Defaults to checking if omitted.
+    /// Account type: checkings or savings. Defaults to checking if omitted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_type: Option<CreatePaymentIntentPaymentMethodDataUsBankAccountAccountType>,
     /// The ID of a Financial Connections Account to use as a payment method.
@@ -1714,9 +1677,7 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodDataUsBankAccountAccou
         serializer.serialize_str(self.as_str())
     }
 }
-/// Account type: checkings or savings.
-///
-/// Defaults to checking if omitted.
+/// Account type: checkings or savings. Defaults to checking if omitted.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodDataUsBankAccountAccountType {
     Checking,
@@ -1881,18 +1842,21 @@ impl<'a> CreatePaymentIntentPaymentMethodOptions<'a> {
 /// If this is a `acss_debit` PaymentMethod, this sub-hash contains details about the ACSS Debit payment method options.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsAcssDebit<'a> {
-    /// Additional fields for Mandate creation.
+    /// Additional fields for Mandate creation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options: Option<CreatePaymentIntentPaymentMethodOptionsAcssDebitMandateOptions<'a>>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreatePaymentIntentPaymentMethodOptionsAcssDebitSetupFutureUsage>,
-    /// Verification method for the intent.
+    /// Verification method for the intent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_method:
         Option<CreatePaymentIntentPaymentMethodOptionsAcssDebitVerificationMethod>,
@@ -1902,16 +1866,15 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsAcssDebit<'a> {
         Self::default()
     }
 }
-/// Additional fields for Mandate creation.
+/// Additional fields for Mandate creation
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsAcssDebitMandateOptions<'a> {
     /// A URL for custom mandate text to render during confirmation step.
-    /// The URL will be rendered with additional GET parameters `payment_intent` and `payment_intent_client_secret` when confirming a Payment Intent,
+    /// The URL will be rendered with additional GET parameters `payment_intent` and `payment_intent_client_secret` when confirming a Payment Intent,.
     /// or `setup_intent` and `setup_intent_client_secret` when confirming a Setup Intent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_mandate_url: Option<&'a str>,
     /// Description of the mandate interval.
-    ///
     /// Only required if 'payment_schedule' parameter is 'interval' or 'combined'.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interval_description: Option<&'a str>,
@@ -2053,8 +2016,11 @@ impl serde::Serialize
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsAcssDebitSetupFutureUsage {
     None,
@@ -2108,7 +2074,7 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsAcssDebitSetupF
         serializer.serialize_str(self.as_str())
     }
 }
-/// Verification method for the intent.
+/// Verification method for the intent
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsAcssDebitVerificationMethod {
     Automatic,
@@ -2178,8 +2144,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsAffirm<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsAffirmSetupFutureUsage>,
 }
@@ -2243,8 +2212,11 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsAffirmCaptureMe
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsAffirmSetupFutureUsage {
     None,
@@ -2304,15 +2276,18 @@ pub struct CreatePaymentIntentPaymentMethodOptionsAfterpayClearpay<'a> {
     pub capture_method:
         Option<CreatePaymentIntentPaymentMethodOptionsAfterpayClearpayCaptureMethod>,
     /// An internal identifier or reference that this payment corresponds to.
-    ///
-    /// You must limit the identifier to 128 characters, and it can only contain letters, numbers, underscores, backslashes, and dashes. This field differs from the statement descriptor and item name.
+    /// You must limit the identifier to 128 characters, and it can only contain letters, numbers, underscores, backslashes, and dashes.
+    /// This field differs from the statement descriptor and item name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reference: Option<&'a str>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreatePaymentIntentPaymentMethodOptionsAfterpayClearpaySetupFutureUsage>,
@@ -2377,8 +2352,11 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsAfterpayClearpa
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsAfterpayClearpaySetupFutureUsage {
     None,
@@ -2432,8 +2410,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsAlipay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsAlipaySetupFutureUsage>,
 }
@@ -2445,8 +2426,11 @@ impl CreatePaymentIntentPaymentMethodOptionsAlipay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsAlipaySetupFutureUsage {
     None,
@@ -2503,8 +2487,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsAuBecsDebit {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreatePaymentIntentPaymentMethodOptionsAuBecsDebitSetupFutureUsage>,
@@ -2517,8 +2504,11 @@ impl CreatePaymentIntentPaymentMethodOptionsAuBecsDebit {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsAuBecsDebitSetupFutureUsage {
     None,
@@ -2578,8 +2568,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsBacsDebit {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreatePaymentIntentPaymentMethodOptionsBacsDebitSetupFutureUsage>,
@@ -2592,8 +2585,11 @@ impl CreatePaymentIntentPaymentMethodOptionsBacsDebit {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsBacsDebitSetupFutureUsage {
     None,
@@ -2657,8 +2653,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsBancontact {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreatePaymentIntentPaymentMethodOptionsBancontactSetupFutureUsage>,
@@ -2728,8 +2727,11 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsBancontactPrefe
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsBancontactSetupFutureUsage {
     None,
@@ -2784,7 +2786,6 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsBancontactSetup
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsBlik<'a> {
     /// The 6-digit BLIK code that a customer has generated using their banking application.
-    ///
     /// Can only be set on confirmation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<&'a str>,
@@ -2798,15 +2799,17 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsBlik<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsBoleto {
     /// The number of calendar days before a Boleto voucher expires.
-    ///
     /// For example, if you create a Boleto voucher on Monday and you set expires_after_days to 2, the Boleto invoice will expire on Wednesday at 23:59 America/Sao_Paulo time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsBoletoSetupFutureUsage>,
 }
@@ -2818,8 +2821,11 @@ impl CreatePaymentIntentPaymentMethodOptionsBoleto {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsBoletoSetupFutureUsage {
     None,
@@ -2884,7 +2890,6 @@ pub struct CreatePaymentIntentPaymentMethodOptionsCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<CreatePaymentIntentPaymentMethodOptionsCardCaptureMethod>,
     /// A single-use `cvc_update` Token that represents a card CVC value.
-    ///
     /// When provided, the CVC value will be verified during the card payment attempt.
     /// This parameter can only be provided during confirmation.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2898,13 +2903,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options: Option<CreatePaymentIntentPaymentMethodOptionsCardMandateOptions<'a>>,
     /// When specified, this parameter indicates that a transaction will be marked
-    /// as MOTO (Mail Order Telephone Order) and thus out of scope for SCA.
-    ///
-    /// This parameter can only be provided during confirmation.
+    /// as MOTO (Mail Order Telephone Order) and thus out of scope for SCA. This
+    /// parameter can only be provided during confirmation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub moto: Option<bool>,
     /// Selected network to process this PaymentIntent on.
-    ///
     /// Depends on the available networks of the card attached to the PaymentIntent.
     /// Can be only set confirm-time.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2925,7 +2928,6 @@ pub struct CreatePaymentIntentPaymentMethodOptionsCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_overcapture: Option<CreatePaymentIntentPaymentMethodOptionsCardRequestOvercapture>,
     /// We strongly recommend that you rely on our SCA Engine to automatically prompt your customers for authentication based on risk level and [other requirements](https://stripe.com/docs/strong-customer-authentication).
-    ///
     /// However, if you wish to request 3D Secure based on logic from your own fraud engine, provide this option.
     /// Permitted values include: `automatic` or `any`.
     /// If not provided, defaults to `automatic`.
@@ -2936,19 +2938,20 @@ pub struct CreatePaymentIntentPaymentMethodOptionsCard<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsCardSetupFutureUsage>,
     /// Provides information about a card payment that customers see on their statements.
-    ///
     /// Concatenated with the Kana prefix (shortened Kana descriptor) or Kana statement descriptor that’s set on the account to form the complete statement descriptor.
     /// Maximum 22 characters.
     /// On card statements, the *concatenation* of both prefix and suffix (including separators) will appear truncated to 22 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor_suffix_kana: Option<&'a str>,
     /// Provides information about a card payment that customers see on their statements.
-    ///
     /// Concatenated with the Kanji prefix (shortened Kanji descriptor) or Kanji statement descriptor that’s set on the account to form the complete statement descriptor.
     /// Maximum 17 characters.
     /// On card statements, the *concatenation* of both prefix and suffix (including separators) will appear truncated to 17 characters.
@@ -3157,7 +3160,6 @@ pub struct CreatePaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
     /// Amount to be charged for future payments.
     pub amount: i64,
     /// One of `fixed` or `maximum`.
-    ///
     /// If `fixed`, the `amount` param refers to the exact amount to be charged in future payments.
     /// If `maximum`, the amount charged can be up to the value passed for the `amount` param.
     pub amount_type: CreatePaymentIntentPaymentMethodOptionsCardMandateOptionsAmountType,
@@ -3165,17 +3167,13 @@ pub struct CreatePaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// End date of the mandate or subscription.
-    ///
     /// If not provided, the mandate will be active until canceled.
     /// If provided, end date should be after start date.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub end_date: Option<stripe_types::Timestamp>,
-    /// Specifies payment frequency.
-    ///
-    /// One of `day`, `week`, `month`, `year`, or `sporadic`.
+    /// Specifies payment frequency. One of `day`, `week`, `month`, `year`, or `sporadic`.
     pub interval: CreatePaymentIntentPaymentMethodOptionsCardMandateOptionsInterval,
     /// The number of intervals between payments.
-    ///
     /// For example, `interval=month` and `interval_count=3` indicates one payment every three months.
     /// Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
     /// This parameter is optional when `interval=sporadic`.
@@ -3183,13 +3181,9 @@ pub struct CreatePaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
     pub interval_count: Option<u64>,
     /// Unique identifier for the mandate or subscription.
     pub reference: &'a str,
-    /// Start date of the mandate or subscription.
-    ///
-    /// Start date should not be lesser than yesterday.
+    /// Start date of the mandate or subscription. Start date should not be lesser than yesterday.
     pub start_date: stripe_types::Timestamp,
-    /// Specifies the type of mandates supported.
-    ///
-    /// Possible values are `india`.
+    /// Specifies the type of mandates supported. Possible values are `india`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supported_types:
         Option<&'a [CreatePaymentIntentPaymentMethodOptionsCardMandateOptionsSupportedTypes]>,
@@ -3216,7 +3210,6 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
     }
 }
 /// One of `fixed` or `maximum`.
-///
 /// If `fixed`, the `amount` param refers to the exact amount to be charged in future payments.
 /// If `maximum`, the amount charged can be up to the value passed for the `amount` param.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -3269,9 +3262,7 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsCardMandateOpti
         serializer.serialize_str(self.as_str())
     }
 }
-/// Specifies payment frequency.
-///
-/// One of `day`, `week`, `month`, `year`, or `sporadic`.
+/// Specifies payment frequency. One of `day`, `week`, `month`, `year`, or `sporadic`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsCardMandateOptionsInterval {
     Day,
@@ -3331,9 +3322,7 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsCardMandateOpti
         serializer.serialize_str(self.as_str())
     }
 }
-/// Specifies the type of mandates supported.
-///
-/// Possible values are `india`.
+/// Specifies the type of mandates supported. Possible values are `india`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsCardMandateOptionsSupportedTypes {
     India,
@@ -3382,7 +3371,6 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsCardMandateOpti
     }
 }
 /// Selected network to process this PaymentIntent on.
-///
 /// Depends on the available networks of the card attached to the PaymentIntent.
 /// Can be only set confirm-time.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -3675,7 +3663,6 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsCardRequestOver
     }
 }
 /// We strongly recommend that you rely on our SCA Engine to automatically prompt your customers for authentication based on risk level and [other requirements](https://stripe.com/docs/strong-customer-authentication).
-///
 /// However, if you wish to request 3D Secure based on logic from your own fraud engine, provide this option.
 /// Permitted values include: `automatic` or `any`.
 /// If not provided, defaults to `automatic`.
@@ -3733,8 +3720,11 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsCardRequestThre
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsCardSetupFutureUsage {
     None,
@@ -3795,7 +3785,6 @@ pub struct CreatePaymentIntentPaymentMethodOptionsCardPresent {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_extended_authorization: Option<bool>,
     /// Request ability to [increment](https://stripe.com/docs/terminal/features/incremental-authorizations) this PaymentIntent if the combination of MCC and card brand is eligible.
-    ///
     /// Check [incremental_authorization_supported](https://stripe.com/docs/api/charges/object#charge_object-payment_method_details-card_present-incremental_authorization_supported) in the [Confirm](https://stripe.com/docs/api/payment_intents/confirm) response to verify support.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_incremental_authorization_support: Option<bool>,
@@ -3818,8 +3807,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsCashapp {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsCashappSetupFutureUsage>,
 }
@@ -3883,8 +3875,11 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsCashappCaptureM
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsCashappSetupFutureUsage {
     None,
@@ -3946,15 +3941,17 @@ pub struct CreatePaymentIntentPaymentMethodOptionsCustomerBalance<'a> {
     pub bank_transfer:
         Option<CreatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransfer<'a>>,
     /// The funding method type to be used when there are not enough funds in the customer balance.
-    ///
     /// Permitted values include: `bank_transfer`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub funding_type: Option<CreatePaymentIntentPaymentMethodOptionsCustomerBalanceFundingType>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreatePaymentIntentPaymentMethodOptionsCustomerBalanceSetupFutureUsage>,
@@ -3970,12 +3967,13 @@ pub struct CreatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransfer<'a
     /// Configuration for the eu_bank_transfer funding type.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub eu_bank_transfer: Option<CreatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<'a>>,
-    /// List of address types that should be returned in the financial_addresses response.
+        /// List of address types that should be returned in the financial_addresses response.
+    /// If not specified, all valid types will be returned.
     ///
-    /// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
+    /// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub requested_address_types: Option<&'a [CreatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferRequestedAddressTypes]>,
-    /// The list of bank transfer types that this PaymentIntent is allowed to use for funding Permitted values include: `eu_bank_transfer`, `gb_bank_transfer`, `jp_bank_transfer`, `mx_bank_transfer`, or `us_bank_transfer`.
+        /// The list of bank transfer types that this PaymentIntent is allowed to use for funding Permitted values include: `eu_bank_transfer`, `gb_bank_transfer`, `jp_bank_transfer`, `mx_bank_transfer`, or `us_bank_transfer`.
 #[serde(rename = "type")]
 pub type_: CreatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferType,
 
@@ -3991,7 +3989,6 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransfer<'a> 
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<'a> {
     /// The desired country code of the bank account information.
-    ///
     /// Permitted values include: `BE`, `DE`, `ES`, `FR`, `IE`, or `NL`.
     pub country: &'a str,
 }
@@ -4001,8 +3998,9 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferEuBan
     }
 }
 /// List of address types that should be returned in the financial_addresses response.
+/// If not specified, all valid types will be returned.
 ///
-/// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
+/// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferRequestedAddressTypes {
     Aba,
@@ -4139,7 +4137,6 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsCustomerBalance
     }
 }
 /// The funding method type to be used when there are not enough funds in the customer balance.
-///
 /// Permitted values include: `bank_transfer`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsCustomerBalanceFundingType {
@@ -4191,8 +4188,11 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsCustomerBalance
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsCustomerBalanceSetupFutureUsage {
     None,
@@ -4246,8 +4246,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsEps {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsEpsSetupFutureUsage>,
 }
@@ -4259,8 +4262,11 @@ impl CreatePaymentIntentPaymentMethodOptionsEps {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsEpsSetupFutureUsage {
     None,
@@ -4314,8 +4320,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsFpx {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsFpxSetupFutureUsage>,
 }
@@ -4327,8 +4336,11 @@ impl CreatePaymentIntentPaymentMethodOptionsFpx {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsFpxSetupFutureUsage {
     None,
@@ -4382,8 +4394,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsGiropay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsGiropaySetupFutureUsage>,
 }
@@ -4395,8 +4410,11 @@ impl CreatePaymentIntentPaymentMethodOptionsGiropay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsGiropaySetupFutureUsage {
     None,
@@ -4450,8 +4468,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsGrabpay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsGrabpaySetupFutureUsage>,
 }
@@ -4463,8 +4484,11 @@ impl CreatePaymentIntentPaymentMethodOptionsGrabpay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsGrabpaySetupFutureUsage {
     None,
@@ -4518,8 +4542,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsIdeal {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsIdealSetupFutureUsage>,
 }
@@ -4531,8 +4558,11 @@ impl CreatePaymentIntentPaymentMethodOptionsIdeal {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsIdealSetupFutureUsage {
     None,
@@ -4593,14 +4623,17 @@ pub struct CreatePaymentIntentPaymentMethodOptionsKlarna {
     /// If `capture_method` is already set on the PaymentIntent, providing an empty value for this parameter will unset the stored value for this payment method type.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<CreatePaymentIntentPaymentMethodOptionsKlarnaCaptureMethod>,
-    /// Preferred language of the Klarna authorization page that the customer is redirected to.
+    /// Preferred language of the Klarna authorization page that the customer is redirected to
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_locale: Option<CreatePaymentIntentPaymentMethodOptionsKlarnaPreferredLocale>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsKlarnaSetupFutureUsage>,
 }
@@ -4661,7 +4694,7 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsKlarnaCaptureMe
         serializer.serialize_str(self.as_str())
     }
 }
-/// Preferred language of the Klarna authorization page that the customer is redirected to.
+/// Preferred language of the Klarna authorization page that the customer is redirected to
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum CreatePaymentIntentPaymentMethodOptionsKlarnaPreferredLocale {
@@ -4845,8 +4878,11 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsKlarnaPreferred
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsKlarnaSetupFutureUsage {
     None,
@@ -4898,19 +4934,16 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsKlarnaSetupFutu
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsKonbini<'a> {
     /// An optional 10 to 11 digit numeric-only string determining the confirmation code at applicable convenience stores.
-    ///
     /// Must not consist of only zeroes and could be rejected in case of insufficient uniqueness.
     /// We recommend to use the customer's phone number.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub confirmation_number: Option<&'a str>,
     /// The number of calendar days (between 1 and 60) after which Konbini payment instructions will expire.
-    ///
     /// For example, if a PaymentIntent is confirmed with Konbini and `expires_after_days` set to 2 on Monday JST, the instructions will expire on Wednesday 23:59:59 JST.
     /// Defaults to 3 days.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
     /// The timestamp at which the Konbini payment instructions will expire.
-    ///
     /// Only one of `expires_after_days` or `expires_at` may be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<stripe_types::Timestamp>,
@@ -4920,8 +4953,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsKonbini<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsKonbiniSetupFutureUsage>,
 }
@@ -4933,8 +4969,11 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsKonbini<'a> {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsKonbiniSetupFutureUsage {
     None,
@@ -4998,8 +5037,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsLink<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsLinkSetupFutureUsage>,
 }
@@ -5063,8 +5105,11 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsLinkCaptureMeth
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsLinkSetupFutureUsage {
     None,
@@ -5119,15 +5164,17 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsLinkSetupFuture
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsOxxo {
     /// The number of calendar days before an OXXO voucher expires.
-    ///
     /// For example, if you create an OXXO voucher on Monday and you set expires_after_days to 2, the OXXO invoice will expire on Wednesday at 23:59 America/Mexico_City time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsOxxoSetupFutureUsage>,
 }
@@ -5139,8 +5186,11 @@ impl CreatePaymentIntentPaymentMethodOptionsOxxo {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsOxxoSetupFutureUsage {
     None,
@@ -5194,8 +5244,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsP24 {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsP24SetupFutureUsage>,
     /// Confirm that the payer has accepted the P24 terms and conditions.
@@ -5210,8 +5263,11 @@ impl CreatePaymentIntentPaymentMethodOptionsP24 {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsP24SetupFutureUsage {
     None,
@@ -5265,8 +5321,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsPaynow {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsPaynowSetupFutureUsage>,
 }
@@ -5278,8 +5337,11 @@ impl CreatePaymentIntentPaymentMethodOptionsPaynow {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsPaynowSetupFutureUsage {
     None,
@@ -5337,7 +5399,6 @@ pub struct CreatePaymentIntentPaymentMethodOptionsPaypal<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_locale: Option<CreatePaymentIntentPaymentMethodOptionsPaypalPreferredLocale>,
     /// A reference of the PayPal transaction visible to customer which is mapped to PayPal's invoice ID.
-    ///
     /// This must be a globally unique ID if you have configured in your PayPal settings to block multiple payments per invoice ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reference: Option<&'a str>,
@@ -5347,8 +5408,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsPaypal<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsPaypalSetupFutureUsage>,
 }
@@ -5520,8 +5584,11 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsPaypalPreferred
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsPaypalSetupFutureUsage {
     None,
@@ -5576,20 +5643,21 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsPaypalSetupFutu
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsPix {
     /// The number of seconds (between 10 and 1209600) after which Pix payment will expire.
-    ///
     /// Defaults to 86400 seconds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_seconds: Option<i64>,
     /// The timestamp at which the Pix expires (between 10 and 1209600 seconds in the future).
-    ///
     /// Defaults to 1 day in the future.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<stripe_types::Timestamp>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsPixSetupFutureUsage>,
 }
@@ -5601,8 +5669,11 @@ impl CreatePaymentIntentPaymentMethodOptionsPix {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsPixSetupFutureUsage {
     None,
@@ -5656,8 +5727,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsPromptpay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreatePaymentIntentPaymentMethodOptionsPromptpaySetupFutureUsage>,
@@ -5670,8 +5744,11 @@ impl CreatePaymentIntentPaymentMethodOptionsPromptpay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsPromptpaySetupFutureUsage {
     None,
@@ -5725,8 +5802,9 @@ pub struct CreatePaymentIntentPaymentMethodOptionsRevolutPay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreatePaymentIntentPaymentMethodOptionsRevolutPaySetupFutureUsage>,
@@ -5739,8 +5817,9 @@ impl CreatePaymentIntentPaymentMethodOptionsRevolutPay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsRevolutPaySetupFutureUsage {
     None,
@@ -5794,14 +5873,17 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsRevolutPaySetup
 /// If this is a `sepa_debit` PaymentIntent, this sub-hash contains details about the SEPA Debit payment method options.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsSepaDebit<'a> {
-    /// Additional fields for Mandate creation.
+    /// Additional fields for Mandate creation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options: Option<&'a serde_json::Value>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreatePaymentIntentPaymentMethodOptionsSepaDebitSetupFutureUsage>,
@@ -5814,8 +5896,11 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsSepaDebit<'a> {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsSepaDebitSetupFutureUsage {
     None,
@@ -5878,8 +5963,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsSofort {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsSofortSetupFutureUsage>,
 }
@@ -5957,8 +6045,11 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsSofortPreferred
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsSofortSetupFutureUsage {
     None,
@@ -6012,26 +6103,29 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsSofortSetupFutu
 /// If this is a `us_bank_account` PaymentMethod, this sub-hash contains details about the US bank account payment method options.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsUsBankAccount<'a> {
-    /// Additional fields for Financial Connections Session creation.
+    /// Additional fields for Financial Connections Session creation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_connections:
         Option<CreatePaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnections<'a>>,
-    /// Additional fields for network related functions.
+    /// Additional fields for network related functions
     #[serde(skip_serializing_if = "Option::is_none")]
     pub networks: Option<CreatePaymentIntentPaymentMethodOptionsUsBankAccountNetworks<'a>>,
-    /// Preferred transaction settlement speed.
+    /// Preferred transaction settlement speed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_settlement_speed:
         Option<CreatePaymentIntentPaymentMethodOptionsUsBankAccountPreferredSettlementSpeed>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreatePaymentIntentPaymentMethodOptionsUsBankAccountSetupFutureUsage>,
-    /// Verification method for the intent.
+    /// Verification method for the intent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_method:
         Option<CreatePaymentIntentPaymentMethodOptionsUsBankAccountVerificationMethod>,
@@ -6041,11 +6135,10 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsUsBankAccount<'a> {
         Self::default()
     }
 }
-/// Additional fields for Financial Connections Session creation.
+/// Additional fields for Financial Connections Session creation
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnections<'a> {
     /// The list of permissions to request.
-    ///
     /// If this parameter is passed, the `payment_method` permission must be included.
     /// Valid permissions include: `balances`, `ownership`, `payment_method`, and `transactions`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6058,7 +6151,6 @@ pub struct CreatePaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnecti
         &'a [CreatePaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch],
     >,
     /// For webview integrations only.
-    ///
     /// Upon completing OAuth login in the native browser, the user will be redirected to this URL to return to your app.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_url: Option<&'a str>,
@@ -6069,7 +6161,6 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnection
     }
 }
 /// The list of permissions to request.
-///
 /// If this parameter is passed, the `payment_method` permission must be included.
 /// Valid permissions include: `balances`, `ownership`, `payment_method`, and `transactions`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -6196,10 +6287,10 @@ impl serde::Serialize
         serializer.serialize_str(self.as_str())
     }
 }
-/// Additional fields for network related functions.
+/// Additional fields for network related functions
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsUsBankAccountNetworks<'a> {
-    /// Triggers validations to run across the selected networks.
+    /// Triggers validations to run across the selected networks
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requested:
         Option<&'a [CreatePaymentIntentPaymentMethodOptionsUsBankAccountNetworksRequested]>,
@@ -6209,7 +6300,7 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsUsBankAccountNetworks<'a> {
         Self::default()
     }
 }
-/// Triggers validations to run across the selected networks.
+/// Triggers validations to run across the selected networks
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsUsBankAccountNetworksRequested {
     Ach,
@@ -6260,7 +6351,7 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsUsBankAccountNe
         serializer.serialize_str(self.as_str())
     }
 }
-/// Preferred transaction settlement speed.
+/// Preferred transaction settlement speed
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsUsBankAccountPreferredSettlementSpeed {
     Fastest,
@@ -6322,8 +6413,11 @@ impl serde::Serialize
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsUsBankAccountSetupFutureUsage {
     None,
@@ -6377,7 +6471,7 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsUsBankAccountSe
         serializer.serialize_str(self.as_str())
     }
 }
-/// Verification method for the intent.
+/// Verification method for the intent
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsUsBankAccountVerificationMethod {
     Automatic,
@@ -6434,18 +6528,19 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsUsBankAccountVe
 /// If this is a `wechat_pay` PaymentMethod, this sub-hash contains details about the WeChat Pay payment method options.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentIntentPaymentMethodOptionsWechatPay<'a> {
-    /// The app ID registered with WeChat Pay.
-    ///
-    /// Only required when client is ios or android.
+    /// The app ID registered with WeChat Pay. Only required when client is ios or android.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub app_id: Option<&'a str>,
-    /// The client type that the end customer will pay from.
+    /// The client type that the end customer will pay from
     pub client: CreatePaymentIntentPaymentMethodOptionsWechatPayClient,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<CreatePaymentIntentPaymentMethodOptionsWechatPaySetupFutureUsage>,
@@ -6455,7 +6550,7 @@ impl<'a> CreatePaymentIntentPaymentMethodOptionsWechatPay<'a> {
         Self { app_id: None, client, setup_future_usage: None }
     }
 }
-/// The client type that the end customer will pay from.
+/// The client type that the end customer will pay from
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsWechatPayClient {
     Android,
@@ -6512,8 +6607,11 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsWechatPayClient
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsWechatPaySetupFutureUsage {
     None,
@@ -6567,8 +6665,11 @@ pub struct CreatePaymentIntentPaymentMethodOptionsZip {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CreatePaymentIntentPaymentMethodOptionsZipSetupFutureUsage>,
 }
@@ -6580,8 +6681,11 @@ impl CreatePaymentIntentPaymentMethodOptionsZip {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentPaymentMethodOptionsZipSetupFutureUsage {
     None,
@@ -6630,7 +6734,6 @@ impl serde::Serialize for CreatePaymentIntentPaymentMethodOptionsZipSetupFutureU
     }
 }
 /// Options to configure Radar.
-///
 /// Learn more about [Radar Sessions](https://stripe.com/docs/radar/radar-session).
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentIntentRadarOptions<'a> {
@@ -6646,8 +6749,9 @@ impl<'a> CreatePaymentIntentRadarOptions<'a> {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentIntentSetupFutureUsage {
     OffSession,
@@ -6712,7 +6816,6 @@ pub struct CreatePaymentIntentShipping<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone: Option<&'a str>,
     /// The tracking number for a physical product, obtained from the delivery service.
-    ///
     /// If multiple tracking numbers were generated for this purchase, please separate them with commas.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tracking_number: Option<&'a str>,
@@ -6758,15 +6861,14 @@ pub struct CreatePaymentIntentTransferData<'a> {
     /// the full amount is transferred.
     ///
     /// If you intend to collect a fee and you need a more robust reporting experience, using
-    /// [application_fee_amount](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-application_fee_amount)
+    /// [application_fee_amount](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-application_fee_amount).
     /// might be a better fit for your integration.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
     /// If specified, successful charges will be attributed to the destination
     /// account for tax reporting, and the funds from charges will be transferred
-    /// to the destination account.
-    ///
-    /// The ID of the resulting transfer will be returned on the successful charge's `transfer` field.
+    /// to the destination account. The ID of the resulting transfer will be
+    /// returned on the successful charge's `transfer` field.
     pub destination: &'a str,
 }
 impl<'a> CreatePaymentIntentTransferData<'a> {
@@ -6777,11 +6879,14 @@ impl<'a> CreatePaymentIntentTransferData<'a> {
 impl<'a> CreatePaymentIntent<'a> {
     /// Creates a PaymentIntent object.
     ///
-    /// After the PaymentIntent is created, attach a payment method and [confirm](https://stripe.com/docs/api/payment_intents/confirm)
-    /// to continue the payment.
+    /// After the PaymentIntent is created, attach a payment method and [confirm](https://stripe.com/docs/api/payment_intents/confirm).
+    /// to continue the payment. Learn more about [the available payment flows
+    /// with the Payment Intents API](https://stripe.com/docs/payments/payment-intents).
     ///
-    /// Learn more about [the available payment flows with the Payment Intents API](https://stripe.com/docs/payments/payment-intents).  When you use `confirm=true` during creation, it’s equivalent to creating and confirming the PaymentIntent in the same call.
-    /// You can use any parameters available in the [confirm API](https://stripe.com/docs/api/payment_intents/confirm) when you supply `confirm=true`.
+    /// When you use `confirm=true` during creation, it’s equivalent to creating
+    /// and confirming the PaymentIntent in the same call. You can use any parameters
+    /// available in the [confirm API](https://stripe.com/docs/api/payment_intents/confirm) when you supply
+    /// `confirm=true`.
     pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::PaymentIntent> {
         client.send_form("/payment_intents", self, http_types::Method::Post)
     }
@@ -6789,7 +6894,6 @@ impl<'a> CreatePaymentIntent<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListPaymentIntent<'a> {
     /// A filter on the list, based on the object `created` field.
-    ///
     /// The value can be a string with an integer Unix timestamp or a dictionary with a number of different query options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
@@ -6797,7 +6901,6 @@ pub struct ListPaymentIntent<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6806,12 +6909,10 @@ pub struct ListPaymentIntent<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6839,7 +6940,6 @@ impl<'a> ListPaymentIntent<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrievePaymentIntent<'a> {
     /// The client secret of the PaymentIntent.
-    ///
     /// We require it if you use a publishable key to retrieve the source.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub client_secret: Option<&'a str>,
@@ -6856,6 +6956,8 @@ impl<'a> RetrievePaymentIntent<'a> {
     /// Retrieves the details of a PaymentIntent that has previously been created.
     ///
     /// You can retrieve a PaymentIntent client-side using a publishable key when the `client_secret` is in the query string.
+    ///
+    ///
     /// If you retrieve a PaymentIntent with a publishable key, it only returns a subset of properties.
     /// Refer to the [payment intent](https://stripe.com/docs/api#payment_intent_object) object reference for more details.
     pub fn send(
@@ -6869,14 +6971,12 @@ impl<'a> RetrievePaymentIntent<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntent<'a> {
     /// Amount intended to be collected by this PaymentIntent.
-    ///
     /// A positive integer representing how much to charge in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal) (e.g., 100 cents to charge $1.00 or 100 to charge ¥100, a zero-decimal currency).
     /// The minimum amount is $0.50 US or [equivalent in charge currency](https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts).
     /// The amount value supports up to eight digits (e.g., a value of 99999999 for a USD charge of $999,999.99).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
     /// The amount of the application fee (if any) that will be requested to be applied to the payment and transferred to the application owner's Stripe account.
-    ///
     /// The amount of the application fee collected will be capped at the total payment amount.
     /// For more information, see the PaymentIntents [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -6885,7 +6985,6 @@ pub struct UpdatePaymentIntent<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<UpdatePaymentIntentCaptureMethod>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
@@ -6896,16 +6995,13 @@ pub struct UpdatePaymentIntent<'a> {
     /// If present in combination with [setup_future_usage](https://stripe.com/docs/api#payment_intent_object-setup_future_usage), this PaymentIntent's payment method will be attached to the Customer after the PaymentIntent has been confirmed and any required actions from the user are complete.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -6917,52 +7013,49 @@ pub struct UpdatePaymentIntent<'a> {
     /// The ID of the payment method configuration to use with this PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_configuration: Option<&'a str>,
-    /// If provided, this hash will be used to create a PaymentMethod.
-    ///
-    /// The new PaymentMethod will appear in the [payment_method](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method) property on the PaymentIntent.
+    /// If provided, this hash will be used to create a PaymentMethod. The new PaymentMethod will appear
+    /// in the [payment_method](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method).
+    /// property on the PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_data: Option<UpdatePaymentIntentPaymentMethodData<'a>>,
     /// Payment-method-specific configuration for this PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_options: Option<UpdatePaymentIntentPaymentMethodOptions<'a>>,
     /// The list of payment method types (for example, card) that this PaymentIntent can use.
-    ///
     /// Use `automatic_payment_methods` to manage payment methods from the [Stripe Dashboard](https://dashboard.stripe.com/settings/payment_methods).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_types: Option<&'a [&'a str]>,
     /// Email address that the receipt for the resulting payment will be sent to.
-    ///
     /// If `receipt_email` is specified for a payment in live mode, a receipt will be sent regardless of your [email settings](https://dashboard.stripe.com/account/emails).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub receipt_email: Option<&'a str>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentSetupFutureUsage>,
     /// Shipping information for this PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping: Option<UpdatePaymentIntentShipping<'a>>,
     /// For non-card charges, you can use this value as the complete description that appears on your customers’ statements.
-    ///
     /// Must contain at least one letter, maximum 22 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor: Option<&'a str>,
     /// Provides information about a card payment that customers see on their statements.
-    ///
     /// Concatenated with the prefix (shortened descriptor) or statement descriptor that’s set on the account to form the complete statement descriptor.
     /// Maximum 22 characters for the concatenated descriptor.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor_suffix: Option<&'a str>,
     /// Use this parameter to automatically create a Transfer when the payment succeeds.
-    ///
     /// Learn more about the [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transfer_data: Option<UpdatePaymentIntentTransferData>,
     /// A string that identifies the resulting payment as part of a group.
-    ///
     /// You can only provide `transfer_group` if it hasn't been set.
     /// Learn more about the [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -7027,9 +7120,9 @@ impl serde::Serialize for UpdatePaymentIntentCaptureMethod {
         serializer.serialize_str(self.as_str())
     }
 }
-/// If provided, this hash will be used to create a PaymentMethod.
-///
-/// The new PaymentMethod will appear in the [payment_method](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method) property on the PaymentIntent.
+/// If provided, this hash will be used to create a PaymentMethod. The new PaymentMethod will appear
+/// in the [payment_method](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method).
+/// property on the PaymentIntent.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodData<'a> {
     /// If this is an `acss_debit` PaymentMethod, this hash contains details about the ACSS Debit payment method.
@@ -7096,7 +7189,6 @@ pub struct UpdatePaymentIntentPaymentMethodData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link: Option<&'a serde_json::Value>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -7121,7 +7213,6 @@ pub struct UpdatePaymentIntentPaymentMethodData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub promptpay: Option<&'a serde_json::Value>,
     /// Options to configure Radar.
-    ///
     /// See [Radar Session](https://stripe.com/docs/radar/radar-session) for more information.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub radar_options: Option<UpdatePaymentIntentPaymentMethodDataRadarOptions<'a>>,
@@ -7135,7 +7226,6 @@ pub struct UpdatePaymentIntentPaymentMethodData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sofort: Option<UpdatePaymentIntentPaymentMethodDataSofort>,
     /// The type of the PaymentMethod.
-    ///
     /// An additional hash is included on the PaymentMethod with a name matching this value.
     /// It contains additional information specific to the PaymentMethod type.
     #[serde(rename = "type")]
@@ -7230,9 +7320,7 @@ pub struct UpdatePaymentIntentPaymentMethodDataBacsDebit<'a> {
     /// Account number of the bank account that the funds will be debited from.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_number: Option<&'a str>,
-    /// Sort code of the bank account.
-    ///
-    /// (e.g., `10-20-30`).
+    /// Sort code of the bank account. (e.g., `10-20-30`)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sort_code: Option<&'a str>,
 }
@@ -7292,7 +7380,7 @@ impl<'a> UpdatePaymentIntentPaymentMethodDataBillingDetailsAddress<'a> {
 /// If this is a `boleto` PaymentMethod, this hash contains details about the Boleto payment method.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodDataBoleto<'a> {
-    /// The tax ID of the customer (CPF for individual consumers or CNPJ for businesses consumers).
+    /// The tax ID of the customer (CPF for individual consumers or CNPJ for businesses consumers)
     pub tax_id: &'a str,
 }
 impl<'a> UpdatePaymentIntentPaymentMethodDataBoleto<'a> {
@@ -7448,7 +7536,7 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodDataEpsBank {
 /// If this is an `fpx` PaymentMethod, this hash contains details about the FPX payment method.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodDataFpx {
-    /// Account holder type for FPX transaction.
+    /// Account holder type for FPX transaction
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_type: Option<UpdatePaymentIntentPaymentMethodDataFpxAccountHolderType>,
     /// The customer's bank.
@@ -7459,7 +7547,7 @@ impl UpdatePaymentIntentPaymentMethodDataFpx {
         Self { account_holder_type: None, bank }
     }
 }
-/// Account holder type for FPX transaction.
+/// Account holder type for FPX transaction
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodDataFpxAccountHolderType {
     Company,
@@ -7734,7 +7822,7 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodDataIdealBank {
 /// If this is a `klarna` PaymentMethod, this hash contains details about the Klarna payment method.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodDataKlarna {
-    /// Customer's date of birth.
+    /// Customer's date of birth
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dob: Option<UpdatePaymentIntentPaymentMethodDataKlarnaDob>,
 }
@@ -7743,7 +7831,7 @@ impl UpdatePaymentIntentPaymentMethodDataKlarna {
         Self::default()
     }
 }
-/// Customer's date of birth.
+/// Customer's date of birth
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodDataKlarnaDob {
     /// The day of birth, between 1 and 31.
@@ -7895,7 +7983,6 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodDataP24Bank {
     }
 }
 /// Options to configure Radar.
-///
 /// See [Radar Session](https://stripe.com/docs/radar/radar-session) for more information.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodDataRadarOptions<'a> {
@@ -7994,7 +8081,6 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodDataSofortCountry {
     }
 }
 /// The type of the PaymentMethod.
-///
 /// An additional hash is included on the PaymentMethod with a name matching this value.
 /// It contains additional information specific to the PaymentMethod type.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -8148,9 +8234,7 @@ pub struct UpdatePaymentIntentPaymentMethodDataUsBankAccount<'a> {
     /// Account number of the bank account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_number: Option<&'a str>,
-    /// Account type: checkings or savings.
-    ///
-    /// Defaults to checking if omitted.
+    /// Account type: checkings or savings. Defaults to checking if omitted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_type: Option<UpdatePaymentIntentPaymentMethodDataUsBankAccountAccountType>,
     /// The ID of a Financial Connections Account to use as a payment method.
@@ -8216,9 +8300,7 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodDataUsBankAccountAccou
         serializer.serialize_str(self.as_str())
     }
 }
-/// Account type: checkings or savings.
-///
-/// Defaults to checking if omitted.
+/// Account type: checkings or savings. Defaults to checking if omitted.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodDataUsBankAccountAccountType {
     Checking,
@@ -8383,18 +8465,21 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptions<'a> {
 /// If this is a `acss_debit` PaymentMethod, this sub-hash contains details about the ACSS Debit payment method options.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsAcssDebit<'a> {
-    /// Additional fields for Mandate creation.
+    /// Additional fields for Mandate creation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options: Option<UpdatePaymentIntentPaymentMethodOptionsAcssDebitMandateOptions<'a>>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdatePaymentIntentPaymentMethodOptionsAcssDebitSetupFutureUsage>,
-    /// Verification method for the intent.
+    /// Verification method for the intent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_method:
         Option<UpdatePaymentIntentPaymentMethodOptionsAcssDebitVerificationMethod>,
@@ -8404,16 +8489,15 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsAcssDebit<'a> {
         Self::default()
     }
 }
-/// Additional fields for Mandate creation.
+/// Additional fields for Mandate creation
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsAcssDebitMandateOptions<'a> {
     /// A URL for custom mandate text to render during confirmation step.
-    /// The URL will be rendered with additional GET parameters `payment_intent` and `payment_intent_client_secret` when confirming a Payment Intent,
+    /// The URL will be rendered with additional GET parameters `payment_intent` and `payment_intent_client_secret` when confirming a Payment Intent,.
     /// or `setup_intent` and `setup_intent_client_secret` when confirming a Setup Intent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_mandate_url: Option<&'a str>,
     /// Description of the mandate interval.
-    ///
     /// Only required if 'payment_schedule' parameter is 'interval' or 'combined'.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interval_description: Option<&'a str>,
@@ -8555,8 +8639,11 @@ impl serde::Serialize
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsAcssDebitSetupFutureUsage {
     None,
@@ -8610,7 +8697,7 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsAcssDebitSetupF
         serializer.serialize_str(self.as_str())
     }
 }
-/// Verification method for the intent.
+/// Verification method for the intent
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsAcssDebitVerificationMethod {
     Automatic,
@@ -8680,8 +8767,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsAffirm<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsAffirmSetupFutureUsage>,
 }
@@ -8745,8 +8835,11 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsAffirmCaptureMe
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsAffirmSetupFutureUsage {
     None,
@@ -8806,15 +8899,18 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsAfterpayClearpay<'a> {
     pub capture_method:
         Option<UpdatePaymentIntentPaymentMethodOptionsAfterpayClearpayCaptureMethod>,
     /// An internal identifier or reference that this payment corresponds to.
-    ///
-    /// You must limit the identifier to 128 characters, and it can only contain letters, numbers, underscores, backslashes, and dashes. This field differs from the statement descriptor and item name.
+    /// You must limit the identifier to 128 characters, and it can only contain letters, numbers, underscores, backslashes, and dashes.
+    /// This field differs from the statement descriptor and item name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reference: Option<&'a str>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdatePaymentIntentPaymentMethodOptionsAfterpayClearpaySetupFutureUsage>,
@@ -8879,8 +8975,11 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsAfterpayClearpa
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsAfterpayClearpaySetupFutureUsage {
     None,
@@ -8934,8 +9033,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsAlipay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsAlipaySetupFutureUsage>,
 }
@@ -8947,8 +9049,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsAlipay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsAlipaySetupFutureUsage {
     None,
@@ -9005,8 +9110,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsAuBecsDebit {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdatePaymentIntentPaymentMethodOptionsAuBecsDebitSetupFutureUsage>,
@@ -9019,8 +9127,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsAuBecsDebit {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsAuBecsDebitSetupFutureUsage {
     None,
@@ -9080,8 +9191,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsBacsDebit {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdatePaymentIntentPaymentMethodOptionsBacsDebitSetupFutureUsage>,
@@ -9094,8 +9208,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsBacsDebit {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsBacsDebitSetupFutureUsage {
     None,
@@ -9159,8 +9276,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsBancontact {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdatePaymentIntentPaymentMethodOptionsBancontactSetupFutureUsage>,
@@ -9230,8 +9350,11 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsBancontactPrefe
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsBancontactSetupFutureUsage {
     None,
@@ -9286,7 +9409,6 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsBancontactSetup
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsBlik<'a> {
     /// The 6-digit BLIK code that a customer has generated using their banking application.
-    ///
     /// Can only be set on confirmation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<&'a str>,
@@ -9300,15 +9422,17 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsBlik<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsBoleto {
     /// The number of calendar days before a Boleto voucher expires.
-    ///
     /// For example, if you create a Boleto voucher on Monday and you set expires_after_days to 2, the Boleto invoice will expire on Wednesday at 23:59 America/Sao_Paulo time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsBoletoSetupFutureUsage>,
 }
@@ -9320,8 +9444,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsBoleto {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsBoletoSetupFutureUsage {
     None,
@@ -9386,7 +9513,6 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<UpdatePaymentIntentPaymentMethodOptionsCardCaptureMethod>,
     /// A single-use `cvc_update` Token that represents a card CVC value.
-    ///
     /// When provided, the CVC value will be verified during the card payment attempt.
     /// This parameter can only be provided during confirmation.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -9400,13 +9526,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options: Option<UpdatePaymentIntentPaymentMethodOptionsCardMandateOptions<'a>>,
     /// When specified, this parameter indicates that a transaction will be marked
-    /// as MOTO (Mail Order Telephone Order) and thus out of scope for SCA.
-    ///
-    /// This parameter can only be provided during confirmation.
+    /// as MOTO (Mail Order Telephone Order) and thus out of scope for SCA. This
+    /// parameter can only be provided during confirmation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub moto: Option<bool>,
     /// Selected network to process this PaymentIntent on.
-    ///
     /// Depends on the available networks of the card attached to the PaymentIntent.
     /// Can be only set confirm-time.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -9427,7 +9551,6 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_overcapture: Option<UpdatePaymentIntentPaymentMethodOptionsCardRequestOvercapture>,
     /// We strongly recommend that you rely on our SCA Engine to automatically prompt your customers for authentication based on risk level and [other requirements](https://stripe.com/docs/strong-customer-authentication).
-    ///
     /// However, if you wish to request 3D Secure based on logic from your own fraud engine, provide this option.
     /// Permitted values include: `automatic` or `any`.
     /// If not provided, defaults to `automatic`.
@@ -9438,19 +9561,20 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsCard<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsCardSetupFutureUsage>,
     /// Provides information about a card payment that customers see on their statements.
-    ///
     /// Concatenated with the Kana prefix (shortened Kana descriptor) or Kana statement descriptor that’s set on the account to form the complete statement descriptor.
     /// Maximum 22 characters.
     /// On card statements, the *concatenation* of both prefix and suffix (including separators) will appear truncated to 22 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor_suffix_kana: Option<&'a str>,
     /// Provides information about a card payment that customers see on their statements.
-    ///
     /// Concatenated with the Kanji prefix (shortened Kanji descriptor) or Kanji statement descriptor that’s set on the account to form the complete statement descriptor.
     /// Maximum 17 characters.
     /// On card statements, the *concatenation* of both prefix and suffix (including separators) will appear truncated to 17 characters.
@@ -9659,7 +9783,6 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
     /// Amount to be charged for future payments.
     pub amount: i64,
     /// One of `fixed` or `maximum`.
-    ///
     /// If `fixed`, the `amount` param refers to the exact amount to be charged in future payments.
     /// If `maximum`, the amount charged can be up to the value passed for the `amount` param.
     pub amount_type: UpdatePaymentIntentPaymentMethodOptionsCardMandateOptionsAmountType,
@@ -9667,17 +9790,13 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// End date of the mandate or subscription.
-    ///
     /// If not provided, the mandate will be active until canceled.
     /// If provided, end date should be after start date.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub end_date: Option<stripe_types::Timestamp>,
-    /// Specifies payment frequency.
-    ///
-    /// One of `day`, `week`, `month`, `year`, or `sporadic`.
+    /// Specifies payment frequency. One of `day`, `week`, `month`, `year`, or `sporadic`.
     pub interval: UpdatePaymentIntentPaymentMethodOptionsCardMandateOptionsInterval,
     /// The number of intervals between payments.
-    ///
     /// For example, `interval=month` and `interval_count=3` indicates one payment every three months.
     /// Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
     /// This parameter is optional when `interval=sporadic`.
@@ -9685,13 +9804,9 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
     pub interval_count: Option<u64>,
     /// Unique identifier for the mandate or subscription.
     pub reference: &'a str,
-    /// Start date of the mandate or subscription.
-    ///
-    /// Start date should not be lesser than yesterday.
+    /// Start date of the mandate or subscription. Start date should not be lesser than yesterday.
     pub start_date: stripe_types::Timestamp,
-    /// Specifies the type of mandates supported.
-    ///
-    /// Possible values are `india`.
+    /// Specifies the type of mandates supported. Possible values are `india`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supported_types:
         Option<&'a [UpdatePaymentIntentPaymentMethodOptionsCardMandateOptionsSupportedTypes]>,
@@ -9718,7 +9833,6 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
     }
 }
 /// One of `fixed` or `maximum`.
-///
 /// If `fixed`, the `amount` param refers to the exact amount to be charged in future payments.
 /// If `maximum`, the amount charged can be up to the value passed for the `amount` param.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -9771,9 +9885,7 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsCardMandateOpti
         serializer.serialize_str(self.as_str())
     }
 }
-/// Specifies payment frequency.
-///
-/// One of `day`, `week`, `month`, `year`, or `sporadic`.
+/// Specifies payment frequency. One of `day`, `week`, `month`, `year`, or `sporadic`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsCardMandateOptionsInterval {
     Day,
@@ -9833,9 +9945,7 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsCardMandateOpti
         serializer.serialize_str(self.as_str())
     }
 }
-/// Specifies the type of mandates supported.
-///
-/// Possible values are `india`.
+/// Specifies the type of mandates supported. Possible values are `india`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsCardMandateOptionsSupportedTypes {
     India,
@@ -9884,7 +9994,6 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsCardMandateOpti
     }
 }
 /// Selected network to process this PaymentIntent on.
-///
 /// Depends on the available networks of the card attached to the PaymentIntent.
 /// Can be only set confirm-time.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -10177,7 +10286,6 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsCardRequestOver
     }
 }
 /// We strongly recommend that you rely on our SCA Engine to automatically prompt your customers for authentication based on risk level and [other requirements](https://stripe.com/docs/strong-customer-authentication).
-///
 /// However, if you wish to request 3D Secure based on logic from your own fraud engine, provide this option.
 /// Permitted values include: `automatic` or `any`.
 /// If not provided, defaults to `automatic`.
@@ -10235,8 +10343,11 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsCardRequestThre
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsCardSetupFutureUsage {
     None,
@@ -10297,7 +10408,6 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsCardPresent {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_extended_authorization: Option<bool>,
     /// Request ability to [increment](https://stripe.com/docs/terminal/features/incremental-authorizations) this PaymentIntent if the combination of MCC and card brand is eligible.
-    ///
     /// Check [incremental_authorization_supported](https://stripe.com/docs/api/charges/object#charge_object-payment_method_details-card_present-incremental_authorization_supported) in the [Confirm](https://stripe.com/docs/api/payment_intents/confirm) response to verify support.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_incremental_authorization_support: Option<bool>,
@@ -10320,8 +10430,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsCashapp {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsCashappSetupFutureUsage>,
 }
@@ -10385,8 +10498,11 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsCashappCaptureM
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsCashappSetupFutureUsage {
     None,
@@ -10448,15 +10564,17 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsCustomerBalance<'a> {
     pub bank_transfer:
         Option<UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransfer<'a>>,
     /// The funding method type to be used when there are not enough funds in the customer balance.
-    ///
     /// Permitted values include: `bank_transfer`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub funding_type: Option<UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceFundingType>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceSetupFutureUsage>,
@@ -10472,12 +10590,13 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransfer<'a
     /// Configuration for the eu_bank_transfer funding type.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub eu_bank_transfer: Option<UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<'a>>,
-    /// List of address types that should be returned in the financial_addresses response.
+        /// List of address types that should be returned in the financial_addresses response.
+    /// If not specified, all valid types will be returned.
     ///
-    /// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
+    /// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub requested_address_types: Option<&'a [UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferRequestedAddressTypes]>,
-    /// The list of bank transfer types that this PaymentIntent is allowed to use for funding Permitted values include: `eu_bank_transfer`, `gb_bank_transfer`, `jp_bank_transfer`, `mx_bank_transfer`, or `us_bank_transfer`.
+        /// The list of bank transfer types that this PaymentIntent is allowed to use for funding Permitted values include: `eu_bank_transfer`, `gb_bank_transfer`, `jp_bank_transfer`, `mx_bank_transfer`, or `us_bank_transfer`.
 #[serde(rename = "type")]
 pub type_: UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferType,
 
@@ -10493,7 +10612,6 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransfer<'a> 
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<'a> {
     /// The desired country code of the bank account information.
-    ///
     /// Permitted values include: `BE`, `DE`, `ES`, `FR`, `IE`, or `NL`.
     pub country: &'a str,
 }
@@ -10503,8 +10621,9 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferEuBan
     }
 }
 /// List of address types that should be returned in the financial_addresses response.
+/// If not specified, all valid types will be returned.
 ///
-/// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
+/// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferRequestedAddressTypes {
     Aba,
@@ -10641,7 +10760,6 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsCustomerBalance
     }
 }
 /// The funding method type to be used when there are not enough funds in the customer balance.
-///
 /// Permitted values include: `bank_transfer`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceFundingType {
@@ -10693,8 +10811,11 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsCustomerBalance
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsCustomerBalanceSetupFutureUsage {
     None,
@@ -10748,8 +10869,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsEps {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsEpsSetupFutureUsage>,
 }
@@ -10761,8 +10885,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsEps {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsEpsSetupFutureUsage {
     None,
@@ -10816,8 +10943,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsFpx {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsFpxSetupFutureUsage>,
 }
@@ -10829,8 +10959,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsFpx {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsFpxSetupFutureUsage {
     None,
@@ -10884,8 +11017,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsGiropay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsGiropaySetupFutureUsage>,
 }
@@ -10897,8 +11033,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsGiropay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsGiropaySetupFutureUsage {
     None,
@@ -10952,8 +11091,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsGrabpay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsGrabpaySetupFutureUsage>,
 }
@@ -10965,8 +11107,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsGrabpay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsGrabpaySetupFutureUsage {
     None,
@@ -11020,8 +11165,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsIdeal {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsIdealSetupFutureUsage>,
 }
@@ -11033,8 +11181,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsIdeal {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsIdealSetupFutureUsage {
     None,
@@ -11095,14 +11246,17 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsKlarna {
     /// If `capture_method` is already set on the PaymentIntent, providing an empty value for this parameter will unset the stored value for this payment method type.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<UpdatePaymentIntentPaymentMethodOptionsKlarnaCaptureMethod>,
-    /// Preferred language of the Klarna authorization page that the customer is redirected to.
+    /// Preferred language of the Klarna authorization page that the customer is redirected to
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_locale: Option<UpdatePaymentIntentPaymentMethodOptionsKlarnaPreferredLocale>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsKlarnaSetupFutureUsage>,
 }
@@ -11163,7 +11317,7 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsKlarnaCaptureMe
         serializer.serialize_str(self.as_str())
     }
 }
-/// Preferred language of the Klarna authorization page that the customer is redirected to.
+/// Preferred language of the Klarna authorization page that the customer is redirected to
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum UpdatePaymentIntentPaymentMethodOptionsKlarnaPreferredLocale {
@@ -11347,8 +11501,11 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsKlarnaPreferred
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsKlarnaSetupFutureUsage {
     None,
@@ -11400,19 +11557,16 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsKlarnaSetupFutu
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsKonbini<'a> {
     /// An optional 10 to 11 digit numeric-only string determining the confirmation code at applicable convenience stores.
-    ///
     /// Must not consist of only zeroes and could be rejected in case of insufficient uniqueness.
     /// We recommend to use the customer's phone number.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub confirmation_number: Option<&'a str>,
     /// The number of calendar days (between 1 and 60) after which Konbini payment instructions will expire.
-    ///
     /// For example, if a PaymentIntent is confirmed with Konbini and `expires_after_days` set to 2 on Monday JST, the instructions will expire on Wednesday 23:59:59 JST.
     /// Defaults to 3 days.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
     /// The timestamp at which the Konbini payment instructions will expire.
-    ///
     /// Only one of `expires_after_days` or `expires_at` may be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<stripe_types::Timestamp>,
@@ -11422,8 +11576,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsKonbini<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsKonbiniSetupFutureUsage>,
 }
@@ -11435,8 +11592,11 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsKonbini<'a> {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsKonbiniSetupFutureUsage {
     None,
@@ -11500,8 +11660,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsLink<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsLinkSetupFutureUsage>,
 }
@@ -11565,8 +11728,11 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsLinkCaptureMeth
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsLinkSetupFutureUsage {
     None,
@@ -11621,15 +11787,17 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsLinkSetupFuture
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsOxxo {
     /// The number of calendar days before an OXXO voucher expires.
-    ///
     /// For example, if you create an OXXO voucher on Monday and you set expires_after_days to 2, the OXXO invoice will expire on Wednesday at 23:59 America/Mexico_City time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsOxxoSetupFutureUsage>,
 }
@@ -11641,8 +11809,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsOxxo {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsOxxoSetupFutureUsage {
     None,
@@ -11696,8 +11867,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsP24 {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsP24SetupFutureUsage>,
     /// Confirm that the payer has accepted the P24 terms and conditions.
@@ -11712,8 +11886,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsP24 {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsP24SetupFutureUsage {
     None,
@@ -11767,8 +11944,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsPaynow {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsPaynowSetupFutureUsage>,
 }
@@ -11780,8 +11960,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsPaynow {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsPaynowSetupFutureUsage {
     None,
@@ -11839,7 +12022,6 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsPaypal<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_locale: Option<UpdatePaymentIntentPaymentMethodOptionsPaypalPreferredLocale>,
     /// A reference of the PayPal transaction visible to customer which is mapped to PayPal's invoice ID.
-    ///
     /// This must be a globally unique ID if you have configured in your PayPal settings to block multiple payments per invoice ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reference: Option<&'a str>,
@@ -11849,8 +12031,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsPaypal<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsPaypalSetupFutureUsage>,
 }
@@ -12022,8 +12207,11 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsPaypalPreferred
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsPaypalSetupFutureUsage {
     None,
@@ -12078,20 +12266,21 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsPaypalSetupFutu
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsPix {
     /// The number of seconds (between 10 and 1209600) after which Pix payment will expire.
-    ///
     /// Defaults to 86400 seconds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_seconds: Option<i64>,
     /// The timestamp at which the Pix expires (between 10 and 1209600 seconds in the future).
-    ///
     /// Defaults to 1 day in the future.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<stripe_types::Timestamp>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsPixSetupFutureUsage>,
 }
@@ -12103,8 +12292,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsPix {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsPixSetupFutureUsage {
     None,
@@ -12158,8 +12350,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsPromptpay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdatePaymentIntentPaymentMethodOptionsPromptpaySetupFutureUsage>,
@@ -12172,8 +12367,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsPromptpay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsPromptpaySetupFutureUsage {
     None,
@@ -12227,8 +12425,9 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsRevolutPay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdatePaymentIntentPaymentMethodOptionsRevolutPaySetupFutureUsage>,
@@ -12241,8 +12440,9 @@ impl UpdatePaymentIntentPaymentMethodOptionsRevolutPay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsRevolutPaySetupFutureUsage {
     None,
@@ -12296,14 +12496,17 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsRevolutPaySetup
 /// If this is a `sepa_debit` PaymentIntent, this sub-hash contains details about the SEPA Debit payment method options.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsSepaDebit<'a> {
-    /// Additional fields for Mandate creation.
+    /// Additional fields for Mandate creation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options: Option<&'a serde_json::Value>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdatePaymentIntentPaymentMethodOptionsSepaDebitSetupFutureUsage>,
@@ -12316,8 +12519,11 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsSepaDebit<'a> {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsSepaDebitSetupFutureUsage {
     None,
@@ -12380,8 +12586,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsSofort {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsSofortSetupFutureUsage>,
 }
@@ -12459,8 +12668,11 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsSofortPreferred
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsSofortSetupFutureUsage {
     None,
@@ -12514,26 +12726,29 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsSofortSetupFutu
 /// If this is a `us_bank_account` PaymentMethod, this sub-hash contains details about the US bank account payment method options.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsUsBankAccount<'a> {
-    /// Additional fields for Financial Connections Session creation.
+    /// Additional fields for Financial Connections Session creation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_connections:
         Option<UpdatePaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnections<'a>>,
-    /// Additional fields for network related functions.
+    /// Additional fields for network related functions
     #[serde(skip_serializing_if = "Option::is_none")]
     pub networks: Option<UpdatePaymentIntentPaymentMethodOptionsUsBankAccountNetworks<'a>>,
-    /// Preferred transaction settlement speed.
+    /// Preferred transaction settlement speed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_settlement_speed:
         Option<UpdatePaymentIntentPaymentMethodOptionsUsBankAccountPreferredSettlementSpeed>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdatePaymentIntentPaymentMethodOptionsUsBankAccountSetupFutureUsage>,
-    /// Verification method for the intent.
+    /// Verification method for the intent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_method:
         Option<UpdatePaymentIntentPaymentMethodOptionsUsBankAccountVerificationMethod>,
@@ -12543,11 +12758,10 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsUsBankAccount<'a> {
         Self::default()
     }
 }
-/// Additional fields for Financial Connections Session creation.
+/// Additional fields for Financial Connections Session creation
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnections<'a> {
     /// The list of permissions to request.
-    ///
     /// If this parameter is passed, the `payment_method` permission must be included.
     /// Valid permissions include: `balances`, `ownership`, `payment_method`, and `transactions`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -12560,7 +12774,6 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnecti
         &'a [UpdatePaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch],
     >,
     /// For webview integrations only.
-    ///
     /// Upon completing OAuth login in the native browser, the user will be redirected to this URL to return to your app.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_url: Option<&'a str>,
@@ -12571,7 +12784,6 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnection
     }
 }
 /// The list of permissions to request.
-///
 /// If this parameter is passed, the `payment_method` permission must be included.
 /// Valid permissions include: `balances`, `ownership`, `payment_method`, and `transactions`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -12698,10 +12910,10 @@ impl serde::Serialize
         serializer.serialize_str(self.as_str())
     }
 }
-/// Additional fields for network related functions.
+/// Additional fields for network related functions
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsUsBankAccountNetworks<'a> {
-    /// Triggers validations to run across the selected networks.
+    /// Triggers validations to run across the selected networks
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requested:
         Option<&'a [UpdatePaymentIntentPaymentMethodOptionsUsBankAccountNetworksRequested]>,
@@ -12711,7 +12923,7 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsUsBankAccountNetworks<'a> {
         Self::default()
     }
 }
-/// Triggers validations to run across the selected networks.
+/// Triggers validations to run across the selected networks
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsUsBankAccountNetworksRequested {
     Ach,
@@ -12762,7 +12974,7 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsUsBankAccountNe
         serializer.serialize_str(self.as_str())
     }
 }
-/// Preferred transaction settlement speed.
+/// Preferred transaction settlement speed
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsUsBankAccountPreferredSettlementSpeed {
     Fastest,
@@ -12824,8 +13036,11 @@ impl serde::Serialize
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsUsBankAccountSetupFutureUsage {
     None,
@@ -12879,7 +13094,7 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsUsBankAccountSe
         serializer.serialize_str(self.as_str())
     }
 }
-/// Verification method for the intent.
+/// Verification method for the intent
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsUsBankAccountVerificationMethod {
     Automatic,
@@ -12936,18 +13151,19 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsUsBankAccountVe
 /// If this is a `wechat_pay` PaymentMethod, this sub-hash contains details about the WeChat Pay payment method options.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentIntentPaymentMethodOptionsWechatPay<'a> {
-    /// The app ID registered with WeChat Pay.
-    ///
-    /// Only required when client is ios or android.
+    /// The app ID registered with WeChat Pay. Only required when client is ios or android.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub app_id: Option<&'a str>,
-    /// The client type that the end customer will pay from.
+    /// The client type that the end customer will pay from
     pub client: UpdatePaymentIntentPaymentMethodOptionsWechatPayClient,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<UpdatePaymentIntentPaymentMethodOptionsWechatPaySetupFutureUsage>,
@@ -12957,7 +13173,7 @@ impl<'a> UpdatePaymentIntentPaymentMethodOptionsWechatPay<'a> {
         Self { app_id: None, client, setup_future_usage: None }
     }
 }
-/// The client type that the end customer will pay from.
+/// The client type that the end customer will pay from
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsWechatPayClient {
     Android,
@@ -13014,8 +13230,11 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsWechatPayClient
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsWechatPaySetupFutureUsage {
     None,
@@ -13069,8 +13288,11 @@ pub struct UpdatePaymentIntentPaymentMethodOptionsZip {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<UpdatePaymentIntentPaymentMethodOptionsZipSetupFutureUsage>,
 }
@@ -13082,8 +13304,11 @@ impl UpdatePaymentIntentPaymentMethodOptionsZip {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentPaymentMethodOptionsZipSetupFutureUsage {
     None,
@@ -13134,8 +13359,11 @@ impl serde::Serialize for UpdatePaymentIntentPaymentMethodOptionsZipSetupFutureU
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentIntentSetupFutureUsage {
     OffSession,
@@ -13200,7 +13428,6 @@ pub struct UpdatePaymentIntentShipping<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone: Option<&'a str>,
     /// The tracking number for a physical product, obtained from the delivery service.
-    ///
     /// If multiple tracking numbers were generated for this purchase, please separate them with commas.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tracking_number: Option<&'a str>,
@@ -13238,7 +13465,6 @@ impl<'a> UpdatePaymentIntentShippingAddress<'a> {
     }
 }
 /// Use this parameter to automatically create a Transfer when the payment succeeds.
-///
 /// Learn more about the [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts).
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentIntentTransferData {
@@ -13255,10 +13481,10 @@ impl<'a> UpdatePaymentIntent<'a> {
     /// Updates properties on a PaymentIntent object without confirming.
     ///
     /// Depending on which properties you update, you might need to confirm the
-    /// PaymentIntent again.
-    ///
-    /// For example, updating the `payment_method` always requires you to confirm the PaymentIntent again.
-    /// If you prefer to update and confirm at the same time, we recommend updating properties through the [confirm API](https://stripe.com/docs/api/payment_intents/confirm) instead.
+    /// PaymentIntent again. For example, updating the `payment_method`
+    /// always requires you to confirm the PaymentIntent again. If you prefer to
+    /// update and confirm at the same time, we recommend updating properties through
+    /// the [confirm API](https://stripe.com/docs/api/payment_intents/confirm) instead.
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -13273,7 +13499,6 @@ pub struct ConfirmPaymentIntent<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<ConfirmPaymentIntentCaptureMethod>,
     /// Set to `true` to fail the payment attempt if the PaymentIntent transitions into `requires_action`.
-    ///
     /// This parameter is intended for simpler integrations that do not handle customer actions, like [saving cards without authentication](https://stripe.com/docs/payments/save-card-without-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error_on_requires_action: Option<bool>,
@@ -13286,28 +13511,25 @@ pub struct ConfirmPaymentIntent<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_data: Option<ConfirmPaymentIntentMandateData<'a>>,
     /// Set to `true` to indicate that the customer isn't in your checkout flow during this payment attempt and can't authenticate.
-    ///
     /// Use this parameter in scenarios where you collect card details and [charge them later](https://stripe.com/docs/payments/cards/charging-saved-cards).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub off_session: Option<ConfirmPaymentIntentOffSession>,
     /// ID of the payment method (a PaymentMethod, Card, or [compatible Source](https://stripe.com/docs/payments/payment-methods/transitioning#compatibility) object) to attach to this PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method: Option<&'a str>,
-    /// If provided, this hash will be used to create a PaymentMethod.
-    ///
-    /// The new PaymentMethod will appear in the [payment_method](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method) property on the PaymentIntent.
+    /// If provided, this hash will be used to create a PaymentMethod. The new PaymentMethod will appear
+    /// in the [payment_method](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method).
+    /// property on the PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_data: Option<ConfirmPaymentIntentPaymentMethodData<'a>>,
     /// Payment method-specific configuration for this PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_options: Option<ConfirmPaymentIntentPaymentMethodOptions<'a>>,
     /// Options to configure Radar.
-    ///
     /// Learn more about [Radar Sessions](https://stripe.com/docs/radar/radar-session).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub radar_options: Option<ConfirmPaymentIntentRadarOptions<'a>>,
     /// Email address that the receipt for the resulting payment will be sent to.
-    ///
     /// If `receipt_email` is specified for a payment in live mode, a receipt will be sent regardless of your [email settings](https://dashboard.stripe.com/account/emails).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub receipt_email: Option<&'a str>,
@@ -13319,8 +13541,11 @@ pub struct ConfirmPaymentIntent<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentSetupFutureUsage>,
     /// Shipping information for this PaymentIntent.
@@ -13420,7 +13645,6 @@ pub struct ConfirmPaymentIntentSecretKeyParamCustomerAcceptance<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub online: Option<ConfirmPaymentIntentSecretKeyParamCustomerAcceptanceOnline<'a>>,
     /// The type of customer acceptance information included with the Mandate.
-    ///
     /// One of `online` or `offline`.
     #[serde(rename = "type")]
     pub type_: ConfirmPaymentIntentSecretKeyParamCustomerAcceptanceType,
@@ -13444,7 +13668,6 @@ impl<'a> ConfirmPaymentIntentSecretKeyParamCustomerAcceptanceOnline<'a> {
     }
 }
 /// The type of customer acceptance information included with the Mandate.
-///
 /// One of `online` or `offline`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentSecretKeyParamCustomerAcceptanceType {
@@ -13589,7 +13812,6 @@ impl serde::Serialize for ConfirmPaymentIntentClientKeyParamCustomerAcceptanceTy
     }
 }
 /// Set to `true` to indicate that the customer isn't in your checkout flow during this payment attempt and can't authenticate.
-///
 /// Use this parameter in scenarios where you collect card details and [charge them later](https://stripe.com/docs/payments/cards/charging-saved-cards).
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 #[serde(untagged)]
@@ -13598,9 +13820,9 @@ pub enum ConfirmPaymentIntentOffSession {
     OneOff,
     Recurring,
 }
-/// If provided, this hash will be used to create a PaymentMethod.
-///
-/// The new PaymentMethod will appear in the [payment_method](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method) property on the PaymentIntent.
+/// If provided, this hash will be used to create a PaymentMethod. The new PaymentMethod will appear
+/// in the [payment_method](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-payment_method).
+/// property on the PaymentIntent.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodData<'a> {
     /// If this is an `acss_debit` PaymentMethod, this hash contains details about the ACSS Debit payment method.
@@ -13667,7 +13889,6 @@ pub struct ConfirmPaymentIntentPaymentMethodData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link: Option<&'a serde_json::Value>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -13692,7 +13913,6 @@ pub struct ConfirmPaymentIntentPaymentMethodData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub promptpay: Option<&'a serde_json::Value>,
     /// Options to configure Radar.
-    ///
     /// See [Radar Session](https://stripe.com/docs/radar/radar-session) for more information.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub radar_options: Option<ConfirmPaymentIntentPaymentMethodDataRadarOptions<'a>>,
@@ -13706,7 +13926,6 @@ pub struct ConfirmPaymentIntentPaymentMethodData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sofort: Option<ConfirmPaymentIntentPaymentMethodDataSofort>,
     /// The type of the PaymentMethod.
-    ///
     /// An additional hash is included on the PaymentMethod with a name matching this value.
     /// It contains additional information specific to the PaymentMethod type.
     #[serde(rename = "type")]
@@ -13801,9 +14020,7 @@ pub struct ConfirmPaymentIntentPaymentMethodDataBacsDebit<'a> {
     /// Account number of the bank account that the funds will be debited from.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_number: Option<&'a str>,
-    /// Sort code of the bank account.
-    ///
-    /// (e.g., `10-20-30`).
+    /// Sort code of the bank account. (e.g., `10-20-30`)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sort_code: Option<&'a str>,
 }
@@ -13863,7 +14080,7 @@ impl<'a> ConfirmPaymentIntentPaymentMethodDataBillingDetailsAddress<'a> {
 /// If this is a `boleto` PaymentMethod, this hash contains details about the Boleto payment method.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodDataBoleto<'a> {
-    /// The tax ID of the customer (CPF for individual consumers or CNPJ for businesses consumers).
+    /// The tax ID of the customer (CPF for individual consumers or CNPJ for businesses consumers)
     pub tax_id: &'a str,
 }
 impl<'a> ConfirmPaymentIntentPaymentMethodDataBoleto<'a> {
@@ -14019,7 +14236,7 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodDataEpsBank {
 /// If this is an `fpx` PaymentMethod, this hash contains details about the FPX payment method.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodDataFpx {
-    /// Account holder type for FPX transaction.
+    /// Account holder type for FPX transaction
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_type: Option<ConfirmPaymentIntentPaymentMethodDataFpxAccountHolderType>,
     /// The customer's bank.
@@ -14030,7 +14247,7 @@ impl ConfirmPaymentIntentPaymentMethodDataFpx {
         Self { account_holder_type: None, bank }
     }
 }
-/// Account holder type for FPX transaction.
+/// Account holder type for FPX transaction
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodDataFpxAccountHolderType {
     Company,
@@ -14305,7 +14522,7 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodDataIdealBank {
 /// If this is a `klarna` PaymentMethod, this hash contains details about the Klarna payment method.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodDataKlarna {
-    /// Customer's date of birth.
+    /// Customer's date of birth
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dob: Option<ConfirmPaymentIntentPaymentMethodDataKlarnaDob>,
 }
@@ -14314,7 +14531,7 @@ impl ConfirmPaymentIntentPaymentMethodDataKlarna {
         Self::default()
     }
 }
-/// Customer's date of birth.
+/// Customer's date of birth
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodDataKlarnaDob {
     /// The day of birth, between 1 and 31.
@@ -14466,7 +14683,6 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodDataP24Bank {
     }
 }
 /// Options to configure Radar.
-///
 /// See [Radar Session](https://stripe.com/docs/radar/radar-session) for more information.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodDataRadarOptions<'a> {
@@ -14565,7 +14781,6 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodDataSofortCountry {
     }
 }
 /// The type of the PaymentMethod.
-///
 /// An additional hash is included on the PaymentMethod with a name matching this value.
 /// It contains additional information specific to the PaymentMethod type.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -14719,9 +14934,7 @@ pub struct ConfirmPaymentIntentPaymentMethodDataUsBankAccount<'a> {
     /// Account number of the bank account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_number: Option<&'a str>,
-    /// Account type: checkings or savings.
-    ///
-    /// Defaults to checking if omitted.
+    /// Account type: checkings or savings. Defaults to checking if omitted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_type: Option<ConfirmPaymentIntentPaymentMethodDataUsBankAccountAccountType>,
     /// The ID of a Financial Connections Account to use as a payment method.
@@ -14787,9 +15000,7 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodDataUsBankAccountAcco
         serializer.serialize_str(self.as_str())
     }
 }
-/// Account type: checkings or savings.
-///
-/// Defaults to checking if omitted.
+/// Account type: checkings or savings. Defaults to checking if omitted.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodDataUsBankAccountAccountType {
     Checking,
@@ -14954,19 +15165,22 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptions<'a> {
 /// If this is a `acss_debit` PaymentMethod, this sub-hash contains details about the ACSS Debit payment method options.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsAcssDebit<'a> {
-    /// Additional fields for Mandate creation.
+    /// Additional fields for Mandate creation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options:
         Option<ConfirmPaymentIntentPaymentMethodOptionsAcssDebitMandateOptions<'a>>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<ConfirmPaymentIntentPaymentMethodOptionsAcssDebitSetupFutureUsage>,
-    /// Verification method for the intent.
+    /// Verification method for the intent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_method:
         Option<ConfirmPaymentIntentPaymentMethodOptionsAcssDebitVerificationMethod>,
@@ -14976,16 +15190,15 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsAcssDebit<'a> {
         Self::default()
     }
 }
-/// Additional fields for Mandate creation.
+/// Additional fields for Mandate creation
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsAcssDebitMandateOptions<'a> {
     /// A URL for custom mandate text to render during confirmation step.
-    /// The URL will be rendered with additional GET parameters `payment_intent` and `payment_intent_client_secret` when confirming a Payment Intent,
+    /// The URL will be rendered with additional GET parameters `payment_intent` and `payment_intent_client_secret` when confirming a Payment Intent,.
     /// or `setup_intent` and `setup_intent_client_secret` when confirming a Setup Intent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_mandate_url: Option<&'a str>,
     /// Description of the mandate interval.
-    ///
     /// Only required if 'payment_schedule' parameter is 'interval' or 'combined'.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interval_description: Option<&'a str>,
@@ -15127,8 +15340,11 @@ impl serde::Serialize
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsAcssDebitSetupFutureUsage {
     None,
@@ -15182,7 +15398,7 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsAcssDebitSetup
         serializer.serialize_str(self.as_str())
     }
 }
-/// Verification method for the intent.
+/// Verification method for the intent
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsAcssDebitVerificationMethod {
     Automatic,
@@ -15252,8 +15468,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsAffirm<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsAffirmSetupFutureUsage>,
 }
@@ -15317,8 +15536,11 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsAffirmCaptureM
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsAffirmSetupFutureUsage {
     None,
@@ -15378,15 +15600,18 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsAfterpayClearpay<'a> {
     pub capture_method:
         Option<ConfirmPaymentIntentPaymentMethodOptionsAfterpayClearpayCaptureMethod>,
     /// An internal identifier or reference that this payment corresponds to.
-    ///
-    /// You must limit the identifier to 128 characters, and it can only contain letters, numbers, underscores, backslashes, and dashes. This field differs from the statement descriptor and item name.
+    /// You must limit the identifier to 128 characters, and it can only contain letters, numbers, underscores, backslashes, and dashes.
+    /// This field differs from the statement descriptor and item name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reference: Option<&'a str>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<ConfirmPaymentIntentPaymentMethodOptionsAfterpayClearpaySetupFutureUsage>,
@@ -15451,8 +15676,11 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsAfterpayClearp
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsAfterpayClearpaySetupFutureUsage {
     None,
@@ -15510,8 +15738,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsAlipay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsAlipaySetupFutureUsage>,
 }
@@ -15523,8 +15754,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsAlipay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsAlipaySetupFutureUsage {
     None,
@@ -15581,8 +15815,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsAuBecsDebit {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<ConfirmPaymentIntentPaymentMethodOptionsAuBecsDebitSetupFutureUsage>,
@@ -15595,8 +15832,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsAuBecsDebit {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsAuBecsDebitSetupFutureUsage {
     None,
@@ -15656,8 +15896,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsBacsDebit {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<ConfirmPaymentIntentPaymentMethodOptionsBacsDebitSetupFutureUsage>,
@@ -15670,8 +15913,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsBacsDebit {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsBacsDebitSetupFutureUsage {
     None,
@@ -15735,8 +15981,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsBancontact {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<ConfirmPaymentIntentPaymentMethodOptionsBancontactSetupFutureUsage>,
@@ -15806,8 +16055,11 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsBancontactPref
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsBancontactSetupFutureUsage {
     None,
@@ -15862,7 +16114,6 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsBancontactSetu
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsBlik<'a> {
     /// The 6-digit BLIK code that a customer has generated using their banking application.
-    ///
     /// Can only be set on confirmation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<&'a str>,
@@ -15876,15 +16127,17 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsBlik<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsBoleto {
     /// The number of calendar days before a Boleto voucher expires.
-    ///
     /// For example, if you create a Boleto voucher on Monday and you set expires_after_days to 2, the Boleto invoice will expire on Wednesday at 23:59 America/Sao_Paulo time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsBoletoSetupFutureUsage>,
 }
@@ -15896,8 +16149,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsBoleto {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsBoletoSetupFutureUsage {
     None,
@@ -15962,7 +16218,6 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<ConfirmPaymentIntentPaymentMethodOptionsCardCaptureMethod>,
     /// A single-use `cvc_update` Token that represents a card CVC value.
-    ///
     /// When provided, the CVC value will be verified during the card payment attempt.
     /// This parameter can only be provided during confirmation.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -15976,13 +16231,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options: Option<ConfirmPaymentIntentPaymentMethodOptionsCardMandateOptions<'a>>,
     /// When specified, this parameter indicates that a transaction will be marked
-    /// as MOTO (Mail Order Telephone Order) and thus out of scope for SCA.
-    ///
-    /// This parameter can only be provided during confirmation.
+    /// as MOTO (Mail Order Telephone Order) and thus out of scope for SCA. This
+    /// parameter can only be provided during confirmation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub moto: Option<bool>,
     /// Selected network to process this PaymentIntent on.
-    ///
     /// Depends on the available networks of the card attached to the PaymentIntent.
     /// Can be only set confirm-time.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -16003,7 +16256,6 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsCard<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_overcapture: Option<ConfirmPaymentIntentPaymentMethodOptionsCardRequestOvercapture>,
     /// We strongly recommend that you rely on our SCA Engine to automatically prompt your customers for authentication based on risk level and [other requirements](https://stripe.com/docs/strong-customer-authentication).
-    ///
     /// However, if you wish to request 3D Secure based on logic from your own fraud engine, provide this option.
     /// Permitted values include: `automatic` or `any`.
     /// If not provided, defaults to `automatic`.
@@ -16014,19 +16266,20 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsCard<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsCardSetupFutureUsage>,
     /// Provides information about a card payment that customers see on their statements.
-    ///
     /// Concatenated with the Kana prefix (shortened Kana descriptor) or Kana statement descriptor that’s set on the account to form the complete statement descriptor.
     /// Maximum 22 characters.
     /// On card statements, the *concatenation* of both prefix and suffix (including separators) will appear truncated to 22 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor_suffix_kana: Option<&'a str>,
     /// Provides information about a card payment that customers see on their statements.
-    ///
     /// Concatenated with the Kanji prefix (shortened Kanji descriptor) or Kanji statement descriptor that’s set on the account to form the complete statement descriptor.
     /// Maximum 17 characters.
     /// On card statements, the *concatenation* of both prefix and suffix (including separators) will appear truncated to 17 characters.
@@ -16235,7 +16488,6 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
     /// Amount to be charged for future payments.
     pub amount: i64,
     /// One of `fixed` or `maximum`.
-    ///
     /// If `fixed`, the `amount` param refers to the exact amount to be charged in future payments.
     /// If `maximum`, the amount charged can be up to the value passed for the `amount` param.
     pub amount_type: ConfirmPaymentIntentPaymentMethodOptionsCardMandateOptionsAmountType,
@@ -16243,17 +16495,13 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// End date of the mandate or subscription.
-    ///
     /// If not provided, the mandate will be active until canceled.
     /// If provided, end date should be after start date.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub end_date: Option<stripe_types::Timestamp>,
-    /// Specifies payment frequency.
-    ///
-    /// One of `day`, `week`, `month`, `year`, or `sporadic`.
+    /// Specifies payment frequency. One of `day`, `week`, `month`, `year`, or `sporadic`.
     pub interval: ConfirmPaymentIntentPaymentMethodOptionsCardMandateOptionsInterval,
     /// The number of intervals between payments.
-    ///
     /// For example, `interval=month` and `interval_count=3` indicates one payment every three months.
     /// Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
     /// This parameter is optional when `interval=sporadic`.
@@ -16261,13 +16509,9 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
     pub interval_count: Option<u64>,
     /// Unique identifier for the mandate or subscription.
     pub reference: &'a str,
-    /// Start date of the mandate or subscription.
-    ///
-    /// Start date should not be lesser than yesterday.
+    /// Start date of the mandate or subscription. Start date should not be lesser than yesterday.
     pub start_date: stripe_types::Timestamp,
-    /// Specifies the type of mandates supported.
-    ///
-    /// Possible values are `india`.
+    /// Specifies the type of mandates supported. Possible values are `india`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supported_types:
         Option<&'a [ConfirmPaymentIntentPaymentMethodOptionsCardMandateOptionsSupportedTypes]>,
@@ -16294,7 +16538,6 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsCardMandateOptions<'a> {
     }
 }
 /// One of `fixed` or `maximum`.
-///
 /// If `fixed`, the `amount` param refers to the exact amount to be charged in future payments.
 /// If `maximum`, the amount charged can be up to the value passed for the `amount` param.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -16347,9 +16590,7 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsCardMandateOpt
         serializer.serialize_str(self.as_str())
     }
 }
-/// Specifies payment frequency.
-///
-/// One of `day`, `week`, `month`, `year`, or `sporadic`.
+/// Specifies payment frequency. One of `day`, `week`, `month`, `year`, or `sporadic`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsCardMandateOptionsInterval {
     Day,
@@ -16409,9 +16650,7 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsCardMandateOpt
         serializer.serialize_str(self.as_str())
     }
 }
-/// Specifies the type of mandates supported.
-///
-/// Possible values are `india`.
+/// Specifies the type of mandates supported. Possible values are `india`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsCardMandateOptionsSupportedTypes {
     India,
@@ -16464,7 +16703,6 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsCardMandateOpt
     }
 }
 /// Selected network to process this PaymentIntent on.
-///
 /// Depends on the available networks of the card attached to the PaymentIntent.
 /// Can be only set confirm-time.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -16761,7 +16999,6 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsCardRequestOve
     }
 }
 /// We strongly recommend that you rely on our SCA Engine to automatically prompt your customers for authentication based on risk level and [other requirements](https://stripe.com/docs/strong-customer-authentication).
-///
 /// However, if you wish to request 3D Secure based on logic from your own fraud engine, provide this option.
 /// Permitted values include: `automatic` or `any`.
 /// If not provided, defaults to `automatic`.
@@ -16819,8 +17056,11 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsCardRequestThr
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsCardSetupFutureUsage {
     None,
@@ -16881,7 +17121,6 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsCardPresent {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_extended_authorization: Option<bool>,
     /// Request ability to [increment](https://stripe.com/docs/terminal/features/incremental-authorizations) this PaymentIntent if the combination of MCC and card brand is eligible.
-    ///
     /// Check [incremental_authorization_supported](https://stripe.com/docs/api/charges/object#charge_object-payment_method_details-card_present-incremental_authorization_supported) in the [Confirm](https://stripe.com/docs/api/payment_intents/confirm) response to verify support.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub request_incremental_authorization_support: Option<bool>,
@@ -16904,8 +17143,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsCashapp {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsCashappSetupFutureUsage>,
 }
@@ -16969,8 +17211,11 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsCashappCapture
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsCashappSetupFutureUsage {
     None,
@@ -17032,15 +17277,17 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsCustomerBalance<'a> {
     pub bank_transfer:
         Option<ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceBankTransfer<'a>>,
     /// The funding method type to be used when there are not enough funds in the customer balance.
-    ///
     /// Permitted values include: `bank_transfer`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub funding_type: Option<ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceFundingType>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceSetupFutureUsage>,
@@ -17056,12 +17303,13 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceBankTransfer<'
     /// Configuration for the eu_bank_transfer funding type.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub eu_bank_transfer: Option<ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<'a>>,
-    /// List of address types that should be returned in the financial_addresses response.
+        /// List of address types that should be returned in the financial_addresses response.
+    /// If not specified, all valid types will be returned.
     ///
-    /// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
+    /// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub requested_address_types: Option<&'a [ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferRequestedAddressTypes]>,
-    /// The list of bank transfer types that this PaymentIntent is allowed to use for funding Permitted values include: `eu_bank_transfer`, `gb_bank_transfer`, `jp_bank_transfer`, `mx_bank_transfer`, or `us_bank_transfer`.
+        /// The list of bank transfer types that this PaymentIntent is allowed to use for funding Permitted values include: `eu_bank_transfer`, `gb_bank_transfer`, `jp_bank_transfer`, `mx_bank_transfer`, or `us_bank_transfer`.
 #[serde(rename = "type")]
 pub type_: ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferType,
 
@@ -17077,7 +17325,6 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceBankTransfer<'a>
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<'a> {
     /// The desired country code of the bank account information.
-    ///
     /// Permitted values include: `BE`, `DE`, `ES`, `FR`, `IE`, or `NL`.
     pub country: &'a str,
 }
@@ -17087,8 +17334,9 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferEuBa
     }
 }
 /// List of address types that should be returned in the financial_addresses response.
+/// If not specified, all valid types will be returned.
 ///
-/// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
+/// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceBankTransferRequestedAddressTypes {
     Aba,
@@ -17225,7 +17473,6 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanc
     }
 }
 /// The funding method type to be used when there are not enough funds in the customer balance.
-///
 /// Permitted values include: `bank_transfer`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceFundingType {
@@ -17277,8 +17524,11 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanc
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsCustomerBalanceSetupFutureUsage {
     None,
@@ -17332,8 +17582,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsEps {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsEpsSetupFutureUsage>,
 }
@@ -17345,8 +17598,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsEps {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsEpsSetupFutureUsage {
     None,
@@ -17400,8 +17656,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsFpx {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsFpxSetupFutureUsage>,
 }
@@ -17413,8 +17672,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsFpx {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsFpxSetupFutureUsage {
     None,
@@ -17468,8 +17730,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsGiropay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsGiropaySetupFutureUsage>,
 }
@@ -17481,8 +17746,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsGiropay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsGiropaySetupFutureUsage {
     None,
@@ -17536,8 +17804,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsGrabpay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsGrabpaySetupFutureUsage>,
 }
@@ -17549,8 +17820,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsGrabpay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsGrabpaySetupFutureUsage {
     None,
@@ -17604,8 +17878,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsIdeal {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsIdealSetupFutureUsage>,
 }
@@ -17617,8 +17894,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsIdeal {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsIdealSetupFutureUsage {
     None,
@@ -17679,14 +17959,17 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsKlarna {
     /// If `capture_method` is already set on the PaymentIntent, providing an empty value for this parameter will unset the stored value for this payment method type.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capture_method: Option<ConfirmPaymentIntentPaymentMethodOptionsKlarnaCaptureMethod>,
-    /// Preferred language of the Klarna authorization page that the customer is redirected to.
+    /// Preferred language of the Klarna authorization page that the customer is redirected to
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_locale: Option<ConfirmPaymentIntentPaymentMethodOptionsKlarnaPreferredLocale>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsKlarnaSetupFutureUsage>,
 }
@@ -17747,7 +18030,7 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsKlarnaCaptureM
         serializer.serialize_str(self.as_str())
     }
 }
-/// Preferred language of the Klarna authorization page that the customer is redirected to.
+/// Preferred language of the Klarna authorization page that the customer is redirected to
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsKlarnaPreferredLocale {
@@ -17931,8 +18214,11 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsKlarnaPreferre
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsKlarnaSetupFutureUsage {
     None,
@@ -17984,19 +18270,16 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsKlarnaSetupFut
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsKonbini<'a> {
     /// An optional 10 to 11 digit numeric-only string determining the confirmation code at applicable convenience stores.
-    ///
     /// Must not consist of only zeroes and could be rejected in case of insufficient uniqueness.
     /// We recommend to use the customer's phone number.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub confirmation_number: Option<&'a str>,
     /// The number of calendar days (between 1 and 60) after which Konbini payment instructions will expire.
-    ///
     /// For example, if a PaymentIntent is confirmed with Konbini and `expires_after_days` set to 2 on Monday JST, the instructions will expire on Wednesday 23:59:59 JST.
     /// Defaults to 3 days.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
     /// The timestamp at which the Konbini payment instructions will expire.
-    ///
     /// Only one of `expires_after_days` or `expires_at` may be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<stripe_types::Timestamp>,
@@ -18006,8 +18289,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsKonbini<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsKonbiniSetupFutureUsage>,
 }
@@ -18019,8 +18305,11 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsKonbini<'a> {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsKonbiniSetupFutureUsage {
     None,
@@ -18084,8 +18373,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsLink<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsLinkSetupFutureUsage>,
 }
@@ -18149,8 +18441,11 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsLinkCaptureMet
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsLinkSetupFutureUsage {
     None,
@@ -18205,15 +18500,17 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsLinkSetupFutur
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsOxxo {
     /// The number of calendar days before an OXXO voucher expires.
-    ///
     /// For example, if you create an OXXO voucher on Monday and you set expires_after_days to 2, the OXXO invoice will expire on Wednesday at 23:59 America/Mexico_City time.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_days: Option<u32>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsOxxoSetupFutureUsage>,
 }
@@ -18225,8 +18522,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsOxxo {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsOxxoSetupFutureUsage {
     None,
@@ -18280,8 +18580,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsP24 {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsP24SetupFutureUsage>,
     /// Confirm that the payer has accepted the P24 terms and conditions.
@@ -18296,8 +18599,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsP24 {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsP24SetupFutureUsage {
     None,
@@ -18351,8 +18657,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsPaynow {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsPaynowSetupFutureUsage>,
 }
@@ -18364,8 +18673,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsPaynow {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsPaynowSetupFutureUsage {
     None,
@@ -18423,7 +18735,6 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsPaypal<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_locale: Option<ConfirmPaymentIntentPaymentMethodOptionsPaypalPreferredLocale>,
     /// A reference of the PayPal transaction visible to customer which is mapped to PayPal's invoice ID.
-    ///
     /// This must be a globally unique ID if you have configured in your PayPal settings to block multiple payments per invoice ID.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reference: Option<&'a str>,
@@ -18433,8 +18744,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsPaypal<'a> {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsPaypalSetupFutureUsage>,
 }
@@ -18606,8 +18920,11 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsPaypalPreferre
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsPaypalSetupFutureUsage {
     None,
@@ -18662,20 +18979,21 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsPaypalSetupFut
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsPix {
     /// The number of seconds (between 10 and 1209600) after which Pix payment will expire.
-    ///
     /// Defaults to 86400 seconds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_after_seconds: Option<i64>,
     /// The timestamp at which the Pix expires (between 10 and 1209600 seconds in the future).
-    ///
     /// Defaults to 1 day in the future.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<stripe_types::Timestamp>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsPixSetupFutureUsage>,
 }
@@ -18687,8 +19005,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsPix {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsPixSetupFutureUsage {
     None,
@@ -18742,8 +19063,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsPromptpay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<ConfirmPaymentIntentPaymentMethodOptionsPromptpaySetupFutureUsage>,
@@ -18756,8 +19080,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsPromptpay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsPromptpaySetupFutureUsage {
     None,
@@ -18811,8 +19138,9 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsRevolutPay {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<ConfirmPaymentIntentPaymentMethodOptionsRevolutPaySetupFutureUsage>,
@@ -18825,8 +19153,9 @@ impl ConfirmPaymentIntentPaymentMethodOptionsRevolutPay {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsRevolutPaySetupFutureUsage {
     None,
@@ -18880,14 +19209,17 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsRevolutPaySetu
 /// If this is a `sepa_debit` PaymentIntent, this sub-hash contains details about the SEPA Debit payment method options.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsSepaDebit<'a> {
-    /// Additional fields for Mandate creation.
+    /// Additional fields for Mandate creation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate_options: Option<&'a serde_json::Value>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<ConfirmPaymentIntentPaymentMethodOptionsSepaDebitSetupFutureUsage>,
@@ -18900,8 +19232,11 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsSepaDebit<'a> {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsSepaDebitSetupFutureUsage {
     None,
@@ -18964,8 +19299,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsSofort {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsSofortSetupFutureUsage>,
 }
@@ -19043,8 +19381,11 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsSofortPreferre
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsSofortSetupFutureUsage {
     None,
@@ -19098,26 +19439,29 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsSofortSetupFut
 /// If this is a `us_bank_account` PaymentMethod, this sub-hash contains details about the US bank account payment method options.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsUsBankAccount<'a> {
-    /// Additional fields for Financial Connections Session creation.
+    /// Additional fields for Financial Connections Session creation
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_connections:
         Option<ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnections<'a>>,
-    /// Additional fields for network related functions.
+    /// Additional fields for network related functions
     #[serde(skip_serializing_if = "Option::is_none")]
     pub networks: Option<ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountNetworks<'a>>,
-    /// Preferred transaction settlement speed.
+    /// Preferred transaction settlement speed
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_settlement_speed:
         Option<ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountPreferredSettlementSpeed>,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountSetupFutureUsage>,
-    /// Verification method for the intent.
+    /// Verification method for the intent
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_method:
         Option<ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountVerificationMethod>,
@@ -19127,11 +19471,10 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsUsBankAccount<'a> {
         Self::default()
     }
 }
-/// Additional fields for Financial Connections Session creation.
+/// Additional fields for Financial Connections Session creation
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnections<'a> {
-    /// The list of permissions to request.
-    ///
+        /// The list of permissions to request.
     /// If this parameter is passed, the `payment_method` permission must be included.
     /// Valid permissions include: `balances`, `ownership`, `payment_method`, and `transactions`.
 #[serde(skip_serializing_if = "Option::is_none")]
@@ -19139,8 +19482,7 @@ pub permissions: Option<&'a [ConfirmPaymentIntentPaymentMethodOptionsUsBankAccou
     /// List of data features that you would like to retrieve upon account creation.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub prefetch: Option<&'a [ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch]>,
-    /// For webview integrations only.
-    ///
+        /// For webview integrations only.
     /// Upon completing OAuth login in the native browser, the user will be redirected to this URL to return to your app.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub return_url: Option<&'a str>,
@@ -19152,7 +19494,6 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountFinancialConnectio
     }
 }
 /// The list of permissions to request.
-///
 /// If this parameter is passed, the `payment_method` permission must be included.
 /// Valid permissions include: `balances`, `ownership`, `payment_method`, and `transactions`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -19279,10 +19620,10 @@ impl serde::Serialize
         serializer.serialize_str(self.as_str())
     }
 }
-/// Additional fields for network related functions.
+/// Additional fields for network related functions
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountNetworks<'a> {
-    /// Triggers validations to run across the selected networks.
+    /// Triggers validations to run across the selected networks
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requested:
         Option<&'a [ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountNetworksRequested]>,
@@ -19292,7 +19633,7 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountNetworks<'a> {
         Self::default()
     }
 }
-/// Triggers validations to run across the selected networks.
+/// Triggers validations to run across the selected networks
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountNetworksRequested {
     Ach,
@@ -19343,7 +19684,7 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountN
         serializer.serialize_str(self.as_str())
     }
 }
-/// Preferred transaction settlement speed.
+/// Preferred transaction settlement speed
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountPreferredSettlementSpeed {
     Fastest,
@@ -19405,8 +19746,11 @@ impl serde::Serialize
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountSetupFutureUsage {
     None,
@@ -19460,7 +19804,7 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountS
         serializer.serialize_str(self.as_str())
     }
 }
-/// Verification method for the intent.
+/// Verification method for the intent
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountVerificationMethod {
     Automatic,
@@ -19517,18 +19861,19 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsUsBankAccountV
 /// If this is a `wechat_pay` PaymentMethod, this sub-hash contains details about the WeChat Pay payment method options.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct ConfirmPaymentIntentPaymentMethodOptionsWechatPay<'a> {
-    /// The app ID registered with WeChat Pay.
-    ///
-    /// Only required when client is ios or android.
+    /// The app ID registered with WeChat Pay. Only required when client is ios or android.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub app_id: Option<&'a str>,
-    /// The client type that the end customer will pay from.
+    /// The client type that the end customer will pay from
     pub client: ConfirmPaymentIntentPaymentMethodOptionsWechatPayClient,
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage:
         Option<ConfirmPaymentIntentPaymentMethodOptionsWechatPaySetupFutureUsage>,
@@ -19538,7 +19883,7 @@ impl<'a> ConfirmPaymentIntentPaymentMethodOptionsWechatPay<'a> {
         Self { app_id: None, client, setup_future_usage: None }
     }
 }
-/// The client type that the end customer will pay from.
+/// The client type that the end customer will pay from
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsWechatPayClient {
     Android,
@@ -19595,8 +19940,11 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsWechatPayClien
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsWechatPaySetupFutureUsage {
     None,
@@ -19650,8 +19998,11 @@ pub struct ConfirmPaymentIntentPaymentMethodOptionsZip {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    ///
+    /// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<ConfirmPaymentIntentPaymentMethodOptionsZipSetupFutureUsage>,
 }
@@ -19663,8 +20014,11 @@ impl ConfirmPaymentIntentPaymentMethodOptionsZip {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentPaymentMethodOptionsZipSetupFutureUsage {
     None,
@@ -19713,7 +20067,6 @@ impl serde::Serialize for ConfirmPaymentIntentPaymentMethodOptionsZipSetupFuture
     }
 }
 /// Options to configure Radar.
-///
 /// Learn more about [Radar Sessions](https://stripe.com/docs/radar/radar-session).
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ConfirmPaymentIntentRadarOptions<'a> {
@@ -19729,8 +20082,11 @@ impl<'a> ConfirmPaymentIntentRadarOptions<'a> {
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).  If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+///
+/// If `setup_future_usage` is already set and you are performing a request using a publishable key, you may only update the value from `on_session` to `off_session`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ConfirmPaymentIntentSetupFutureUsage {
     OffSession,
@@ -19795,7 +20151,6 @@ pub struct ConfirmPaymentIntentShipping<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone: Option<&'a str>,
     /// The tracking number for a physical product, obtained from the delivery service.
-    ///
     /// If multiple tracking numbers were generated for this purchase, please separate them with commas.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tracking_number: Option<&'a str>,
@@ -19834,13 +20189,29 @@ impl<'a> ConfirmPaymentIntentShippingAddress<'a> {
 }
 impl<'a> ConfirmPaymentIntent<'a> {
     /// Confirm that your customer intends to pay with current or provided
-    /// payment method.
-    ///
-    /// Upon confirmation, the PaymentIntent will attempt to initiate a payment. If the selected payment method requires additional authentication steps, the PaymentIntent will transition to the `requires_action` status and suggest additional actions via `next_action`.
-    /// If payment fails, the PaymentIntent transitions to the `requires_payment_method` status or the `canceled` status if the confirmation limit is reached.
-    /// If payment succeeds, the PaymentIntent will transition to the `succeeded` status (or `requires_capture`, if `capture_method` is set to `manual`). If the `confirmation_method` is `automatic`, payment may be attempted using our [client SDKs](https://stripe.com/docs/stripe-js/reference#stripe-handle-card-payment) and the PaymentIntent’s [client_secret](https://stripe.com/docs/api#payment_intent_object-client_secret). After `next_action`s are handled by the client, no additional confirmation is required to complete the payment. If the `confirmation_method` is `manual`, all payment attempts must be initiated using a secret key. If any actions are required for the payment, the PaymentIntent will return to the `requires_confirmation` state after those actions are completed.
-    /// Your server needs to then explicitly re-confirm the PaymentIntent to initiate the next payment attempt.
-    /// Read the [expanded documentation](https://stripe.com/docs/payments/payment-intents/web-manual) to learn more about manual confirmation.
+    /// payment method. Upon confirmation, the PaymentIntent will attempt to initiate
+    /// a payment.
+    /// If the selected payment method requires additional authentication steps, the
+    /// PaymentIntent will transition to the `requires_action` status and
+    /// suggest additional actions via `next_action`. If payment fails,
+    /// the PaymentIntent transitions to the `requires_payment_method` status or the
+    /// `canceled` status if the confirmation limit is reached. If
+    /// payment succeeds, the PaymentIntent will transition to the `succeeded`
+    /// status (or `requires_capture`, if `capture_method` is set to `manual`).
+    /// If the `confirmation_method` is `automatic`, payment may be attempted
+    /// using our [client SDKs](https://stripe.com/docs/stripe-js/reference#stripe-handle-card-payment)
+    /// and the PaymentIntent’s [client_secret](https://stripe.com/docs/api#payment_intent_object-client_secret).
+    /// After `next_action`s are handled by the client, no additional
+    /// confirmation is required to complete the payment.
+    /// If the `confirmation_method` is `manual`, all payment attempts must be
+    /// initiated using a secret key.
+    /// If any actions are required for the payment, the PaymentIntent will
+    /// return to the `requires_confirmation` state
+    /// after those actions are completed. Your server needs to then
+    /// explicitly re-confirm the PaymentIntent to initiate the next payment
+    /// attempt.
+    /// Read the [expanded documentation](https://stripe.com/docs/payments/payment-intents/web-manual).
+    /// to learn more about manual confirmation.
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -19856,7 +20227,6 @@ impl<'a> ConfirmPaymentIntent<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CancelPaymentIntent<'a> {
     /// Reason for canceling this PaymentIntent.
-    ///
     /// Possible values are: `duplicate`, `fraudulent`, `requested_by_customer`, or `abandoned`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cancellation_reason: Option<CancelPaymentIntentCancellationReason>,
@@ -19870,7 +20240,6 @@ impl<'a> CancelPaymentIntent<'a> {
     }
 }
 /// Reason for canceling this PaymentIntent.
-///
 /// Possible values are: `duplicate`, `fraudulent`, `requested_by_customer`, or `abandoned`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CancelPaymentIntentCancellationReason {
@@ -19931,8 +20300,11 @@ impl serde::Serialize for CancelPaymentIntentCancellationReason {
 impl<'a> CancelPaymentIntent<'a> {
     /// You can cancel a PaymentIntent object when it’s in one of these statuses: `requires_payment_method`, `requires_capture`, `requires_confirmation`, `requires_action` or, [in rare cases](https://stripe.com/docs/payments/intents), `processing`.
     ///
+    ///
     /// After it’s canceled, no additional charges are made by the PaymentIntent and any operations on the PaymentIntent fail with an error.
     /// For PaymentIntents with a `status` of `requires_capture`, the remaining `amount_capturable` is automatically refunded.
+    ///
+    ///
     /// You can’t cancel the PaymentIntent for a Checkout Session.
     /// [Expire the Checkout Session](https://stripe.com/docs/api/checkout/sessions/expire) instead.
     pub fn send(
@@ -19950,13 +20322,11 @@ impl<'a> CancelPaymentIntent<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CapturePaymentIntent<'a> {
     /// The amount to capture from the PaymentIntent, which must be less than or equal to the original amount.
-    ///
     /// Any additional amount is automatically refunded.
     /// Defaults to the full `amount_capturable` if it's not provided.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount_to_capture: Option<i64>,
     /// The amount of the application fee (if any) that will be requested to be applied to the payment and transferred to the application owner's Stripe account.
-    ///
     /// The amount of the application fee collected will be capped at the total payment amount.
     /// For more information, see the PaymentIntents [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -19965,32 +20335,27 @@ pub struct CapturePaymentIntent<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Defaults to `true`.
-    ///
     /// When capturing a PaymentIntent, setting `final_capture` to `false` notifies Stripe to not release the remaining uncaptured funds to make sure that they're captured in future requests.
     /// You can only use this setting when [multicapture](https://stripe.com/docs/payments/multicapture) is available for PaymentIntents.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub final_capture: Option<bool>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// For non-card charges, you can use this value as the complete description that appears on your customers’ statements.
-    ///
     /// Must contain at least one letter, maximum 22 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor: Option<&'a str>,
     /// Provides information about a card payment that customers see on their statements.
-    ///
     /// Concatenated with the prefix (shortened descriptor) or statement descriptor that’s set on the account to form the complete statement descriptor.
     /// The concatenated descriptor must be 1-22 characters long.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor_suffix: Option<&'a str>,
     /// The parameters that you can use to automatically create a transfer after the payment
     /// is captured.
-    ///
     /// Learn more about the [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transfer_data: Option<CapturePaymentIntentTransferData>,
@@ -20002,7 +20367,6 @@ impl<'a> CapturePaymentIntent<'a> {
 }
 /// The parameters that you can use to automatically create a transfer after the payment
 /// is captured.
-///
 /// Learn more about the [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts).
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CapturePaymentIntentTransferData {
@@ -20036,32 +20400,26 @@ impl<'a> CapturePaymentIntent<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct IncrementAuthorizationPaymentIntent<'a> {
     /// The updated total amount that you intend to collect from the cardholder.
-    ///
     /// This amount must be greater than the currently authorized amount.
     pub amount: i64,
     /// The amount of the application fee (if any) that will be requested to be applied to the payment and transferred to the application owner's Stripe account.
-    ///
     /// The amount of the application fee collected will be capped at the total payment amount.
     /// For more information, see the PaymentIntents [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub application_fee_amount: Option<i64>,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// For non-card charges, you can use this value as the complete description that appears on your customers’ statements.
-    ///
     /// Must contain at least one letter, maximum 22 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor: Option<&'a str>,
@@ -20098,12 +20456,29 @@ impl IncrementAuthorizationPaymentIntentTransferData {
 }
 impl<'a> IncrementAuthorizationPaymentIntent<'a> {
     /// Perform an incremental authorization on an eligible
-    /// [PaymentIntent](https://stripe.com/docs/api/payment_intents/object).
+    /// [PaymentIntent](https://stripe.com/docs/api/payment_intents/object). To be eligible, the
+    /// PaymentIntent’s status must be `requires_capture` and
+    /// [incremental_authorization_supported](https://stripe.com/docs/api/charges/object#charge_object-payment_method_details-card_present-incremental_authorization_supported).
+    /// must be `true`.
     ///
-    /// To be eligible, the PaymentIntent’s status must be `requires_capture` and [incremental_authorization_supported](https://stripe.com/docs/api/charges/object#charge_object-payment_method_details-card_present-incremental_authorization_supported) must be `true`.  Incremental authorizations attempt to increase the authorized amount on your customer’s card to the new, higher `amount` provided.
-    /// Similar to the initial authorization, incremental authorizations can be declined.
-    /// A single PaymentIntent can call this endpoint multiple times to further increase the authorized amount.  If the incremental authorization succeeds, the PaymentIntent object returns with the updated [amount](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-amount). If the incremental authorization fails, a [card_declined](https://stripe.com/docs/error-codes#card-declined) error returns, and no other fields on the PaymentIntent or Charge update.
-    /// The PaymentIntent object remains capturable for the previously authorized amount.  Each PaymentIntent can have a maximum of 10 incremental authorization attempts, including declines. After it’s captured, a PaymentIntent can no longer be incremented.  Learn more about [incremental authorizations](https://stripe.com/docs/terminal/features/incremental-authorizations).
+    /// Incremental authorizations attempt to increase the authorized amount on
+    /// your customer’s card to the new, higher `amount` provided. Similar to the
+    /// initial authorization, incremental authorizations can be declined. A
+    /// single PaymentIntent can call this endpoint multiple times to further
+    /// increase the authorized amount.
+    ///
+    /// If the incremental authorization succeeds, the PaymentIntent object
+    /// returns with the updated
+    /// [amount](https://stripe.com/docs/api/payment_intents/object#payment_intent_object-amount).
+    /// If the incremental authorization fails, a
+    /// [card_declined](https://stripe.com/docs/error-codes#card-declined) error returns, and no other
+    /// fields on the PaymentIntent or Charge update. The PaymentIntent
+    /// object remains capturable for the previously authorized amount.
+    ///
+    /// Each PaymentIntent can have a maximum of 10 incremental authorization attempts, including declines.
+    /// After it’s captured, a PaymentIntent can no longer be incremented.
+    ///
+    /// Learn more about [incremental authorizations](https://stripe.com/docs/terminal/features/incremental-authorizations).
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -20159,7 +20534,6 @@ pub struct ApplyCustomerBalancePaymentIntent<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,

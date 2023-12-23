@@ -1,7 +1,6 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct SetupAttemptPaymentMethodDetailsIdeal {
     /// The customer's bank.
-    ///
     /// Can be one of `abn_amro`, `asn_bank`, `bunq`, `handelsbanken`, `ing`, `knab`, `moneyou`, `n26`, `rabobank`, `regiobank`, `revolut`, `sns_bank`, `triodos_bank`, `van_lanschot`, or `yoursafe`.
     pub bank: Option<SetupAttemptPaymentMethodDetailsIdealBank>,
     /// The Bank Identifier Code of the customer's bank.
@@ -12,14 +11,11 @@ pub struct SetupAttemptPaymentMethodDetailsIdeal {
     pub generated_sepa_debit_mandate: Option<stripe_types::Expandable<stripe_shared::Mandate>>,
     /// Last four characters of the IBAN.
     pub iban_last4: Option<String>,
-    /// Owner's verified full name.
-    ///
-    /// Values are verified or provided by iDEAL directly (if supported) at the time of authorization or settlement.
-    /// They cannot be set or mutated.
+    /// Owner's verified full name. Values are verified or provided by iDEAL directly
+    /// (if supported) at the time of authorization or settlement. They cannot be set or mutated.
     pub verified_name: Option<String>,
 }
 /// The customer's bank.
-///
 /// Can be one of `abn_amro`, `asn_bank`, `bunq`, `handelsbanken`, `ing`, `knab`, `moneyou`, `n26`, `rabobank`, `regiobank`, `revolut`, `sns_bank`, `triodos_bank`, `van_lanschot`, or `yoursafe`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]

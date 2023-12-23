@@ -1,22 +1,17 @@
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Recurring {
     /// Specifies a usage aggregation strategy for prices of `usage_type=metered`.
-    ///
     /// Allowed values are `sum` for summing up all usage during a period, `last_during_period` for using the last usage record reported within a period, `last_ever` for using the last usage record ever (across period bounds) or `max` which uses the usage record with the maximum reported usage during a period.
     /// Defaults to `sum`.
     pub aggregate_usage: Option<RecurringAggregateUsage>,
-    /// The frequency at which a subscription is billed.
-    ///
-    /// One of `day`, `week`, `month` or `year`.
+    /// The frequency at which a subscription is billed. One of `day`, `week`, `month` or `year`.
     pub interval: RecurringInterval,
     /// The number of intervals (specified in the `interval` attribute) between subscription billings.
-    ///
     /// For example, `interval=month` and `interval_count=3` bills every 3 months.
     pub interval_count: u64,
     /// Default number of trial days when subscribing a customer to this price using [`trial_from_plan=true`](https://stripe.com/docs/api#create_subscription-trial_from_plan).
     pub trial_period_days: Option<u32>,
     /// Configures how the quantity per period should be determined.
-    ///
     /// Can be either `metered` or `licensed`.
     /// `licensed` automatically bills the `quantity` set when adding it to a subscription.
     /// `metered` aggregates the total usage based on usage records.
@@ -24,7 +19,6 @@ pub struct Recurring {
     pub usage_type: RecurringUsageType,
 }
 /// Specifies a usage aggregation strategy for prices of `usage_type=metered`.
-///
 /// Allowed values are `sum` for summing up all usage during a period, `last_during_period` for using the last usage record reported within a period, `last_ever` for using the last usage record ever (across period bounds) or `max` which uses the usage record with the maximum reported usage during a period.
 /// Defaults to `sum`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -91,9 +85,7 @@ impl<'de> serde::Deserialize<'de> for RecurringAggregateUsage {
             .map_err(|_| serde::de::Error::custom("Unknown value for RecurringAggregateUsage"))
     }
 }
-/// The frequency at which a subscription is billed.
-///
-/// One of `day`, `week`, `month` or `year`.
+/// The frequency at which a subscription is billed. One of `day`, `week`, `month` or `year`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum RecurringInterval {
     Day,
@@ -159,7 +151,6 @@ impl<'de> serde::Deserialize<'de> for RecurringInterval {
     }
 }
 /// Configures how the quantity per period should be determined.
-///
 /// Can be either `metered` or `licensed`.
 /// `licensed` automatically bills the `quantity` set when adding it to a subscription.
 /// `metered` aggregates the total usage based on usage records.

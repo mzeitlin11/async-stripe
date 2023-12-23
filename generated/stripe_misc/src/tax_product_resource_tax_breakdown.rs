@@ -6,14 +6,12 @@ pub struct TaxProductResourceTaxBreakdown {
     pub inclusive: bool,
     pub tax_rate_details: stripe_misc::TaxProductResourceTaxRateDetails,
     /// The reasoning behind this tax, for example, if the product is tax exempt.
-    ///
     /// We might extend the possible values for this field to support new tax rules.
     pub taxability_reason: TaxProductResourceTaxBreakdownTaxabilityReason,
     /// The amount on which tax is calculated, in integer cents.
     pub taxable_amount: i64,
 }
 /// The reasoning behind this tax, for example, if the product is tax exempt.
-///
 /// We might extend the possible values for this field to support new tax rules.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]

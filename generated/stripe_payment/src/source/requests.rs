@@ -32,9 +32,7 @@ pub enum DetachReturned {
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveSource<'a> {
-    /// The client secret of the source.
-    ///
-    /// Required if a publishable key is used to retrieve the source.
+    /// The client secret of the source. Required if a publishable key is used to retrieve the source.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub client_secret: Option<&'a str>,
     /// Specifies which fields in the response should be expanded.
@@ -48,7 +46,6 @@ impl<'a> RetrieveSource<'a> {
 }
 impl<'a> RetrieveSource<'a> {
     /// Retrieves an existing source object.
-    ///
     /// Supply the unique source ID from a source creation request and Stripe will return the corresponding up-to-date source object information.
     pub fn send(
         &self,
@@ -61,19 +58,16 @@ impl<'a> RetrieveSource<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSource<'a> {
     /// Amount associated with the source.
-    ///
     /// This is the amount for which the source will be chargeable once ready.
     /// Required for `single_use` sources.
     /// Not supported for `receiver` type sources, where charge amount may not be specified until funds land.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
     /// Three-letter [ISO code for the currency](https://stripe.com/docs/currencies) associated with the source.
-    ///
     /// This is the currency for which the source will be chargeable once ready.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
     /// The `Customer` to whom the original source is attached to.
-    ///
     /// Must be set when the original source is not a `Source` (e.g., `Card`).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
@@ -81,7 +75,6 @@ pub struct CreateSource<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// The authentication `flow` of the source to create.
-    ///
     /// `flow` is one of `redirect`, `receiver`, `code_verification`, `none`.
     /// It is generally inferred unless a type supports multiple flows.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -98,32 +91,26 @@ pub struct CreateSource<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub owner: Option<CreateSourceOwner<'a>>,
     /// Optional parameters for the receiver flow.
-    ///
     /// Can be set only if the source is a receiver (`flow` is `receiver`).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub receiver: Option<CreateSourceReceiver>,
     /// Parameters required for the redirect flow.
-    ///
     /// Required if the source is authenticated by a redirect (`flow` is `redirect`).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub redirect: Option<CreateSourceRedirect<'a>>,
     /// Information about the items and shipping associated with the source.
-    ///
     /// Required for transactional credit (for example Klarna) sources before you can charge it.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source_order: Option<CreateSourceSourceOrder<'a>>,
     /// An arbitrary string to be displayed on your customer's statement.
-    ///
     /// As an example, if your website is `RunClub` and the item you're charging for is a race ticket, you may want to specify a `statement_descriptor` of `RunClub 5K race ticket.` While many payment types will display this information, some may not display it at all.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub statement_descriptor: Option<&'a str>,
     /// An optional token used to create the source.
-    ///
     /// When passed, token properties will override source parameters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub token: Option<&'a str>,
     /// The `type` of the source to create.
-    ///
     /// Required unless `customer` and `original_source` are specified (see the [Cloning card Sources](https://stripe.com/docs/sources/connect#cloning-card-sources) guide).
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -137,7 +124,6 @@ impl<'a> CreateSource<'a> {
     }
 }
 /// The authentication `flow` of the source to create.
-///
 /// `flow` is one of `redirect`, `receiver`, `code_verification`, `none`.
 /// It is generally inferred unless a type supports multiple flows.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -202,23 +188,17 @@ pub struct CreateSourceMandate<'a> {
     /// The parameters required to notify Stripe of a mandate acceptance or refusal by the customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acceptance: Option<CreateSourceMandateAcceptance<'a>>,
-    /// The amount specified by the mandate.
-    ///
-    /// (Leave null for a mandate covering all amounts).
+    /// The amount specified by the mandate. (Leave null for a mandate covering all amounts)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
-    /// The currency specified by the mandate.
-    ///
-    /// (Must match `currency` of the source).
+    /// The currency specified by the mandate. (Must match `currency` of the source)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
     /// The interval of debits permitted by the mandate.
-    ///
     /// Either `one_time` (just permitting a single debit), `scheduled` (with debits on an agreed schedule or for clearly-defined events), or `variable`(for debits with any frequency).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interval: Option<CreateSourceMandateInterval>,
     /// The method Stripe should use to notify the customer of upcoming debit instructions and/or mandate confirmation as required by the underlying debit network.
-    ///
     /// Either `email` (an email is sent directly to the customer), `manual` (a `source.mandate_notification` event is sent to your webhooks endpoint and you should handle the notification) or `none` (the underlying debit network does not require any notification).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub notification_method: Option<CreateSourceMandateNotificationMethod>,
@@ -238,22 +218,17 @@ pub struct CreateSourceMandateAcceptance<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip: Option<&'a str>,
     /// The parameters required to store a mandate accepted offline.
-    ///
     /// Should only be set if `mandate[type]` is `offline`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub offline: Option<CreateSourceMandateAcceptanceOffline<'a>>,
     /// The parameters required to store a mandate accepted online.
-    ///
     /// Should only be set if `mandate[type]` is `online`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub online: Option<CreateSourceMandateAcceptanceOnline<'a>>,
     /// The status of the mandate acceptance.
-    ///
     /// Either `accepted` (the mandate was accepted) or `refused` (the mandate was refused).
     pub status: CreateSourceMandateAcceptanceStatus,
-    /// The type of acceptance information included with the mandate.
-    ///
-    /// Either `online` or `offline`.
+    /// The type of acceptance information included with the mandate. Either `online` or `offline`
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<CreateSourceMandateAcceptanceType>,
@@ -275,7 +250,6 @@ impl<'a> CreateSourceMandateAcceptance<'a> {
     }
 }
 /// The parameters required to store a mandate accepted offline.
-///
 /// Should only be set if `mandate[type]` is `offline`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateSourceMandateAcceptanceOffline<'a> {
@@ -288,7 +262,6 @@ impl<'a> CreateSourceMandateAcceptanceOffline<'a> {
     }
 }
 /// The parameters required to store a mandate accepted online.
-///
 /// Should only be set if `mandate[type]` is `online`.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSourceMandateAcceptanceOnline<'a> {
@@ -308,7 +281,6 @@ impl<'a> CreateSourceMandateAcceptanceOnline<'a> {
     }
 }
 /// The status of the mandate acceptance.
-///
 /// Either `accepted` (the mandate was accepted) or `refused` (the mandate was refused).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateSourceMandateAcceptanceStatus {
@@ -366,9 +338,7 @@ impl serde::Serialize for CreateSourceMandateAcceptanceStatus {
         serializer.serialize_str(self.as_str())
     }
 }
-/// The type of acceptance information included with the mandate.
-///
-/// Either `online` or `offline`.
+/// The type of acceptance information included with the mandate. Either `online` or `offline`
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateSourceMandateAcceptanceType {
     Offline,
@@ -420,7 +390,6 @@ impl serde::Serialize for CreateSourceMandateAcceptanceType {
     }
 }
 /// The interval of debits permitted by the mandate.
-///
 /// Either `one_time` (just permitting a single debit), `scheduled` (with debits on an agreed schedule or for clearly-defined events), or `variable`(for debits with any frequency).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateSourceMandateInterval {
@@ -476,7 +445,6 @@ impl serde::Serialize for CreateSourceMandateInterval {
     }
 }
 /// The method Stripe should use to notify the customer of upcoming debit instructions and/or mandate confirmation as required by the underlying debit network.
-///
 /// Either `email` (an email is sent directly to the customer), `manual` (a `source.mandate_notification` event is sent to your webhooks endpoint and you should handle the notification) or `none` (the underlying debit network does not require any notification).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateSourceMandateNotificationMethod {
@@ -586,12 +554,10 @@ impl<'a> CreateSourceOwnerAddress<'a> {
     }
 }
 /// Optional parameters for the receiver flow.
-///
 /// Can be set only if the source is a receiver (`flow` is `receiver`).
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSourceReceiver {
     /// The method Stripe should use to request information needed to process a refund or mispayment.
-    ///
     /// Either `email` (an email is sent directly to the customer) or `manual` (a `source.refund_attributes_required` event is sent to your webhooks endpoint).
     /// Refer to each payment method's documentation to learn which refund attributes may be required.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -603,7 +569,6 @@ impl CreateSourceReceiver {
     }
 }
 /// The method Stripe should use to request information needed to process a refund or mispayment.
-///
 /// Either `email` (an email is sent directly to the customer) or `manual` (a `source.refund_attributes_required` event is sent to your webhooks endpoint).
 /// Refer to each payment method's documentation to learn which refund attributes may be required.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -660,12 +625,10 @@ impl serde::Serialize for CreateSourceReceiverRefundAttributesMethod {
     }
 }
 /// Parameters required for the redirect flow.
-///
 /// Required if the source is authenticated by a redirect (`flow` is `redirect`).
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateSourceRedirect<'a> {
     /// The URL you provide to redirect the customer back to you after they authenticated their payment.
-    ///
     /// It can use your application URI scheme in the context of a mobile application.
     pub return_url: &'a str,
 }
@@ -675,7 +638,6 @@ impl<'a> CreateSourceRedirect<'a> {
     }
 }
 /// Information about the items and shipping associated with the source.
-///
 /// Required for transactional credit (for example Klarna) sources before you can charge it.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSourceSourceOrder<'a> {
@@ -683,7 +645,6 @@ pub struct CreateSourceSourceOrder<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub items: Option<&'a [CreateSourceSourceOrderItems<'a>]>,
     /// Shipping address for the order.
-    ///
     /// Required if any of the SKUs are for products that have `shippable` set to true.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping: Option<CreateSourceSourceOrderShipping<'a>>,
@@ -706,7 +667,6 @@ pub struct CreateSourceSourceOrderItems<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent: Option<&'a str>,
     /// The quantity of this order item.
-    ///
     /// When type is `sku`, this is the number of instances of the SKU to be ordered.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
@@ -776,7 +736,6 @@ impl serde::Serialize for CreateSourceSourceOrderItemsType {
     }
 }
 /// Shipping address for the order.
-///
 /// Required if any of the SKUs are for products that have `shippable` set to true.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateSourceSourceOrderShipping<'a> {
@@ -792,7 +751,6 @@ pub struct CreateSourceSourceOrderShipping<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone: Option<&'a str>,
     /// The tracking number for a physical product, obtained from the delivery service.
-    ///
     /// If multiple tracking numbers were generated for this purchase, please separate them with commas.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tracking_number: Option<&'a str>,
@@ -896,7 +854,6 @@ pub struct UpdateSource<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mandate: Option<UpdateSourceMandate<'a>>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -906,7 +863,6 @@ pub struct UpdateSource<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub owner: Option<UpdateSourceOwner<'a>>,
     /// Information about the items and shipping associated with the source.
-    ///
     /// Required for transactional credit (for example Klarna) sources before you can charge it.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source_order: Option<UpdateSourceSourceOrder<'a>>,
@@ -922,23 +878,17 @@ pub struct UpdateSourceMandate<'a> {
     /// The parameters required to notify Stripe of a mandate acceptance or refusal by the customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acceptance: Option<UpdateSourceMandateAcceptance<'a>>,
-    /// The amount specified by the mandate.
-    ///
-    /// (Leave null for a mandate covering all amounts).
+    /// The amount specified by the mandate. (Leave null for a mandate covering all amounts)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
-    /// The currency specified by the mandate.
-    ///
-    /// (Must match `currency` of the source).
+    /// The currency specified by the mandate. (Must match `currency` of the source)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
     /// The interval of debits permitted by the mandate.
-    ///
     /// Either `one_time` (just permitting a single debit), `scheduled` (with debits on an agreed schedule or for clearly-defined events), or `variable`(for debits with any frequency).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interval: Option<UpdateSourceMandateInterval>,
     /// The method Stripe should use to notify the customer of upcoming debit instructions and/or mandate confirmation as required by the underlying debit network.
-    ///
     /// Either `email` (an email is sent directly to the customer), `manual` (a `source.mandate_notification` event is sent to your webhooks endpoint and you should handle the notification) or `none` (the underlying debit network does not require any notification).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub notification_method: Option<UpdateSourceMandateNotificationMethod>,
@@ -958,22 +908,17 @@ pub struct UpdateSourceMandateAcceptance<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip: Option<&'a str>,
     /// The parameters required to store a mandate accepted offline.
-    ///
     /// Should only be set if `mandate[type]` is `offline`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub offline: Option<UpdateSourceMandateAcceptanceOffline<'a>>,
     /// The parameters required to store a mandate accepted online.
-    ///
     /// Should only be set if `mandate[type]` is `online`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub online: Option<UpdateSourceMandateAcceptanceOnline<'a>>,
     /// The status of the mandate acceptance.
-    ///
     /// Either `accepted` (the mandate was accepted) or `refused` (the mandate was refused).
     pub status: UpdateSourceMandateAcceptanceStatus,
-    /// The type of acceptance information included with the mandate.
-    ///
-    /// Either `online` or `offline`.
+    /// The type of acceptance information included with the mandate. Either `online` or `offline`
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<UpdateSourceMandateAcceptanceType>,
@@ -995,7 +940,6 @@ impl<'a> UpdateSourceMandateAcceptance<'a> {
     }
 }
 /// The parameters required to store a mandate accepted offline.
-///
 /// Should only be set if `mandate[type]` is `offline`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateSourceMandateAcceptanceOffline<'a> {
@@ -1008,7 +952,6 @@ impl<'a> UpdateSourceMandateAcceptanceOffline<'a> {
     }
 }
 /// The parameters required to store a mandate accepted online.
-///
 /// Should only be set if `mandate[type]` is `online`.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateSourceMandateAcceptanceOnline<'a> {
@@ -1028,7 +971,6 @@ impl<'a> UpdateSourceMandateAcceptanceOnline<'a> {
     }
 }
 /// The status of the mandate acceptance.
-///
 /// Either `accepted` (the mandate was accepted) or `refused` (the mandate was refused).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateSourceMandateAcceptanceStatus {
@@ -1086,9 +1028,7 @@ impl serde::Serialize for UpdateSourceMandateAcceptanceStatus {
         serializer.serialize_str(self.as_str())
     }
 }
-/// The type of acceptance information included with the mandate.
-///
-/// Either `online` or `offline`.
+/// The type of acceptance information included with the mandate. Either `online` or `offline`
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateSourceMandateAcceptanceType {
     Offline,
@@ -1140,7 +1080,6 @@ impl serde::Serialize for UpdateSourceMandateAcceptanceType {
     }
 }
 /// The interval of debits permitted by the mandate.
-///
 /// Either `one_time` (just permitting a single debit), `scheduled` (with debits on an agreed schedule or for clearly-defined events), or `variable`(for debits with any frequency).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateSourceMandateInterval {
@@ -1196,7 +1135,6 @@ impl serde::Serialize for UpdateSourceMandateInterval {
     }
 }
 /// The method Stripe should use to notify the customer of upcoming debit instructions and/or mandate confirmation as required by the underlying debit network.
-///
 /// Either `email` (an email is sent directly to the customer), `manual` (a `source.mandate_notification` event is sent to your webhooks endpoint and you should handle the notification) or `none` (the underlying debit network does not require any notification).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateSourceMandateNotificationMethod {
@@ -1306,7 +1244,6 @@ impl<'a> UpdateSourceOwnerAddress<'a> {
     }
 }
 /// Information about the items and shipping associated with the source.
-///
 /// Required for transactional credit (for example Klarna) sources before you can charge it.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateSourceSourceOrder<'a> {
@@ -1314,7 +1251,6 @@ pub struct UpdateSourceSourceOrder<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub items: Option<&'a [UpdateSourceSourceOrderItems<'a>]>,
     /// Shipping address for the order.
-    ///
     /// Required if any of the SKUs are for products that have `shippable` set to true.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping: Option<UpdateSourceSourceOrderShipping<'a>>,
@@ -1337,7 +1273,6 @@ pub struct UpdateSourceSourceOrderItems<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent: Option<&'a str>,
     /// The quantity of this order item.
-    ///
     /// When type is `sku`, this is the number of instances of the SKU to be ordered.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
@@ -1407,7 +1342,6 @@ impl serde::Serialize for UpdateSourceSourceOrderItemsType {
     }
 }
 /// Shipping address for the order.
-///
 /// Required if any of the SKUs are for products that have `shippable` set to true.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateSourceSourceOrderShipping<'a> {
@@ -1423,7 +1357,6 @@ pub struct UpdateSourceSourceOrderShipping<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone: Option<&'a str>,
     /// The tracking number for a physical product, obtained from the delivery service.
-    ///
     /// If multiple tracking numbers were generated for this purchase, please separate them with commas.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tracking_number: Option<&'a str>,
@@ -1461,8 +1394,9 @@ impl<'a> UpdateSourceSourceOrderShippingAddress<'a> {
 }
 impl<'a> UpdateSource<'a> {
     /// Updates the specified source by setting the values of the parameters passed.
+    /// Any parameters not provided will be left unchanged.
     ///
-    /// Any parameters not provided will be left unchanged.  This request accepts the `metadata` and `owner` as arguments.
+    /// This request accepts the `metadata` and `owner` as arguments.
     /// It is also possible to update type specific information for selected payment methods.
     /// Please refer to our [payment method guides](https://stripe.com/docs/sources) for more detail.
     pub fn send(
@@ -1499,7 +1433,6 @@ impl<'a> VerifySource<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct SourceTransactionsSource<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1508,12 +1441,10 @@ pub struct SourceTransactionsSource<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]

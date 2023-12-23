@@ -1,7 +1,6 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct BankConnectionsResourceBalance {
     /// The time that the external institution calculated this balance.
-    ///
     /// Measured in seconds since the Unix epoch.
     pub as_of: stripe_types::Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -13,18 +12,15 @@ pub struct BankConnectionsResourceBalance {
     /// Each key is a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
     ///
     /// Each value is a integer amount.
-    ///
     /// A positive amount indicates money owed to the account holder.
     /// A negative amount indicates money owed by the account holder.
     pub current: std::collections::HashMap<String, i64>,
     /// The `type` of the balance.
-    ///
     /// An additional hash is included on the balance with a name matching this value.
     #[serde(rename = "type")]
     pub type_: BankConnectionsResourceBalanceType,
 }
 /// The `type` of the balance.
-///
 /// An additional hash is included on the balance with a name matching this value.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum BankConnectionsResourceBalanceType {

@@ -2,21 +2,18 @@
 pub struct PaymentMethodDetailsCard {
     /// The authorized amount.
 pub amount_authorized: Option<i64>,
-    /// Card brand.
-    ///
+        /// Card brand.
     /// Can be `amex`, `diners`, `discover`, `eftpos_au`, `jcb`, `mastercard`, `unionpay`, `visa`, or `unknown`.
 pub brand: Option<String>,
-    /// When using manual capture, a future timestamp at which the charge will be automatically refunded if uncaptured.
+        /// When using manual capture, a future timestamp at which the charge will be automatically refunded if uncaptured.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub capture_before: Option<stripe_types::Timestamp>,
     /// Check results by Card networks on Card address and CVC at time of payment.
 pub checks: Option<stripe_shared::PaymentMethodDetailsCardChecks>,
-    /// Two-letter ISO code representing the country of the card.
-    ///
+        /// Two-letter ISO code representing the country of the card.
     /// You could use this attribute to get a sense of the international breakdown of cards you've collected.
 pub country: Option<String>,
-    /// A high-level description of the type of cards issued in this range.
-    ///
+        /// A high-level description of the type of cards issued in this range.
     /// (For internal use only and not typically available in standard API requests.).
 #[serde(skip_serializing_if = "Option::is_none")]
 pub description: Option<String>,
@@ -26,18 +23,16 @@ pub exp_month: i64,
 pub exp_year: i64,
 #[serde(skip_serializing_if = "Option::is_none")]
 pub extended_authorization: Option<stripe_shared::PaymentFlowsPrivatePaymentMethodsCardDetailsApiResourceEnterpriseFeaturesExtendedAuthorizationExtendedAuthorization>,
-    /// Uniquely identifies this particular card number.
-    ///
+        /// Uniquely identifies this particular card number.
     /// You can use this attribute to check whether two customers who’ve signed up with you are using the same card number, for example.
-    /// For payment methods that tokenize card information (Apple Pay, Google Pay), the tokenized number might be provided instead of the underlying card number.  *As of May 1, 2021, card fingerprint in India for Connect changed to allow two fingerprints for the same card---one for India and one for the rest of the world.*.
+    /// For payment methods that tokenize card information (Apple Pay, Google Pay), the tokenized number might be provided instead of the underlying card number.
+    ///
+        /// *As of May 1, 2021, card fingerprint in India for Connect changed to allow two fingerprints for the same card---one for India and one for the rest of the world.*.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub fingerprint: Option<String>,
-    /// Card funding type.
-    ///
-    /// Can be `credit`, `debit`, `prepaid`, or `unknown`.
+    /// Card funding type. Can be `credit`, `debit`, `prepaid`, or `unknown`.
 pub funding: Option<String>,
-    /// Issuer identification number of the card.
-    ///
+        /// Issuer identification number of the card.
     /// (For internal use only and not typically available in standard API requests.).
 #[serde(skip_serializing_if = "Option::is_none")]
 pub iin: Option<String>,
@@ -45,10 +40,9 @@ pub iin: Option<String>,
 pub incremental_authorization: Option<stripe_shared::PaymentFlowsPrivatePaymentMethodsCardDetailsApiResourceEnterpriseFeaturesIncrementalAuthorizationIncrementalAuthorization>,
     /// Installment details for this payment (Mexico only).
     ///
-    /// For more information, see the [installments integration guide](https://stripe.com/docs/payments/installments).
+        /// For more information, see the [installments integration guide](https://stripe.com/docs/payments/installments).
 pub installments: Option<stripe_shared::PaymentMethodDetailsCardInstallments>,
-    /// The name of the card's issuing bank.
-    ///
+        /// The name of the card's issuing bank.
     /// (For internal use only and not typically available in standard API requests.).
 #[serde(skip_serializing_if = "Option::is_none")]
 pub issuer: Option<String>,
@@ -61,11 +55,10 @@ pub mandate: Option<String>,
 pub moto: Option<bool>,
 #[serde(skip_serializing_if = "Option::is_none")]
 pub multicapture: Option<stripe_shared::PaymentFlowsPrivatePaymentMethodsCardDetailsApiResourceMulticapture>,
-    /// Identifies which network this charge was processed on.
-    ///
+        /// Identifies which network this charge was processed on.
     /// Can be `amex`, `cartes_bancaires`, `diners`, `discover`, `eftpos_au`, `interac`, `jcb`, `mastercard`, `unionpay`, `visa`, or `unknown`.
 pub network: Option<String>,
-    /// If this card has network token credentials, this contains the details of the network token credentials.
+        /// If this card has network token credentials, this contains the details of the network token credentials.
 #[serde(skip_serializing_if = "Option::is_none")]
 pub network_token: Option<stripe_shared::PaymentMethodDetailsCardNetworkToken>,
 #[serde(skip_serializing_if = "Option::is_none")]

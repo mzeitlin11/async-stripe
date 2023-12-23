@@ -1,4 +1,4 @@
-/// Toggle settings for enabling/disabling a feature.
+/// Toggle settings for enabling/disabling a feature
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryFinancialAccountsResourceToggleSettings {
     /// Whether the FinancialAccount should have the Feature.

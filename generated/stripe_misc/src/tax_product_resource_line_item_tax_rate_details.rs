@@ -1,12 +1,9 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TaxProductResourceLineItemTaxRateDetails {
     /// A localized display name for tax type, intended to be human-readable.
-    ///
     /// For example, "Local Sales and Use Tax", "Value-added tax (VAT)", or "Umsatzsteuer (USt.)".
     pub display_name: String,
-    /// The tax rate percentage as a string.
-    ///
-    /// For example, 8.5% is represented as "8.5".
+    /// The tax rate percentage as a string. For example, 8.5% is represented as "8.5".
     pub percentage_decimal: String,
     /// The tax type, such as `vat` or `sales_tax`.
     pub tax_type: TaxProductResourceLineItemTaxRateDetailsTaxType,

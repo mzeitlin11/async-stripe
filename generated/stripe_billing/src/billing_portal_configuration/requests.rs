@@ -4,7 +4,6 @@ pub struct ListBillingPortalConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -16,12 +15,10 @@ pub struct ListBillingPortalConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_default: Option<bool>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -51,7 +48,6 @@ pub struct CreateBillingPortalConfiguration<'a> {
     /// The business information shown to customers in the portal.
     pub business_profile: CreateBillingPortalConfigurationBusinessProfile<'a>,
     /// The default URL to redirect customers to when they click on the portal's link to return to your website.
-    ///
     /// This can be [overriden](https://stripe.com/docs/api/customer_portal/sessions/create#create_portal_session-return_url) when creating the session.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_return_url: Option<&'a str>,
@@ -61,12 +57,10 @@ pub struct CreateBillingPortalConfiguration<'a> {
     /// Information about the features available in the portal.
     pub features: CreateBillingPortalConfigurationFeatures<'a>,
     /// The hosted login page for this configuration.
-    ///
     /// Learn more about the portal login page in our [integration docs](https://stripe.com/docs/billing/subscriptions/integrating-customer-portal#share).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub login_page: Option<CreateBillingPortalConfigurationLoginPage>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -136,9 +130,7 @@ impl<'a> CreateBillingPortalConfigurationFeatures<'a> {
 /// Information about updating the customer details in the portal.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateBillingPortalConfigurationFeaturesCustomerUpdate<'a> {
-    /// The types of customer updates that are supported.
-    ///
-    /// When empty, customers are not updateable.
+    /// The types of customer updates that are supported. When empty, customers are not updateable.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_updates:
         Option<&'a [CreateBillingPortalConfigurationFeaturesCustomerUpdateAllowedUpdates]>,
@@ -150,9 +142,7 @@ impl<'a> CreateBillingPortalConfigurationFeaturesCustomerUpdate<'a> {
         Self { allowed_updates: None, enabled }
     }
 }
-/// The types of customer updates that are supported.
-///
-/// When empty, customers are not updateable.
+/// The types of customer updates that are supported. When empty, customers are not updateable.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateBillingPortalConfigurationFeaturesCustomerUpdateAllowedUpdates {
     Address,
@@ -250,7 +240,6 @@ pub struct CreateBillingPortalConfigurationFeaturesSubscriptionCancel<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mode: Option<CreateBillingPortalConfigurationFeaturesSubscriptionCancelMode>,
     /// Whether to create prorations when canceling subscriptions.
-    ///
     /// Possible values are `none` and `create_prorations`, which is only compatible with `mode=immediately`.
     /// No prorations are generated when canceling a subscription at the end of its natural billing period.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -410,7 +399,6 @@ impl serde::Serialize for CreateBillingPortalConfigurationFeaturesSubscriptionCa
     }
 }
 /// Whether to create prorations when canceling subscriptions.
-///
 /// Possible values are `none` and `create_prorations`, which is only compatible with `mode=immediately`.
 /// No prorations are generated when canceling a subscription at the end of its natural billing period.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -489,9 +477,7 @@ impl CreateBillingPortalConfigurationFeaturesSubscriptionPause {
 /// Information about updating subscriptions in the portal.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a> {
-    /// The types of subscription updates that are supported.
-    ///
-    /// When empty, subscriptions are not updateable.
+    /// The types of subscription updates that are supported. When empty, subscriptions are not updateable.
     pub default_allowed_updates:
         &'a [CreateBillingPortalConfigurationFeaturesSubscriptionUpdateDefaultAllowedUpdates],
     /// Whether the feature is enabled.
@@ -499,7 +485,6 @@ pub struct CreateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a> {
     /// The list of up to 10 products that support subscription updates.
     pub products: &'a [CreateBillingPortalConfigurationFeaturesSubscriptionUpdateProducts<'a>],
     /// Determines how to handle prorations resulting from subscription updates.
-    ///
     /// Valid values are `none`, `create_prorations`, and `always_invoice`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub proration_behavior:
@@ -514,9 +499,7 @@ impl<'a> CreateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a> {
         Self { default_allowed_updates, enabled, products, proration_behavior: None }
     }
 }
-/// The types of subscription updates that are supported.
-///
-/// When empty, subscriptions are not updateable.
+/// The types of subscription updates that are supported. When empty, subscriptions are not updateable.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateBillingPortalConfigurationFeaturesSubscriptionUpdateDefaultAllowedUpdates {
     Price,
@@ -594,7 +577,6 @@ impl<'a> CreateBillingPortalConfigurationFeaturesSubscriptionUpdateProducts<'a> 
     }
 }
 /// Determines how to handle prorations resulting from subscription updates.
-///
 /// Valid values are `none`, `create_prorations`, and `always_invoice`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateBillingPortalConfigurationFeaturesSubscriptionUpdateProrationBehavior {
@@ -658,7 +640,6 @@ impl serde::Serialize
     }
 }
 /// The hosted login page for this configuration.
-///
 /// Learn more about the portal login page in our [integration docs](https://stripe.com/docs/billing/subscriptions/integrating-customer-portal#share).
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateBillingPortalConfigurationLoginPage {
@@ -671,7 +652,7 @@ impl CreateBillingPortalConfigurationLoginPage {
     }
 }
 impl<'a> CreateBillingPortalConfiguration<'a> {
-    /// Creates a configuration that describes the functionality and behavior of a PortalSession.
+    /// Creates a configuration that describes the functionality and behavior of a PortalSession
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -688,7 +669,6 @@ pub struct UpdateBillingPortalConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub business_profile: Option<UpdateBillingPortalConfigurationBusinessProfile<'a>>,
     /// The default URL to redirect customers to when they click on the portal's link to return to your website.
-    ///
     /// This can be [overriden](https://stripe.com/docs/api/customer_portal/sessions/create#create_portal_session-return_url) when creating the session.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_return_url: Option<&'a str>,
@@ -699,12 +679,10 @@ pub struct UpdateBillingPortalConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub features: Option<UpdateBillingPortalConfigurationFeatures<'a>>,
     /// The hosted login page for this configuration.
-    ///
     /// Learn more about the portal login page in our [integration docs](https://stripe.com/docs/billing/subscriptions/integrating-customer-portal#share).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub login_page: Option<UpdateBillingPortalConfigurationLoginPage>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -764,9 +742,7 @@ impl<'a> UpdateBillingPortalConfigurationFeatures<'a> {
 /// Information about updating the customer details in the portal.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateBillingPortalConfigurationFeaturesCustomerUpdate<'a> {
-    /// The types of customer updates that are supported.
-    ///
-    /// When empty, customers are not updateable.
+    /// The types of customer updates that are supported. When empty, customers are not updateable.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_updates:
         Option<&'a [UpdateBillingPortalConfigurationFeaturesCustomerUpdateAllowedUpdates]>,
@@ -779,9 +755,7 @@ impl<'a> UpdateBillingPortalConfigurationFeaturesCustomerUpdate<'a> {
         Self::default()
     }
 }
-/// The types of customer updates that are supported.
-///
-/// When empty, customers are not updateable.
+/// The types of customer updates that are supported. When empty, customers are not updateable.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateBillingPortalConfigurationFeaturesCustomerUpdateAllowedUpdates {
     Address,
@@ -880,7 +854,6 @@ pub struct UpdateBillingPortalConfigurationFeaturesSubscriptionCancel<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mode: Option<UpdateBillingPortalConfigurationFeaturesSubscriptionCancelMode>,
     /// Whether to create prorations when canceling subscriptions.
-    ///
     /// Possible values are `none` and `create_prorations`, which is only compatible with `mode=immediately`.
     /// No prorations are generated when canceling a subscription at the end of its natural billing period.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1039,7 +1012,6 @@ impl serde::Serialize for UpdateBillingPortalConfigurationFeaturesSubscriptionCa
     }
 }
 /// Whether to create prorations when canceling subscriptions.
-///
 /// Possible values are `none` and `create_prorations`, which is only compatible with `mode=immediately`.
 /// No prorations are generated when canceling a subscription at the end of its natural billing period.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1118,9 +1090,7 @@ impl UpdateBillingPortalConfigurationFeaturesSubscriptionPause {
 /// Information about updating subscriptions in the portal.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a> {
-    /// The types of subscription updates that are supported.
-    ///
-    /// When empty, subscriptions are not updateable.
+    /// The types of subscription updates that are supported. When empty, subscriptions are not updateable.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_allowed_updates: Option<
         &'a [UpdateBillingPortalConfigurationFeaturesSubscriptionUpdateDefaultAllowedUpdates],
@@ -1133,7 +1103,6 @@ pub struct UpdateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a> {
     pub products:
         Option<&'a [UpdateBillingPortalConfigurationFeaturesSubscriptionUpdateProducts<'a>]>,
     /// Determines how to handle prorations resulting from subscription updates.
-    ///
     /// Valid values are `none`, `create_prorations`, and `always_invoice`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub proration_behavior:
@@ -1144,9 +1113,7 @@ impl<'a> UpdateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a> {
         Self::default()
     }
 }
-/// The types of subscription updates that are supported.
-///
-/// When empty, subscriptions are not updateable.
+/// The types of subscription updates that are supported. When empty, subscriptions are not updateable.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateBillingPortalConfigurationFeaturesSubscriptionUpdateDefaultAllowedUpdates {
     Price,
@@ -1224,7 +1191,6 @@ impl<'a> UpdateBillingPortalConfigurationFeaturesSubscriptionUpdateProducts<'a> 
     }
 }
 /// Determines how to handle prorations resulting from subscription updates.
-///
 /// Valid values are `none`, `create_prorations`, and `always_invoice`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateBillingPortalConfigurationFeaturesSubscriptionUpdateProrationBehavior {
@@ -1288,7 +1254,6 @@ impl serde::Serialize
     }
 }
 /// The hosted login page for this configuration.
-///
 /// Learn more about the portal login page in our [integration docs](https://stripe.com/docs/billing/subscriptions/integrating-customer-portal#share).
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateBillingPortalConfigurationLoginPage {

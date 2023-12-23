@@ -3,26 +3,20 @@ pub struct CreateTreasuryOutboundPayment<'a> {
     /// Amount (in cents) to be transferred.
     pub amount: i64,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// ID of the customer to whom the OutboundPayment is sent.
-    ///
     /// Must match the Customer attached to the `destination_payment_method` passed in.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// The PaymentMethod to use as the payment instrument for the OutboundPayment.
-    ///
     /// Exclusive with `destination_payment_method_data`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub destination_payment_method: Option<&'a str>,
     /// Hash used to generate the PaymentMethod to be used for this OutboundPayment.
-    ///
     /// Exclusive with `destination_payment_method`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub destination_payment_method_data:
@@ -40,14 +34,12 @@ pub struct CreateTreasuryOutboundPayment<'a> {
     /// The FinancialAccount to pull funds from.
     pub financial_account: &'a str,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// The description that appears on the receiving end for this OutboundPayment (for example, bank statement for external bank transfer).
-    ///
     /// Maximum 10 characters for `ach` payments, 140 characters for `wire` payments, or 500 characters for `stripe` network transfers.
     /// The default value is `payment`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -72,7 +64,6 @@ impl<'a> CreateTreasuryOutboundPayment<'a> {
     }
 }
 /// Hash used to generate the PaymentMethod to be used for this OutboundPayment.
-///
 /// Exclusive with `destination_payment_method`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTreasuryOutboundPaymentDestinationPaymentMethodData<'a> {
@@ -80,20 +71,16 @@ pub struct CreateTreasuryOutboundPaymentDestinationPaymentMethodData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_details:
         Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodDataBillingDetails<'a>>,
-    /// Required if type is set to `financial_account`.
-    ///
-    /// The FinancialAccount ID to send funds to.
+    /// Required if type is set to `financial_account`. The FinancialAccount ID to send funds to.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_account: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// The type of the PaymentMethod.
-    ///
     /// An additional hash is included on the PaymentMethod with a name matching this value.
     /// It contains additional information specific to the PaymentMethod type.
     #[serde(rename = "type")]
@@ -164,7 +151,6 @@ impl<'a> CreateTreasuryOutboundPaymentDestinationPaymentMethodDataBillingDetails
     }
 }
 /// The type of the PaymentMethod.
-///
 /// An additional hash is included on the PaymentMethod with a name matching this value.
 /// It contains additional information specific to the PaymentMethod type.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -228,9 +214,7 @@ pub struct CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccoun
     /// Account number of the bank account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_number: Option<&'a str>,
-    /// Account type: checkings or savings.
-    ///
-    /// Defaults to checking if omitted.
+    /// Account type: checkings or savings. Defaults to checking if omitted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_type:
         Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType>,
@@ -307,9 +291,7 @@ impl serde::Serialize
         serializer.serialize_str(self.as_str())
     }
 }
-/// Account type: checkings or savings.
-///
-/// Defaults to checking if omitted.
+/// Account type: checkings or savings. Defaults to checking if omitted.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType {
     Checking,
@@ -387,7 +369,6 @@ impl CreateTreasuryOutboundPaymentDestinationPaymentMethodOptions {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccount {
     /// The US bank account network that must be used for this OutboundPayment.
-    ///
     /// If not set, we will default to the PaymentMethod's preferred network.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub network:
@@ -399,7 +380,6 @@ impl CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccount {
     }
 }
 /// The US bank account network that must be used for this OutboundPayment.
-///
 /// If not set, we will default to the PaymentMethod's preferred network.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork {
@@ -465,12 +445,10 @@ impl serde::Serialize
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTreasuryOutboundPaymentEndUserDetails<'a> {
     /// IP address of the user initiating the OutboundPayment.
-    ///
     /// Must be supplied if `present` is set to `true`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<&'a str>,
     /// `True` if the OutboundPayment creation request is being made on behalf of an end user by a platform.
-    ///
     /// Otherwise, `false`.
     pub present: bool,
 }
@@ -515,7 +493,6 @@ pub struct ListTreasuryOutboundPayment<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -526,12 +503,10 @@ pub struct ListTreasuryOutboundPayment<'a> {
     /// Returns objects associated with this FinancialAccount.
     pub financial_account: &'a str,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -665,7 +640,6 @@ impl<'a> FailTreasuryOutboundPayment<'a> {
 }
 impl<'a> FailTreasuryOutboundPayment<'a> {
     /// Transitions a test mode created OutboundPayment to the `failed` status.
-    ///
     /// The OutboundPayment must already be in the `processing` state.
     pub fn send(
         &self,
@@ -692,7 +666,6 @@ impl<'a> PostTreasuryOutboundPayment<'a> {
 }
 impl<'a> PostTreasuryOutboundPayment<'a> {
     /// Transitions a test mode created OutboundPayment to the `posted` status.
-    ///
     /// The OutboundPayment must already be in the `processing` state.
     pub fn send(
         &self,
@@ -809,7 +782,6 @@ impl serde::Serialize for ReturnOutboundPaymentTreasuryOutboundPaymentReturnedDe
 }
 impl<'a> ReturnOutboundPaymentTreasuryOutboundPayment<'a> {
     /// Transitions a test mode created OutboundPayment to the `returned` status.
-    ///
     /// The OutboundPayment must already be in the `processing` state.
     pub fn send(
         &self,

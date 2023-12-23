@@ -1,7 +1,10 @@
 /// Refund objects allow you to refund a previously created charge that isn't
-/// refunded yet.
+/// refunded yet. Funds are refunded to the credit or debit card that's
+/// initially charged.
 ///
-/// Funds are refunded to the credit or debit card that's initially charged.  Related guide: [Refunds](https://stripe.com/docs/refunds)  For more details see <<https://stripe.com/docs/api/refunds/object>>.
+/// Related guide: [Refunds](https://stripe.com/docs/refunds)
+///
+/// For more details see <<https://stripe.com/docs/api/refunds/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Refund {
     /// Amount, in cents (or local equivalent).
@@ -10,16 +13,12 @@ pub struct Refund {
     pub balance_transaction: Option<stripe_types::Expandable<stripe_shared::BalanceTransaction>>,
     /// ID of the charge that's refunded.
     pub charge: Option<stripe_types::Expandable<stripe_shared::Charge>>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// An arbitrary string attached to the object.
-    ///
     /// You can use this for displaying to users (available on non-card refunds only).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
@@ -28,7 +27,6 @@ pub struct Refund {
     pub failure_balance_transaction:
         Option<stripe_types::Expandable<stripe_shared::BalanceTransaction>>,
     /// Provides the reason for the refund failure.
-    ///
     /// Possible values are: `lost_or_stolen_card`, `expired_or_canceled_card`, `charge_for_pending_refund_disputed`, `insufficient_funds`, `declined`, `merchant_request`, or `unknown`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub failure_reason: Option<String>,
@@ -38,7 +36,6 @@ pub struct Refund {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub instructions_email: Option<String>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: Option<std::collections::HashMap<String, String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -50,17 +47,14 @@ pub struct Refund {
     /// This is the transaction number that appears on email receipts sent for this refund.
     pub receipt_number: Option<String>,
     /// The transfer reversal that's associated with the refund.
-    ///
     /// Only present if the charge came from another Stripe account.
     pub source_transfer_reversal: Option<stripe_types::Expandable<stripe_shared::TransferReversal>>,
     /// Status of the refund.
-    ///
     /// For credit card refunds, this can be `pending`, `succeeded`, or `failed`.
     /// For other types of refunds, it can be `pending`, `requires_action`, `succeeded`, `failed`, or `canceled`.
     /// Learn more about [failed refunds](https://stripe.com/docs/refunds#failed-refunds).
     pub status: Option<String>,
     /// This refers to the transfer reversal object if the accompanying transfer reverses.
-    ///
     /// This is only applicable if the charge was created using the destination parameter.
     pub transfer_reversal: Option<stripe_types::Expandable<stripe_shared::TransferReversal>>,
 }

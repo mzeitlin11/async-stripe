@@ -5,14 +5,12 @@ pub struct SetupAttemptPaymentMethodDetailsCardWallet {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub google_pay: Option<stripe_shared::PaymentMethodDetailsCardWalletGooglePay>,
     /// The type of the card wallet, one of `apple_pay`, `google_pay`, or `link`.
-    ///
     /// An additional hash is included on the Wallet subhash with a name matching this value.
     /// It contains additional information specific to the card wallet type.
     #[serde(rename = "type")]
     pub type_: SetupAttemptPaymentMethodDetailsCardWalletType,
 }
 /// The type of the card wallet, one of `apple_pay`, `google_pay`, or `link`.
-///
 /// An additional hash is included on the Wallet subhash with a name matching this value.
 /// It contains additional information specific to the card wallet type.
 #[derive(Copy, Clone, Eq, PartialEq)]

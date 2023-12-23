@@ -3,28 +3,23 @@ pub struct CurrencyOption {
     /// When set, provides configuration for the amount to be adjusted by the customer during Checkout Sessions and Payment Links.
     pub custom_unit_amount: Option<stripe_shared::CustomUnitAmount>,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
     pub tax_behavior: Option<CurrencyOptionTaxBehavior>,
     /// Each element represents a pricing tier.
-    ///
     /// This parameter requires `billing_scheme` to be set to `tiered`.
     /// See also the documentation for `billing_scheme`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tiers: Option<Vec<stripe_shared::PriceTier>>,
     /// The unit amount in cents (or local equivalent) to be charged, represented as a whole integer if possible.
-    ///
     /// Only set if `billing_scheme=per_unit`.
     pub unit_amount: Option<i64>,
     /// The unit amount in cents (or local equivalent) to be charged, represented as a decimal string with at most 12 decimal places.
-    ///
     /// Only set if `billing_scheme=per_unit`.
     pub unit_amount_decimal: Option<String>,
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.

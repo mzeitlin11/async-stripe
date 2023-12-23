@@ -8,7 +8,7 @@ pub struct TerminalConfiguration {
         Option<stripe_terminal::TerminalConfigurationConfigurationResourceDeviceTypeSpecificConfig>,
     /// Unique identifier for the object.
     pub id: stripe_terminal::TerminalConfigurationId,
-    /// Whether this Configuration is the default for your account.
+    /// Whether this Configuration is the default for your account
     pub is_account_default: Option<bool>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,

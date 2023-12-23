@@ -8,7 +8,6 @@ pub struct IssuingNetworkTokenMastercard {
     /// The ID of the entity requesting tokenization, specific to MasterCard.
     pub token_requestor_id: String,
     /// The name of the entity requesting tokenization, if known.
-    ///
     /// This is directly provided from MasterCard.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub token_requestor_name: Option<String>,

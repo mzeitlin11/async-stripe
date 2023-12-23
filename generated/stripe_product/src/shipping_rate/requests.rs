@@ -4,7 +4,6 @@ pub struct ListShippingRate<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
     /// A filter on the list, based on the object `created` field.
-    ///
     /// The value can be a string with an integer Unix timestamp, or it can be a dictionary with a number of different query options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
@@ -12,7 +11,6 @@ pub struct ListShippingRate<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -21,12 +19,10 @@ pub struct ListShippingRate<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -75,42 +71,33 @@ impl<'a> RetrieveShippingRate<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateShippingRate<'a> {
     /// The estimated range for how long shipping will take, meant to be displayable to the customer.
-    ///
     /// This will appear on CheckoutSessions.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delivery_estimate: Option<CreateShippingRateDeliveryEstimate>,
     /// The name of the shipping rate, meant to be displayable to the customer.
-    ///
     /// This will appear on CheckoutSessions.
     pub display_name: &'a str,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
-    /// Describes a fixed amount to charge for shipping.
-    ///
-    /// Must be present if type is `fixed_amount`.
+    /// Describes a fixed amount to charge for shipping. Must be present if type is `fixed_amount`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fixed_amount: Option<CreateShippingRateFixedAmount<'a>>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-    ///
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_behavior: Option<CreateShippingRateTaxBehavior>,
     /// A [tax code](https://stripe.com/docs/tax/tax-categories) ID.
-    ///
     /// The Shipping tax code is `txcd_92010001`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_code: Option<&'a str>,
-    /// The type of calculation to use on the shipping rate.
-    ///
-    /// Can only be `fixed_amount` for now.
+    /// The type of calculation to use on the shipping rate. Can only be `fixed_amount` for now.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<CreateShippingRateType>,
@@ -130,18 +117,13 @@ impl<'a> CreateShippingRate<'a> {
     }
 }
 /// The estimated range for how long shipping will take, meant to be displayable to the customer.
-///
 /// This will appear on CheckoutSessions.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateShippingRateDeliveryEstimate {
-    /// The upper bound of the estimated range.
-    ///
-    /// If empty, represents no upper bound i.e., infinite.
+    /// The upper bound of the estimated range. If empty, represents no upper bound i.e., infinite.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<CreateShippingRateDeliveryEstimateMaximum>,
-    /// The lower bound of the estimated range.
-    ///
-    /// If empty, represents no lower bound.
+    /// The lower bound of the estimated range. If empty, represents no lower bound.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub minimum: Option<CreateShippingRateDeliveryEstimateMinimum>,
 }
@@ -150,9 +132,7 @@ impl CreateShippingRateDeliveryEstimate {
         Self::default()
     }
 }
-/// The upper bound of the estimated range.
-///
-/// If empty, represents no upper bound i.e., infinite.
+/// The upper bound of the estimated range. If empty, represents no upper bound i.e., infinite.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateShippingRateDeliveryEstimateMaximum {
     /// A unit of time.
@@ -225,9 +205,7 @@ impl serde::Serialize for CreateShippingRateDeliveryEstimateMaximumUnit {
         serializer.serialize_str(self.as_str())
     }
 }
-/// The lower bound of the estimated range.
-///
-/// If empty, represents no lower bound.
+/// The lower bound of the estimated range. If empty, represents no lower bound.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateShippingRateDeliveryEstimateMinimum {
     /// A unit of time.
@@ -300,19 +278,15 @@ impl serde::Serialize for CreateShippingRateDeliveryEstimateMinimumUnit {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Describes a fixed amount to charge for shipping.
-///
-/// Must be present if type is `fixed_amount`.
+/// Describes a fixed amount to charge for shipping. Must be present if type is `fixed_amount`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateShippingRateFixedAmount<'a> {
     /// A non-negative integer in cents representing how much to charge.
     pub amount: i64,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// Shipping rates defined in each available currency option.
-    ///
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency_options: Option<
@@ -328,14 +302,12 @@ impl<'a> CreateShippingRateFixedAmount<'a> {
     }
 }
 /// Shipping rates defined in each available currency option.
-///
 /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateShippingRateFixedAmountCurrencyOptions {
     /// A non-negative integer in cents representing how much to charge.
     pub amount: i64,
     /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-    ///
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_behavior: Option<CreateShippingRateFixedAmountCurrencyOptionsTaxBehavior>,
@@ -346,7 +318,6 @@ impl CreateShippingRateFixedAmountCurrencyOptions {
     }
 }
 /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-///
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateShippingRateFixedAmountCurrencyOptionsTaxBehavior {
@@ -402,7 +373,6 @@ impl serde::Serialize for CreateShippingRateFixedAmountCurrencyOptionsTaxBehavio
     }
 }
 /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-///
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateShippingRateTaxBehavior {
@@ -457,9 +427,7 @@ impl serde::Serialize for CreateShippingRateTaxBehavior {
         serializer.serialize_str(self.as_str())
     }
 }
-/// The type of calculation to use on the shipping rate.
-///
-/// Can only be `fixed_amount` for now.
+/// The type of calculation to use on the shipping rate. Can only be `fixed_amount` for now.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateShippingRateType {
     FixedAmount,
@@ -515,28 +483,22 @@ impl<'a> CreateShippingRate<'a> {
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateShippingRate<'a> {
-    /// Whether the shipping rate can be used for new purchases.
-    ///
-    /// Defaults to `true`.
+    /// Whether the shipping rate can be used for new purchases. Defaults to `true`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
-    /// Describes a fixed amount to charge for shipping.
-    ///
-    /// Must be present if type is `fixed_amount`.
+    /// Describes a fixed amount to charge for shipping. Must be present if type is `fixed_amount`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fixed_amount: Option<UpdateShippingRateFixedAmount<'a>>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-    ///
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_behavior: Option<UpdateShippingRateTaxBehavior>,
@@ -546,13 +508,10 @@ impl<'a> UpdateShippingRate<'a> {
         Self::default()
     }
 }
-/// Describes a fixed amount to charge for shipping.
-///
-/// Must be present if type is `fixed_amount`.
+/// Describes a fixed amount to charge for shipping. Must be present if type is `fixed_amount`.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateShippingRateFixedAmount<'a> {
     /// Shipping rates defined in each available currency option.
-    ///
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency_options: Option<
@@ -568,7 +527,6 @@ impl<'a> UpdateShippingRateFixedAmount<'a> {
     }
 }
 /// Shipping rates defined in each available currency option.
-///
 /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateShippingRateFixedAmountCurrencyOptions {
@@ -576,7 +534,6 @@ pub struct UpdateShippingRateFixedAmountCurrencyOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
     /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-    ///
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_behavior: Option<UpdateShippingRateFixedAmountCurrencyOptionsTaxBehavior>,
@@ -587,7 +544,6 @@ impl UpdateShippingRateFixedAmountCurrencyOptions {
     }
 }
 /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-///
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateShippingRateFixedAmountCurrencyOptionsTaxBehavior {
@@ -643,7 +599,6 @@ impl serde::Serialize for UpdateShippingRateFixedAmountCurrencyOptionsTaxBehavio
     }
 }
 /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-///
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateShippingRateTaxBehavior {

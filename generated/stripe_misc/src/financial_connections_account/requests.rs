@@ -1,12 +1,10 @@
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListFinancialConnectionsAccount<'a> {
     /// If present, only return accounts that belong to the specified account holder.
-    ///
     /// `account_holder[customer]` and `account_holder[account]` are mutually exclusive.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder: Option<ListFinancialConnectionsAccountAccountHolder<'a>>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -15,7 +13,6 @@ pub struct ListFinancialConnectionsAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
@@ -23,7 +20,6 @@ pub struct ListFinancialConnectionsAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub session: Option<&'a str>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -35,7 +31,6 @@ impl<'a> ListFinancialConnectionsAccount<'a> {
     }
 }
 /// If present, only return accounts that belong to the specified account holder.
-///
 /// `account_holder[customer]` and `account_holder[account]` are mutually exclusive.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListFinancialConnectionsAccountAccountHolder<'a> {
@@ -89,7 +84,6 @@ impl<'a> RetrieveFinancialConnectionsAccount<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct ListOwnersFinancialConnectionsAccount<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -98,14 +92,12 @@ pub struct ListOwnersFinancialConnectionsAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// The ID of the ownership object to fetch owners from.
     pub ownership: &'a str,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -117,7 +109,7 @@ impl<'a> ListOwnersFinancialConnectionsAccount<'a> {
     }
 }
 impl<'a> ListOwnersFinancialConnectionsAccount<'a> {
-    /// Lists all owners for a given `Account`.
+    /// Lists all owners for a given `Account`
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -227,7 +219,6 @@ impl<'a> DisconnectFinancialConnectionsAccount<'a> {
 }
 impl<'a> DisconnectFinancialConnectionsAccount<'a> {
     /// Disables your access to a Financial Connections `Account`.
-    ///
     /// You will no longer be able to access data associated with the account (e.g.
     /// balances, transactions).
     pub fn send(

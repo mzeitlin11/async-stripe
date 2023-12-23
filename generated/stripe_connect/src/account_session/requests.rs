@@ -3,7 +3,6 @@ pub struct CreateAccountSession<'a> {
     /// The identifier of the account to create an Account Session for.
     pub account: &'a str,
     /// Each key of the dictionary represents an embedded component, and each embedded component maps to its configuration (e.g.
-    ///
     /// whether it has been enabled or not).
     pub components: CreateAccountSessionComponents,
     /// Specifies which fields in the response should be expanded.
@@ -16,7 +15,6 @@ impl<'a> CreateAccountSession<'a> {
     }
 }
 /// Each key of the dictionary represents an embedded component, and each embedded component maps to its configuration (e.g.
-///
 /// whether it has been enabled or not).
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateAccountSessionComponents {

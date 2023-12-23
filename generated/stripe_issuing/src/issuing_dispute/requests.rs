@@ -4,7 +4,6 @@ pub struct ListIssuingDispute<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -13,12 +12,10 @@ pub struct ListIssuingDispute<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -97,7 +94,6 @@ impl serde::Serialize for ListIssuingDisputeStatus {
 }
 impl<'a> ListIssuingDispute<'a> {
     /// Returns a list of Issuing `Dispute` objects.
-    ///
     /// The objects are sorted in descending order by creation date, with the most recently created object appearing first.
     pub fn send(
         &self,
@@ -114,7 +110,6 @@ impl<'a> ListIssuingDispute<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateIssuingDispute<'a> {
     /// The dispute amount in the card's currency and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
-    ///
     /// If not set, defaults to the full transaction amount.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
@@ -125,18 +120,16 @@ pub struct CreateIssuingDispute<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// The ID of the issuing transaction to create a dispute for.
-    ///
     /// For transaction on Treasury FinancialAccounts, use `treasury.received_debit`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transaction: Option<&'a str>,
-    /// Params for disputes related to Treasury FinancialAccounts.
+    /// Params for disputes related to Treasury FinancialAccounts
     #[serde(skip_serializing_if = "Option::is_none")]
     pub treasury: Option<CreateIssuingDisputeTreasury<'a>>,
 }
@@ -167,9 +160,7 @@ pub struct CreateIssuingDisputeEvidence<'a> {
     /// Evidence provided when `reason` is 'other'.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub other: Option<CreateIssuingDisputeEvidenceOther<'a>>,
-    /// The reason for filing the dispute.
-    ///
-    /// The evidence should be submitted in the field of the same name.
+    /// The reason for filing the dispute. The evidence should be submitted in the field of the same name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reason: Option<CreateIssuingDisputeEvidenceReason>,
     /// Evidence provided when `reason` is 'service_not_as_described'.
@@ -341,7 +332,6 @@ pub struct CreateIssuingDisputeEvidenceDuplicate<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation: Option<&'a str>,
     /// Transaction (e.g., ipi_...) that the disputed transaction is a duplicate of.
-    ///
     /// Of the two or more transactions that are copies of each other, this is original undisputed one.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub original_transaction: Option<&'a str>,
@@ -591,9 +581,7 @@ impl serde::Serialize for CreateIssuingDisputeEvidenceOtherProductType {
         serializer.serialize_str(self.as_str())
     }
 }
-/// The reason for filing the dispute.
-///
-/// The evidence should be submitted in the field of the same name.
+/// The reason for filing the dispute. The evidence should be submitted in the field of the same name.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateIssuingDisputeEvidenceReason {
     Canceled,
@@ -683,7 +671,7 @@ impl<'a> CreateIssuingDisputeEvidenceServiceNotAsDescribed<'a> {
         Self::default()
     }
 }
-/// Params for disputes related to Treasury FinancialAccounts.
+/// Params for disputes related to Treasury FinancialAccounts
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateIssuingDisputeTreasury<'a> {
     /// The ID of the ReceivedDebit to initiate an Issuings dispute for.
@@ -696,7 +684,6 @@ impl<'a> CreateIssuingDisputeTreasury<'a> {
 }
 impl<'a> CreateIssuingDispute<'a> {
     /// Creates an Issuing `Dispute` object.
-    ///
     /// Individual pieces of evidence within the `evidence` object are optional at this point.
     /// Stripe only validates that required evidence is present during submission.
     /// Refer to [Dispute reasons and evidence](https://stripe.com/docs/issuing/purchases/disputes#dispute-reasons-and-evidence) for more details about evidence requirements.
@@ -716,7 +703,6 @@ pub struct UpdateIssuingDispute<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -750,9 +736,7 @@ pub struct UpdateIssuingDisputeEvidence<'a> {
     /// Evidence provided when `reason` is 'other'.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub other: Option<UpdateIssuingDisputeEvidenceOther<'a>>,
-    /// The reason for filing the dispute.
-    ///
-    /// The evidence should be submitted in the field of the same name.
+    /// The reason for filing the dispute. The evidence should be submitted in the field of the same name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reason: Option<UpdateIssuingDisputeEvidenceReason>,
     /// Evidence provided when `reason` is 'service_not_as_described'.
@@ -924,7 +908,6 @@ pub struct UpdateIssuingDisputeEvidenceDuplicate<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub explanation: Option<&'a str>,
     /// Transaction (e.g., ipi_...) that the disputed transaction is a duplicate of.
-    ///
     /// Of the two or more transactions that are copies of each other, this is original undisputed one.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub original_transaction: Option<&'a str>,
@@ -1174,9 +1157,7 @@ impl serde::Serialize for UpdateIssuingDisputeEvidenceOtherProductType {
         serializer.serialize_str(self.as_str())
     }
 }
-/// The reason for filing the dispute.
-///
-/// The evidence should be submitted in the field of the same name.
+/// The reason for filing the dispute. The evidence should be submitted in the field of the same name.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateIssuingDisputeEvidenceReason {
     Canceled,
@@ -1268,7 +1249,6 @@ impl<'a> UpdateIssuingDisputeEvidenceServiceNotAsDescribed<'a> {
 }
 impl<'a> UpdateIssuingDispute<'a> {
     /// Updates the specified Issuing `Dispute` object by setting the values of the parameters passed.
-    ///
     /// Any parameters not provided will be left unchanged.
     /// Properties on the `evidence` object can be unset by passing in an empty string.
     pub fn send(
@@ -1306,7 +1286,6 @@ pub struct SubmitIssuingDispute<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -1320,7 +1299,6 @@ impl<'a> SubmitIssuingDispute<'a> {
 }
 impl<'a> SubmitIssuingDispute<'a> {
     /// Submits an Issuing `Dispute` to the card network.
-    ///
     /// Stripe validates that all evidence fields required for the dispute’s reason are present.
     /// For more details, see [Dispute reasons and evidence](https://stripe.com/docs/issuing/purchases/disputes#dispute-reasons-and-evidence).
     pub fn send(

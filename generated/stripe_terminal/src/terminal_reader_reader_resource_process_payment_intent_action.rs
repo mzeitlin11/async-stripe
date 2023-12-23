@@ -1,4 +1,4 @@
-/// Represents a reader action to process a payment intent.
+/// Represents a reader action to process a payment intent
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TerminalReaderReaderResourceProcessPaymentIntentAction {
     /// Most recent PaymentIntent processed by the reader.

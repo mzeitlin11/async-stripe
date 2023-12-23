@@ -16,7 +16,6 @@ pub struct CreateFinancialConnectionsSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prefetch: Option<&'a [CreateFinancialConnectionsSessionPrefetch]>,
     /// For webview integrations only.
-    ///
     /// Upon completing OAuth login in the native browser, the user will be redirected to this URL to return to your app.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_url: Option<&'a str>,
@@ -40,12 +39,10 @@ impl<'a> CreateFinancialConnectionsSession<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateFinancialConnectionsSessionAccountHolder<'a> {
     /// The ID of the Stripe account whose accounts will be retrieved.
-    ///
     /// Should only be present if `type` is `account`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account: Option<&'a str>,
     /// The ID of the Stripe customer whose accounts will be retrieved.
-    ///
     /// Should only be present if `type` is `customer`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
@@ -232,7 +229,6 @@ impl serde::Serialize for CreateFinancialConnectionsSessionPrefetch {
 }
 impl<'a> CreateFinancialConnectionsSession<'a> {
     /// To launch the Financial Connections authorization flow, create a `Session`.
-    ///
     /// The session’s `client_secret` can be used to launch the flow using Stripe.js.
     pub fn send(
         &self,
@@ -253,7 +249,7 @@ impl<'a> RetrieveFinancialConnectionsSession<'a> {
     }
 }
 impl<'a> RetrieveFinancialConnectionsSession<'a> {
-    /// Retrieves the details of a Financial Connections `Session`.
+    /// Retrieves the details of a Financial Connections `Session`
     pub fn send(
         &self,
         client: &stripe::Client,

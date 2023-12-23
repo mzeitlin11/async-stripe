@@ -16,15 +16,11 @@ pub struct TreasuryTransactionsResourceFlowDetails {
     pub received_credit: Option<stripe_treasury::TreasuryReceivedCredit>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub received_debit: Option<stripe_treasury::TreasuryReceivedDebit>,
-    /// Type of the flow that created the Transaction.
-    ///
-    /// Set to the same value as `flow_type`.
+    /// Type of the flow that created the Transaction. Set to the same value as `flow_type`.
     #[serde(rename = "type")]
     pub type_: TreasuryTransactionsResourceFlowDetailsType,
 }
-/// Type of the flow that created the Transaction.
-///
-/// Set to the same value as `flow_type`.
+/// Type of the flow that created the Transaction. Set to the same value as `flow_type`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryTransactionsResourceFlowDetailsType {
     CreditReversal,

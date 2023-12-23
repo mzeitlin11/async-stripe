@@ -11,32 +11,25 @@ pub struct Quote {
     /// ID of the Connect Application that created the quote.
     pub application: Option<stripe_types::Expandable<stripe_shared::Application>>,
     /// The amount of the application fee (if any) that will be requested to be applied to the payment and transferred to the application owner's Stripe account.
-    ///
     /// Only applicable if there are no line items with recurring prices on the quote.
     pub application_fee_amount: Option<i64>,
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the application owner's Stripe account.
     /// Only applicable if there are line items with recurring prices on the quote.
     pub application_fee_percent: Option<f64>,
     pub automatic_tax: stripe_shared::QuotesResourceAutomaticTax,
     /// Either `charge_automatically`, or `send_invoice`.
-    ///
     /// When charging automatically, Stripe will attempt to pay invoices at the end of the subscription cycle or on finalization using the default payment method attached to the subscription or customer.
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
     /// Defaults to `charge_automatically`.
     pub collection_method: QuoteCollectionMethod,
     pub computed: stripe_shared::QuotesResourceComputed,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: Option<stripe_types::Currency>,
     /// The customer which this quote belongs to.
-    ///
     /// A customer is required before finalizing the quote.
     /// Once specified, it cannot be changed.
     pub customer: Option<stripe_types::Expandable<stripe_shared::Customer>>,
@@ -48,13 +41,11 @@ pub struct Quote {
     /// The discounts applied to this quote.
     pub discounts: Vec<stripe_types::Expandable<stripe_shared::Discount>>,
     /// The date on which the quote will be canceled if in `open` or `draft` status.
-    ///
     /// Measured in seconds since the Unix epoch.
     pub expires_at: stripe_types::Timestamp,
     /// A footer that will be displayed on the quote PDF.
     pub footer: Option<String>,
     /// Details of the quote that was cloned.
-    ///
     /// See the [cloning documentation](https://stripe.com/docs/quotes/clone) for more details.
     pub from_quote: Option<stripe_shared::QuotesResourceFromQuote>,
     /// A header that will be displayed on the quote PDF.
@@ -71,15 +62,12 @@ pub struct Quote {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: std::collections::HashMap<String, String>,
     /// A unique number that identifies this particular quote.
-    ///
     /// This number is assigned once the quote is [finalized](https://stripe.com/docs/quotes/overview#finalize).
     pub number: Option<String>,
     /// The account on behalf of which to charge.
-    ///
     /// See the [Connect documentation](https://support.stripe.com/questions/sending-invoices-on-behalf-of-connected-accounts) for details.
     pub on_behalf_of: Option<stripe_types::Expandable<stripe_shared::Account>>,
     /// The status of the quote.
@@ -98,7 +86,6 @@ pub struct Quote {
     pub transfer_data: Option<stripe_shared::QuotesResourceTransferData>,
 }
 /// Either `charge_automatically`, or `send_invoice`.
-///
 /// When charging automatically, Stripe will attempt to pay invoices at the end of the subscription cycle or on finalization using the default payment method attached to the subscription or customer.
 /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
 /// Defaults to `charge_automatically`.

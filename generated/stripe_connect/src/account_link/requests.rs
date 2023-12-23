@@ -3,7 +3,6 @@ pub struct CreateAccountLink<'a> {
     /// The identifier of the account to create an account link for.
     pub account: &'a str,
     /// Which information the platform needs to collect from the user.
-    ///
     /// One of `currently_due` or `eventually_due`.
     /// Default is `currently_due`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -12,7 +11,6 @@ pub struct CreateAccountLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// The URL the user will be redirected to if the account link is expired, has been previously-visited, or is otherwise invalid.
-    ///
     /// The URL you specify should attempt to generate a new account link with the same parameters used to create the original account link, then redirect the user to the new account link's URL so they can continue with Connect Onboarding.
     /// If a new account link cannot be generated or the redirect fails you should display a useful error to the user.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -21,7 +19,6 @@ pub struct CreateAccountLink<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_url: Option<&'a str>,
     /// The type of account link the user is requesting.
-    ///
     /// Possible values are `account_onboarding` or `account_update`.
     #[serde(rename = "type")]
     pub type_: CreateAccountLinkType,
@@ -32,7 +29,6 @@ impl<'a> CreateAccountLink<'a> {
     }
 }
 /// Which information the platform needs to collect from the user.
-///
 /// One of `currently_due` or `eventually_due`.
 /// Default is `currently_due`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -86,7 +82,6 @@ impl serde::Serialize for CreateAccountLinkCollect {
     }
 }
 /// The type of account link the user is requesting.
-///
 /// Possible values are `account_onboarding` or `account_update`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateAccountLinkType {

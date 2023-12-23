@@ -7,7 +7,6 @@ pub struct ListIssuingCardholder<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<&'a str>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -16,7 +15,6 @@ pub struct ListIssuingCardholder<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
@@ -24,19 +22,14 @@ pub struct ListIssuingCardholder<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone_number: Option<&'a str>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub starting_after: Option<&'a str>,
-    /// Only return cardholders that have the given status.
-    ///
-    /// One of `active`, `inactive`, or `blocked`.
+    /// Only return cardholders that have the given status. One of `active`, `inactive`, or `blocked`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<ListIssuingCardholderStatus>,
-    /// Only return cardholders that have the given type.
-    ///
-    /// One of `individual` or `company`.
+    /// Only return cardholders that have the given type. One of `individual` or `company`.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<ListIssuingCardholderType>,
@@ -46,9 +39,7 @@ impl<'a> ListIssuingCardholder<'a> {
         Self::default()
     }
 }
-/// Only return cardholders that have the given status.
-///
-/// One of `active`, `inactive`, or `blocked`.
+/// Only return cardholders that have the given status. One of `active`, `inactive`, or `blocked`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ListIssuingCardholderStatus {
     Active,
@@ -102,9 +93,7 @@ impl serde::Serialize for ListIssuingCardholderStatus {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Only return cardholders that have the given type.
-///
-/// One of `individual` or `company`.
+/// Only return cardholders that have the given type. One of `individual` or `company`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ListIssuingCardholderType {
     Company,
@@ -157,7 +146,6 @@ impl serde::Serialize for ListIssuingCardholderType {
 }
 impl<'a> ListIssuingCardholder<'a> {
     /// Returns a list of Issuing `Cardholder` objects.
-    ///
     /// The objects are sorted in descending order by creation date, with the most recently created object appearing first.
     pub fn send(
         &self,
@@ -188,42 +176,35 @@ pub struct CreateIssuingCardholder<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub individual: Option<CreateIssuingCardholderIndividual<'a>>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// The cardholder's name.
-    ///
     /// This will be printed on cards issued to them.
     /// The maximum length of this field is 24 characters.
     /// This field cannot contain any special characters or numbers.
     pub name: &'a str,
     /// The cardholder's phone number.
-    ///
     /// This will be transformed to [E.164](https://en.wikipedia.org/wiki/E.164) if it is not provided in that format already.
     /// This is required for all cardholders who will be creating EU cards.
     /// See the [3D Secure documentation](https://stripe.com/docs/issuing/3d-secure#when-is-3d-secure-applied) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone_number: Option<&'a str>,
     /// The cardholder’s preferred locales (languages), ordered by preference.
-    ///
-    /// Locales can be `de`, `en`, `es`, `fr`, or `it`.  This changes the language of the [3D Secure flow](https://stripe.com/docs/issuing/3d-secure) and one-time password messages sent to the cardholder.
+    /// Locales can be `de`, `en`, `es`, `fr`, or `it`.
+    /// This changes the language of the [3D Secure flow](https://stripe.com/docs/issuing/3d-secure) and one-time password messages sent to the cardholder.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_locales: Option<&'a [CreateIssuingCardholderPreferredLocales]>,
     /// Rules that control spending across this cardholder's cards.
-    ///
     /// Refer to our [documentation](https://stripe.com/docs/issuing/controls/spending-controls) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub spending_controls: Option<CreateIssuingCardholderSpendingControls<'a>>,
-    /// Specifies whether to permit authorizations on this cardholder's cards.
-    ///
-    /// Defaults to `active`.
+    /// Specifies whether to permit authorizations on this cardholder's cards. Defaults to `active`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<CreateIssuingCardholderStatus>,
     /// One of `individual` or `company`.
-    ///
     /// See [Choose a cardholder type](https://stripe.com/docs/issuing/other/choose-cardholder) for more details.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -299,19 +280,15 @@ pub struct CreateIssuingCardholderIndividual<'a> {
     /// Information related to the card_issuing program for this cardholder.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub card_issuing: Option<CreateIssuingCardholderIndividualCardIssuing<'a>>,
-    /// The date of birth of this cardholder.
-    ///
-    /// Cardholders must be older than 13 years old.
+    /// The date of birth of this cardholder. Cardholders must be older than 13 years old.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dob: Option<CreateIssuingCardholderIndividualDob>,
     /// The first name of this cardholder.
-    ///
     /// Required before activating Cards.
     /// This field cannot contain any numbers, special characters (except periods, commas, hyphens, spaces and apostrophes) or non-latin letters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub first_name: Option<&'a str>,
     /// The last name of this cardholder.
-    ///
     /// Required before activating Cards.
     /// This field cannot contain any numbers, special characters (except periods, commas, hyphens, spaces and apostrophes) or non-latin letters.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -342,12 +319,10 @@ impl<'a> CreateIssuingCardholderIndividualCardIssuing<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateIssuingCardholderIndividualCardIssuingUserTermsAcceptance<'a> {
     /// The Unix timestamp marking when the cardholder accepted the Authorized User Terms.
-    ///
     /// Required for Celtic Spend Card users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub date: Option<stripe_types::Timestamp>,
     /// The IP address from which the cardholder accepted the Authorized User Terms.
-    ///
     /// Required for Celtic Spend Card users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip: Option<&'a str>,
@@ -360,9 +335,7 @@ impl<'a> CreateIssuingCardholderIndividualCardIssuingUserTermsAcceptance<'a> {
         Self::default()
     }
 }
-/// The date of birth of this cardholder.
-///
-/// Cardholders must be older than 13 years old.
+/// The date of birth of this cardholder. Cardholders must be older than 13 years old.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateIssuingCardholderIndividualDob {
     /// The day of birth, between 1 and 31.
@@ -405,8 +378,8 @@ impl<'a> CreateIssuingCardholderIndividualVerificationDocument<'a> {
     }
 }
 /// The cardholder’s preferred locales (languages), ordered by preference.
-///
-/// Locales can be `de`, `en`, `es`, `fr`, or `it`.  This changes the language of the [3D Secure flow](https://stripe.com/docs/issuing/3d-secure) and one-time password messages sent to the cardholder.
+/// Locales can be `de`, `en`, `es`, `fr`, or `it`.
+/// This changes the language of the [3D Secure flow](https://stripe.com/docs/issuing/3d-secure) and one-time password messages sent to the cardholder.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateIssuingCardholderPreferredLocales {
     De,
@@ -467,18 +440,15 @@ impl serde::Serialize for CreateIssuingCardholderPreferredLocales {
     }
 }
 /// Rules that control spending across this cardholder's cards.
-///
 /// Refer to our [documentation](https://stripe.com/docs/issuing/controls/spending-controls) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateIssuingCardholderSpendingControls<'a> {
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to allow.
-    ///
     /// All other categories will be blocked.
     /// Cannot be set with `blocked_categories`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_categories: Option<&'a [CreateIssuingCardholderSpendingControlsAllowedCategories]>,
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to decline.
-    ///
     /// All other categories will be allowed.
     /// Cannot be set with `allowed_categories`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -486,9 +456,7 @@ pub struct CreateIssuingCardholderSpendingControls<'a> {
     /// Limit spending with amount-based rules that apply across this cardholder's cards.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub spending_limits: Option<&'a [CreateIssuingCardholderSpendingControlsSpendingLimits<'a>]>,
-    /// Currency of amounts within `spending_limits`.
-    ///
-    /// Defaults to your merchant country's currency.
+    /// Currency of amounts within `spending_limits`. Defaults to your merchant country's currency.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub spending_limits_currency: Option<stripe_types::Currency>,
 }
@@ -498,7 +466,6 @@ impl<'a> CreateIssuingCardholderSpendingControls<'a> {
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to allow.
-///
 /// All other categories will be blocked.
 /// Cannot be set with `blocked_categories`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1527,7 +1494,6 @@ impl serde::Serialize for CreateIssuingCardholderSpendingControlsAllowedCategori
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to decline.
-///
 /// All other categories will be allowed.
 /// Cannot be set with `allowed_categories`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -2561,7 +2527,6 @@ pub struct CreateIssuingCardholderSpendingControlsSpendingLimits<'a> {
     /// Maximum amount allowed to spend per interval.
     pub amount: i64,
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) this limit applies to.
-    ///
     /// Omitting this field will apply the limit to all categories.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub categories: Option<&'a [CreateIssuingCardholderSpendingControlsSpendingLimitsCategories]>,
@@ -2577,7 +2542,6 @@ impl<'a> CreateIssuingCardholderSpendingControlsSpendingLimits<'a> {
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) this limit applies to.
-///
 /// Omitting this field will apply the limit to all categories.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -3667,9 +3631,7 @@ impl serde::Serialize for CreateIssuingCardholderSpendingControlsSpendingLimitsI
         serializer.serialize_str(self.as_str())
     }
 }
-/// Specifies whether to permit authorizations on this cardholder's cards.
-///
-/// Defaults to `active`.
+/// Specifies whether to permit authorizations on this cardholder's cards. Defaults to `active`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateIssuingCardholderStatus {
     Active,
@@ -3721,7 +3683,6 @@ impl serde::Serialize for CreateIssuingCardholderStatus {
     }
 }
 /// One of `individual` or `company`.
-///
 /// See [Choose a cardholder type](https://stripe.com/docs/issuing/other/choose-cardholder) for more details.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateIssuingCardholderType {
@@ -3821,25 +3782,22 @@ pub struct UpdateIssuingCardholder<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub individual: Option<UpdateIssuingCardholderIndividual<'a>>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// The cardholder's phone number.
-    ///
     /// This is required for all cardholders who will be creating EU cards.
     /// See the [3D Secure documentation](https://stripe.com/docs/issuing/3d-secure) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phone_number: Option<&'a str>,
     /// The cardholder’s preferred locales (languages), ordered by preference.
-    ///
-    /// Locales can be `de`, `en`, `es`, `fr`, or `it`.  This changes the language of the [3D Secure flow](https://stripe.com/docs/issuing/3d-secure) and one-time password messages sent to the cardholder.
+    /// Locales can be `de`, `en`, `es`, `fr`, or `it`.
+    /// This changes the language of the [3D Secure flow](https://stripe.com/docs/issuing/3d-secure) and one-time password messages sent to the cardholder.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_locales: Option<&'a [UpdateIssuingCardholderPreferredLocales]>,
     /// Rules that control spending across this cardholder's cards.
-    ///
     /// Refer to our [documentation](https://stripe.com/docs/issuing/controls/spending-controls) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub spending_controls: Option<UpdateIssuingCardholderSpendingControls<'a>>,
@@ -3904,19 +3862,15 @@ pub struct UpdateIssuingCardholderIndividual<'a> {
     /// Information related to the card_issuing program for this cardholder.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub card_issuing: Option<UpdateIssuingCardholderIndividualCardIssuing<'a>>,
-    /// The date of birth of this cardholder.
-    ///
-    /// Cardholders must be older than 13 years old.
+    /// The date of birth of this cardholder. Cardholders must be older than 13 years old.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dob: Option<UpdateIssuingCardholderIndividualDob>,
     /// The first name of this cardholder.
-    ///
     /// Required before activating Cards.
     /// This field cannot contain any numbers, special characters (except periods, commas, hyphens, spaces and apostrophes) or non-latin letters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub first_name: Option<&'a str>,
     /// The last name of this cardholder.
-    ///
     /// Required before activating Cards.
     /// This field cannot contain any numbers, special characters (except periods, commas, hyphens, spaces and apostrophes) or non-latin letters.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3947,12 +3901,10 @@ impl<'a> UpdateIssuingCardholderIndividualCardIssuing<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateIssuingCardholderIndividualCardIssuingUserTermsAcceptance<'a> {
     /// The Unix timestamp marking when the cardholder accepted the Authorized User Terms.
-    ///
     /// Required for Celtic Spend Card users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub date: Option<stripe_types::Timestamp>,
     /// The IP address from which the cardholder accepted the Authorized User Terms.
-    ///
     /// Required for Celtic Spend Card users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip: Option<&'a str>,
@@ -3965,9 +3917,7 @@ impl<'a> UpdateIssuingCardholderIndividualCardIssuingUserTermsAcceptance<'a> {
         Self::default()
     }
 }
-/// The date of birth of this cardholder.
-///
-/// Cardholders must be older than 13 years old.
+/// The date of birth of this cardholder. Cardholders must be older than 13 years old.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateIssuingCardholderIndividualDob {
     /// The day of birth, between 1 and 31.
@@ -4010,8 +3960,8 @@ impl<'a> UpdateIssuingCardholderIndividualVerificationDocument<'a> {
     }
 }
 /// The cardholder’s preferred locales (languages), ordered by preference.
-///
-/// Locales can be `de`, `en`, `es`, `fr`, or `it`.  This changes the language of the [3D Secure flow](https://stripe.com/docs/issuing/3d-secure) and one-time password messages sent to the cardholder.
+/// Locales can be `de`, `en`, `es`, `fr`, or `it`.
+/// This changes the language of the [3D Secure flow](https://stripe.com/docs/issuing/3d-secure) and one-time password messages sent to the cardholder.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateIssuingCardholderPreferredLocales {
     De,
@@ -4072,18 +4022,15 @@ impl serde::Serialize for UpdateIssuingCardholderPreferredLocales {
     }
 }
 /// Rules that control spending across this cardholder's cards.
-///
 /// Refer to our [documentation](https://stripe.com/docs/issuing/controls/spending-controls) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateIssuingCardholderSpendingControls<'a> {
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to allow.
-    ///
     /// All other categories will be blocked.
     /// Cannot be set with `blocked_categories`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_categories: Option<&'a [UpdateIssuingCardholderSpendingControlsAllowedCategories]>,
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to decline.
-    ///
     /// All other categories will be allowed.
     /// Cannot be set with `allowed_categories`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4091,9 +4038,7 @@ pub struct UpdateIssuingCardholderSpendingControls<'a> {
     /// Limit spending with amount-based rules that apply across this cardholder's cards.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub spending_limits: Option<&'a [UpdateIssuingCardholderSpendingControlsSpendingLimits<'a>]>,
-    /// Currency of amounts within `spending_limits`.
-    ///
-    /// Defaults to your merchant country's currency.
+    /// Currency of amounts within `spending_limits`. Defaults to your merchant country's currency.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub spending_limits_currency: Option<stripe_types::Currency>,
 }
@@ -4103,7 +4048,6 @@ impl<'a> UpdateIssuingCardholderSpendingControls<'a> {
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to allow.
-///
 /// All other categories will be blocked.
 /// Cannot be set with `blocked_categories`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -5132,7 +5076,6 @@ impl serde::Serialize for UpdateIssuingCardholderSpendingControlsAllowedCategori
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to decline.
-///
 /// All other categories will be allowed.
 /// Cannot be set with `allowed_categories`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -6166,7 +6109,6 @@ pub struct UpdateIssuingCardholderSpendingControlsSpendingLimits<'a> {
     /// Maximum amount allowed to spend per interval.
     pub amount: i64,
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) this limit applies to.
-    ///
     /// Omitting this field will apply the limit to all categories.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub categories: Option<&'a [UpdateIssuingCardholderSpendingControlsSpendingLimitsCategories]>,
@@ -6182,7 +6124,6 @@ impl<'a> UpdateIssuingCardholderSpendingControlsSpendingLimits<'a> {
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) this limit applies to.
-///
 /// Omitting this field will apply the limit to all categories.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -7325,7 +7266,6 @@ impl serde::Serialize for UpdateIssuingCardholderStatus {
 }
 impl<'a> UpdateIssuingCardholder<'a> {
     /// Updates the specified Issuing `Cardholder` object by setting the values of the parameters passed.
-    ///
     /// Any parameters not provided will be left unchanged.
     pub fn send(
         &self,

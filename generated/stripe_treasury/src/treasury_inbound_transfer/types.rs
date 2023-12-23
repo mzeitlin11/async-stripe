@@ -1,5 +1,4 @@
 /// Use [InboundTransfers](https://stripe.com/docs/treasury/moving-money/financial-accounts/into/inbound-transfers) to add funds to your [FinancialAccount](https://stripe.com/docs/api#financial_accounts) via a PaymentMethod that is owned by you.
-///
 /// The funds will be transferred via an ACH debit.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryInboundTransfer {
@@ -7,21 +6,14 @@ pub struct TreasuryInboundTransfer {
     pub amount: i64,
     /// Returns `true` if the InboundTransfer is able to be canceled.
     pub cancelable: bool,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     pub description: Option<String>,
-    /// Details about this InboundTransfer's failure.
-    ///
-    /// Only set when status is `failed`.
+    /// Details about this InboundTransfer's failure. Only set when status is `failed`.
     pub failure_details: Option<stripe_treasury::TreasuryInboundTransfersResourceFailureDetails>,
     /// The FinancialAccount that received the funds.
     pub financial_account: String,
@@ -34,7 +26,6 @@ pub struct TreasuryInboundTransfer {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: std::collections::HashMap<String, String>,
     /// The origin payment method to be debited for an InboundTransfer.
@@ -44,11 +35,9 @@ pub struct TreasuryInboundTransfer {
     /// Returns `true` if the funds for an InboundTransfer were returned after the InboundTransfer went to the `succeeded` state.
     pub returned: Option<bool>,
     /// Statement descriptor shown when funds are debited from the source.
-    ///
     /// Not all payment networks support `statement_descriptor`.
     pub statement_descriptor: String,
     /// Status of the InboundTransfer: `processing`, `succeeded`, `failed`, and `canceled`.
-    ///
     /// An InboundTransfer is `processing` if it is created and pending.
     /// The status changes to `succeeded` once the funds have been "confirmed" and a `transaction` is created and posted.
     /// The status changes to `failed` if the transfer fails.
@@ -59,7 +48,6 @@ pub struct TreasuryInboundTransfer {
     pub transaction: Option<stripe_types::Expandable<stripe_treasury::TreasuryTransaction>>,
 }
 /// Status of the InboundTransfer: `processing`, `succeeded`, `failed`, and `canceled`.
-///
 /// An InboundTransfer is `processing` if it is created and pending.
 /// The status changes to `succeeded` once the funds have been "confirmed" and a `transaction` is created and posted.
 /// The status changes to `failed` if the transfer fails.

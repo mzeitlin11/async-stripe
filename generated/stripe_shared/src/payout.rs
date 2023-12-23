@@ -1,32 +1,30 @@
 /// A `Payout` object is created when you receive funds from Stripe, or when you
 /// initiate a payout to either a bank account or debit card of a [connected
-/// Stripe account](/docs/connect/bank-debit-card-payouts).
+/// Stripe account](/docs/connect/bank-debit-card-payouts). You can retrieve individual payouts,
+/// and list all payouts. Payouts are made on [varying
+/// schedules](/docs/connect/manage-payout-schedule), depending on your country and
+/// industry.
 ///
-/// You can retrieve individual payouts, and list all payouts.
-/// Payouts are made on [varying schedules](/docs/connect/manage-payout-schedule), depending on your country and industry.  Related guide: [Receiving payouts](https://stripe.com/docs/payouts)  For more details see <<https://stripe.com/docs/api/payouts/object>>.
+/// Related guide: [Receiving payouts](https://stripe.com/docs/payouts)
+///
+/// For more details see <<https://stripe.com/docs/api/payouts/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Payout {
     /// The amount (in cents (or local equivalent)) that transfers to your bank account or debit card.
     pub amount: i64,
     /// Date that you can expect the payout to arrive in the bank.
-    ///
     /// This factors in delays to account for weekends or bank holidays.
     pub arrival_date: stripe_types::Timestamp,
     /// Returns `true` if the payout is created by an [automated payout schedule](https://stripe.com/docs/payouts#payout-schedule) and `false` if it's [requested manually](https://stripe.com/docs/payouts#manual-payouts).
     pub automatic: bool,
     /// ID of the balance transaction that describes the impact of this payout on your account balance.
     pub balance_transaction: Option<stripe_types::Expandable<stripe_shared::BalanceTransaction>>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     pub description: Option<String>,
     /// ID of the bank account or card the payout is sent to.
     pub destination: Option<stripe_types::Expandable<stripe_shared::ExternalAccount>>,
@@ -34,7 +32,6 @@ pub struct Payout {
     pub failure_balance_transaction:
         Option<stripe_types::Expandable<stripe_shared::BalanceTransaction>>,
     /// Error code that provides a reason for a payout failure, if available.
-    ///
     /// View our [list of failure codes](https://stripe.com/docs/api#payout_failures).
     pub failure_code: Option<String>,
     /// Message that provides the reason for a payout failure, if available.
@@ -44,11 +41,9 @@ pub struct Payout {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: Option<std::collections::HashMap<String, String>>,
     /// The method used to send this payout, which can be `standard` or `instant`.
-    ///
     /// `instant` is supported for payouts to debit cards and bank accounts in certain countries.
     /// Learn more about [bank support for Instant Payouts](https://stripe.com/docs/payouts/instant-payouts-banks).
     pub method: String,
@@ -63,7 +58,6 @@ pub struct Payout {
     /// Extra information about a payout that displays on the user's bank statement.
     pub statement_descriptor: Option<String>,
     /// Current status of the payout: `paid`, `pending`, `in_transit`, `canceled` or `failed`.
-    ///
     /// A payout is `pending` until it's submitted to the bank, when it becomes `in_transit`.
     /// The status changes to `paid` if the transaction succeeds, or to `failed` or `canceled` (within 5 business days).
     /// Some payouts that fail might initially show as `paid`, then change to `failed`.

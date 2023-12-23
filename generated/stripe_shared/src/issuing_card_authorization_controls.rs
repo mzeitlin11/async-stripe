@@ -1,24 +1,19 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct IssuingCardAuthorizationControls {
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to allow.
-    ///
     /// All other categories will be blocked.
     /// Cannot be set with `blocked_categories`.
     pub allowed_categories: Option<Vec<IssuingCardAuthorizationControlsAllowedCategories>>,
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to decline.
-    ///
     /// All other categories will be allowed.
     /// Cannot be set with `allowed_categories`.
     pub blocked_categories: Option<Vec<IssuingCardAuthorizationControlsBlockedCategories>>,
     /// Limit spending with amount-based rules that apply across any cards this card replaced (i.e., its `replacement_for` card and _that_ card's `replacement_for` card, up the chain).
     pub spending_limits: Option<Vec<stripe_shared::IssuingCardSpendingLimit>>,
-    /// Currency of the amounts within `spending_limits`.
-    ///
-    /// Always the same as the currency of the card.
+    /// Currency of the amounts within `spending_limits`. Always the same as the currency of the card.
     pub spending_limits_currency: Option<stripe_types::Currency>,
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to allow.
-///
 /// All other categories will be blocked.
 /// Cannot be set with `blocked_categories`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1054,7 +1049,6 @@ impl<'de> serde::Deserialize<'de> for IssuingCardAuthorizationControlsAllowedCat
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to decline.
-///
 /// All other categories will be allowed.
 /// Cannot be set with `allowed_categories`.
 #[derive(Copy, Clone, Eq, PartialEq)]

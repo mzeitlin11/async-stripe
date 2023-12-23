@@ -1,4 +1,4 @@
-/// Each customer has a [`balance`](https://stripe.com/docs/api/customers/object#customer_object-balance) that is
+/// Each customer has a [`balance`](https://stripe.com/docs/api/customers/object#customer_object-balance) that is.
 /// automatically applied to future invoices and payments using the `customer_balance` payment method.
 /// Customers can fund this balance by initiating a bank transfer to any account in the
 /// `financial_addresses` field.
@@ -7,15 +7,14 @@
 pub struct FundingInstructions {
     pub bank_transfer: stripe_shared::FundingInstructionsBankTransfer,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
-    /// The `funding_type` of the returned instructions.
+    /// The `funding_type` of the returned instructions
     pub funding_type: FundingInstructionsFundingType,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
 }
-/// The `funding_type` of the returned instructions.
+/// The `funding_type` of the returned instructions
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum FundingInstructionsFundingType {
     BankTransfer,

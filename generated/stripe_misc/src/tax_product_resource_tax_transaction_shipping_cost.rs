@@ -1,7 +1,6 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TaxProductResourceTaxTransactionShippingCost {
     /// The shipping amount in integer cents.
-    ///
     /// If `tax_behavior=inclusive`, then this amount includes taxes.
     /// Otherwise, taxes were calculated on top of this amount.
     pub amount: i64,
@@ -11,11 +10,9 @@ pub struct TaxProductResourceTaxTransactionShippingCost {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_rate: Option<String>,
     /// Specifies whether the `amount` includes taxes.
-    ///
     /// If `tax_behavior=inclusive`, then the amount includes taxes.
     pub tax_behavior: TaxProductResourceTaxTransactionShippingCostTaxBehavior,
     /// Detailed account of taxes relevant to shipping cost.
-    ///
     /// (It is not populated for the transaction resource object and will be removed in the next API version.).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_breakdown: Option<Vec<stripe_misc::TaxProductResourceLineItemTaxBreakdown>>,
@@ -23,7 +20,6 @@ pub struct TaxProductResourceTaxTransactionShippingCost {
     pub tax_code: String,
 }
 /// Specifies whether the `amount` includes taxes.
-///
 /// If `tax_behavior=inclusive`, then the amount includes taxes.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TaxProductResourceTaxTransactionShippingCostTaxBehavior {

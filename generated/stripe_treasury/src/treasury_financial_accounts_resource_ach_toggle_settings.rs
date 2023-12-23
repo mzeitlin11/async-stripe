@@ -1,4 +1,4 @@
-/// Toggle settings for enabling/disabling an ACH specific feature.
+/// Toggle settings for enabling/disabling an ACH specific feature
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryFinancialAccountsResourceAchToggleSettings {
     /// Whether the FinancialAccount should have the Feature.

@@ -4,12 +4,10 @@ pub struct CreateTreasuryFinancialAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Encodes whether a FinancialAccount has access to a particular feature.
-    ///
     /// Stripe or the platform can control features via the requested field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub features: Option<CreateTreasuryFinancialAccountFeatures>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -33,7 +31,6 @@ impl<'a> CreateTreasuryFinancialAccount<'a> {
     }
 }
 /// Encodes whether a FinancialAccount has access to a particular feature.
-///
 /// Stripe or the platform can control features via the requested field.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateTreasuryFinancialAccountFeatures {
@@ -41,7 +38,6 @@ pub struct CreateTreasuryFinancialAccountFeatures {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub card_issuing: Option<CreateTreasuryFinancialAccountFeaturesCardIssuing>,
     /// Represents whether this FinancialAccount is eligible for deposit insurance.
-    ///
     /// Various factors determine the insurance amount.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub deposit_insurance: Option<CreateTreasuryFinancialAccountFeaturesDepositInsurance>,
@@ -78,7 +74,6 @@ impl CreateTreasuryFinancialAccountFeaturesCardIssuing {
     }
 }
 /// Represents whether this FinancialAccount is eligible for deposit insurance.
-///
 /// Various factors determine the insurance amount.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTreasuryFinancialAccountFeaturesDepositInsurance {
@@ -341,9 +336,7 @@ impl serde::Serialize for CreateTreasuryFinancialAccountPlatformRestrictionsOutb
     }
 }
 impl<'a> CreateTreasuryFinancialAccount<'a> {
-    /// Creates a new FinancialAccount.
-    ///
-    /// For now, each connected account can only have one FinancialAccount.
+    /// Creates a new FinancialAccount. For now, each connected account can only have one FinancialAccount.
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -357,12 +350,10 @@ pub struct UpdateTreasuryFinancialAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Encodes whether a FinancialAccount has access to a particular feature, with a status enum and associated `status_details`.
-    ///
     /// Stripe or the platform may control features via the requested field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub features: Option<UpdateTreasuryFinancialAccountFeatures>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -378,7 +369,6 @@ impl<'a> UpdateTreasuryFinancialAccount<'a> {
     }
 }
 /// Encodes whether a FinancialAccount has access to a particular feature, with a status enum and associated `status_details`.
-///
 /// Stripe or the platform may control features via the requested field.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateTreasuryFinancialAccountFeatures {
@@ -386,7 +376,6 @@ pub struct UpdateTreasuryFinancialAccountFeatures {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub card_issuing: Option<UpdateTreasuryFinancialAccountFeaturesCardIssuing>,
     /// Represents whether this FinancialAccount is eligible for deposit insurance.
-    ///
     /// Various factors determine the insurance amount.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub deposit_insurance: Option<UpdateTreasuryFinancialAccountFeaturesDepositInsurance>,
@@ -423,7 +412,6 @@ impl UpdateTreasuryFinancialAccountFeaturesCardIssuing {
     }
 }
 /// Represents whether this FinancialAccount is eligible for deposit insurance.
-///
 /// Various factors determine the insurance amount.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateTreasuryFinancialAccountFeaturesDepositInsurance {
@@ -705,7 +693,6 @@ pub struct UpdateFeaturesTreasuryFinancialAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub card_issuing: Option<UpdateFeaturesTreasuryFinancialAccountCardIssuing>,
     /// Represents whether this FinancialAccount is eligible for deposit insurance.
-    ///
     /// Various factors determine the insurance amount.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub deposit_insurance: Option<UpdateFeaturesTreasuryFinancialAccountDepositInsurance>,
@@ -745,7 +732,6 @@ impl UpdateFeaturesTreasuryFinancialAccountCardIssuing {
     }
 }
 /// Represents whether this FinancialAccount is eligible for deposit insurance.
-///
 /// Various factors determine the insurance amount.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateFeaturesTreasuryFinancialAccountDepositInsurance {

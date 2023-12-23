@@ -1,7 +1,6 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct GelatoReportDocumentOptions {
     /// Array of strings of allowed identity document types.
-    ///
     /// If the provided identity document isn’t one of the allowed types, the verification check will fail with a document_type_not_allowed error code.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub allowed_types: Option<Vec<GelatoReportDocumentOptionsAllowedTypes>>,
@@ -12,13 +11,11 @@ pub struct GelatoReportDocumentOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub require_live_capture: Option<bool>,
     /// Capture a face image and perform a [selfie check](https://stripe.com/docs/identity/verification-checks?type=selfie) comparing a photo ID and a picture of your user’s face.
-    ///
     /// [Learn more](https://stripe.com/docs/identity/selfie).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub require_matching_selfie: Option<bool>,
 }
 /// Array of strings of allowed identity document types.
-///
 /// If the provided identity document isn’t one of the allowed types, the verification check will fail with a document_type_not_allowed error code.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum GelatoReportDocumentOptionsAllowedTypes {

@@ -5,22 +5,22 @@
 /// want to provide to your customers through the portal.
 ///
 /// A portal session describes the instantiation of the customer portal for
-/// a particular customer.
+/// a particular customer. By visiting the session's URL, the customer
+/// can manage their subscriptions and billing details. For security reasons,
+/// sessions are short-lived and will expire if the customer does not visit the URL.
+/// Create sessions on-demand when customers intend to manage their subscriptions
+/// and billing details.
 ///
-/// By visiting the session's URL, the customer can manage their subscriptions and billing details.
-/// For security reasons, sessions are short-lived and will expire if the customer does not visit the URL. Create sessions on-demand when customers intend to manage their subscriptions and billing details.  Learn more in the [integration guide](https://stripe.com/docs/billing/subscriptions/integrating-customer-portal).
+/// Learn more in the [integration guide](https://stripe.com/docs/billing/subscriptions/integrating-customer-portal).
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct BillingPortalSession {
     /// The configuration used by this session, describing the features available.
     pub configuration: stripe_types::Expandable<stripe_billing::BillingPortalConfiguration>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// The ID of the customer for this session.
     pub customer: String,
     /// Information about a specific flow for the customer to go through.
-    ///
     /// See the [docs](https://stripe.com/docs/customer-management/portal-deep-links) to learn more about using customer portal deep links and flows.
     pub flow: Option<stripe_billing::PortalFlowsFlow>,
     /// Unique identifier for the object.
@@ -28,11 +28,9 @@ pub struct BillingPortalSession {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// The IETF language tag of the locale Customer Portal is displayed in.
-    ///
     /// If blank or auto, the customer’s `preferred_locales` or browser’s locale is used.
     pub locale: Option<BillingPortalSessionLocale>,
     /// The account for which the session was created on behalf of.
-    ///
     /// When specified, only subscriptions and invoices with this `on_behalf_of` account appear in the portal.
     /// For more information, see the [docs](https://stripe.com/docs/connect/separate-charges-and-transfers#on-behalf-of).
     /// Use the [Accounts API](https://stripe.com/docs/api/accounts/object#account_object-settings-branding) to modify the `on_behalf_of` account's branding settings, which the portal displays.
@@ -43,7 +41,6 @@ pub struct BillingPortalSession {
     pub url: String,
 }
 /// The IETF language tag of the locale Customer Portal is displayed in.
-///
 /// If blank or auto, the customer’s `preferred_locales` or browser’s locale is used.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]

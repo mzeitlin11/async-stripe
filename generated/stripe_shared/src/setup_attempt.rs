@@ -1,7 +1,9 @@
 /// A SetupAttempt describes one attempted confirmation of a SetupIntent,
-/// whether that confirmation is successful or unsuccessful.
+/// whether that confirmation is successful or unsuccessful. You can use
+/// SetupAttempts to inspect details of a specific attempt at setting up a
+/// payment method using a SetupIntent.
 ///
-/// You can use SetupAttempts to inspect details of a specific attempt at setting up a payment method using a SetupIntent.  For more details see <<https://stripe.com/docs/api/setup_attempts/object>>.
+/// For more details see <<https://stripe.com/docs/api/setup_attempts/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct SetupAttempt {
     /// The value of [application](https://stripe.com/docs/api/setup_intents/object#setup_intent_object-application) on the SetupIntent at the time of this confirmation.
@@ -9,20 +11,16 @@ pub struct SetupAttempt {
     /// If present, the SetupIntent's payment method will be attached to the in-context Stripe Account.
     ///
     /// It can only be used for this Stripe Account’s own money movement flows like InboundTransfer and OutboundTransfers.
-    ///
     /// It cannot be set to true when setting up a PaymentMethod for a Customer, and defaults to false when attaching a PaymentMethod to a Customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub attach_to_self: Option<bool>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// The value of [customer](https://stripe.com/docs/api/setup_intents/object#setup_intent_object-customer) on the SetupIntent at the time of this confirmation.
     pub customer: Option<stripe_types::Expandable<stripe_shared::Customer>>,
     /// Indicates the directions of money movement for which this payment method is intended to be used.
     ///
     /// Include `inbound` if you intend to use the payment method as the origin to pull funds from.
-    ///
     /// Include `outbound` if you intend to use the payment method as the destination to send funds to.
     /// You can include both if you intend to use the payment method for both purposes.
     pub flow_directions: Option<Vec<SetupAttemptFlowDirections>>,
@@ -47,7 +45,6 @@ pub struct SetupAttempt {
 /// Indicates the directions of money movement for which this payment method is intended to be used.
 ///
 /// Include `inbound` if you intend to use the payment method as the origin to pull funds from.
-///
 /// Include `outbound` if you intend to use the payment method as the destination to send funds to.
 /// You can include both if you intend to use the payment method for both purposes.
 #[derive(Copy, Clone, Eq, PartialEq)]

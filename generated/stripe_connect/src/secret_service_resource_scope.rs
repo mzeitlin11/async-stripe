@@ -3,7 +3,7 @@ pub struct SecretServiceResourceScope {
     /// The secret scope type.
     #[serde(rename = "type")]
     pub type_: SecretServiceResourceScopeType,
-    /// The user ID, if type is set to "user".
+    /// The user ID, if type is set to "user"
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
 }

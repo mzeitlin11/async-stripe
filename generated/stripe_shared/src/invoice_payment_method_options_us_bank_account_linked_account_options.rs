@@ -1,17 +1,13 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct InvoicePaymentMethodOptionsUsBankAccountLinkedAccountOptions {
-    /// The list of permissions to request.
-    ///
-    /// The `payment_method` permission must be included.
+    /// The list of permissions to request. The `payment_method` permission must be included.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions:
         Option<Vec<InvoicePaymentMethodOptionsUsBankAccountLinkedAccountOptionsPermissions>>,
     /// Data features requested to be retrieved upon account creation.
     pub prefetch: Option<Vec<InvoicePaymentMethodOptionsUsBankAccountLinkedAccountOptionsPrefetch>>,
 }
-/// The list of permissions to request.
-///
-/// The `payment_method` permission must be included.
+/// The list of permissions to request. The `payment_method` permission must be included.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum InvoicePaymentMethodOptionsUsBankAccountLinkedAccountOptionsPermissions {
     Balances,

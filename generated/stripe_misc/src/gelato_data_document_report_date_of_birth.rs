@@ -1,4 +1,4 @@
-/// Point in Time.
+/// Point in Time
 #[derive(Copy, Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct GelatoDataDocumentReportDateOfBirth {
     /// Numerical day between 1 and 31.

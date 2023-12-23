@@ -2,7 +2,7 @@
 pub struct PaymentMethodUsBankAccountBlocked {
     /// The ACH network code that resulted in this block.
     pub network_code: Option<PaymentMethodUsBankAccountBlockedNetworkCode>,
-    /// The reason why this PaymentMethod's fingerprint has been blocked.
+    /// The reason why this PaymentMethod's fingerprint has been blocked
     pub reason: Option<PaymentMethodUsBankAccountBlockedReason>,
 }
 /// The ACH network code that resulted in this block.
@@ -97,7 +97,7 @@ impl<'de> serde::Deserialize<'de> for PaymentMethodUsBankAccountBlockedNetworkCo
         })
     }
 }
-/// The reason why this PaymentMethod's fingerprint has been blocked.
+/// The reason why this PaymentMethod's fingerprint has been blocked
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PaymentMethodUsBankAccountBlockedReason {
     BankAccountClosed,

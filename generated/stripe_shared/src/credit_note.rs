@@ -9,12 +9,9 @@ pub struct CreditNote {
     pub amount: i64,
     /// This is the sum of all the shipping amounts.
     pub amount_shipping: i64,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// ID of the customer.
@@ -27,7 +24,6 @@ pub struct CreditNote {
     /// The aggregate amounts calculated per discount for all line items.
     pub discount_amounts: Vec<stripe_shared::DiscountsResourceDiscountAmount>,
     /// The date when this credit note is in effect.
-    ///
     /// Same as `created` unless overwritten.
     /// When defined, this value replaces the system-generated 'Date of issue' printed on the credit note PDF.
     pub effective_at: Option<stripe_types::Timestamp>,
@@ -35,14 +31,13 @@ pub struct CreditNote {
     pub id: stripe_shared::CreditNoteId,
     /// ID of the invoice.
     pub invoice: stripe_types::Expandable<stripe_shared::Invoice>,
-    /// Line items that make up the credit note.
+    /// Line items that make up the credit note
     pub lines: stripe_types::List<stripe_shared::CreditNoteLineItem>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Customer-facing text that appears on the credit note PDF.
     pub memo: Option<String>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: Option<std::collections::HashMap<String, String>>,
     /// A unique number that identifies this particular credit note and appears on the PDF of the credit note and its associated invoice.
@@ -58,7 +53,6 @@ pub struct CreditNote {
     /// The details of the cost of shipping, including the ShippingRate applied to the invoice.
     pub shipping_cost: Option<stripe_shared::InvoicesShippingCost>,
     /// Status of this credit note, one of `issued` or `void`.
-    ///
     /// Learn more about [voiding credit notes](https://stripe.com/docs/billing/invoices/credit-notes#voiding).
     pub status: CreditNoteStatus,
     /// The integer amount in cents (or local equivalent) representing the amount of the credit note, excluding exclusive tax and invoice level discounts.
@@ -72,7 +66,6 @@ pub struct CreditNote {
     /// The integer amount in cents (or local equivalent) representing the total amount of the credit note, excluding tax, but including discounts.
     pub total_excluding_tax: Option<i64>,
     /// Type of this credit note, one of `pre_payment` or `post_payment`.
-    ///
     /// A `pre_payment` credit note means it was issued when the invoice was open.
     /// A `post_payment` credit note means it was issued when the invoice was paid.
     #[serde(rename = "type")]
@@ -146,7 +139,6 @@ impl<'de> serde::Deserialize<'de> for CreditNoteReason {
     }
 }
 /// Status of this credit note, one of `issued` or `void`.
-///
 /// Learn more about [voiding credit notes](https://stripe.com/docs/billing/invoices/credit-notes#voiding).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreditNoteStatus {
@@ -207,7 +199,6 @@ impl<'de> serde::Deserialize<'de> for CreditNoteStatus {
     }
 }
 /// Type of this credit note, one of `pre_payment` or `post_payment`.
-///
 /// A `pre_payment` credit note means it was issued when the invoice was open.
 /// A `post_payment` credit note means it was issued when the invoice was paid.
 #[derive(Copy, Clone, Eq, PartialEq)]

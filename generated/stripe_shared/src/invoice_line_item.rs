@@ -5,21 +5,15 @@ pub struct InvoiceLineItem {
     /// The integer amount in cents (or local equivalent) representing the amount for this line item, excluding all tax and discounts.
     pub amount_excluding_tax: Option<i64>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     pub description: Option<String>,
     /// The amount of discount calculated per discount for this line item.
     pub discount_amounts: Option<Vec<stripe_shared::DiscountsResourceDiscountAmount>>,
-    /// If true, discounts will apply to this line item.
-    ///
-    /// Always false for prorations.
+    /// If true, discounts will apply to this line item. Always false for prorations.
     pub discountable: bool,
     /// The discounts applied to the invoice line item.
-    ///
     /// Line item discounts are applied before invoice discounts.
     /// Use `expand[]=discounts` to expand each discount.
     pub discounts: Option<Vec<stripe_types::Expandable<stripe_shared::Discount>>>,
@@ -31,7 +25,6 @@ pub struct InvoiceLineItem {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Note that for line items with `type=subscription` this will reflect the metadata of the subscription that caused the line item to be created.
     pub metadata: std::collections::HashMap<String, String>,
@@ -42,18 +35,17 @@ pub struct InvoiceLineItem {
     pub price: Option<stripe_shared::Price>,
     /// Whether this is a proration.
     pub proration: bool,
-    /// Additional details for proration line items.
+    /// Additional details for proration line items
     pub proration_details: Option<stripe_shared::InvoicesResourceLineItemsProrationDetails>,
     /// The quantity of the subscription, if the line item is a subscription or a proration.
     pub quantity: Option<u64>,
     /// The subscription that the invoice item pertains to, if any.
     pub subscription: Option<stripe_types::Expandable<stripe_shared::Subscription>>,
     /// The subscription item that generated this line item.
-    ///
     /// Left empty if the line item is not an explicit result of a subscription.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subscription_item: Option<stripe_types::Expandable<stripe_shared::SubscriptionItem>>,
-    /// The amount of tax calculated per tax rate for this line item.
+    /// The amount of tax calculated per tax rate for this line item
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_amounts: Option<Vec<stripe_shared::InvoiceTaxAmount>>,
     /// The tax rates which apply to the line item.

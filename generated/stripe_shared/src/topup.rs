@@ -1,29 +1,25 @@
-/// To top up your Stripe balance, you create a top-up object.
+/// To top up your Stripe balance, you create a top-up object. You can retrieve
+/// individual top-ups, as well as list all top-ups. Top-ups are identified by a
+/// unique, random ID.
 ///
-/// You can retrieve individual top-ups, as well as list all top-ups.
-/// Top-ups are identified by a unique, random ID.  Related guide: [Topping up your platform account](https://stripe.com/docs/connect/top-ups)  For more details see <<https://stripe.com/docs/api/topups/object>>.
+/// Related guide: [Topping up your platform account](https://stripe.com/docs/connect/top-ups)
+///
+/// For more details see <<https://stripe.com/docs/api/topups/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Topup {
     /// Amount transferred.
     pub amount: i64,
     /// ID of the balance transaction that describes the impact of this top-up on your account balance.
-    ///
     /// May not be specified depending on status of top-up.
     pub balance_transaction: Option<stripe_types::Expandable<stripe_shared::BalanceTransaction>>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     pub description: Option<String>,
     /// Date the funds are expected to arrive in your Stripe account for payouts.
-    ///
     /// This factors in delays like weekends or bank holidays.
     /// May not be specified depending on status of top-up.
     pub expected_availability_date: Option<stripe_types::Timestamp>,
@@ -36,15 +32,11 @@ pub struct Topup {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: std::collections::HashMap<String, String>,
-    /// The source field is deprecated.
-    ///
-    /// It might not always be present in the API response.
+    /// The source field is deprecated. It might not always be present in the API response.
     pub source: Option<stripe_shared::Source>,
     /// Extra information about a top-up.
-    ///
     /// This will appear on your source's bank statement.
     /// It must contain at least one letter.
     pub statement_descriptor: Option<String>,

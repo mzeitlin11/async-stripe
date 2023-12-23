@@ -4,18 +4,15 @@ pub struct SearchPrice<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for pagination across multiple pages of results.
-    ///
     /// Don't include this parameter on the first call.
     /// Use the next_page value returned in a previous response to request subsequent results.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<&'a str>,
     /// The search query string.
-    ///
     /// See [search query language](https://stripe.com/docs/search#search-query-language) and the list of supported [query fields for prices](https://stripe.com/docs/search#query-fields-for-prices).
     pub query: &'a str,
 }
@@ -27,10 +24,10 @@ impl<'a> SearchPrice<'a> {
 impl<'a> SearchPrice<'a> {
     /// Search for prices you’ve previously created using Stripe’s [Search Query Language](https://stripe.com/docs/search#search-query-language).
     /// Don’t use search in read-after-write flows where strict consistency is necessary.
-    ///
-    /// Under normal operating conditions, data is searchable in less than a minute.
-    /// Occasionally, propagation of new or updated data can be up to an hour behind during outages.
-    /// Search functionality is not available to merchants in India.
+    /// Under normal operating.
+    /// conditions, data is searchable in less than a minute.
+    /// Occasionally, propagation of new or updated data can be up.
+    /// to an hour behind during outages. Search functionality is not available to merchants in India.
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -47,7 +44,6 @@ pub struct ListPrice<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
     /// A filter on the list, based on the object `created` field.
-    ///
     /// The value can be a string with an integer Unix timestamp, or it can be a dictionary with a number of different query options.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
@@ -55,7 +51,6 @@ pub struct ListPrice<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -64,7 +59,6 @@ pub struct ListPrice<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
@@ -78,7 +72,6 @@ pub struct ListPrice<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub recurring: Option<ListPriceRecurring>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -96,14 +89,10 @@ impl<'a> ListPrice<'a> {
 /// Only return prices with these recurring fields.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListPriceRecurring {
-    /// Filter by billing frequency.
-    ///
-    /// Either `day`, `week`, `month` or `year`.
+    /// Filter by billing frequency. Either `day`, `week`, `month` or `year`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub interval: Option<ListPriceRecurringInterval>,
-    /// Filter by the usage type for this price.
-    ///
-    /// Can be either `metered` or `licensed`.
+    /// Filter by the usage type for this price. Can be either `metered` or `licensed`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub usage_type: Option<ListPriceRecurringUsageType>,
 }
@@ -112,9 +101,7 @@ impl ListPriceRecurring {
         Self::default()
     }
 }
-/// Filter by billing frequency.
-///
-/// Either `day`, `week`, `month` or `year`.
+/// Filter by billing frequency. Either `day`, `week`, `month` or `year`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ListPriceRecurringInterval {
     Day,
@@ -171,9 +158,7 @@ impl serde::Serialize for ListPriceRecurringInterval {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Filter by the usage type for this price.
-///
-/// Can be either `metered` or `licensed`.
+/// Filter by the usage type for this price. Can be either `metered` or `licensed`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ListPriceRecurringUsageType {
     Licensed,
@@ -277,7 +262,6 @@ impl serde::Serialize for ListPriceType {
 }
 impl<'a> ListPrice<'a> {
     /// Returns a list of your active prices, excluding [inline prices](https://stripe.com/docs/products-prices/pricing-models#inline-pricing).
-    ///
     /// For the list of inactive prices, set `active` to false.
     pub fn send(
         &self,
@@ -291,24 +275,19 @@ impl<'a> ListPrice<'a> {
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePrice<'a> {
-    /// Whether the price can be used for new purchases.
-    ///
-    /// Defaults to `true`.
+    /// Whether the price can be used for new purchases. Defaults to `true`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
     /// Describes how to compute the price per period.
-    ///
     /// Either `per_unit` or `tiered`.
     /// `per_unit` indicates that the fixed amount (specified in `unit_amount` or `unit_amount_decimal`) will be charged per unit in `quantity` (for prices with `usage_type=licensed`), or per unit of total usage (for prices with `usage_type=metered`).
     /// `tiered` indicates that the unit pricing will be computed using a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_scheme: Option<CreatePriceBillingScheme>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// Prices defined in each available currency option.
-    ///
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency_options:
@@ -320,12 +299,10 @@ pub struct CreatePrice<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A lookup key used to retrieve prices dynamically from a static string.
-    ///
     /// This may be up to 200 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lookup_key: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -344,20 +321,17 @@ pub struct CreatePrice<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub recurring: Option<CreatePriceRecurring>,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_behavior: Option<CreatePriceTaxBehavior>,
     /// Each element represents a pricing tier.
-    ///
     /// This parameter requires `billing_scheme` to be set to `tiered`.
     /// See also the documentation for `billing_scheme`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tiers: Option<&'a [CreatePriceTiers<'a>]>,
     /// Defines if the tiering price should be `graduated` or `volume` based.
-    ///
     /// In `volume`-based tiering, the maximum quantity within a period determines the per unit price, in `graduated` tiering pricing can successively change as the quantity grows.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tiers_mode: Option<CreatePriceTiersMode>,
@@ -365,17 +339,14 @@ pub struct CreatePrice<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transfer_lookup_key: Option<bool>,
     /// Apply a transformation to the reported usage or set quantity before computing the billed price.
-    ///
     /// Cannot be combined with `tiers`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transform_quantity: Option<CreatePriceTransformQuantity>,
     /// A positive integer in cents (or local equivalent) (or 0 for a free price) representing how much to charge.
-    ///
     /// One of `unit_amount` or `custom_unit_amount` is required, unless `billing_scheme=tiered`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<&'a str>,
@@ -406,7 +377,6 @@ impl<'a> CreatePrice<'a> {
     }
 }
 /// Describes how to compute the price per period.
-///
 /// Either `per_unit` or `tiered`.
 /// `per_unit` indicates that the fixed amount (specified in `unit_amount` or `unit_amount_decimal`) will be charged per unit in `quantity` (for prices with `usage_type=licensed`), or per unit of total usage (for prices with `usage_type=metered`).
 /// `tiered` indicates that the unit pricing will be computed using a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
@@ -461,7 +431,6 @@ impl serde::Serialize for CreatePriceBillingScheme {
     }
 }
 /// Prices defined in each available currency option.
-///
 /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
 #[derive(Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePriceCurrencyOptions {
@@ -469,14 +438,12 @@ pub struct CreatePriceCurrencyOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_unit_amount: Option<CreatePriceCurrencyOptionsCustomUnitAmount>,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_behavior: Option<CreatePriceCurrencyOptionsTaxBehavior>,
     /// Each element represents a pricing tier.
-    ///
     /// This parameter requires `billing_scheme` to be set to `tiered`.
     /// See also the documentation for `billing_scheme`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -485,7 +452,6 @@ pub struct CreatePriceCurrencyOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<String>,
@@ -504,7 +470,6 @@ pub struct CreatePriceCurrencyOptionsCustomUnitAmount {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<i64>,
     /// The minimum unit amount the customer can specify for this item.
-    ///
     /// Must be at least the minimum charge amount.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub minimum: Option<i64>,
@@ -518,7 +483,6 @@ impl CreatePriceCurrencyOptionsCustomUnitAmount {
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -576,7 +540,6 @@ impl serde::Serialize for CreatePriceCurrencyOptionsTaxBehavior {
     }
 }
 /// Each element represents a pricing tier.
-///
 /// This parameter requires `billing_scheme` to be set to `tiered`.
 /// See also the documentation for `billing_scheme`.
 #[derive(Clone, Debug, serde::Serialize)]
@@ -585,7 +548,6 @@ pub struct CreatePriceCurrencyOptionsTiers {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flat_amount: Option<i64>,
     /// Same as `flat_amount`, but accepts a decimal value representing an integer in the minor units of the currency.
-    ///
     /// Only one of `flat_amount` and `flat_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flat_amount_decimal: Option<String>,
@@ -593,12 +555,10 @@ pub struct CreatePriceCurrencyOptionsTiers {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<String>,
     /// Specifies the upper bound of this tier.
-    ///
     /// The lower bound of a tier is the upper bound of the previous tier adding one.
     /// Use `inf` to define a fallback tier.
     pub up_to: CreatePriceCurrencyOptionsTiersUpTo,
@@ -615,7 +575,6 @@ impl CreatePriceCurrencyOptionsTiers {
     }
 }
 /// Specifies the upper bound of this tier.
-///
 /// The lower bound of a tier is the upper bound of the previous tier adding one.
 /// Use `inf` to define a fallback tier.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -633,7 +592,6 @@ pub struct CreatePriceCustomUnitAmount {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<i64>,
     /// The minimum unit amount the customer can specify for this item.
-    ///
     /// Must be at least the minimum charge amount.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub minimum: Option<i64>,
@@ -649,19 +607,15 @@ impl CreatePriceCustomUnitAmount {
 /// These fields can be used to create a new product that this price will belong to.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePriceProductData<'a> {
-    /// Whether the product is currently available for purchase.
-    ///
-    /// Defaults to `true`.
+    /// Whether the product is currently available for purchase. Defaults to `true`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
     /// The identifier for the product.
-    ///
     /// Must be unique.
     /// If not provided, an identifier will be randomly generated.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -670,8 +624,9 @@ pub struct CreatePriceProductData<'a> {
     /// The product's name, meant to be displayable to the customer.
     pub name: &'a str,
     /// An arbitrary string to be displayed on your customer's credit card or bank statement.
+    /// While most banks display this information consistently, some may display it incorrectly or not at all.
     ///
-    /// While most banks display this information consistently, some may display it incorrectly or not at all.  This may be up to 22 characters.
+    /// This may be up to 22 characters.
     /// The statement description may not include `<`, `>`, `\`, `"`, `'` characters, and will appear on your customer's statement in capital letters.
     /// Non-ASCII characters are automatically stripped.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -680,7 +635,6 @@ pub struct CreatePriceProductData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_code: Option<&'a str>,
     /// A label that represents units of this product.
-    ///
     /// When set, this will be included in customers' receipts, invoices, Checkout, and the customer portal.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_label: Option<&'a str>,
@@ -702,17 +656,13 @@ impl<'a> CreatePriceProductData<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePriceRecurring {
     /// Specifies a usage aggregation strategy for prices of `usage_type=metered`.
-    ///
     /// Allowed values are `sum` for summing up all usage during a period, `last_during_period` for using the last usage record reported within a period, `last_ever` for using the last usage record ever (across period bounds) or `max` which uses the usage record with the maximum reported usage during a period.
     /// Defaults to `sum`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub aggregate_usage: Option<CreatePriceRecurringAggregateUsage>,
-    /// Specifies billing frequency.
-    ///
-    /// Either `day`, `week`, `month` or `year`.
+    /// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
     pub interval: CreatePriceRecurringInterval,
     /// The number of intervals between subscription billings.
-    ///
     /// For example, `interval=month` and `interval_count=3` bills every 3 months.
     /// Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -721,7 +671,6 @@ pub struct CreatePriceRecurring {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trial_period_days: Option<u32>,
     /// Configures how the quantity per period should be determined.
-    ///
     /// Can be either `metered` or `licensed`.
     /// `licensed` automatically bills the `quantity` set when adding it to a subscription.
     /// `metered` aggregates the total usage based on usage records.
@@ -741,7 +690,6 @@ impl CreatePriceRecurring {
     }
 }
 /// Specifies a usage aggregation strategy for prices of `usage_type=metered`.
-///
 /// Allowed values are `sum` for summing up all usage during a period, `last_during_period` for using the last usage record reported within a period, `last_ever` for using the last usage record ever (across period bounds) or `max` which uses the usage record with the maximum reported usage during a period.
 /// Defaults to `sum`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -800,9 +748,7 @@ impl serde::Serialize for CreatePriceRecurringAggregateUsage {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Specifies billing frequency.
-///
-/// Either `day`, `week`, `month` or `year`.
+/// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePriceRecurringInterval {
     Day,
@@ -860,7 +806,6 @@ impl serde::Serialize for CreatePriceRecurringInterval {
     }
 }
 /// Configures how the quantity per period should be determined.
-///
 /// Can be either `metered` or `licensed`.
 /// `licensed` automatically bills the `quantity` set when adding it to a subscription.
 /// `metered` aggregates the total usage based on usage records.
@@ -916,7 +861,6 @@ impl serde::Serialize for CreatePriceRecurringUsageType {
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -974,7 +918,6 @@ impl serde::Serialize for CreatePriceTaxBehavior {
     }
 }
 /// Each element represents a pricing tier.
-///
 /// This parameter requires `billing_scheme` to be set to `tiered`.
 /// See also the documentation for `billing_scheme`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -983,7 +926,6 @@ pub struct CreatePriceTiers<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flat_amount: Option<i64>,
     /// Same as `flat_amount`, but accepts a decimal value representing an integer in the minor units of the currency.
-    ///
     /// Only one of `flat_amount` and `flat_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flat_amount_decimal: Option<&'a str>,
@@ -991,12 +933,10 @@ pub struct CreatePriceTiers<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<&'a str>,
     /// Specifies the upper bound of this tier.
-    ///
     /// The lower bound of a tier is the upper bound of the previous tier adding one.
     /// Use `inf` to define a fallback tier.
     pub up_to: CreatePriceTiersUpTo,
@@ -1013,7 +953,6 @@ impl<'a> CreatePriceTiers<'a> {
     }
 }
 /// Specifies the upper bound of this tier.
-///
 /// The lower bound of a tier is the upper bound of the previous tier adding one.
 /// Use `inf` to define a fallback tier.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -1023,7 +962,6 @@ pub enum CreatePriceTiersUpTo {
     I64(i64),
 }
 /// Defines if the tiering price should be `graduated` or `volume` based.
-///
 /// In `volume`-based tiering, the maximum quantity within a period determines the per unit price, in `graduated` tiering pricing can successively change as the quantity grows.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePriceTiersMode {
@@ -1076,7 +1014,6 @@ impl serde::Serialize for CreatePriceTiersMode {
     }
 }
 /// Apply a transformation to the reported usage or set quantity before computing the billed price.
-///
 /// Cannot be combined with `tiers`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePriceTransformQuantity {
@@ -1142,9 +1079,7 @@ impl serde::Serialize for CreatePriceTransformQuantityRound {
     }
 }
 impl<'a> CreatePrice<'a> {
-    /// Creates a new price for an existing product.
-    ///
-    /// The price can be recurring or one-time.
+    /// Creates a new price for an existing product. The price can be recurring or one-time.
     pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Price> {
         client.send_form("/prices", self, http_types::Method::Post)
     }
@@ -1172,13 +1107,10 @@ impl<'a> RetrievePrice<'a> {
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePrice<'a> {
-    /// Whether the price can be used for new purchases.
-    ///
-    /// Defaults to `true`.
+    /// Whether the price can be used for new purchases. Defaults to `true`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
     /// Prices defined in each available currency option.
-    ///
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency_options:
@@ -1187,12 +1119,10 @@ pub struct UpdatePrice<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A lookup key used to retrieve prices dynamically from a static string.
-    ///
     /// This may be up to 200 characters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub lookup_key: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -1202,7 +1132,6 @@ pub struct UpdatePrice<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub nickname: Option<&'a str>,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -1218,7 +1147,6 @@ impl<'a> UpdatePrice<'a> {
     }
 }
 /// Prices defined in each available currency option.
-///
 /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
 #[derive(Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePriceCurrencyOptions {
@@ -1226,14 +1154,12 @@ pub struct UpdatePriceCurrencyOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_unit_amount: Option<UpdatePriceCurrencyOptionsCustomUnitAmount>,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_behavior: Option<UpdatePriceCurrencyOptionsTaxBehavior>,
     /// Each element represents a pricing tier.
-    ///
     /// This parameter requires `billing_scheme` to be set to `tiered`.
     /// See also the documentation for `billing_scheme`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1242,7 +1168,6 @@ pub struct UpdatePriceCurrencyOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<String>,
@@ -1261,7 +1186,6 @@ pub struct UpdatePriceCurrencyOptionsCustomUnitAmount {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<i64>,
     /// The minimum unit amount the customer can specify for this item.
-    ///
     /// Must be at least the minimum charge amount.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub minimum: Option<i64>,
@@ -1275,7 +1199,6 @@ impl UpdatePriceCurrencyOptionsCustomUnitAmount {
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -1333,7 +1256,6 @@ impl serde::Serialize for UpdatePriceCurrencyOptionsTaxBehavior {
     }
 }
 /// Each element represents a pricing tier.
-///
 /// This parameter requires `billing_scheme` to be set to `tiered`.
 /// See also the documentation for `billing_scheme`.
 #[derive(Clone, Debug, serde::Serialize)]
@@ -1342,7 +1264,6 @@ pub struct UpdatePriceCurrencyOptionsTiers {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flat_amount: Option<i64>,
     /// Same as `flat_amount`, but accepts a decimal value representing an integer in the minor units of the currency.
-    ///
     /// Only one of `flat_amount` and `flat_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flat_amount_decimal: Option<String>,
@@ -1350,12 +1271,10 @@ pub struct UpdatePriceCurrencyOptionsTiers {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<String>,
     /// Specifies the upper bound of this tier.
-    ///
     /// The lower bound of a tier is the upper bound of the previous tier adding one.
     /// Use `inf` to define a fallback tier.
     pub up_to: UpdatePriceCurrencyOptionsTiersUpTo,
@@ -1372,7 +1291,6 @@ impl UpdatePriceCurrencyOptionsTiers {
     }
 }
 /// Specifies the upper bound of this tier.
-///
 /// The lower bound of a tier is the upper bound of the previous tier adding one.
 /// Use `inf` to define a fallback tier.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -1382,7 +1300,6 @@ pub enum UpdatePriceCurrencyOptionsTiersUpTo {
     I64(i64),
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -1441,7 +1358,6 @@ impl serde::Serialize for UpdatePriceTaxBehavior {
 }
 impl<'a> UpdatePrice<'a> {
     /// Updates the specified price by setting the values of the parameters passed.
-    ///
     /// Any parameters not provided are left unchanged.
     pub fn send(
         &self,

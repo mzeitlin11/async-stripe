@@ -4,7 +4,6 @@ pub struct SourceTransactionGbpCreditTransferData {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fingerprint: Option<String>,
     /// The credit transfer rails the sender used to push this transfer.
-    ///
     /// The possible rails are: Faster Payments, BACS, CHAPS, and wire transfers.
     /// Currently only Faster Payments is supported.
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -3,17 +3,14 @@ pub struct SubscriptionsResourcePaymentSettings {
     /// Payment-method-specific configuration to provide to invoices created by the subscription.
     pub payment_method_options: Option<stripe_shared::SubscriptionsResourcePaymentMethodOptions>,
     /// The list of payment method types to provide to every invoice created by the subscription.
-    ///
     /// If not set, Stripe attempts to automatically determine the types to use by looking at the invoice’s default payment method, the subscription’s default payment method, the customer’s default payment method, and your [invoice template settings](https://dashboard.stripe.com/settings/billing/invoice).
     pub payment_method_types: Option<Vec<SubscriptionsResourcePaymentSettingsPaymentMethodTypes>>,
     /// Either `off`, or `on_subscription`.
-    ///
     /// With `on_subscription` Stripe updates `subscription.default_payment_method` when a subscription payment succeeds.
     pub save_default_payment_method:
         Option<SubscriptionsResourcePaymentSettingsSaveDefaultPaymentMethod>,
 }
 /// The list of payment method types to provide to every invoice created by the subscription.
-///
 /// If not set, Stripe attempts to automatically determine the types to use by looking at the invoice’s default payment method, the subscription’s default payment method, the customer’s default payment method, and your [invoice template settings](https://dashboard.stripe.com/settings/billing/invoice).
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -144,7 +141,6 @@ impl<'de> serde::Deserialize<'de> for SubscriptionsResourcePaymentSettingsPaymen
     }
 }
 /// Either `off`, or `on_subscription`.
-///
 /// With `on_subscription` Stripe updates `subscription.default_payment_method` when a subscription payment succeeds.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum SubscriptionsResourcePaymentSettingsSaveDefaultPaymentMethod {

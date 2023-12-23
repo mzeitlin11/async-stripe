@@ -3,45 +3,34 @@ pub struct SetupIntentPaymentMethodOptionsCardMandateOptions {
     /// Amount to be charged for future payments.
     pub amount: i64,
     /// One of `fixed` or `maximum`.
-    ///
     /// If `fixed`, the `amount` param refers to the exact amount to be charged in future payments.
     /// If `maximum`, the amount charged can be up to the value passed for the `amount` param.
     pub amount_type: SetupIntentPaymentMethodOptionsCardMandateOptionsAmountType,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// A description of the mandate or subscription that is meant to be displayed to the customer.
     pub description: Option<String>,
     /// End date of the mandate or subscription.
-    ///
     /// If not provided, the mandate will be active until canceled.
     /// If provided, end date should be after start date.
     pub end_date: Option<stripe_types::Timestamp>,
-    /// Specifies payment frequency.
-    ///
-    /// One of `day`, `week`, `month`, `year`, or `sporadic`.
+    /// Specifies payment frequency. One of `day`, `week`, `month`, `year`, or `sporadic`.
     pub interval: SetupIntentPaymentMethodOptionsCardMandateOptionsInterval,
     /// The number of intervals between payments.
-    ///
     /// For example, `interval=month` and `interval_count=3` indicates one payment every three months.
     /// Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
     /// This parameter is optional when `interval=sporadic`.
     pub interval_count: Option<u64>,
     /// Unique identifier for the mandate or subscription.
     pub reference: String,
-    /// Start date of the mandate or subscription.
-    ///
-    /// Start date should not be lesser than yesterday.
+    /// Start date of the mandate or subscription. Start date should not be lesser than yesterday.
     pub start_date: stripe_types::Timestamp,
-    /// Specifies the type of mandates supported.
-    ///
-    /// Possible values are `india`.
+    /// Specifies the type of mandates supported. Possible values are `india`.
     pub supported_types:
         Option<Vec<SetupIntentPaymentMethodOptionsCardMandateOptionsSupportedTypes>>,
 }
 /// One of `fixed` or `maximum`.
-///
 /// If `fixed`, the `amount` param refers to the exact amount to be charged in future payments.
 /// If `maximum`, the amount charged can be up to the value passed for the `amount` param.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -105,9 +94,7 @@ impl<'de> serde::Deserialize<'de> for SetupIntentPaymentMethodOptionsCardMandate
         })
     }
 }
-/// Specifies payment frequency.
-///
-/// One of `day`, `week`, `month`, `year`, or `sporadic`.
+/// Specifies payment frequency. One of `day`, `week`, `month`, `year`, or `sporadic`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum SetupIntentPaymentMethodOptionsCardMandateOptionsInterval {
     Day,
@@ -178,9 +165,7 @@ impl<'de> serde::Deserialize<'de> for SetupIntentPaymentMethodOptionsCardMandate
         })
     }
 }
-/// Specifies the type of mandates supported.
-///
-/// Possible values are `india`.
+/// Specifies the type of mandates supported. Possible values are `india`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum SetupIntentPaymentMethodOptionsCardMandateOptionsSupportedTypes {
     India,

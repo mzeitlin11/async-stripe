@@ -1,7 +1,6 @@
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateApplicationFeeRefund<'a> {
     /// A positive integer, in _cents (or local equivalent)_, representing how much of this fee to refund.
-    ///
     /// Can refund only up to the remaining unrefunded amount of the fee.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
@@ -9,7 +8,6 @@ pub struct CreateApplicationFeeRefund<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -42,7 +40,6 @@ impl<'a> CreateApplicationFeeRefund<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListApplicationFeeRefund<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -51,12 +48,10 @@ pub struct ListApplicationFeeRefund<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -69,7 +64,6 @@ impl<'a> ListApplicationFeeRefund<'a> {
 }
 impl<'a> ListApplicationFeeRefund<'a> {
     /// You can see a list of the refunds belonging to a specific application fee.
-    ///
     /// Note that the 10 most recent refunds are always available by default on the application fee object.
     /// If you need more than those 10, you can use this API method and the `limit` and `starting_after` parameters to page through additional refunds.
     pub fn send(
@@ -114,7 +108,6 @@ pub struct UpdateApplicationFeeRefund<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -128,8 +121,9 @@ impl<'a> UpdateApplicationFeeRefund<'a> {
 }
 impl<'a> UpdateApplicationFeeRefund<'a> {
     /// Updates the specified application fee refund by setting the values of the parameters passed.
+    /// Any parameters not provided will be left unchanged.
     ///
-    /// Any parameters not provided will be left unchanged.  This request only accepts metadata as an argument.
+    /// This request only accepts metadata as an argument.
     pub fn send(
         &self,
         client: &stripe::Client,

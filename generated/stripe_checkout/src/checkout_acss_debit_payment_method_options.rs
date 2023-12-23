@@ -1,8 +1,6 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct CheckoutAcssDebitPaymentMethodOptions {
-    /// Currency supported by the bank account.
-    ///
-    /// Returned when the Session is in `setup` mode.
+    /// Currency supported by the bank account. Returned when the Session is in `setup` mode.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<CheckoutAcssDebitPaymentMethodOptionsCurrency>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -10,17 +8,16 @@ pub struct CheckoutAcssDebitPaymentMethodOptions {
     /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
     ///
     /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
-    /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+    /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<CheckoutAcssDebitPaymentMethodOptionsSetupFutureUsage>,
     /// Bank account verification method.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verification_method: Option<CheckoutAcssDebitPaymentMethodOptionsVerificationMethod>,
 }
-/// Currency supported by the bank account.
-///
-/// Returned when the Session is in `setup` mode.
+/// Currency supported by the bank account. Returned when the Session is in `setup` mode.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CheckoutAcssDebitPaymentMethodOptionsCurrency {
     Cad,
@@ -85,8 +82,9 @@ impl<'de> serde::Deserialize<'de> for CheckoutAcssDebitPaymentMethodOptionsCurre
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
 ///
 /// Providing this parameter will [attach the payment method](https://stripe.com/docs/payments/save-during-payment) to the PaymentIntent's Customer, if present, after the PaymentIntent is confirmed and any required actions from the user are complete.
+/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
 ///
-/// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.  When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
+/// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CheckoutAcssDebitPaymentMethodOptionsSetupFutureUsage {
     None,

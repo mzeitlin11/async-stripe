@@ -1,7 +1,6 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TaxCalculationLineItem {
     /// The line item amount in integer cents.
-    ///
     /// If `tax_behavior=inclusive`, then this amount includes taxes.
     /// Otherwise, taxes were calculated on top of this amount.
     pub amount: i64,
@@ -13,14 +12,11 @@ pub struct TaxCalculationLineItem {
     pub livemode: bool,
     /// The ID of an existing [Product](https://stripe.com/docs/api/products/object).
     pub product: Option<String>,
-    /// The number of units of the item being purchased.
-    ///
-    /// For reversals, this is the quantity reversed.
+    /// The number of units of the item being purchased. For reversals, this is the quantity reversed.
     pub quantity: u64,
     /// A custom identifier for this line item.
     pub reference: Option<String>,
     /// Specifies whether the `amount` includes taxes.
-    ///
     /// If `tax_behavior=inclusive`, then the amount includes taxes.
     pub tax_behavior: TaxCalculationLineItemTaxBehavior,
     /// Detailed account of taxes relevant to this line item.
@@ -29,7 +25,6 @@ pub struct TaxCalculationLineItem {
     pub tax_code: String,
 }
 /// Specifies whether the `amount` includes taxes.
-///
 /// If `tax_behavior=inclusive`, then the amount includes taxes.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TaxCalculationLineItemTaxBehavior {

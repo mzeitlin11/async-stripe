@@ -11,7 +11,6 @@ pub struct TaxProductResourcePostalAddress {
     /// ZIP or postal code.
     pub postal_code: Option<String>,
     /// State/province as an [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) subdivision code, without country prefix.
-    ///
     /// Example: "NY" or "TX".
     pub state: Option<String>,
 }

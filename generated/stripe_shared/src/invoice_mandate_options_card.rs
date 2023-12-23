@@ -3,7 +3,6 @@ pub struct InvoiceMandateOptionsCard {
     /// Amount to be charged for future payments.
     pub amount: Option<i64>,
     /// One of `fixed` or `maximum`.
-    ///
     /// If `fixed`, the `amount` param refers to the exact amount to be charged in future payments.
     /// If `maximum`, the amount charged can be up to the value passed for the `amount` param.
     pub amount_type: Option<InvoiceMandateOptionsCardAmountType>,
@@ -11,7 +10,6 @@ pub struct InvoiceMandateOptionsCard {
     pub description: Option<String>,
 }
 /// One of `fixed` or `maximum`.
-///
 /// If `fixed`, the `amount` param refers to the exact amount to be charged in future payments.
 /// If `maximum`, the amount charged can be up to the value passed for the `amount` param.
 #[derive(Copy, Clone, Eq, PartialEq)]

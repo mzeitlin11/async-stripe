@@ -1,23 +1,18 @@
 /// Shipping rates describe the price of shipping presented to your customers and
 /// applied to a purchase.
+/// For more information, see [Charge for shipping](https://stripe.com/docs/payments/during-payment/charge-shipping).
 ///
-/// For more information, see [Charge for shipping](https://stripe.com/docs/payments/during-payment/charge-shipping).  For more details see <<https://stripe.com/docs/api/shipping_rates/object>>.
+/// For more details see <<https://stripe.com/docs/api/shipping_rates/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct ShippingRate {
-    /// Whether the shipping rate can be used for new purchases.
-    ///
-    /// Defaults to `true`.
+    /// Whether the shipping rate can be used for new purchases. Defaults to `true`.
     pub active: bool,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// The estimated range for how long shipping will take, meant to be displayable to the customer.
-    ///
     /// This will appear on CheckoutSessions.
     pub delivery_estimate: Option<stripe_shared::ShippingRateDeliveryEstimate>,
     /// The name of the shipping rate, meant to be displayable to the customer.
-    ///
     /// This will appear on CheckoutSessions.
     pub display_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -27,25 +22,19 @@ pub struct ShippingRate {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: std::collections::HashMap<String, String>,
     /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-    ///
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     pub tax_behavior: Option<ShippingRateTaxBehavior>,
     /// A [tax code](https://stripe.com/docs/tax/tax-categories) ID.
-    ///
     /// The Shipping tax code is `txcd_92010001`.
     pub tax_code: Option<stripe_types::Expandable<stripe_shared::TaxCode>>,
-    /// The type of calculation to use on the shipping rate.
-    ///
-    /// Can only be `fixed_amount` for now.
+    /// The type of calculation to use on the shipping rate. Can only be `fixed_amount` for now.
     #[serde(rename = "type")]
     pub type_: ShippingRateType,
 }
 /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-///
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ShippingRateTaxBehavior {
@@ -108,9 +97,7 @@ impl<'de> serde::Deserialize<'de> for ShippingRateTaxBehavior {
             .map_err(|_| serde::de::Error::custom("Unknown value for ShippingRateTaxBehavior"))
     }
 }
-/// The type of calculation to use on the shipping rate.
-///
-/// Can only be `fixed_amount` for now.
+/// The type of calculation to use on the shipping rate. Can only be `fixed_amount` for now.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ShippingRateType {
     FixedAmount,

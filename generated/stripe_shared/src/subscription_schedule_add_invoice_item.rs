@@ -5,9 +5,7 @@ pub struct SubscriptionScheduleAddInvoiceItem {
     pub price: stripe_types::Expandable<stripe_shared::Price>,
     /// The quantity of the invoice item.
     pub quantity: Option<u64>,
-    /// The tax rates which apply to the item.
-    ///
-    /// When set, the `default_tax_rates` do not apply to this item.
+    /// The tax rates which apply to the item. When set, the `default_tax_rates` do not apply to this item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_rates: Option<Vec<stripe_shared::TaxRate>>,
 }

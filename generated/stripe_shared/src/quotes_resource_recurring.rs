@@ -4,19 +4,14 @@ pub struct QuotesResourceRecurring {
     pub amount_subtotal: i64,
     /// Total after discounts and taxes are applied.
     pub amount_total: i64,
-    /// The frequency at which a subscription is billed.
-    ///
-    /// One of `day`, `week`, `month` or `year`.
+    /// The frequency at which a subscription is billed. One of `day`, `week`, `month` or `year`.
     pub interval: QuotesResourceRecurringInterval,
     /// The number of intervals (specified in the `interval` attribute) between subscription billings.
-    ///
     /// For example, `interval=month` and `interval_count=3` bills every 3 months.
     pub interval_count: u64,
     pub total_details: stripe_shared::QuotesResourceTotalDetails,
 }
-/// The frequency at which a subscription is billed.
-///
-/// One of `day`, `week`, `month` or `year`.
+/// The frequency at which a subscription is billed. One of `day`, `week`, `month` or `year`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum QuotesResourceRecurringInterval {
     Day,

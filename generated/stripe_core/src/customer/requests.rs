@@ -4,18 +4,15 @@ pub struct SearchCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for pagination across multiple pages of results.
-    ///
     /// Don't include this parameter on the first call.
     /// Use the next_page value returned in a previous response to request subsequent results.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub page: Option<&'a str>,
     /// The search query string.
-    ///
     /// See [search query language](https://stripe.com/docs/search#search-query-language) and the list of supported [query fields for customers](https://stripe.com/docs/search#query-fields-for-customers).
     pub query: &'a str,
 }
@@ -27,10 +24,10 @@ impl<'a> SearchCustomer<'a> {
 impl<'a> SearchCustomer<'a> {
     /// Search for customers you’ve previously created using Stripe’s [Search Query Language](https://stripe.com/docs/search#search-query-language).
     /// Don’t use search in read-after-write flows where strict consistency is necessary.
-    ///
-    /// Under normal operating conditions, data is searchable in less than a minute.
-    /// Occasionally, propagation of new or updated data can be up to an hour behind during outages.
-    /// Search functionality is not available to merchants in India.
+    /// Under normal operating.
+    /// conditions, data is searchable in less than a minute.
+    /// Occasionally, propagation of new or updated data can be up.
+    /// to an hour behind during outages. Search functionality is not available to merchants in India.
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -48,12 +45,10 @@ pub struct ListCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
     /// A case-sensitive filter on the list based on the customer's `email` field.
-    ///
     /// The value must be a string.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<&'a str>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -62,18 +57,15 @@ pub struct ListCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub starting_after: Option<&'a str>,
     /// Provides a list of customers that are associated with the specified test clock.
-    ///
     /// The response will not include customers with test clocks if this parameter is not set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub test_clock: Option<&'a str>,
@@ -85,7 +77,6 @@ impl<'a> ListCustomer<'a> {
 }
 impl<'a> ListCustomer<'a> {
     /// Returns a list of your customers.
-    ///
     /// The customers are returned sorted by creation date, with the most recent customers appearing first.
     pub fn send(
         &self,
@@ -103,7 +94,6 @@ pub struct CreateCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<CreateCustomerAddress<'a>>,
     /// An integer amount in cents (or local equivalent) that represents the customer's current balance, which affect the customer's future invoices.
-    ///
     /// A negative amount represents a credit that decreases the amount due on an invoice; a positive amount increases the amount due on an invoice.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub balance: Option<i64>,
@@ -113,12 +103,10 @@ pub struct CreateCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub coupon: Option<&'a str>,
     /// An arbitrary string that you can attach to a customer object.
-    ///
     /// It is displayed alongside the customer in the dashboard.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Customer's email address.
-    ///
     /// It's displayed alongside the customer in your dashboard and can be useful for searching and tracking.
     /// This may be up to *512 characters*.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -127,7 +115,6 @@ pub struct CreateCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// The prefix for the customer used to generate unique invoice numbers.
-    ///
     /// Must be 3–12 uppercase letters or numbers.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_prefix: Option<&'a str>,
@@ -135,7 +122,6 @@ pub struct CreateCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_settings: Option<CreateCustomerInvoiceSettings<'a>>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -144,9 +130,7 @@ pub struct CreateCustomer<'a> {
     /// The customer's full name or business name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<&'a str>,
-    /// The sequence to be used on the customer's next invoice.
-    ///
-    /// Defaults to 1.
+    /// The sequence to be used on the customer's next invoice. Defaults to 1.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next_invoice_sequence: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -158,14 +142,11 @@ pub struct CreateCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_locales: Option<&'a [&'a str]>,
     /// The API ID of a promotion code to apply to the customer.
-    ///
     /// The customer will have a discount applied on all recurring payments.
     /// Charges you create through the API will not have the discount.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub promotion_code: Option<&'a str>,
-    /// The customer's shipping information.
-    ///
-    /// Appears on invoices emailed to this customer.
+    /// The customer's shipping information. Appears on invoices emailed to this customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping: Option<CreateCustomerShipping<'a>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -173,9 +154,7 @@ pub struct CreateCustomer<'a> {
     /// Tax details about the customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax: Option<CreateCustomerTax<'a>>,
-    /// The customer's tax exemption.
-    ///
-    /// One of `none`, `exempt`, or `reverse`.
+    /// The customer's tax exemption. One of `none`, `exempt`, or `reverse`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_exempt: Option<CreateCustomerTaxExempt>,
     /// The customer's tax IDs.
@@ -237,7 +216,6 @@ impl CreateCustomerCashBalance {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCustomerCashBalanceSettings {
     /// Controls how funds transferred by the customer are applied to payment intents and invoices.
-    ///
     /// Valid options are `automatic`, `manual`, or `merchant_default`.
     /// For more information about these reconciliation modes, see [Reconciliation](https://stripe.com/docs/payments/customer-balance/reconciliation).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -249,7 +227,6 @@ impl CreateCustomerCashBalanceSettings {
     }
 }
 /// Controls how funds transferred by the customer are applied to payment intents and invoices.
-///
 /// Valid options are `automatic`, `manual`, or `merchant_default`.
 /// For more information about these reconciliation modes, see [Reconciliation](https://stripe.com/docs/payments/customer-balance/reconciliation).
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -309,7 +286,6 @@ impl serde::Serialize for CreateCustomerCashBalanceSettingsReconciliationMode {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCustomerInvoiceSettings<'a> {
     /// Default custom fields to be displayed on invoices for this customer.
-    ///
     /// When updating, pass an empty string to remove previously-defined fields.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_fields: Option<&'a [CreateCustomerInvoiceSettingsCustomFields<'a>]>,
@@ -329,17 +305,12 @@ impl<'a> CreateCustomerInvoiceSettings<'a> {
     }
 }
 /// Default custom fields to be displayed on invoices for this customer.
-///
 /// When updating, pass an empty string to remove previously-defined fields.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCustomerInvoiceSettingsCustomFields<'a> {
-    /// The name of the custom field.
-    ///
-    /// This may be up to 30 characters.
+    /// The name of the custom field. This may be up to 30 characters.
     pub name: &'a str,
-    /// The value of the custom field.
-    ///
-    /// This may be up to 30 characters.
+    /// The value of the custom field. This may be up to 30 characters.
     pub value: &'a str,
 }
 impl<'a> CreateCustomerInvoiceSettingsCustomFields<'a> {
@@ -351,7 +322,6 @@ impl<'a> CreateCustomerInvoiceSettingsCustomFields<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCustomerInvoiceSettingsRenderingOptions {
     /// How line-item prices and amounts will be displayed with respect to tax on invoice PDFs.
-    ///
     /// One of `exclude_tax` or `include_inclusive_tax`.
     /// `include_inclusive_tax` will include inclusive tax (and exclude exclusive tax) in invoice PDF amounts.
     /// `exclude_tax` will exclude all tax (inclusive and exclusive alike) from invoice PDF amounts.
@@ -364,7 +334,6 @@ impl CreateCustomerInvoiceSettingsRenderingOptions {
     }
 }
 /// How line-item prices and amounts will be displayed with respect to tax on invoice PDFs.
-///
 /// One of `exclude_tax` or `include_inclusive_tax`.
 /// `include_inclusive_tax` will include inclusive tax (and exclude exclusive tax) in invoice PDF amounts.
 /// `exclude_tax` will exclude all tax (inclusive and exclusive alike) from invoice PDF amounts.
@@ -418,9 +387,7 @@ impl serde::Serialize for CreateCustomerInvoiceSettingsRenderingOptionsAmountTax
         serializer.serialize_str(self.as_str())
     }
 }
-/// The customer's shipping information.
-///
-/// Appears on invoices emailed to this customer.
+/// The customer's shipping information. Appears on invoices emailed to this customer.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCustomerShipping<'a> {
     /// Customer shipping address.
@@ -467,7 +434,6 @@ impl<'a> CreateCustomerShippingAddress<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCustomerTax<'a> {
     /// A recent IP address of the customer used for tax reporting and tax location inference.
-    ///
     /// Stripe recommends updating the IP address when a new PaymentMethod is attached or the address field on the customer is updated.
     /// We recommend against updating this field more frequently since it could result in unexpected tax location/reporting outcomes.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -478,9 +444,7 @@ impl<'a> CreateCustomerTax<'a> {
         Self::default()
     }
 }
-/// The customer's tax exemption.
-///
-/// One of `none`, `exempt`, or `reverse`.
+/// The customer's tax exemption. One of `none`, `exempt`, or `reverse`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCustomerTaxExempt {
     Exempt,
@@ -834,7 +798,6 @@ pub struct UpdateCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address: Option<UpdateCustomerAddress<'a>>,
     /// An integer amount in cents (or local equivalent) that represents the customer's current balance, which affect the customer's future invoices.
-    ///
     /// A negative amount represents a credit that decreases the amount due on an invoice; a positive amount increases the amount due on an invoice.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub balance: Option<i64>,
@@ -851,12 +814,10 @@ pub struct UpdateCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_source: Option<&'a str>,
     /// An arbitrary string that you can attach to a customer object.
-    ///
     /// It is displayed alongside the customer in the dashboard.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// Customer's email address.
-    ///
     /// It's displayed alongside the customer in your dashboard and can be useful for searching and tracking.
     /// This may be up to *512 characters*.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -865,7 +826,6 @@ pub struct UpdateCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// The prefix for the customer used to generate unique invoice numbers.
-    ///
     /// Must be 3–12 uppercase letters or numbers.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_prefix: Option<&'a str>,
@@ -873,7 +833,6 @@ pub struct UpdateCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_settings: Option<UpdateCustomerInvoiceSettings<'a>>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -882,9 +841,7 @@ pub struct UpdateCustomer<'a> {
     /// The customer's full name or business name.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<&'a str>,
-    /// The sequence to be used on the customer's next invoice.
-    ///
-    /// Defaults to 1.
+    /// The sequence to be used on the customer's next invoice. Defaults to 1.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub next_invoice_sequence: Option<i64>,
     /// The customer's phone number.
@@ -894,14 +851,11 @@ pub struct UpdateCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preferred_locales: Option<&'a [&'a str]>,
     /// The API ID of a promotion code to apply to the customer.
-    ///
     /// The customer will have a discount applied on all recurring payments.
     /// Charges you create through the API will not have the discount.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub promotion_code: Option<&'a str>,
-    /// The customer's shipping information.
-    ///
-    /// Appears on invoices emailed to this customer.
+    /// The customer's shipping information. Appears on invoices emailed to this customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping: Option<UpdateCustomerShipping<'a>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -909,9 +863,7 @@ pub struct UpdateCustomer<'a> {
     /// Tax details about the customer.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax: Option<UpdateCustomerTax<'a>>,
-    /// The customer's tax exemption.
-    ///
-    /// One of `none`, `exempt`, or `reverse`.
+    /// The customer's tax exemption. One of `none`, `exempt`, or `reverse`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_exempt: Option<UpdateCustomerTaxExempt>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -967,7 +919,6 @@ impl UpdateCustomerCashBalance {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateCustomerCashBalanceSettings {
     /// Controls how funds transferred by the customer are applied to payment intents and invoices.
-    ///
     /// Valid options are `automatic`, `manual`, or `merchant_default`.
     /// For more information about these reconciliation modes, see [Reconciliation](https://stripe.com/docs/payments/customer-balance/reconciliation).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -979,7 +930,6 @@ impl UpdateCustomerCashBalanceSettings {
     }
 }
 /// Controls how funds transferred by the customer are applied to payment intents and invoices.
-///
 /// Valid options are `automatic`, `manual`, or `merchant_default`.
 /// For more information about these reconciliation modes, see [Reconciliation](https://stripe.com/docs/payments/customer-balance/reconciliation).
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1039,7 +989,6 @@ impl serde::Serialize for UpdateCustomerCashBalanceSettingsReconciliationMode {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateCustomerInvoiceSettings<'a> {
     /// Default custom fields to be displayed on invoices for this customer.
-    ///
     /// When updating, pass an empty string to remove previously-defined fields.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_fields: Option<&'a [UpdateCustomerInvoiceSettingsCustomFields<'a>]>,
@@ -1059,17 +1008,12 @@ impl<'a> UpdateCustomerInvoiceSettings<'a> {
     }
 }
 /// Default custom fields to be displayed on invoices for this customer.
-///
 /// When updating, pass an empty string to remove previously-defined fields.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateCustomerInvoiceSettingsCustomFields<'a> {
-    /// The name of the custom field.
-    ///
-    /// This may be up to 30 characters.
+    /// The name of the custom field. This may be up to 30 characters.
     pub name: &'a str,
-    /// The value of the custom field.
-    ///
-    /// This may be up to 30 characters.
+    /// The value of the custom field. This may be up to 30 characters.
     pub value: &'a str,
 }
 impl<'a> UpdateCustomerInvoiceSettingsCustomFields<'a> {
@@ -1081,7 +1025,6 @@ impl<'a> UpdateCustomerInvoiceSettingsCustomFields<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateCustomerInvoiceSettingsRenderingOptions {
     /// How line-item prices and amounts will be displayed with respect to tax on invoice PDFs.
-    ///
     /// One of `exclude_tax` or `include_inclusive_tax`.
     /// `include_inclusive_tax` will include inclusive tax (and exclude exclusive tax) in invoice PDF amounts.
     /// `exclude_tax` will exclude all tax (inclusive and exclusive alike) from invoice PDF amounts.
@@ -1094,7 +1037,6 @@ impl UpdateCustomerInvoiceSettingsRenderingOptions {
     }
 }
 /// How line-item prices and amounts will be displayed with respect to tax on invoice PDFs.
-///
 /// One of `exclude_tax` or `include_inclusive_tax`.
 /// `include_inclusive_tax` will include inclusive tax (and exclude exclusive tax) in invoice PDF amounts.
 /// `exclude_tax` will exclude all tax (inclusive and exclusive alike) from invoice PDF amounts.
@@ -1148,9 +1090,7 @@ impl serde::Serialize for UpdateCustomerInvoiceSettingsRenderingOptionsAmountTax
         serializer.serialize_str(self.as_str())
     }
 }
-/// The customer's shipping information.
-///
-/// Appears on invoices emailed to this customer.
+/// The customer's shipping information. Appears on invoices emailed to this customer.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateCustomerShipping<'a> {
     /// Customer shipping address.
@@ -1197,7 +1137,6 @@ impl<'a> UpdateCustomerShippingAddress<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateCustomerTax<'a> {
     /// A recent IP address of the customer used for tax reporting and tax location inference.
-    ///
     /// Stripe recommends updating the IP address when a new PaymentMethod is attached or the address field on the customer is updated.
     /// We recommend against updating this field more frequently since it could result in unexpected tax location/reporting outcomes.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1208,9 +1147,7 @@ impl<'a> UpdateCustomerTax<'a> {
         Self::default()
     }
 }
-/// The customer's tax exemption.
-///
-/// One of `none`, `exempt`, or `reverse`.
+/// The customer's tax exemption. One of `none`, `exempt`, or `reverse`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateCustomerTaxExempt {
     Exempt,
@@ -1266,12 +1203,13 @@ impl serde::Serialize for UpdateCustomerTaxExempt {
 }
 impl<'a> UpdateCustomer<'a> {
     /// Updates the specified customer by setting the values of the parameters passed.
-    ///
     /// Any parameters not provided will be left unchanged.
     /// For example, if you pass the **source** parameter, that becomes the customer’s active source (e.g., a card) to be used for all charges in the future.
     /// When you update a customer to a new valid card source by passing the **source** parameter: for each of the customer’s current subscriptions, if the subscription bills automatically and is in the `past_due` state, then the latest open invoice for the subscription with automatic collection enabled will be retried.
     /// This retry will not count as an automatic retry, and will not affect the next regularly scheduled payment for the invoice.
-    /// Changing the **default_source** for a customer will not trigger this behavior.  This request accepts mostly the same arguments as the customer creation call.
+    /// Changing the **default_source** for a customer will not trigger this behavior.
+    ///
+    /// This request accepts mostly the same arguments as the customer creation call.
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -1289,7 +1227,6 @@ impl DeleteCustomer {
 }
 impl DeleteCustomer {
     /// Permanently deletes a customer.
-    ///
     /// It cannot be undone.
     /// Also immediately cancels any active subscriptions on the customer.
     pub fn send(
@@ -1303,7 +1240,6 @@ impl DeleteCustomer {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListPaymentMethodsCustomer<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1312,18 +1248,15 @@ pub struct ListPaymentMethodsCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub starting_after: Option<&'a str>,
     /// An optional filter on the list, based on the object `type` field.
-    ///
     /// Without the filter, the list includes all current and future payment method types.
     /// If your integration expects only one type of payment method in the response, make sure to provide a type value in the request.
     #[serde(rename = "type")]
@@ -1336,7 +1269,6 @@ impl<'a> ListPaymentMethodsCustomer<'a> {
     }
 }
 /// An optional filter on the list, based on the object `type` field.
-///
 /// Without the filter, the list includes all current and future payment method types.
 /// If your integration expects only one type of payment method in the response, make sure to provide a type value in the request.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1484,7 +1416,7 @@ impl serde::Serialize for ListPaymentMethodsCustomerType {
     }
 }
 impl<'a> ListPaymentMethodsCustomer<'a> {
-    /// Returns a list of PaymentMethods for a given Customer.
+    /// Returns a list of PaymentMethods for a given Customer
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -1527,7 +1459,6 @@ impl<'a> RetrievePaymentMethodCustomer<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct BalanceTransactionsCustomer<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1536,12 +1467,10 @@ pub struct BalanceTransactionsCustomer<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1574,18 +1503,15 @@ impl<'a> BalanceTransactionsCustomer<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct FundCashBalanceCustomer<'a> {
     /// Amount to be used for this test cash balance transaction.
-    ///
     /// A positive integer representing how much to fund in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal) (e.g., 100 cents to fund $1.00 or 100 to fund ¥100, a zero-decimal currency).
     pub amount: i64,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A description of the test funding.
-    ///
     /// This simulates free-text references supplied by customers when making bank transfers to their cash balance.
     /// You can use this to test how Stripe's [reconciliation algorithm](https://stripe.com/docs/payments/customer-balance/reconciliation) applies to different user inputs.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1597,7 +1523,7 @@ impl<'a> FundCashBalanceCustomer<'a> {
     }
 }
 impl<'a> FundCashBalanceCustomer<'a> {
-    /// Create an incoming testmode bank transfer.
+    /// Create an incoming testmode bank transfer
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -1612,10 +1538,9 @@ impl<'a> FundCashBalanceCustomer<'a> {
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateFundingInstructionsCustomer<'a> {
-    /// Additional parameters for `bank_transfer` funding types.
+    /// Additional parameters for `bank_transfer` funding types
     pub bank_transfer: CreateFundingInstructionsCustomerBankTransfer<'a>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// Specifies which fields in the response should be expanded.
@@ -1633,19 +1558,20 @@ impl<'a> CreateFundingInstructionsCustomer<'a> {
         Self { bank_transfer, currency, expand: None, funding_type }
     }
 }
-/// Additional parameters for `bank_transfer` funding types.
+/// Additional parameters for `bank_transfer` funding types
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateFundingInstructionsCustomerBankTransfer<'a> {
     /// Configuration for eu_bank_transfer funding type.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub eu_bank_transfer: Option<CreateFundingInstructionsCustomerBankTransferEuBankTransfer<'a>>,
     /// List of address types that should be returned in the financial_addresses response.
+    /// If not specified, all valid types will be returned.
     ///
-    /// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
+    /// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requested_address_types:
         Option<&'a [CreateFundingInstructionsCustomerBankTransferRequestedAddressTypes]>,
-    /// The type of the `bank_transfer`.
+    /// The type of the `bank_transfer`
     #[serde(rename = "type")]
     pub type_: CreateFundingInstructionsCustomerBankTransferType,
 }
@@ -1658,7 +1584,6 @@ impl<'a> CreateFundingInstructionsCustomerBankTransfer<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateFundingInstructionsCustomerBankTransferEuBankTransfer<'a> {
     /// The desired country code of the bank account information.
-    ///
     /// Permitted values include: `BE`, `DE`, `ES`, `FR`, `IE`, or `NL`.
     pub country: &'a str,
 }
@@ -1668,8 +1593,9 @@ impl<'a> CreateFundingInstructionsCustomerBankTransferEuBankTransfer<'a> {
     }
 }
 /// List of address types that should be returned in the financial_addresses response.
+/// If not specified, all valid types will be returned.
 ///
-/// If not specified, all valid types will be returned.  Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
+/// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateFundingInstructionsCustomerBankTransferRequestedAddressTypes {
     Iban,
@@ -1726,7 +1652,7 @@ impl serde::Serialize for CreateFundingInstructionsCustomerBankTransferRequested
         serializer.serialize_str(self.as_str())
     }
 }
-/// The type of the `bank_transfer`.
+/// The type of the `bank_transfer`
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateFundingInstructionsCustomerBankTransferType {
     EuBankTransfer,
@@ -1836,9 +1762,10 @@ impl serde::Serialize for CreateFundingInstructionsCustomerFundingType {
 }
 impl<'a> CreateFundingInstructionsCustomer<'a> {
     /// Retrieve funding instructions for a customer cash balance.
-    ///
-    /// If funding instructions do not yet exist for the customer, new funding instructions will be created.
-    /// If funding instructions have already been created for a given customer, the same funding instructions will be retrieved.
+    /// If funding instructions do not yet exist for the customer, new.
+    /// funding instructions will be created.
+    /// If funding instructions have already been created for a given customer, the same.
+    /// funding instructions will be retrieved.
     /// In other words, we will return the same funding instructions each time.
     pub fn send(
         &self,

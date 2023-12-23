@@ -1,13 +1,12 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct SetupIntentPaymentMethodOptionsMandateOptionsAcssDebit {
-    /// A URL for custom mandate text.
+    /// A URL for custom mandate text
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_mandate_url: Option<String>,
     /// List of Stripe products where this mandate can be selected automatically.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_for: Option<Vec<SetupIntentPaymentMethodOptionsMandateOptionsAcssDebitDefaultFor>>,
     /// Description of the interval.
-    ///
     /// Only required if the 'payment_schedule' parameter is 'interval' or 'combined'.
     pub interval_description: Option<String>,
     /// Payment schedule for the mandate.

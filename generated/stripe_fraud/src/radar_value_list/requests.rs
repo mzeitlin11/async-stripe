@@ -9,7 +9,6 @@ pub struct ListRadarValueList<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -18,12 +17,10 @@ pub struct ListRadarValueList<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -36,7 +33,6 @@ impl<'a> ListRadarValueList<'a> {
 }
 impl<'a> ListRadarValueList<'a> {
     /// Returns a list of `ValueList` objects.
-    ///
     /// The objects are sorted in descending order by creation date, with the most recently created object appearing first.
     pub fn send(
         &self,
@@ -79,13 +75,11 @@ pub struct CreateRadarValueList<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Type of the items in the value list.
-    ///
     /// One of `card_fingerprint`, `us_bank_account_fingerprint`, `sepa_debit_fingerprint`, `card_bin`, `email`, `ip_address`, `country`, `string`, `case_sensitive_string`, or `customer_id`.
     /// Use `string` if the item type is unknown or mixed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub item_type: Option<CreateRadarValueListItemType>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -100,7 +94,6 @@ impl<'a> CreateRadarValueList<'a> {
     }
 }
 /// Type of the items in the value list.
-///
 /// One of `card_fingerprint`, `us_bank_account_fingerprint`, `sepa_debit_fingerprint`, `card_bin`, `email`, `ip_address`, `country`, `string`, `case_sensitive_string`, or `customer_id`.
 /// Use `string` if the item type is unknown or mixed.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -192,7 +185,6 @@ pub struct UpdateRadarValueList<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -209,7 +201,6 @@ impl<'a> UpdateRadarValueList<'a> {
 }
 impl<'a> UpdateRadarValueList<'a> {
     /// Updates a `ValueList` object by setting the values of the parameters passed.
-    ///
     /// Any parameters not provided will be left unchanged.
     /// Note that `item_type` is immutable.
     pub fn send(
@@ -233,7 +224,6 @@ impl DeleteRadarValueList {
 }
 impl DeleteRadarValueList {
     /// Deletes a `ValueList` object, also deleting any items contained within the value list.
-    ///
     /// To be deleted, a value list must not be referenced in any rules.
     pub fn send(
         &self,

@@ -13,7 +13,7 @@ impl<'a> ListPaymentMethodConfiguration<'a> {
     }
 }
 impl<'a> ListPaymentMethodConfiguration<'a> {
-    /// List payment method configurations.
+    /// List payment method configurations
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -38,7 +38,7 @@ impl<'a> RetrievePaymentMethodConfiguration<'a> {
     }
 }
 impl<'a> RetrievePaymentMethodConfiguration<'a> {
-    /// Retrieve payment method configuration.
+    /// Retrieve payment method configuration
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -56,25 +56,21 @@ pub struct UpdatePaymentMethodConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active: Option<bool>,
     /// [Affirm](https://www.affirm.com/) gives your customers a way to split purchases over a series of payments.
-    ///
     /// Depending on the purchase, they can pay with four interest-free payments (Split Pay) or pay over a longer term (Installments), which might include interest.
     /// Check this [page](https://stripe.com/docs/payments/affirm) for more details like country availability.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub affirm: Option<UpdatePaymentMethodConfigurationAffirm>,
     /// Afterpay gives your customers a way to pay for purchases in installments, check this [page](https://stripe.com/docs/payments/afterpay-clearpay) for more details like country availability.
-    ///
     /// Afterpay is particularly popular among businesses selling fashion, beauty, and sports products.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub afterpay_clearpay: Option<UpdatePaymentMethodConfigurationAfterpayClearpay>,
     /// Alipay is a digital wallet in China that has more than a billion active users worldwide.
-    ///
     /// Alipay users can pay on the web or on a mobile device using login credentials or their Alipay app.
     /// Alipay has a low dispute rate and reduces fraud by authenticating payments using the customer's login credentials.
     /// Check this [page](https://stripe.com/docs/payments/alipay) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub alipay: Option<UpdatePaymentMethodConfigurationAlipay>,
     /// Stripe users can accept [Apple Pay](/payments/apple-pay) in iOS applications in iOS 9 and later, and on the web in Safari starting with iOS 10 or macOS Sierra.
-    ///
     /// There are no additional fees to process Apple Pay payments, and the [pricing](/pricing) is the same as other card transactions.
     /// Check this [page](https://stripe.com/docs/apple-pay) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -83,7 +79,6 @@ pub struct UpdatePaymentMethodConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub apple_pay_later: Option<UpdatePaymentMethodConfigurationApplePayLater>,
     /// Stripe users in Australia can accept Bulk Electronic Clearing System (BECS) direct debit payments from customers with an Australian bank account.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/au-becs-debit) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub au_becs_debit: Option<UpdatePaymentMethodConfigurationAuBecsDebit>,
@@ -91,40 +86,33 @@ pub struct UpdatePaymentMethodConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bacs_debit: Option<UpdatePaymentMethodConfigurationBacsDebit>,
     /// Bancontact is the most popular online payment method in Belgium, with over 15 million cards in circulation.
-    ///
     /// [Customers](https://stripe.com/docs/api/customers) use a Bancontact card or mobile app linked to a Belgian bank account to make online payments that are secure, guaranteed, and confirmed immediately.
     /// Check this [page](https://stripe.com/docs/payments/bancontact) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bancontact: Option<UpdatePaymentMethodConfigurationBancontact>,
     /// BLIK is a [single use](https://stripe.com/docs/payments/payment-methods#usage) payment method that requires customers to authenticate their payments.
-    ///
     /// When customers want to pay online using BLIK, they request a six-digit code from their banking application and enter it into the payment collection form.
     /// Check this [page](https://stripe.com/docs/payments/blik) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub blik: Option<UpdatePaymentMethodConfigurationBlik>,
     /// Boleto is an official (regulated by the Central Bank of Brazil) payment method in Brazil.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/boleto) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub boleto: Option<UpdatePaymentMethodConfigurationBoleto>,
     /// Cards are a popular way for consumers and businesses to pay online or in person.
-    ///
     /// Stripe supports global and local card networks.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub card: Option<UpdatePaymentMethodConfigurationCard>,
     /// Cartes Bancaires is France's local card network.
-    ///
     /// More than 95% of these cards are co-branded with either Visa or Mastercard, meaning you can process these cards over either Cartes Bancaires or the Visa or Mastercard networks.
     /// Check this [page](https://stripe.com/docs/payments/cartes-bancaires) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cartes_bancaires: Option<UpdatePaymentMethodConfigurationCartesBancaires>,
     /// Cash App is a popular consumer app in the US that allows customers to bank, invest, send, and receive money using their digital wallet.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/cash-app-pay) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cashapp: Option<UpdatePaymentMethodConfigurationCashapp>,
     /// EPS is an Austria-based payment method that allows customers to complete transactions online using their bank credentials.
-    ///
     /// EPS is supported by all Austrian banks and is accepted by over 80% of Austrian online retailers.
     /// Check this [page](https://stripe.com/docs/payments/eps) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -133,14 +121,12 @@ pub struct UpdatePaymentMethodConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Financial Process Exchange (FPX) is a Malaysia-based payment method that allows customers to complete transactions online using their bank credentials.
-    ///
     /// Bank Negara Malaysia (BNM), the Central Bank of Malaysia, and eleven other major Malaysian financial institutions are members of the PayNet Group, which owns and operates FPX.
     /// It is one of the most popular online payment methods in Malaysia, with nearly 90 million transactions in 2018 according to BNM.
     /// Check this [page](https://stripe.com/docs/payments/fpx) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fpx: Option<UpdatePaymentMethodConfigurationFpx>,
     /// giropay is a German payment method based on online banking, introduced in 2006.
-    ///
     /// It allows customers to complete transactions online using their online banking environment, with funds debited from their bank account.
     /// Depending on their bank, customers confirm payments on giropay using a second factor of authentication or a PIN.
     /// giropay accounts for 10% of online checkouts in Germany.
@@ -148,43 +134,36 @@ pub struct UpdatePaymentMethodConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub giropay: Option<UpdatePaymentMethodConfigurationGiropay>,
     /// Google Pay allows customers to make payments in your app or website using any credit or debit card saved to their Google Account, including those from Google Play, YouTube, Chrome, or an Android device.
-    ///
     /// Use the Google Pay API to request any credit or debit card stored in your customer's Google account.
     /// Check this [page](https://stripe.com/docs/google-pay) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub google_pay: Option<UpdatePaymentMethodConfigurationGooglePay>,
     /// GrabPay is a payment method developed by [Grab](https://www.grab.com/sg/consumer/finance/pay/).
-    ///
     /// GrabPay is a digital wallet - customers maintain a balance in their wallets that they pay out with.
     /// Check this [page](https://stripe.com/docs/payments/grabpay) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub grabpay: Option<UpdatePaymentMethodConfigurationGrabpay>,
     /// iDEAL is a Netherlands-based payment method that allows customers to complete transactions online using their bank credentials.
-    ///
     /// All major Dutch banks are members of Currence, the scheme that operates iDEAL, making it the most popular online payment method in the Netherlands with a share of online transactions close to 55%.
     /// Check this [page](https://stripe.com/docs/payments/ideal) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ideal: Option<UpdatePaymentMethodConfigurationIdeal>,
     /// JCB is a credit card company based in Japan.
-    ///
     /// JCB is currently available in Japan to businesses approved by JCB, and available to all businesses in Australia, Canada, Hong Kong, Japan, New Zealand, Singapore, Switzerland, United Kingdom, United States, and all countries in the European Economic Area except Iceland.
     /// Check this [page](https://support.stripe.com/questions/accepting-japan-credit-bureau-%28jcb%29-payments) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub jcb: Option<UpdatePaymentMethodConfigurationJcb>,
     /// Klarna gives customers a range of [payment options](https://stripe.com/docs/payments/klarna#payment-options) during checkout.
-    ///
     /// Available payment options vary depending on the customer's billing address and the transaction amount.
     /// These payment options make it convenient for customers to purchase items in all price ranges.
     /// Check this [page](https://stripe.com/docs/payments/klarna) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub klarna: Option<UpdatePaymentMethodConfigurationKlarna>,
     /// Konbini allows customers in Japan to pay for bills and online purchases at convenience stores with cash.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/konbini) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub konbini: Option<UpdatePaymentMethodConfigurationKonbini>,
     /// [Link](https://stripe.com/docs/payments/link) is a payment method network.
-    ///
     /// With Link, users save their payment details once, then reuse that information to pay with one click for any business on the network.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link: Option<UpdatePaymentMethodConfigurationLink>,
@@ -192,49 +171,40 @@ pub struct UpdatePaymentMethodConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<&'a str>,
     /// OXXO is a Mexican chain of convenience stores with thousands of locations across Latin America and represents nearly 20% of online transactions in Mexico.
-    ///
     /// OXXO allows customers to pay bills and online purchases in-store with cash.
     /// Check this [page](https://stripe.com/docs/payments/oxxo) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub oxxo: Option<UpdatePaymentMethodConfigurationOxxo>,
     /// Przelewy24 is a Poland-based payment method aggregator that allows customers to complete transactions online using bank transfers and other methods.
-    ///
     /// Bank transfers account for 30% of online payments in Poland and Przelewy24 provides a way for customers to pay with over 165 banks.
     /// Check this [page](https://stripe.com/docs/payments/p24) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub p24: Option<UpdatePaymentMethodConfigurationP24>,
     /// PayNow is a Singapore-based payment method that allows customers to make a payment using their preferred app from participating banks and participating non-bank financial institutions.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/paynow) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub paynow: Option<UpdatePaymentMethodConfigurationPaynow>,
     /// PayPal, a digital wallet popular with customers in Europe, allows your customers worldwide to pay using their PayPal account.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/paypal) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub paypal: Option<UpdatePaymentMethodConfigurationPaypal>,
     /// PromptPay is a Thailand-based payment method that allows customers to make a payment using their preferred app from participating banks.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/promptpay) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub promptpay: Option<UpdatePaymentMethodConfigurationPromptpay>,
     /// The [Single Euro Payments Area (SEPA)](https://en.wikipedia.org/wiki/Single_Euro_Payments_Area) is an initiative of the European Union to simplify payments within and across member countries.
-    ///
     /// SEPA established and enforced banking standards to allow for the direct debiting of every EUR-denominated bank account within the SEPA region, check this [page](https://stripe.com/docs/payments/sepa-debit) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sepa_debit: Option<UpdatePaymentMethodConfigurationSepaDebit>,
     /// Stripe users in Europe and the United States can use the [Payment Intents API](https://stripe.com/docs/payments/payment-intents)—a single integration path for creating payments using any supported method—to accept [Sofort](https://www.sofort.com/) payments from customers.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/sofort) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sofort: Option<UpdatePaymentMethodConfigurationSofort>,
     /// Stripe users in the United States can accept ACH direct debit payments from customers with a US bank account using the Automated Clearing House (ACH) payments system operated by Nacha.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/ach-debit) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub us_bank_account: Option<UpdatePaymentMethodConfigurationUsBankAccount>,
     /// WeChat, owned by Tencent, is China's leading mobile app with over 1 billion monthly active users.
-    ///
     /// Chinese consumers can use WeChat Pay to pay for goods and services inside of businesses' apps and websites.
     /// WeChat Pay users buy most frequently in gaming, e-commerce, travel, online education, and food/nutrition.
     /// Check this [page](https://stripe.com/docs/payments/wechat-pay) for more details.
@@ -325,7 +295,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationAcssDebitDisplayPrefer
     }
 }
 /// [Affirm](https://www.affirm.com/) gives your customers a way to split purchases over a series of payments.
-///
 /// Depending on the purchase, they can pay with four interest-free payments (Split Pay) or pay over a longer term (Installments), which might include interest.
 /// Check this [page](https://stripe.com/docs/payments/affirm) for more details like country availability.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -406,7 +375,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationAffirmDisplayPreferenc
     }
 }
 /// Afterpay gives your customers a way to pay for purchases in installments, check this [page](https://stripe.com/docs/payments/afterpay-clearpay) for more details like country availability.
-///
 /// Afterpay is particularly popular among businesses selling fashion, beauty, and sports products.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationAfterpayClearpay {
@@ -496,7 +464,6 @@ impl serde::Serialize
     }
 }
 /// Alipay is a digital wallet in China that has more than a billion active users worldwide.
-///
 /// Alipay users can pay on the web or on a mobile device using login credentials or their Alipay app.
 /// Alipay has a low dispute rate and reduces fraud by authenticating payments using the customer's login credentials.
 /// Check this [page](https://stripe.com/docs/payments/alipay) for more details.
@@ -578,7 +545,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationAlipayDisplayPreferenc
     }
 }
 /// Stripe users can accept [Apple Pay](/payments/apple-pay) in iOS applications in iOS 9 and later, and on the web in Safari starting with iOS 10 or macOS Sierra.
-///
 /// There are no additional fees to process Apple Pay payments, and the [pricing](/pricing) is the same as other card transactions.
 /// Check this [page](https://stripe.com/docs/apple-pay) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -742,7 +708,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationApplePayLaterDisplayPr
     }
 }
 /// Stripe users in Australia can accept Bulk Electronic Clearing System (BECS) direct debit payments from customers with an Australian bank account.
-///
 /// Check this [page](https://stripe.com/docs/payments/au-becs-debit) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationAuBecsDebit {
@@ -900,7 +865,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationBacsDebitDisplayPrefer
     }
 }
 /// Bancontact is the most popular online payment method in Belgium, with over 15 million cards in circulation.
-///
 /// [Customers](https://stripe.com/docs/api/customers) use a Bancontact card or mobile app linked to a Belgian bank account to make online payments that are secure, guaranteed, and confirmed immediately.
 /// Check this [page](https://stripe.com/docs/payments/bancontact) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -981,7 +945,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationBancontactDisplayPrefe
     }
 }
 /// BLIK is a [single use](https://stripe.com/docs/payments/payment-methods#usage) payment method that requires customers to authenticate their payments.
-///
 /// When customers want to pay online using BLIK, they request a six-digit code from their banking application and enter it into the payment collection form.
 /// Check this [page](https://stripe.com/docs/payments/blik) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1062,7 +1025,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationBlikDisplayPreferenceP
     }
 }
 /// Boleto is an official (regulated by the Central Bank of Brazil) payment method in Brazil.
-///
 /// Check this [page](https://stripe.com/docs/payments/boleto) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationBoleto {
@@ -1142,7 +1104,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationBoletoDisplayPreferenc
     }
 }
 /// Cards are a popular way for consumers and businesses to pay online or in person.
-///
 /// Stripe supports global and local card networks.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationCard {
@@ -1222,7 +1183,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationCardDisplayPreferenceP
     }
 }
 /// Cartes Bancaires is France's local card network.
-///
 /// More than 95% of these cards are co-branded with either Visa or Mastercard, meaning you can process these cards over either Cartes Bancaires or the Visa or Mastercard networks.
 /// Check this [page](https://stripe.com/docs/payments/cartes-bancaires) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1313,7 +1273,6 @@ impl serde::Serialize
     }
 }
 /// Cash App is a popular consumer app in the US that allows customers to bank, invest, send, and receive money using their digital wallet.
-///
 /// Check this [page](https://stripe.com/docs/payments/cash-app-pay) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationCashapp {
@@ -1393,7 +1352,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationCashappDisplayPreferen
     }
 }
 /// EPS is an Austria-based payment method that allows customers to complete transactions online using their bank credentials.
-///
 /// EPS is supported by all Austrian banks and is accepted by over 80% of Austrian online retailers.
 /// Check this [page](https://stripe.com/docs/payments/eps) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1474,7 +1432,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationEpsDisplayPreferencePr
     }
 }
 /// Financial Process Exchange (FPX) is a Malaysia-based payment method that allows customers to complete transactions online using their bank credentials.
-///
 /// Bank Negara Malaysia (BNM), the Central Bank of Malaysia, and eleven other major Malaysian financial institutions are members of the PayNet Group, which owns and operates FPX.
 /// It is one of the most popular online payment methods in Malaysia, with nearly 90 million transactions in 2018 according to BNM.
 /// Check this [page](https://stripe.com/docs/payments/fpx) for more details.
@@ -1556,7 +1513,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationFpxDisplayPreferencePr
     }
 }
 /// giropay is a German payment method based on online banking, introduced in 2006.
-///
 /// It allows customers to complete transactions online using their online banking environment, with funds debited from their bank account.
 /// Depending on their bank, customers confirm payments on giropay using a second factor of authentication or a PIN.
 /// giropay accounts for 10% of online checkouts in Germany.
@@ -1639,7 +1595,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationGiropayDisplayPreferen
     }
 }
 /// Google Pay allows customers to make payments in your app or website using any credit or debit card saved to their Google Account, including those from Google Play, YouTube, Chrome, or an Android device.
-///
 /// Use the Google Pay API to request any credit or debit card stored in your customer's Google account.
 /// Check this [page](https://stripe.com/docs/google-pay) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1720,7 +1675,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationGooglePayDisplayPrefer
     }
 }
 /// GrabPay is a payment method developed by [Grab](https://www.grab.com/sg/consumer/finance/pay/).
-///
 /// GrabPay is a digital wallet - customers maintain a balance in their wallets that they pay out with.
 /// Check this [page](https://stripe.com/docs/payments/grabpay) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1801,7 +1755,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationGrabpayDisplayPreferen
     }
 }
 /// iDEAL is a Netherlands-based payment method that allows customers to complete transactions online using their bank credentials.
-///
 /// All major Dutch banks are members of Currence, the scheme that operates iDEAL, making it the most popular online payment method in the Netherlands with a share of online transactions close to 55%.
 /// Check this [page](https://stripe.com/docs/payments/ideal) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1882,7 +1835,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationIdealDisplayPreference
     }
 }
 /// JCB is a credit card company based in Japan.
-///
 /// JCB is currently available in Japan to businesses approved by JCB, and available to all businesses in Australia, Canada, Hong Kong, Japan, New Zealand, Singapore, Switzerland, United Kingdom, United States, and all countries in the European Economic Area except Iceland.
 /// Check this [page](https://support.stripe.com/questions/accepting-japan-credit-bureau-%28jcb%29-payments) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1963,7 +1915,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationJcbDisplayPreferencePr
     }
 }
 /// Klarna gives customers a range of [payment options](https://stripe.com/docs/payments/klarna#payment-options) during checkout.
-///
 /// Available payment options vary depending on the customer's billing address and the transaction amount.
 /// These payment options make it convenient for customers to purchase items in all price ranges.
 /// Check this [page](https://stripe.com/docs/payments/klarna) for more details.
@@ -2045,7 +1996,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationKlarnaDisplayPreferenc
     }
 }
 /// Konbini allows customers in Japan to pay for bills and online purchases at convenience stores with cash.
-///
 /// Check this [page](https://stripe.com/docs/payments/konbini) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationKonbini {
@@ -2125,7 +2075,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationKonbiniDisplayPreferen
     }
 }
 /// [Link](https://stripe.com/docs/payments/link) is a payment method network.
-///
 /// With Link, users save their payment details once, then reuse that information to pay with one click for any business on the network.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationLink {
@@ -2205,7 +2154,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationLinkDisplayPreferenceP
     }
 }
 /// OXXO is a Mexican chain of convenience stores with thousands of locations across Latin America and represents nearly 20% of online transactions in Mexico.
-///
 /// OXXO allows customers to pay bills and online purchases in-store with cash.
 /// Check this [page](https://stripe.com/docs/payments/oxxo) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -2286,7 +2234,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationOxxoDisplayPreferenceP
     }
 }
 /// Przelewy24 is a Poland-based payment method aggregator that allows customers to complete transactions online using bank transfers and other methods.
-///
 /// Bank transfers account for 30% of online payments in Poland and Przelewy24 provides a way for customers to pay with over 165 banks.
 /// Check this [page](https://stripe.com/docs/payments/p24) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -2367,7 +2314,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationP24DisplayPreferencePr
     }
 }
 /// PayNow is a Singapore-based payment method that allows customers to make a payment using their preferred app from participating banks and participating non-bank financial institutions.
-///
 /// Check this [page](https://stripe.com/docs/payments/paynow) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationPaynow {
@@ -2447,7 +2393,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationPaynowDisplayPreferenc
     }
 }
 /// PayPal, a digital wallet popular with customers in Europe, allows your customers worldwide to pay using their PayPal account.
-///
 /// Check this [page](https://stripe.com/docs/payments/paypal) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationPaypal {
@@ -2527,7 +2472,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationPaypalDisplayPreferenc
     }
 }
 /// PromptPay is a Thailand-based payment method that allows customers to make a payment using their preferred app from participating banks.
-///
 /// Check this [page](https://stripe.com/docs/payments/promptpay) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationPromptpay {
@@ -2607,7 +2551,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationPromptpayDisplayPrefer
     }
 }
 /// The [Single Euro Payments Area (SEPA)](https://en.wikipedia.org/wiki/Single_Euro_Payments_Area) is an initiative of the European Union to simplify payments within and across member countries.
-///
 /// SEPA established and enforced banking standards to allow for the direct debiting of every EUR-denominated bank account within the SEPA region, check this [page](https://stripe.com/docs/payments/sepa-debit) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationSepaDebit {
@@ -2687,7 +2630,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationSepaDebitDisplayPrefer
     }
 }
 /// Stripe users in Europe and the United States can use the [Payment Intents API](https://stripe.com/docs/payments/payment-intents)—a single integration path for creating payments using any supported method—to accept [Sofort](https://www.sofort.com/) payments from customers.
-///
 /// Check this [page](https://stripe.com/docs/payments/sofort) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationSofort {
@@ -2767,7 +2709,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationSofortDisplayPreferenc
     }
 }
 /// Stripe users in the United States can accept ACH direct debit payments from customers with a US bank account using the Automated Clearing House (ACH) payments system operated by Nacha.
-///
 /// Check this [page](https://stripe.com/docs/payments/ach-debit) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePaymentMethodConfigurationUsBankAccount {
@@ -2852,7 +2793,6 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationUsBankAccountDisplayPr
     }
 }
 /// WeChat, owned by Tencent, is China's leading mobile app with over 1 billion monthly active users.
-///
 /// Chinese consumers can use WeChat Pay to pay for goods and services inside of businesses' apps and websites.
 /// WeChat Pay users buy most frequently in gaming, e-commerce, travel, online education, and food/nutrition.
 /// Check this [page](https://stripe.com/docs/payments/wechat-pay) for more details.
@@ -2934,7 +2874,7 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationWechatPayDisplayPrefer
     }
 }
 impl<'a> UpdatePaymentMethodConfiguration<'a> {
-    /// Update payment method configuration.
+    /// Update payment method configuration
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -2953,25 +2893,21 @@ pub struct CreatePaymentMethodConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub acss_debit: Option<CreatePaymentMethodConfigurationAcssDebit>,
     /// [Affirm](https://www.affirm.com/) gives your customers a way to split purchases over a series of payments.
-    ///
     /// Depending on the purchase, they can pay with four interest-free payments (Split Pay) or pay over a longer term (Installments), which might include interest.
     /// Check this [page](https://stripe.com/docs/payments/affirm) for more details like country availability.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub affirm: Option<CreatePaymentMethodConfigurationAffirm>,
     /// Afterpay gives your customers a way to pay for purchases in installments, check this [page](https://stripe.com/docs/payments/afterpay-clearpay) for more details like country availability.
-    ///
     /// Afterpay is particularly popular among businesses selling fashion, beauty, and sports products.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub afterpay_clearpay: Option<CreatePaymentMethodConfigurationAfterpayClearpay>,
     /// Alipay is a digital wallet in China that has more than a billion active users worldwide.
-    ///
     /// Alipay users can pay on the web or on a mobile device using login credentials or their Alipay app.
     /// Alipay has a low dispute rate and reduces fraud by authenticating payments using the customer's login credentials.
     /// Check this [page](https://stripe.com/docs/payments/alipay) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub alipay: Option<CreatePaymentMethodConfigurationAlipay>,
     /// Stripe users can accept [Apple Pay](/payments/apple-pay) in iOS applications in iOS 9 and later, and on the web in Safari starting with iOS 10 or macOS Sierra.
-    ///
     /// There are no additional fees to process Apple Pay payments, and the [pricing](/pricing) is the same as other card transactions.
     /// Check this [page](https://stripe.com/docs/apple-pay) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2980,7 +2916,6 @@ pub struct CreatePaymentMethodConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub apple_pay_later: Option<CreatePaymentMethodConfigurationApplePayLater>,
     /// Stripe users in Australia can accept Bulk Electronic Clearing System (BECS) direct debit payments from customers with an Australian bank account.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/au-becs-debit) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub au_becs_debit: Option<CreatePaymentMethodConfigurationAuBecsDebit>,
@@ -2988,40 +2923,33 @@ pub struct CreatePaymentMethodConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bacs_debit: Option<CreatePaymentMethodConfigurationBacsDebit>,
     /// Bancontact is the most popular online payment method in Belgium, with over 15 million cards in circulation.
-    ///
     /// [Customers](https://stripe.com/docs/api/customers) use a Bancontact card or mobile app linked to a Belgian bank account to make online payments that are secure, guaranteed, and confirmed immediately.
     /// Check this [page](https://stripe.com/docs/payments/bancontact) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub bancontact: Option<CreatePaymentMethodConfigurationBancontact>,
     /// BLIK is a [single use](https://stripe.com/docs/payments/payment-methods#usage) payment method that requires customers to authenticate their payments.
-    ///
     /// When customers want to pay online using BLIK, they request a six-digit code from their banking application and enter it into the payment collection form.
     /// Check this [page](https://stripe.com/docs/payments/blik) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub blik: Option<CreatePaymentMethodConfigurationBlik>,
     /// Boleto is an official (regulated by the Central Bank of Brazil) payment method in Brazil.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/boleto) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub boleto: Option<CreatePaymentMethodConfigurationBoleto>,
     /// Cards are a popular way for consumers and businesses to pay online or in person.
-    ///
     /// Stripe supports global and local card networks.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub card: Option<CreatePaymentMethodConfigurationCard>,
     /// Cartes Bancaires is France's local card network.
-    ///
     /// More than 95% of these cards are co-branded with either Visa or Mastercard, meaning you can process these cards over either Cartes Bancaires or the Visa or Mastercard networks.
     /// Check this [page](https://stripe.com/docs/payments/cartes-bancaires) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cartes_bancaires: Option<CreatePaymentMethodConfigurationCartesBancaires>,
     /// Cash App is a popular consumer app in the US that allows customers to bank, invest, send, and receive money using their digital wallet.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/cash-app-pay) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cashapp: Option<CreatePaymentMethodConfigurationCashapp>,
     /// EPS is an Austria-based payment method that allows customers to complete transactions online using their bank credentials.
-    ///
     /// EPS is supported by all Austrian banks and is accepted by over 80% of Austrian online retailers.
     /// Check this [page](https://stripe.com/docs/payments/eps) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3030,14 +2958,12 @@ pub struct CreatePaymentMethodConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Financial Process Exchange (FPX) is a Malaysia-based payment method that allows customers to complete transactions online using their bank credentials.
-    ///
     /// Bank Negara Malaysia (BNM), the Central Bank of Malaysia, and eleven other major Malaysian financial institutions are members of the PayNet Group, which owns and operates FPX.
     /// It is one of the most popular online payment methods in Malaysia, with nearly 90 million transactions in 2018 according to BNM.
     /// Check this [page](https://stripe.com/docs/payments/fpx) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fpx: Option<CreatePaymentMethodConfigurationFpx>,
     /// giropay is a German payment method based on online banking, introduced in 2006.
-    ///
     /// It allows customers to complete transactions online using their online banking environment, with funds debited from their bank account.
     /// Depending on their bank, customers confirm payments on giropay using a second factor of authentication or a PIN.
     /// giropay accounts for 10% of online checkouts in Germany.
@@ -3045,43 +2971,36 @@ pub struct CreatePaymentMethodConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub giropay: Option<CreatePaymentMethodConfigurationGiropay>,
     /// Google Pay allows customers to make payments in your app or website using any credit or debit card saved to their Google Account, including those from Google Play, YouTube, Chrome, or an Android device.
-    ///
     /// Use the Google Pay API to request any credit or debit card stored in your customer's Google account.
     /// Check this [page](https://stripe.com/docs/google-pay) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub google_pay: Option<CreatePaymentMethodConfigurationGooglePay>,
     /// GrabPay is a payment method developed by [Grab](https://www.grab.com/sg/consumer/finance/pay/).
-    ///
     /// GrabPay is a digital wallet - customers maintain a balance in their wallets that they pay out with.
     /// Check this [page](https://stripe.com/docs/payments/grabpay) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub grabpay: Option<CreatePaymentMethodConfigurationGrabpay>,
     /// iDEAL is a Netherlands-based payment method that allows customers to complete transactions online using their bank credentials.
-    ///
     /// All major Dutch banks are members of Currence, the scheme that operates iDEAL, making it the most popular online payment method in the Netherlands with a share of online transactions close to 55%.
     /// Check this [page](https://stripe.com/docs/payments/ideal) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ideal: Option<CreatePaymentMethodConfigurationIdeal>,
     /// JCB is a credit card company based in Japan.
-    ///
     /// JCB is currently available in Japan to businesses approved by JCB, and available to all businesses in Australia, Canada, Hong Kong, Japan, New Zealand, Singapore, Switzerland, United Kingdom, United States, and all countries in the European Economic Area except Iceland.
     /// Check this [page](https://support.stripe.com/questions/accepting-japan-credit-bureau-%28jcb%29-payments) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub jcb: Option<CreatePaymentMethodConfigurationJcb>,
     /// Klarna gives customers a range of [payment options](https://stripe.com/docs/payments/klarna#payment-options) during checkout.
-    ///
     /// Available payment options vary depending on the customer's billing address and the transaction amount.
     /// These payment options make it convenient for customers to purchase items in all price ranges.
     /// Check this [page](https://stripe.com/docs/payments/klarna) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub klarna: Option<CreatePaymentMethodConfigurationKlarna>,
     /// Konbini allows customers in Japan to pay for bills and online purchases at convenience stores with cash.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/konbini) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub konbini: Option<CreatePaymentMethodConfigurationKonbini>,
     /// [Link](https://stripe.com/docs/payments/link) is a payment method network.
-    ///
     /// With Link, users save their payment details once, then reuse that information to pay with one click for any business on the network.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link: Option<CreatePaymentMethodConfigurationLink>,
@@ -3089,54 +3008,43 @@ pub struct CreatePaymentMethodConfiguration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<&'a str>,
     /// OXXO is a Mexican chain of convenience stores with thousands of locations across Latin America and represents nearly 20% of online transactions in Mexico.
-    ///
     /// OXXO allows customers to pay bills and online purchases in-store with cash.
     /// Check this [page](https://stripe.com/docs/payments/oxxo) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub oxxo: Option<CreatePaymentMethodConfigurationOxxo>,
     /// Przelewy24 is a Poland-based payment method aggregator that allows customers to complete transactions online using bank transfers and other methods.
-    ///
     /// Bank transfers account for 30% of online payments in Poland and Przelewy24 provides a way for customers to pay with over 165 banks.
     /// Check this [page](https://stripe.com/docs/payments/p24) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub p24: Option<CreatePaymentMethodConfigurationP24>,
-    /// Configuration's parent configuration.
-    ///
-    /// Specify to create a child configuration.
+    /// Configuration's parent configuration. Specify to create a child configuration.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent: Option<&'a str>,
     /// PayNow is a Singapore-based payment method that allows customers to make a payment using their preferred app from participating banks and participating non-bank financial institutions.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/paynow) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub paynow: Option<CreatePaymentMethodConfigurationPaynow>,
     /// PayPal, a digital wallet popular with customers in Europe, allows your customers worldwide to pay using their PayPal account.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/paypal) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub paypal: Option<CreatePaymentMethodConfigurationPaypal>,
     /// PromptPay is a Thailand-based payment method that allows customers to make a payment using their preferred app from participating banks.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/promptpay) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub promptpay: Option<CreatePaymentMethodConfigurationPromptpay>,
     /// The [Single Euro Payments Area (SEPA)](https://en.wikipedia.org/wiki/Single_Euro_Payments_Area) is an initiative of the European Union to simplify payments within and across member countries.
-    ///
     /// SEPA established and enforced banking standards to allow for the direct debiting of every EUR-denominated bank account within the SEPA region, check this [page](https://stripe.com/docs/payments/sepa-debit) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sepa_debit: Option<CreatePaymentMethodConfigurationSepaDebit>,
     /// Stripe users in Europe and the United States can use the [Payment Intents API](https://stripe.com/docs/payments/payment-intents)—a single integration path for creating payments using any supported method—to accept [Sofort](https://www.sofort.com/) payments from customers.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/sofort) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sofort: Option<CreatePaymentMethodConfigurationSofort>,
     /// Stripe users in the United States can accept ACH direct debit payments from customers with a US bank account using the Automated Clearing House (ACH) payments system operated by Nacha.
-    ///
     /// Check this [page](https://stripe.com/docs/payments/ach-debit) for more details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub us_bank_account: Option<CreatePaymentMethodConfigurationUsBankAccount>,
     /// WeChat, owned by Tencent, is China's leading mobile app with over 1 billion monthly active users.
-    ///
     /// Chinese consumers can use WeChat Pay to pay for goods and services inside of businesses' apps and websites.
     /// WeChat Pay users buy most frequently in gaming, e-commerce, travel, online education, and food/nutrition.
     /// Check this [page](https://stripe.com/docs/payments/wechat-pay) for more details.
@@ -3227,7 +3135,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationAcssDebitDisplayPrefer
     }
 }
 /// [Affirm](https://www.affirm.com/) gives your customers a way to split purchases over a series of payments.
-///
 /// Depending on the purchase, they can pay with four interest-free payments (Split Pay) or pay over a longer term (Installments), which might include interest.
 /// Check this [page](https://stripe.com/docs/payments/affirm) for more details like country availability.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -3308,7 +3215,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationAffirmDisplayPreferenc
     }
 }
 /// Afterpay gives your customers a way to pay for purchases in installments, check this [page](https://stripe.com/docs/payments/afterpay-clearpay) for more details like country availability.
-///
 /// Afterpay is particularly popular among businesses selling fashion, beauty, and sports products.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationAfterpayClearpay {
@@ -3398,7 +3304,6 @@ impl serde::Serialize
     }
 }
 /// Alipay is a digital wallet in China that has more than a billion active users worldwide.
-///
 /// Alipay users can pay on the web or on a mobile device using login credentials or their Alipay app.
 /// Alipay has a low dispute rate and reduces fraud by authenticating payments using the customer's login credentials.
 /// Check this [page](https://stripe.com/docs/payments/alipay) for more details.
@@ -3480,7 +3385,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationAlipayDisplayPreferenc
     }
 }
 /// Stripe users can accept [Apple Pay](/payments/apple-pay) in iOS applications in iOS 9 and later, and on the web in Safari starting with iOS 10 or macOS Sierra.
-///
 /// There are no additional fees to process Apple Pay payments, and the [pricing](/pricing) is the same as other card transactions.
 /// Check this [page](https://stripe.com/docs/apple-pay) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -3644,7 +3548,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationApplePayLaterDisplayPr
     }
 }
 /// Stripe users in Australia can accept Bulk Electronic Clearing System (BECS) direct debit payments from customers with an Australian bank account.
-///
 /// Check this [page](https://stripe.com/docs/payments/au-becs-debit) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationAuBecsDebit {
@@ -3802,7 +3705,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationBacsDebitDisplayPrefer
     }
 }
 /// Bancontact is the most popular online payment method in Belgium, with over 15 million cards in circulation.
-///
 /// [Customers](https://stripe.com/docs/api/customers) use a Bancontact card or mobile app linked to a Belgian bank account to make online payments that are secure, guaranteed, and confirmed immediately.
 /// Check this [page](https://stripe.com/docs/payments/bancontact) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -3883,7 +3785,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationBancontactDisplayPrefe
     }
 }
 /// BLIK is a [single use](https://stripe.com/docs/payments/payment-methods#usage) payment method that requires customers to authenticate their payments.
-///
 /// When customers want to pay online using BLIK, they request a six-digit code from their banking application and enter it into the payment collection form.
 /// Check this [page](https://stripe.com/docs/payments/blik) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -3964,7 +3865,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationBlikDisplayPreferenceP
     }
 }
 /// Boleto is an official (regulated by the Central Bank of Brazil) payment method in Brazil.
-///
 /// Check this [page](https://stripe.com/docs/payments/boleto) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationBoleto {
@@ -4044,7 +3944,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationBoletoDisplayPreferenc
     }
 }
 /// Cards are a popular way for consumers and businesses to pay online or in person.
-///
 /// Stripe supports global and local card networks.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationCard {
@@ -4124,7 +4023,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationCardDisplayPreferenceP
     }
 }
 /// Cartes Bancaires is France's local card network.
-///
 /// More than 95% of these cards are co-branded with either Visa or Mastercard, meaning you can process these cards over either Cartes Bancaires or the Visa or Mastercard networks.
 /// Check this [page](https://stripe.com/docs/payments/cartes-bancaires) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -4215,7 +4113,6 @@ impl serde::Serialize
     }
 }
 /// Cash App is a popular consumer app in the US that allows customers to bank, invest, send, and receive money using their digital wallet.
-///
 /// Check this [page](https://stripe.com/docs/payments/cash-app-pay) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationCashapp {
@@ -4295,7 +4192,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationCashappDisplayPreferen
     }
 }
 /// EPS is an Austria-based payment method that allows customers to complete transactions online using their bank credentials.
-///
 /// EPS is supported by all Austrian banks and is accepted by over 80% of Austrian online retailers.
 /// Check this [page](https://stripe.com/docs/payments/eps) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -4376,7 +4272,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationEpsDisplayPreferencePr
     }
 }
 /// Financial Process Exchange (FPX) is a Malaysia-based payment method that allows customers to complete transactions online using their bank credentials.
-///
 /// Bank Negara Malaysia (BNM), the Central Bank of Malaysia, and eleven other major Malaysian financial institutions are members of the PayNet Group, which owns and operates FPX.
 /// It is one of the most popular online payment methods in Malaysia, with nearly 90 million transactions in 2018 according to BNM.
 /// Check this [page](https://stripe.com/docs/payments/fpx) for more details.
@@ -4458,7 +4353,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationFpxDisplayPreferencePr
     }
 }
 /// giropay is a German payment method based on online banking, introduced in 2006.
-///
 /// It allows customers to complete transactions online using their online banking environment, with funds debited from their bank account.
 /// Depending on their bank, customers confirm payments on giropay using a second factor of authentication or a PIN.
 /// giropay accounts for 10% of online checkouts in Germany.
@@ -4541,7 +4435,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationGiropayDisplayPreferen
     }
 }
 /// Google Pay allows customers to make payments in your app or website using any credit or debit card saved to their Google Account, including those from Google Play, YouTube, Chrome, or an Android device.
-///
 /// Use the Google Pay API to request any credit or debit card stored in your customer's Google account.
 /// Check this [page](https://stripe.com/docs/google-pay) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -4622,7 +4515,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationGooglePayDisplayPrefer
     }
 }
 /// GrabPay is a payment method developed by [Grab](https://www.grab.com/sg/consumer/finance/pay/).
-///
 /// GrabPay is a digital wallet - customers maintain a balance in their wallets that they pay out with.
 /// Check this [page](https://stripe.com/docs/payments/grabpay) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -4703,7 +4595,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationGrabpayDisplayPreferen
     }
 }
 /// iDEAL is a Netherlands-based payment method that allows customers to complete transactions online using their bank credentials.
-///
 /// All major Dutch banks are members of Currence, the scheme that operates iDEAL, making it the most popular online payment method in the Netherlands with a share of online transactions close to 55%.
 /// Check this [page](https://stripe.com/docs/payments/ideal) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -4784,7 +4675,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationIdealDisplayPreference
     }
 }
 /// JCB is a credit card company based in Japan.
-///
 /// JCB is currently available in Japan to businesses approved by JCB, and available to all businesses in Australia, Canada, Hong Kong, Japan, New Zealand, Singapore, Switzerland, United Kingdom, United States, and all countries in the European Economic Area except Iceland.
 /// Check this [page](https://support.stripe.com/questions/accepting-japan-credit-bureau-%28jcb%29-payments) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -4865,7 +4755,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationJcbDisplayPreferencePr
     }
 }
 /// Klarna gives customers a range of [payment options](https://stripe.com/docs/payments/klarna#payment-options) during checkout.
-///
 /// Available payment options vary depending on the customer's billing address and the transaction amount.
 /// These payment options make it convenient for customers to purchase items in all price ranges.
 /// Check this [page](https://stripe.com/docs/payments/klarna) for more details.
@@ -4947,7 +4836,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationKlarnaDisplayPreferenc
     }
 }
 /// Konbini allows customers in Japan to pay for bills and online purchases at convenience stores with cash.
-///
 /// Check this [page](https://stripe.com/docs/payments/konbini) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationKonbini {
@@ -5027,7 +4915,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationKonbiniDisplayPreferen
     }
 }
 /// [Link](https://stripe.com/docs/payments/link) is a payment method network.
-///
 /// With Link, users save their payment details once, then reuse that information to pay with one click for any business on the network.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationLink {
@@ -5107,7 +4994,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationLinkDisplayPreferenceP
     }
 }
 /// OXXO is a Mexican chain of convenience stores with thousands of locations across Latin America and represents nearly 20% of online transactions in Mexico.
-///
 /// OXXO allows customers to pay bills and online purchases in-store with cash.
 /// Check this [page](https://stripe.com/docs/payments/oxxo) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -5188,7 +5074,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationOxxoDisplayPreferenceP
     }
 }
 /// Przelewy24 is a Poland-based payment method aggregator that allows customers to complete transactions online using bank transfers and other methods.
-///
 /// Bank transfers account for 30% of online payments in Poland and Przelewy24 provides a way for customers to pay with over 165 banks.
 /// Check this [page](https://stripe.com/docs/payments/p24) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -5269,7 +5154,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationP24DisplayPreferencePr
     }
 }
 /// PayNow is a Singapore-based payment method that allows customers to make a payment using their preferred app from participating banks and participating non-bank financial institutions.
-///
 /// Check this [page](https://stripe.com/docs/payments/paynow) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationPaynow {
@@ -5349,7 +5233,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationPaynowDisplayPreferenc
     }
 }
 /// PayPal, a digital wallet popular with customers in Europe, allows your customers worldwide to pay using their PayPal account.
-///
 /// Check this [page](https://stripe.com/docs/payments/paypal) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationPaypal {
@@ -5429,7 +5312,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationPaypalDisplayPreferenc
     }
 }
 /// PromptPay is a Thailand-based payment method that allows customers to make a payment using their preferred app from participating banks.
-///
 /// Check this [page](https://stripe.com/docs/payments/promptpay) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationPromptpay {
@@ -5509,7 +5391,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationPromptpayDisplayPrefer
     }
 }
 /// The [Single Euro Payments Area (SEPA)](https://en.wikipedia.org/wiki/Single_Euro_Payments_Area) is an initiative of the European Union to simplify payments within and across member countries.
-///
 /// SEPA established and enforced banking standards to allow for the direct debiting of every EUR-denominated bank account within the SEPA region, check this [page](https://stripe.com/docs/payments/sepa-debit) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationSepaDebit {
@@ -5589,7 +5470,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationSepaDebitDisplayPrefer
     }
 }
 /// Stripe users in Europe and the United States can use the [Payment Intents API](https://stripe.com/docs/payments/payment-intents)—a single integration path for creating payments using any supported method—to accept [Sofort](https://www.sofort.com/) payments from customers.
-///
 /// Check this [page](https://stripe.com/docs/payments/sofort) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationSofort {
@@ -5669,7 +5549,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationSofortDisplayPreferenc
     }
 }
 /// Stripe users in the United States can accept ACH direct debit payments from customers with a US bank account using the Automated Clearing House (ACH) payments system operated by Nacha.
-///
 /// Check this [page](https://stripe.com/docs/payments/ach-debit) for more details.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodConfigurationUsBankAccount {
@@ -5754,7 +5633,6 @@ impl serde::Serialize for CreatePaymentMethodConfigurationUsBankAccountDisplayPr
     }
 }
 /// WeChat, owned by Tencent, is China's leading mobile app with over 1 billion monthly active users.
-///
 /// Chinese consumers can use WeChat Pay to pay for goods and services inside of businesses' apps and websites.
 /// WeChat Pay users buy most frequently in gaming, e-commerce, travel, online education, and food/nutrition.
 /// Check this [page](https://stripe.com/docs/payments/wechat-pay) for more details.
@@ -5836,7 +5714,7 @@ impl serde::Serialize for CreatePaymentMethodConfigurationWechatPayDisplayPrefer
     }
 }
 impl<'a> CreatePaymentMethodConfiguration<'a> {
-    /// Creates a payment method configuration.
+    /// Creates a payment method configuration
     pub fn send(
         &self,
         client: &stripe::Client,

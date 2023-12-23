@@ -1,18 +1,13 @@
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct SubscriptionPendingInvoiceItemInterval {
-    /// Specifies invoicing frequency.
-    ///
-    /// Either `day`, `week`, `month` or `year`.
+    /// Specifies invoicing frequency. Either `day`, `week`, `month` or `year`.
     pub interval: SubscriptionPendingInvoiceItemIntervalInterval,
     /// The number of intervals between invoices.
-    ///
     /// For example, `interval=month` and `interval_count=3` bills every 3 months.
     /// Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
     pub interval_count: u64,
 }
-/// Specifies invoicing frequency.
-///
-/// Either `day`, `week`, `month` or `year`.
+/// Specifies invoicing frequency. Either `day`, `week`, `month` or `year`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum SubscriptionPendingInvoiceItemIntervalInterval {
     Day,

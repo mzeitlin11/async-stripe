@@ -1,42 +1,34 @@
 /// ReceivedCredits represent funds sent to a [FinancialAccount](https://stripe.com/docs/api#financial_accounts) (for example, via ACH or wire).
-///
 /// These money movements are not initiated from the FinancialAccount.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryReceivedCredit {
     /// Amount (in cents) transferred.
 pub amount: i64,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
 pub created: stripe_types::Timestamp,
-    /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
+        /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
 pub currency: stripe_types::Currency,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
 pub description: String,
-    /// Reason for the failure.
-    ///
+        /// Reason for the failure.
     /// A ReceivedCredit might fail because the receiving FinancialAccount is closed or frozen.
 pub failure_code: Option<TreasuryReceivedCreditFailureCode>,
     /// The FinancialAccount that received the funds.
 pub financial_account: Option<String>,
-    /// A [hosted transaction receipt](https://stripe.com/docs/treasury/moving-money/regulatory-receipts) URL that is provided when money movement is considered regulated under Stripe's money transmission licenses.
+        /// A [hosted transaction receipt](https://stripe.com/docs/treasury/moving-money/regulatory-receipts) URL that is provided when money movement is considered regulated under Stripe's money transmission licenses.
 pub hosted_regulatory_receipt_url: Option<String>,
     /// Unique identifier for the object.
 pub id: stripe_treasury::TreasuryReceivedCreditId,
 pub initiating_payment_method_details: stripe_treasury::TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetails,
 pub linked_flows: stripe_treasury::TreasuryReceivedCreditsResourceLinkedFlows,
-    /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
+        /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
 pub livemode: bool,
     /// The rails used to send the funds.
 pub network: TreasuryReceivedCreditNetwork,
     /// Details describing when a ReceivedCredit may be reversed.
 pub reversal_details: Option<stripe_treasury::TreasuryReceivedCreditsResourceReversalDetails>,
-    /// Status of the ReceivedCredit.
-    ///
+        /// Status of the ReceivedCredit.
     /// ReceivedCredits are created either `succeeded` (approved) or `failed` (declined).
     /// If a ReceivedCredit is declined, the failure reason can be found in the `failure_code` field.
 pub status: TreasuryReceivedCreditStatus,
@@ -45,7 +37,6 @@ pub transaction: Option<stripe_types::Expandable<stripe_treasury::TreasuryTransa
 
 }
 /// Reason for the failure.
-///
 /// A ReceivedCredit might fail because the receiving FinancialAccount is closed or frozen.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryReceivedCreditFailureCode {
@@ -176,7 +167,6 @@ impl<'de> serde::Deserialize<'de> for TreasuryReceivedCreditNetwork {
     }
 }
 /// Status of the ReceivedCredit.
-///
 /// ReceivedCredits are created either `succeeded` (approved) or `failed` (declined).
 /// If a ReceivedCredit is declined, the failure reason can be found in the `failure_code` field.
 #[derive(Copy, Clone, Eq, PartialEq)]

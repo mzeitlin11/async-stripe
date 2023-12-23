@@ -1,4 +1,4 @@
-/// Represents an action performed by the reader.
+/// Represents an action performed by the reader
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TerminalReaderReaderResourceReaderAction {
     /// Failure code, only set if status is `failed`.

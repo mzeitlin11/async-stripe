@@ -11,23 +11,22 @@ pub struct CreditNoteLineItem {
     pub description: Option<String>,
     /// The integer amount in cents (or local equivalent) representing the discount being credited for this line item.
     pub discount_amount: i64,
-    /// The amount of discount calculated per discount for this line item.
+    /// The amount of discount calculated per discount for this line item
     pub discount_amounts: Vec<stripe_shared::DiscountsResourceDiscountAmount>,
     /// Unique identifier for the object.
     pub id: stripe_shared::CreditNoteLineItemId,
-    /// ID of the invoice line item being credited.
+    /// ID of the invoice line item being credited
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_line_item: Option<String>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// The number of units of product being credited.
     pub quantity: Option<u64>,
-    /// The amount of tax calculated per tax rate for this line item.
+    /// The amount of tax calculated per tax rate for this line item
     pub tax_amounts: Vec<stripe_shared::CreditNoteTaxAmount>,
     /// The tax rates which apply to the line item.
     pub tax_rates: Vec<stripe_shared::TaxRate>,
     /// The type of the credit note line item, one of `invoice_line_item` or `custom_line_item`.
-    ///
     /// When the type is `invoice_line_item` there is an additional `invoice_line_item` property on the resource the value of which is the id of the credited line item on the invoice.
     #[serde(rename = "type")]
     pub type_: CreditNoteLineItemType,
@@ -39,7 +38,6 @@ pub struct CreditNoteLineItem {
     pub unit_amount_excluding_tax: Option<String>,
 }
 /// The type of the credit note line item, one of `invoice_line_item` or `custom_line_item`.
-///
 /// When the type is `invoice_line_item` there is an additional `invoice_line_item` property on the resource the value of which is the id of the credited line item on the invoice.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreditNoteLineItemType {

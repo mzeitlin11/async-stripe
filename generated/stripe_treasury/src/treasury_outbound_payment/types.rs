@@ -1,6 +1,7 @@
 /// Use OutboundPayments to send funds to another party's external bank account or [FinancialAccount](https://stripe.com/docs/api#financial_accounts).
+/// To send money to an account belonging to the same user, use an [OutboundTransfer](https://stripe.com/docs/api#outbound_transfers).
 ///
-/// To send money to an account belonging to the same user, use an [OutboundTransfer](https://stripe.com/docs/api#outbound_transfers).  Simulate OutboundPayment state changes with the `/v1/test_helpers/treasury/outbound_payments` endpoints.
+/// Simulate OutboundPayment state changes with the `/v1/test_helpers/treasury/outbound_payments` endpoints.
 /// These methods can only be called on test mode objects.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryOutboundPayment {
@@ -8,22 +9,16 @@ pub struct TreasuryOutboundPayment {
     pub amount: i64,
     /// Returns `true` if the object can be canceled, and `false` otherwise.
     pub cancelable: bool,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// ID of the [customer](https://stripe.com/docs/api/customers) to whom an OutboundPayment is sent.
     pub customer: Option<String>,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     pub description: Option<String>,
     /// The PaymentMethod via which an OutboundPayment is sent.
-    ///
     /// This field can be empty if the OutboundPayment was created using `destination_payment_method_data`.
     pub destination_payment_method: Option<String>,
     /// Details about the PaymentMethod for an OutboundPayment.
@@ -44,17 +39,13 @@ pub struct TreasuryOutboundPayment {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: std::collections::HashMap<String, String>,
-    /// Details about a returned OutboundPayment.
-    ///
-    /// Only set when the status is `returned`.
+    /// Details about a returned OutboundPayment. Only set when the status is `returned`.
     pub returned_details: Option<stripe_treasury::TreasuryOutboundPaymentsResourceReturnedStatus>,
     /// The description that appears on the receiving end for an OutboundPayment (for example, bank statement for external bank transfer).
     pub statement_descriptor: String,
     /// Current status of the OutboundPayment: `processing`, `failed`, `posted`, `returned`, `canceled`.
-    ///
     /// An OutboundPayment is `processing` if it has been created and is pending.
     /// The status changes to `posted` once the OutboundPayment has been "confirmed" and funds have left the account, or to `failed` or `canceled`.
     /// If an OutboundPayment fails to arrive at its destination, its status will change to `returned`.
@@ -65,7 +56,6 @@ pub struct TreasuryOutboundPayment {
     pub transaction: stripe_types::Expandable<stripe_treasury::TreasuryTransaction>,
 }
 /// Current status of the OutboundPayment: `processing`, `failed`, `posted`, `returned`, `canceled`.
-///
 /// An OutboundPayment is `processing` if it has been created and is pending.
 /// The status changes to `posted` once the OutboundPayment has been "confirmed" and funds have left the account, or to `failed` or `canceled`.
 /// If an OutboundPayment fails to arrive at its destination, its status will change to `returned`.

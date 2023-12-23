@@ -13,20 +13,14 @@ pub struct Capability {
     pub id: stripe_shared::CapabilityId,
     /// Whether the capability has been requested.
     pub requested: bool,
-    /// Time at which the capability was requested.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the capability was requested. Measured in seconds since the Unix epoch.
     pub requested_at: Option<stripe_types::Timestamp>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requirements: Option<stripe_shared::AccountCapabilityRequirements>,
-    /// The status of the capability.
-    ///
-    /// Can be `active`, `inactive`, `pending`, or `unrequested`.
+    /// The status of the capability. Can be `active`, `inactive`, `pending`, or `unrequested`.
     pub status: CapabilityStatus,
 }
-/// The status of the capability.
-///
-/// Can be `active`, `inactive`, `pending`, or `unrequested`.
+/// The status of the capability. Can be `active`, `inactive`, `pending`, or `unrequested`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CapabilityStatus {
     Active,

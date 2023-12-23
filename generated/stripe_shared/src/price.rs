@@ -1,28 +1,28 @@
 /// Prices define the unit cost, currency, and (optional) billing cycle for both recurring and one-time purchases of products.
 /// [Products](https://stripe.com/docs/api#products) help you track inventory or provisioning, and prices help you track payment terms.
-///
 /// Different physical goods or levels of service should be represented by products, and pricing options should be represented by prices.
-/// This approach lets you change prices without having to change your provisioning scheme.  For example, you might have a single "gold" product that has prices for $10/month, $100/year, and €9 once.  Related guides: [Set up a subscription](https://stripe.com/docs/billing/subscriptions/set-up-subscription), [create an invoice](https://stripe.com/docs/billing/invoices/create), and more about [products and prices](https://stripe.com/docs/products-prices/overview).  For more details see <<https://stripe.com/docs/api/prices/object>>.
+/// This approach lets you change prices without having to change your provisioning scheme.
+///
+/// For example, you might have a single "gold" product that has prices for $10/month, $100/year, and €9 once.
+///
+/// Related guides: [Set up a subscription](https://stripe.com/docs/billing/subscriptions/set-up-subscription), [create an invoice](https://stripe.com/docs/billing/invoices/create), and more about [products and prices](https://stripe.com/docs/products-prices/overview).
+///
+/// For more details see <<https://stripe.com/docs/api/prices/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct Price {
     /// Whether the price can be used for new purchases.
     pub active: bool,
     /// Describes how to compute the price per period.
-    ///
     /// Either `per_unit` or `tiered`.
     /// `per_unit` indicates that the fixed amount (specified in `unit_amount` or `unit_amount_decimal`) will be charged per unit in `quantity` (for prices with `usage_type=licensed`), or per unit of total usage (for prices with `usage_type=metered`).
     /// `tiered` indicates that the unit pricing will be computed using a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
     pub billing_scheme: PriceBillingScheme,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// Prices defined in each available currency option.
-    ///
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency_options:
@@ -34,11 +34,9 @@ pub struct Price {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// A lookup key used to retrieve prices dynamically from a static string.
-    ///
     /// This may be up to 200 characters.
     pub lookup_key: Option<String>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: std::collections::HashMap<String, String>,
     /// A brief description of the price, hidden from customers.
@@ -48,40 +46,33 @@ pub struct Price {
     /// The recurring components of a price such as `interval` and `usage_type`.
     pub recurring: Option<stripe_shared::Recurring>,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
     pub tax_behavior: Option<PriceTaxBehavior>,
     /// Each element represents a pricing tier.
-    ///
     /// This parameter requires `billing_scheme` to be set to `tiered`.
     /// See also the documentation for `billing_scheme`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tiers: Option<Vec<stripe_shared::PriceTier>>,
     /// Defines if the tiering price should be `graduated` or `volume` based.
-    ///
     /// In `volume`-based tiering, the maximum quantity within a period determines the per unit price.
     /// In `graduated` tiering, pricing can change as the quantity grows.
     pub tiers_mode: Option<PriceTiersMode>,
     /// Apply a transformation to the reported usage or set quantity before computing the amount billed.
-    ///
     /// Cannot be combined with `tiers`.
     pub transform_quantity: Option<stripe_shared::TransformQuantity>,
     /// One of `one_time` or `recurring` depending on whether the price is for a one-time purchase or a recurring (subscription) purchase.
     #[serde(rename = "type")]
     pub type_: PriceType,
     /// The unit amount in cents (or local equivalent) to be charged, represented as a whole integer if possible.
-    ///
     /// Only set if `billing_scheme=per_unit`.
     pub unit_amount: Option<i64>,
     /// The unit amount in cents (or local equivalent) to be charged, represented as a decimal string with at most 12 decimal places.
-    ///
     /// Only set if `billing_scheme=per_unit`.
     pub unit_amount_decimal: Option<String>,
 }
 /// Describes how to compute the price per period.
-///
 /// Either `per_unit` or `tiered`.
 /// `per_unit` indicates that the fixed amount (specified in `unit_amount` or `unit_amount_decimal`) will be charged per unit in `quantity` (for prices with `usage_type=licensed`), or per unit of total usage (for prices with `usage_type=metered`).
 /// `tiered` indicates that the unit pricing will be computed using a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
@@ -144,7 +135,6 @@ impl<'de> serde::Deserialize<'de> for PriceBillingScheme {
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -210,7 +200,6 @@ impl<'de> serde::Deserialize<'de> for PriceTaxBehavior {
     }
 }
 /// Defines if the tiering price should be `graduated` or `volume` based.
-///
 /// In `volume`-based tiering, the maximum quantity within a period determines the per unit price.
 /// In `graduated` tiering, pricing can change as the quantity grows.
 #[derive(Copy, Clone, Eq, PartialEq)]

@@ -1,7 +1,6 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct MandateBacsDebit {
     /// The status of the mandate on the Bacs network.
-    ///
     /// Can be one of `pending`, `revoked`, `refused`, or `accepted`.
     pub network_status: MandateBacsDebitNetworkStatus,
     /// The unique reference identifying the mandate on the Bacs network.
@@ -10,7 +9,6 @@ pub struct MandateBacsDebit {
     pub url: String,
 }
 /// The status of the mandate on the Bacs network.
-///
 /// Can be one of `pending`, `revoked`, `refused`, or `accepted`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum MandateBacsDebitNetworkStatus {

@@ -1,23 +1,17 @@
 /// A subscription schedule allows you to create and manage the lifecycle of a subscription by predefining expected changes.
 ///
-/// Related guide: [Subscription schedules](https://stripe.com/docs/billing/subscriptions/subscription-schedules)
+/// Related guide: [Subscription schedules](https://stripe.com/docs/billing/subscriptions/subscription-schedules).
 ///
 /// For more details see <<https://stripe.com/docs/api/subscription_schedules/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct SubscriptionSchedule {
     /// ID of the Connect Application that created the schedule.
     pub application: Option<stripe_types::Expandable<stripe_shared::Application>>,
-    /// Time at which the subscription schedule was canceled.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the subscription schedule was canceled. Measured in seconds since the Unix epoch.
     pub canceled_at: Option<stripe_types::Timestamp>,
-    /// Time at which the subscription schedule was completed.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the subscription schedule was completed. Measured in seconds since the Unix epoch.
     pub completed_at: Option<stripe_types::Timestamp>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Object representing the start and end dates for the current phase of the subscription schedule, if it is `active`.
     pub current_phase: Option<stripe_shared::SubscriptionScheduleCurrentPhase>,
@@ -25,7 +19,6 @@ pub struct SubscriptionSchedule {
     pub customer: stripe_types::Expandable<stripe_shared::Customer>,
     pub default_settings: stripe_shared::SubscriptionSchedulesResourceDefaultSettings,
     /// Behavior of the subscription schedule and underlying subscription when it ends.
-    ///
     /// Possible values are `release` or `cancel` with the default being `release`.
     /// `release` will end the subscription schedule and keep the underlying subscription running.`cancel` will end the subscription schedule and cancel the underlying subscription.
     pub end_behavior: SubscriptionScheduleEndBehavior,
@@ -34,19 +27,15 @@ pub struct SubscriptionSchedule {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: Option<std::collections::HashMap<String, String>>,
     /// Configuration for the subscription schedule's phases.
     pub phases: Vec<stripe_shared::SubscriptionSchedulePhaseConfiguration>,
-    /// Time at which the subscription schedule was released.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the subscription schedule was released. Measured in seconds since the Unix epoch.
     pub released_at: Option<stripe_types::Timestamp>,
     /// ID of the subscription once managed by the subscription schedule (if it is released).
     pub released_subscription: Option<String>,
     /// The present status of the subscription schedule.
-    ///
     /// Possible values are `not_started`, `active`, `completed`, `released`, and `canceled`.
     /// You can read more about the different states in our [behavior guide](https://stripe.com/docs/billing/subscriptions/subscription-schedules).
     pub status: SubscriptionScheduleStatus,
@@ -56,7 +45,6 @@ pub struct SubscriptionSchedule {
     pub test_clock: Option<stripe_types::Expandable<stripe_shared::TestHelpersTestClock>>,
 }
 /// Behavior of the subscription schedule and underlying subscription when it ends.
-///
 /// Possible values are `release` or `cancel` with the default being `release`.
 /// `release` will end the subscription schedule and keep the underlying subscription running.`cancel` will end the subscription schedule and cancel the underlying subscription.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -125,7 +113,6 @@ impl<'de> serde::Deserialize<'de> for SubscriptionScheduleEndBehavior {
     }
 }
 /// The present status of the subscription schedule.
-///
 /// Possible values are `not_started`, `active`, `completed`, `released`, and `canceled`.
 /// You can read more about the different states in our [behavior guide](https://stripe.com/docs/billing/subscriptions/subscription-schedules).
 #[derive(Copy, Clone, Eq, PartialEq)]

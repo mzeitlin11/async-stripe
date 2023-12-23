@@ -1,15 +1,11 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PortalCustomerUpdate {
-    /// The types of customer updates that are supported.
-    ///
-    /// When empty, customers are not updateable.
+    /// The types of customer updates that are supported. When empty, customers are not updateable.
     pub allowed_updates: Vec<PortalCustomerUpdateAllowedUpdates>,
     /// Whether the feature is enabled.
     pub enabled: bool,
 }
-/// The types of customer updates that are supported.
-///
-/// When empty, customers are not updateable.
+/// The types of customer updates that are supported. When empty, customers are not updateable.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PortalCustomerUpdateAllowedUpdates {
     Address,

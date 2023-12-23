@@ -3,12 +3,9 @@ pub struct CreateTreasuryOutboundTransfer<'a> {
     /// Amount (in cents) to be transferred.
     pub amount: i64,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// The PaymentMethod to use as the payment instrument for the OutboundTransfer.
@@ -24,14 +21,12 @@ pub struct CreateTreasuryOutboundTransfer<'a> {
     /// The FinancialAccount to pull funds from.
     pub financial_account: &'a str,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// Statement descriptor to be shown on the receiving end of an OutboundTransfer.
-    ///
     /// Maximum 10 characters for `ach` transfers or 140 characters for `wire` transfers.
     /// The default value is `transfer`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -172,7 +167,6 @@ impl<'a> RetrieveTreasuryOutboundTransfer<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct ListTreasuryOutboundTransfer<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -183,12 +177,10 @@ pub struct ListTreasuryOutboundTransfer<'a> {
     /// Returns objects associated with this FinancialAccount.
     pub financial_account: &'a str,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -321,7 +313,6 @@ impl<'a> FailTreasuryOutboundTransfer<'a> {
 }
 impl<'a> FailTreasuryOutboundTransfer<'a> {
     /// Transitions a test mode created OutboundTransfer to the `failed` status.
-    ///
     /// The OutboundTransfer must already be in the `processing` state.
     pub fn send(
         &self,
@@ -348,7 +339,6 @@ impl<'a> PostTreasuryOutboundTransfer<'a> {
 }
 impl<'a> PostTreasuryOutboundTransfer<'a> {
     /// Transitions a test mode created OutboundTransfer to the `posted` status.
-    ///
     /// The OutboundTransfer must already be in the `processing` state.
     pub fn send(
         &self,
@@ -465,7 +455,6 @@ impl serde::Serialize for ReturnOutboundTransferTreasuryOutboundTransferReturned
 }
 impl<'a> ReturnOutboundTransferTreasuryOutboundTransfer<'a> {
     /// Transitions a test mode created OutboundTransfer to the `returned` status.
-    ///
     /// The OutboundTransfer must already be in the `processing` state.
     pub fn send(
         &self,

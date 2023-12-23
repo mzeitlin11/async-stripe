@@ -13,17 +13,13 @@ pub struct IssuingDisputeEvidence {
     pub not_received: Option<stripe_shared::IssuingDisputeNotReceivedEvidence>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub other: Option<stripe_shared::IssuingDisputeOtherEvidence>,
-    /// The reason for filing the dispute.
-    ///
-    /// Its value will match the field containing the evidence.
+    /// The reason for filing the dispute. Its value will match the field containing the evidence.
     pub reason: IssuingDisputeEvidenceReason,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub service_not_as_described:
         Option<stripe_shared::IssuingDisputeServiceNotAsDescribedEvidence>,
 }
-/// The reason for filing the dispute.
-///
-/// Its value will match the field containing the evidence.
+/// The reason for filing the dispute. Its value will match the field containing the evidence.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingDisputeEvidenceReason {
     Canceled,

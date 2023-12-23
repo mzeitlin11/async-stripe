@@ -1,7 +1,6 @@
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListWebhookEndpoint<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -10,12 +9,10 @@ pub struct ListWebhookEndpoint<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -67,7 +64,6 @@ pub struct CreateWebhookEndpoint<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub api_version: Option<stripe_shared::ApiVersion>,
     /// Whether this endpoint should receive events from connected accounts (`true`), or from your account (`false`).
-    ///
     /// Defaults to `false`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub connect: Option<bool>,
@@ -75,14 +71,12 @@ pub struct CreateWebhookEndpoint<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// The list of events to enable for this endpoint.
-    ///
     /// You may specify `['*']` to enable all events, except those that require explicit selection.
     pub enabled_events: &'a [CreateWebhookEndpointEnabledEvents],
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -105,7 +99,6 @@ impl<'a> CreateWebhookEndpoint<'a> {
     }
 }
 /// The list of events to enable for this endpoint.
-///
 /// You may specify `['*']` to enable all events, except those that require explicit selection.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -851,7 +844,6 @@ impl serde::Serialize for CreateWebhookEndpointEnabledEvents {
 }
 impl<'a> CreateWebhookEndpoint<'a> {
     /// A webhook endpoint must have a `url` and a list of `enabled_events`.
-    ///
     /// You may optionally specify the Boolean `connect` parameter.
     /// If set to true, then a Connect webhook endpoint that notifies the specified `url` about events from all connected accounts is created; otherwise an account webhook endpoint that notifies the specified `url` only about events from your account is created.
     /// You can also create webhook endpoints in the [webhooks settings](https://dashboard.stripe.com/account/webhooks) section of the Dashboard.
@@ -868,7 +860,6 @@ pub struct UpdateWebhookEndpoint<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub disabled: Option<bool>,
     /// The list of events to enable for this endpoint.
-    ///
     /// You may specify `['*']` to enable all events, except those that require explicit selection.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub enabled_events: Option<&'a [UpdateWebhookEndpointEnabledEvents]>,
@@ -876,7 +867,6 @@ pub struct UpdateWebhookEndpoint<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -892,7 +882,6 @@ impl<'a> UpdateWebhookEndpoint<'a> {
     }
 }
 /// The list of events to enable for this endpoint.
-///
 /// You may specify `['*']` to enable all events, except those that require explicit selection.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -1638,7 +1627,6 @@ impl serde::Serialize for UpdateWebhookEndpointEnabledEvents {
 }
 impl<'a> UpdateWebhookEndpoint<'a> {
     /// Updates the webhook endpoint.
-    ///
     /// You may edit the `url`, the list of `enabled_events`, and the status of your endpoint.
     pub fn send(
         &self,

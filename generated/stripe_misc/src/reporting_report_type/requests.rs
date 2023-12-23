@@ -11,7 +11,6 @@ impl<'a> RetrieveReportingReportType<'a> {
 }
 impl<'a> RetrieveReportingReportType<'a> {
     /// Retrieves the details of a Report Type.
-    ///
     /// (Certain report types require a [live-mode API key](https://stripe.com/docs/keys#test-live-modes).).
     pub fn send(
         &self,

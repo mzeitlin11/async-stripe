@@ -1,7 +1,6 @@
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListPerson<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -10,7 +9,6 @@ pub struct ListPerson<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
@@ -18,7 +16,6 @@ pub struct ListPerson<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relationship: Option<ListPersonRelationship>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -55,7 +52,6 @@ impl ListPersonRelationship {
 }
 impl<'a> ListPerson<'a> {
     /// Returns a list of people associated with the account’s legal entity.
-    ///
     /// The people are returned sorted by creation date, with the most recent people appearing first.
     pub fn send(
         &self,
@@ -135,13 +131,11 @@ pub struct CreatePerson<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub gender: Option<&'a str>,
     /// The person's ID number, as appropriate for their country.
-    ///
     /// For example, a social security number in the U.S., social insurance number in Canada, etc.
     /// Instead of the number itself, you can also provide a [PII token provided by Stripe.js](https://stripe.com/docs/js/tokens/create_token?type=pii).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id_number: Option<&'a str>,
     /// The person's secondary ID number, as appropriate for their country, will be used for enhanced verification checks.
-    ///
     /// In Thailand, this would be the laser code found on the back of an ID card.
     /// Instead of the number itself, you can also provide a [PII token provided by Stripe.js](https://stripe.com/docs/js/tokens/create_token?type=pii).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -159,14 +153,12 @@ pub struct CreatePerson<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maiden_name: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// The country where the person is a national.
-    ///
     /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)), or "XX" if unavailable.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub nationality: Option<&'a str>,
@@ -185,9 +177,7 @@ pub struct CreatePerson<'a> {
     /// The relationship that this person has with the account's legal entity.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relationship: Option<CreatePersonRelationship<'a>>,
-    /// The last four digits of the person's Social Security number (U.S.
-    ///
-    /// only).
+    /// The last four digits of the person's Social Security number (U.S. only).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ssn_last_4: Option<&'a str>,
     /// The person's verification status.
@@ -416,7 +406,6 @@ impl<'a> CreatePersonRegisteredAddress<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePersonRelationship<'a> {
     /// Whether the person is a director of the account's legal entity.
-    ///
     /// Directors are typically members of the governing board of the company, or responsible for ensuring the company meets its regulatory obligations.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub director: Option<bool>,
@@ -433,7 +422,6 @@ pub struct CreatePersonRelationship<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub percent_ownership: Option<f64>,
     /// Whether the person is authorized as the primary representative of the account.
-    ///
     /// This is the person nominated by the business to provide information about themselves, and general information about the account.
     /// There can only be one representative at any given time.
     /// At the time the account is created, this person should be set to the person responsible for opening the account.
@@ -467,12 +455,10 @@ impl<'a> CreatePersonVerification<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePersonVerificationAdditionalDocument<'a> {
     /// The back of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub back: Option<&'a str>,
     /// The front of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub front: Option<&'a str>,
@@ -486,12 +472,10 @@ impl<'a> CreatePersonVerificationAdditionalDocument<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePersonVerificationDocument<'a> {
     /// The back of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub back: Option<&'a str>,
     /// The front of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub front: Option<&'a str>,
@@ -553,13 +537,11 @@ pub struct UpdatePerson<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub gender: Option<&'a str>,
     /// The person's ID number, as appropriate for their country.
-    ///
     /// For example, a social security number in the U.S., social insurance number in Canada, etc.
     /// Instead of the number itself, you can also provide a [PII token provided by Stripe.js](https://stripe.com/docs/js/tokens/create_token?type=pii).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id_number: Option<&'a str>,
     /// The person's secondary ID number, as appropriate for their country, will be used for enhanced verification checks.
-    ///
     /// In Thailand, this would be the laser code found on the back of an ID card.
     /// Instead of the number itself, you can also provide a [PII token provided by Stripe.js](https://stripe.com/docs/js/tokens/create_token?type=pii).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -577,14 +559,12 @@ pub struct UpdatePerson<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maiden_name: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// The country where the person is a national.
-    ///
     /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)), or "XX" if unavailable.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub nationality: Option<&'a str>,
@@ -603,9 +583,7 @@ pub struct UpdatePerson<'a> {
     /// The relationship that this person has with the account's legal entity.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub relationship: Option<UpdatePersonRelationship<'a>>,
-    /// The last four digits of the person's Social Security number (U.S.
-    ///
-    /// only).
+    /// The last four digits of the person's Social Security number (U.S. only).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ssn_last_4: Option<&'a str>,
     /// The person's verification status.
@@ -834,7 +812,6 @@ impl<'a> UpdatePersonRegisteredAddress<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePersonRelationship<'a> {
     /// Whether the person is a director of the account's legal entity.
-    ///
     /// Directors are typically members of the governing board of the company, or responsible for ensuring the company meets its regulatory obligations.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub director: Option<bool>,
@@ -851,7 +828,6 @@ pub struct UpdatePersonRelationship<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub percent_ownership: Option<f64>,
     /// Whether the person is authorized as the primary representative of the account.
-    ///
     /// This is the person nominated by the business to provide information about themselves, and general information about the account.
     /// There can only be one representative at any given time.
     /// At the time the account is created, this person should be set to the person responsible for opening the account.
@@ -885,12 +861,10 @@ impl<'a> UpdatePersonVerification<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePersonVerificationAdditionalDocument<'a> {
     /// The back of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub back: Option<&'a str>,
     /// The front of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub front: Option<&'a str>,
@@ -904,12 +878,10 @@ impl<'a> UpdatePersonVerificationAdditionalDocument<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdatePersonVerificationDocument<'a> {
     /// The back of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub back: Option<&'a str>,
     /// The front of an ID returned by a [file upload](https://stripe.com/docs/api#create_file) with a `purpose` value of `identity_document`.
-    ///
     /// The uploaded file needs to be a color image (smaller than 8,000px by 8,000px), in JPG, PNG, or PDF format, and less than 10 MB in size.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub front: Option<&'a str>,
@@ -943,7 +915,6 @@ impl DeletePerson {
 }
 impl DeletePerson {
     /// Deletes an existing person’s relationship to the account’s legal entity.
-    ///
     /// Any person with a relationship for an account can be deleted through the API, except if the person is the `account_opener`.
     /// If your integration is using the `executive` parameter, you cannot delete the only verified `executive` on file.
     pub fn send(

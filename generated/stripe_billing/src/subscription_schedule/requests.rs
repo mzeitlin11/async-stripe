@@ -13,7 +13,6 @@ pub struct ListSubscriptionSchedule<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -22,7 +21,6 @@ pub struct ListSubscriptionSchedule<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
@@ -33,7 +31,6 @@ pub struct ListSubscriptionSchedule<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub scheduled: Option<bool>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -67,7 +64,6 @@ pub struct CreateSubscriptionSchedule<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_settings: Option<CreateSubscriptionScheduleDefaultSettings<'a>>,
     /// Behavior of the subscription schedule and underlying subscription when it ends.
-    ///
     /// Possible values are `release` or `cancel` with the default being `release`.
     /// `release` will end the subscription schedule and keep the underlying subscription running.`cancel` will end the subscription schedule and cancel the underlying subscription.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -76,27 +72,23 @@ pub struct CreateSubscriptionSchedule<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Migrate an existing subscription to be managed by a subscription schedule.
-    ///
     /// If this parameter is set, a subscription schedule will be created using the subscription's item(s), set to auto-renew using the subscription's interval.
     /// When using this parameter, other parameters (such as phase values) cannot be set.
     /// To create a subscription schedule with other modifications, we recommend making two separate API calls.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from_subscription: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// List representing phases of the subscription schedule.
-    ///
     /// Each phase can be customized to have different durations, plans, and coupons.
     /// If there are multiple phases, the `end_date` of one phase will always equal the `start_date` of the next phase.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phases: Option<&'a [CreateSubscriptionSchedulePhases<'a>]>,
     /// When the subscription schedule starts.
-    ///
     /// We recommend using `now` so that it starts the subscription immediately.
     /// You can also use a Unix timestamp to backdate the subscription so that it starts on a past date, or set a future date for the subscription to start on.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -111,7 +103,6 @@ impl<'a> CreateSubscriptionSchedule<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSubscriptionScheduleDefaultSettings<'a> {
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the application owner's Stripe account.
     /// The request must be made by a platform account on a connected account in order to set an application fee percentage.
     /// For more information, see the application fees [documentation](https://stripe.com/docs/connect/subscriptions#collecting-fees-on-subscriptions).
@@ -121,31 +112,26 @@ pub struct CreateSubscriptionScheduleDefaultSettings<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub automatic_tax: Option<CreateSubscriptionScheduleDefaultSettingsAutomaticTax>,
     /// Can be set to `phase_start` to set the anchor to the start of the phase or `automatic` to automatically change it if needed.
-    ///
     /// Cannot be set to `phase_start` if this phase specifies a trial.
     /// For more information, see the billing cycle [documentation](https://stripe.com/docs/billing/subscriptions/billing-cycle).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_cycle_anchor: Option<CreateSubscriptionScheduleDefaultSettingsBillingCycleAnchor>,
     /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-    ///
     /// Pass an empty string to remove previously-defined thresholds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_thresholds: Option<CreateSubscriptionScheduleDefaultSettingsBillingThresholds>,
     /// Either `charge_automatically`, or `send_invoice`.
-    ///
     /// When charging automatically, Stripe will attempt to pay the underlying subscription at the end of each billing cycle using the default source attached to the customer.
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
     /// Defaults to `charge_automatically` on creation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub collection_method: Option<CreateSubscriptionScheduleDefaultSettingsCollectionMethod>,
     /// ID of the default payment method for the subscription schedule.
-    ///
     /// It must belong to the customer associated with the subscription schedule.
     /// If not set, invoices will use the default payment method in the customer's invoice settings.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_payment_method: Option<&'a str>,
     /// Subscription description, meant to be displayable to the customer.
-    ///
     /// Use this field to optionally store an explanation of the subscription for rendering in Stripe surfaces and certain local payment methods UIs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
@@ -176,7 +162,6 @@ impl CreateSubscriptionScheduleDefaultSettingsAutomaticTax {
     }
 }
 /// Can be set to `phase_start` to set the anchor to the start of the phase or `automatic` to automatically change it if needed.
-///
 /// Cannot be set to `phase_start` if this phase specifies a trial.
 /// For more information, see the billing cycle [documentation](https://stripe.com/docs/billing/subscriptions/billing-cycle).
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -230,15 +215,13 @@ impl serde::Serialize for CreateSubscriptionScheduleDefaultSettingsBillingCycleA
     }
 }
 /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-///
 /// Pass an empty string to remove previously-defined thresholds.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSubscriptionScheduleDefaultSettingsBillingThresholds {
-    /// Monetary threshold that triggers the subscription to advance to a new billing period.
+    /// Monetary threshold that triggers the subscription to advance to a new billing period
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount_gte: Option<i64>,
     /// Indicates if the `billing_cycle_anchor` should be reset when a threshold is reached.
-    ///
     /// If true, `billing_cycle_anchor` will be updated to the date/time the threshold was last reached; otherwise, the value will remain unchanged.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reset_billing_cycle_anchor: Option<bool>,
@@ -249,7 +232,6 @@ impl CreateSubscriptionScheduleDefaultSettingsBillingThresholds {
     }
 }
 /// Either `charge_automatically`, or `send_invoice`.
-///
 /// When charging automatically, Stripe will attempt to pay the underlying subscription at the end of each billing cycle using the default source attached to the customer.
 /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
 /// Defaults to `charge_automatically` on creation.
@@ -307,7 +289,6 @@ impl serde::Serialize for CreateSubscriptionScheduleDefaultSettingsCollectionMet
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSubscriptionScheduleDefaultSettingsInvoiceSettings {
     /// Number of days within which a customer must pay invoices generated by this subscription schedule.
-    ///
     /// This value will be `null` for subscription schedules where `collection_method=charge_automatically`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub days_until_due: Option<u32>,
@@ -321,7 +302,6 @@ impl CreateSubscriptionScheduleDefaultSettingsInvoiceSettings {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateSubscriptionScheduleDefaultSettingsTransferData<'a> {
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
     /// By default, the entire amount is transferred to the destination.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -335,7 +315,6 @@ impl<'a> CreateSubscriptionScheduleDefaultSettingsTransferData<'a> {
     }
 }
 /// Behavior of the subscription schedule and underlying subscription when it ends.
-///
 /// Possible values are `release` or `cancel` with the default being `release`.
 /// `release` will end the subscription schedule and keep the underlying subscription running.`cancel` will end the subscription schedule and cancel the underlying subscription.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -395,18 +374,15 @@ impl serde::Serialize for CreateSubscriptionScheduleEndBehavior {
     }
 }
 /// List representing phases of the subscription schedule.
-///
 /// Each phase can be customized to have different durations, plans, and coupons.
 /// If there are multiple phases, the `end_date` of one phase will always equal the `start_date` of the next phase.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateSubscriptionSchedulePhases<'a> {
     /// A list of prices and quantities that will generate invoice items appended to the next invoice for this phase.
-    ///
     /// You may pass up to 20 items.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub add_invoice_items: Option<&'a [CreateSubscriptionSchedulePhasesAddInvoiceItems<'a>]>,
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the application owner's Stripe account.
     /// The request must be made by a platform account on a connected account in order to set an application fee percentage.
     /// For more information, see the application fees [documentation](https://stripe.com/docs/connect/subscriptions#collecting-fees-on-subscriptions).
@@ -416,18 +392,15 @@ pub struct CreateSubscriptionSchedulePhases<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub automatic_tax: Option<CreateSubscriptionSchedulePhasesAutomaticTax>,
     /// Can be set to `phase_start` to set the anchor to the start of the phase or `automatic` to automatically change it if needed.
-    ///
     /// Cannot be set to `phase_start` if this phase specifies a trial.
     /// For more information, see the billing cycle [documentation](https://stripe.com/docs/billing/subscriptions/billing-cycle).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_cycle_anchor: Option<CreateSubscriptionSchedulePhasesBillingCycleAnchor>,
     /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-    ///
     /// Pass an empty string to remove previously-defined thresholds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_thresholds: Option<CreateSubscriptionSchedulePhasesBillingThresholds>,
     /// Either `charge_automatically`, or `send_invoice`.
-    ///
     /// When charging automatically, Stripe will attempt to pay the underlying subscription at the end of each billing cycle using the default source attached to the customer.
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
     /// Defaults to `charge_automatically` on creation.
@@ -437,28 +410,23 @@ pub struct CreateSubscriptionSchedulePhases<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub coupon: Option<&'a str>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
     /// ID of the default payment method for the subscription schedule.
-    ///
     /// It must belong to the customer associated with the subscription schedule.
     /// If not set, invoices will use the default payment method in the customer's invoice settings.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_payment_method: Option<&'a str>,
     /// A list of [Tax Rate](https://stripe.com/docs/api/tax_rates) ids.
-    ///
     /// These Tax Rates will set the Subscription's [`default_tax_rates`](https://stripe.com/docs/api/subscriptions/create#create_subscription-default_tax_rates), which means they will be the Invoice's [`default_tax_rates`](https://stripe.com/docs/api/invoices/create#create_invoice-default_tax_rates) for any Invoices issued by the Subscription during this Phase.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_tax_rates: Option<&'a [&'a str]>,
     /// Subscription description, meant to be displayable to the customer.
-    ///
     /// Use this field to optionally store an explanation of the subscription for rendering in Stripe surfaces and certain local payment methods UIs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// The date at which this phase of the subscription schedule ends.
-    ///
     /// If set, `iterations` must not be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub end_date: Option<stripe_types::Timestamp>,
@@ -468,13 +436,11 @@ pub struct CreateSubscriptionSchedulePhases<'a> {
     /// List of configuration items, each with an attached price, to apply during this phase of the subscription schedule.
     pub items: &'a [CreateSubscriptionSchedulePhasesItems<'a>],
     /// Integer representing the multiplier applied to the price interval.
-    ///
     /// For example, `iterations=2` applied to a price with `interval=month` and `interval_count=3` results in a phase of duration `2 * 3 months = 6 months`.
     /// If set, `end_date` must not be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub iterations: Option<i64>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to a phase.
-    ///
     /// Metadata on a schedule's phase will update the underlying subscription's `metadata` when the phase is entered, adding new keys and replacing existing keys in the subscription's `metadata`.
     /// Individual keys in the subscription's `metadata` can be unset by posting an empty value to them in the phase's `metadata`.
     /// To unset all keys in the subscription's `metadata`, update the subscription directly or unset every key individually from the phase's `metadata`.
@@ -484,7 +450,6 @@ pub struct CreateSubscriptionSchedulePhases<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub on_behalf_of: Option<&'a str>,
     /// Whether the subscription schedule will create [prorations](https://stripe.com/docs/billing/subscriptions/prorations) when transitioning to this phase.
-    ///
     /// The default value is `create_prorations`.
     /// This setting controls prorations when a phase is started asynchronously and it is persisted as a field on the phase.
     /// It's different from the request-level [proration_behavior](https://stripe.com/docs/api/subscription_schedules/update#update_subscription_schedule-proration_behavior) parameter which controls what happens if the update request affects the billing configuration of the current phase.
@@ -497,7 +462,6 @@ pub struct CreateSubscriptionSchedulePhases<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trial: Option<bool>,
     /// Sets the phase to trialing from the start date to this date.
-    ///
     /// Must be before the phase end date, can not be combined with `trial`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trial_end: Option<stripe_types::Timestamp>,
@@ -530,7 +494,6 @@ impl<'a> CreateSubscriptionSchedulePhases<'a> {
     }
 }
 /// A list of prices and quantities that will generate invoice items appended to the next invoice for this phase.
-///
 /// You may pass up to 20 items.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSubscriptionSchedulePhasesAddInvoiceItems<'a> {
@@ -540,14 +503,10 @@ pub struct CreateSubscriptionSchedulePhasesAddInvoiceItems<'a> {
     /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price_data: Option<CreateSubscriptionSchedulePhasesAddInvoiceItemsPriceData<'a>>,
-    /// Quantity for this item.
-    ///
-    /// Defaults to 1.
+    /// Quantity for this item. Defaults to 1.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
-    /// The tax rates which apply to the item.
-    ///
-    /// When set, the `default_tax_rates` do not apply to this item.
+    /// The tax rates which apply to the item. When set, the `default_tax_rates` do not apply to this item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_rates: Option<&'a [&'a str]>,
 }
@@ -560,13 +519,11 @@ impl<'a> CreateSubscriptionSchedulePhasesAddInvoiceItems<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateSubscriptionSchedulePhasesAddInvoiceItemsPriceData<'a> {
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// The ID of the product that this price will belong to.
     pub product: &'a str,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -576,7 +533,6 @@ pub struct CreateSubscriptionSchedulePhasesAddInvoiceItemsPriceData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<&'a str>,
@@ -587,7 +543,6 @@ impl<'a> CreateSubscriptionSchedulePhasesAddInvoiceItemsPriceData<'a> {
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -656,7 +611,6 @@ impl CreateSubscriptionSchedulePhasesAutomaticTax {
     }
 }
 /// Can be set to `phase_start` to set the anchor to the start of the phase or `automatic` to automatically change it if needed.
-///
 /// Cannot be set to `phase_start` if this phase specifies a trial.
 /// For more information, see the billing cycle [documentation](https://stripe.com/docs/billing/subscriptions/billing-cycle).
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -710,15 +664,13 @@ impl serde::Serialize for CreateSubscriptionSchedulePhasesBillingCycleAnchor {
     }
 }
 /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-///
 /// Pass an empty string to remove previously-defined thresholds.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSubscriptionSchedulePhasesBillingThresholds {
-    /// Monetary threshold that triggers the subscription to advance to a new billing period.
+    /// Monetary threshold that triggers the subscription to advance to a new billing period
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount_gte: Option<i64>,
     /// Indicates if the `billing_cycle_anchor` should be reset when a threshold is reached.
-    ///
     /// If true, `billing_cycle_anchor` will be updated to the date/time the threshold was last reached; otherwise, the value will remain unchanged.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reset_billing_cycle_anchor: Option<bool>,
@@ -729,7 +681,6 @@ impl CreateSubscriptionSchedulePhasesBillingThresholds {
     }
 }
 /// Either `charge_automatically`, or `send_invoice`.
-///
 /// When charging automatically, Stripe will attempt to pay the underlying subscription at the end of each billing cycle using the default source attached to the customer.
 /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
 /// Defaults to `charge_automatically` on creation.
@@ -787,7 +738,6 @@ impl serde::Serialize for CreateSubscriptionSchedulePhasesCollectionMethod {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSubscriptionSchedulePhasesInvoiceSettings {
     /// Number of days within which a customer must pay invoices generated by this subscription schedule.
-    ///
     /// This value will be `null` for subscription schedules where `billing=charge_automatically`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub days_until_due: Option<u32>,
@@ -801,20 +751,16 @@ impl CreateSubscriptionSchedulePhasesInvoiceSettings {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSubscriptionSchedulePhasesItems<'a> {
     /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-    ///
     /// When updating, pass an empty string to remove previously-defined thresholds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_thresholds: Option<CreateSubscriptionSchedulePhasesItemsBillingThresholds>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to a configuration item.
-    ///
     /// Metadata on a configuration item will update the underlying subscription item's `metadata` when the phase is entered, adding new keys and replacing existing keys.
     /// Individual keys in the subscription item's `metadata` can be unset by posting an empty value to them in the configuration item's `metadata`.
     /// To unset all keys in the subscription item's `metadata`, update the subscription item directly or unset every key individually from the configuration item's `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
-    /// The plan ID to subscribe to.
-    ///
-    /// You may specify the same ID in `plan` and `price`.
+    /// The plan ID to subscribe to. You may specify the same ID in `plan` and `price`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub plan: Option<&'a str>,
     /// The ID of the price object.
@@ -824,12 +770,10 @@ pub struct CreateSubscriptionSchedulePhasesItems<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price_data: Option<CreateSubscriptionSchedulePhasesItemsPriceData<'a>>,
     /// Quantity for the given price.
-    ///
     /// Can be set only if the price's `usage_type` is `licensed` and not `metered`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
     /// A list of [Tax Rate](https://stripe.com/docs/api/tax_rates) ids.
-    ///
     /// These Tax Rates will override the [`default_tax_rates`](https://stripe.com/docs/api/subscriptions/create#create_subscription-default_tax_rates) on the Subscription.
     /// When updating, pass an empty string to remove previously-defined tax rates.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -841,7 +785,6 @@ impl<'a> CreateSubscriptionSchedulePhasesItems<'a> {
     }
 }
 /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-///
 /// When updating, pass an empty string to remove previously-defined thresholds.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateSubscriptionSchedulePhasesItemsBillingThresholds {
@@ -857,7 +800,6 @@ impl CreateSubscriptionSchedulePhasesItemsBillingThresholds {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateSubscriptionSchedulePhasesItemsPriceData<'a> {
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// The ID of the product that this price will belong to.
@@ -865,7 +807,6 @@ pub struct CreateSubscriptionSchedulePhasesItemsPriceData<'a> {
     /// The recurring components of a price such as `interval` and `interval_count`.
     pub recurring: CreateSubscriptionSchedulePhasesItemsPriceDataRecurring,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -875,7 +816,6 @@ pub struct CreateSubscriptionSchedulePhasesItemsPriceData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<&'a str>,
@@ -899,12 +839,9 @@ impl<'a> CreateSubscriptionSchedulePhasesItemsPriceData<'a> {
 /// The recurring components of a price such as `interval` and `interval_count`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateSubscriptionSchedulePhasesItemsPriceDataRecurring {
-    /// Specifies billing frequency.
-    ///
-    /// Either `day`, `week`, `month` or `year`.
+    /// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
     pub interval: CreateSubscriptionSchedulePhasesItemsPriceDataRecurringInterval,
     /// The number of intervals between subscription billings.
-    ///
     /// For example, `interval=month` and `interval_count=3` bills every 3 months.
     /// Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -915,9 +852,7 @@ impl CreateSubscriptionSchedulePhasesItemsPriceDataRecurring {
         Self { interval, interval_count: None }
     }
 }
-/// Specifies billing frequency.
-///
-/// Either `day`, `week`, `month` or `year`.
+/// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateSubscriptionSchedulePhasesItemsPriceDataRecurringInterval {
     Day,
@@ -975,7 +910,6 @@ impl serde::Serialize for CreateSubscriptionSchedulePhasesItemsPriceDataRecurrin
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -1033,7 +967,6 @@ impl serde::Serialize for CreateSubscriptionSchedulePhasesItemsPriceDataTaxBehav
     }
 }
 /// Whether the subscription schedule will create [prorations](https://stripe.com/docs/billing/subscriptions/prorations) when transitioning to this phase.
-///
 /// The default value is `create_prorations`.
 /// This setting controls prorations when a phase is started asynchronously and it is persisted as a field on the phase.
 /// It's different from the request-level [proration_behavior](https://stripe.com/docs/api/subscription_schedules/update#update_subscription_schedule-proration_behavior) parameter which controls what happens if the update request affects the billing configuration of the current phase.
@@ -1094,7 +1027,6 @@ impl serde::Serialize for CreateSubscriptionSchedulePhasesProrationBehavior {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateSubscriptionSchedulePhasesTransferData<'a> {
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
     /// By default, the entire amount is transferred to the destination.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1108,7 +1040,6 @@ impl<'a> CreateSubscriptionSchedulePhasesTransferData<'a> {
     }
 }
 /// When the subscription schedule starts.
-///
 /// We recommend using `now` so that it starts the subscription immediately.
 /// You can also use a Unix timestamp to backdate the subscription so that it starts on a past date, or set a future date for the subscription to start on.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -1119,7 +1050,6 @@ pub enum CreateSubscriptionScheduleStartDate {
 }
 impl<'a> CreateSubscriptionSchedule<'a> {
     /// Creates a new subscription schedule object.
-    ///
     /// Each customer can have up to 500 active or scheduled subscriptions.
     pub fn send(
         &self,
@@ -1141,7 +1071,6 @@ impl<'a> RetrieveSubscriptionSchedule<'a> {
 }
 impl<'a> RetrieveSubscriptionSchedule<'a> {
     /// Retrieves the details of an existing subscription schedule.
-    ///
     /// You only need to supply the unique subscription schedule identifier that was returned upon subscription schedule creation.
     pub fn send(
         &self,
@@ -1157,7 +1086,6 @@ pub struct UpdateSubscriptionSchedule<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_settings: Option<UpdateSubscriptionScheduleDefaultSettings<'a>>,
     /// Behavior of the subscription schedule and underlying subscription when it ends.
-    ///
     /// Possible values are `release` or `cancel` with the default being `release`.
     /// `release` will end the subscription schedule and keep the underlying subscription running.`cancel` will end the subscription schedule and cancel the underlying subscription.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1166,21 +1094,18 @@ pub struct UpdateSubscriptionSchedule<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// List representing phases of the subscription schedule.
-    ///
     /// Each phase can be customized to have different durations, plans, and coupons.
     /// If there are multiple phases, the `end_date` of one phase will always equal the `start_date` of the next phase.
     /// Note that past phases can be omitted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub phases: Option<&'a [UpdateSubscriptionSchedulePhases<'a>]>,
     /// If the update changes the current phase, indicates whether the changes should be prorated.
-    ///
     /// The default value is `create_prorations`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub proration_behavior: Option<UpdateSubscriptionScheduleProrationBehavior>,
@@ -1194,7 +1119,6 @@ impl<'a> UpdateSubscriptionSchedule<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateSubscriptionScheduleDefaultSettings<'a> {
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the application owner's Stripe account.
     /// The request must be made by a platform account on a connected account in order to set an application fee percentage.
     /// For more information, see the application fees [documentation](https://stripe.com/docs/connect/subscriptions#collecting-fees-on-subscriptions).
@@ -1204,31 +1128,26 @@ pub struct UpdateSubscriptionScheduleDefaultSettings<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub automatic_tax: Option<UpdateSubscriptionScheduleDefaultSettingsAutomaticTax>,
     /// Can be set to `phase_start` to set the anchor to the start of the phase or `automatic` to automatically change it if needed.
-    ///
     /// Cannot be set to `phase_start` if this phase specifies a trial.
     /// For more information, see the billing cycle [documentation](https://stripe.com/docs/billing/subscriptions/billing-cycle).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_cycle_anchor: Option<UpdateSubscriptionScheduleDefaultSettingsBillingCycleAnchor>,
     /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-    ///
     /// Pass an empty string to remove previously-defined thresholds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_thresholds: Option<UpdateSubscriptionScheduleDefaultSettingsBillingThresholds>,
     /// Either `charge_automatically`, or `send_invoice`.
-    ///
     /// When charging automatically, Stripe will attempt to pay the underlying subscription at the end of each billing cycle using the default source attached to the customer.
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
     /// Defaults to `charge_automatically` on creation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub collection_method: Option<UpdateSubscriptionScheduleDefaultSettingsCollectionMethod>,
     /// ID of the default payment method for the subscription schedule.
-    ///
     /// It must belong to the customer associated with the subscription schedule.
     /// If not set, invoices will use the default payment method in the customer's invoice settings.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_payment_method: Option<&'a str>,
     /// Subscription description, meant to be displayable to the customer.
-    ///
     /// Use this field to optionally store an explanation of the subscription for rendering in Stripe surfaces and certain local payment methods UIs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
@@ -1259,7 +1178,6 @@ impl UpdateSubscriptionScheduleDefaultSettingsAutomaticTax {
     }
 }
 /// Can be set to `phase_start` to set the anchor to the start of the phase or `automatic` to automatically change it if needed.
-///
 /// Cannot be set to `phase_start` if this phase specifies a trial.
 /// For more information, see the billing cycle [documentation](https://stripe.com/docs/billing/subscriptions/billing-cycle).
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1313,15 +1231,13 @@ impl serde::Serialize for UpdateSubscriptionScheduleDefaultSettingsBillingCycleA
     }
 }
 /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-///
 /// Pass an empty string to remove previously-defined thresholds.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateSubscriptionScheduleDefaultSettingsBillingThresholds {
-    /// Monetary threshold that triggers the subscription to advance to a new billing period.
+    /// Monetary threshold that triggers the subscription to advance to a new billing period
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount_gte: Option<i64>,
     /// Indicates if the `billing_cycle_anchor` should be reset when a threshold is reached.
-    ///
     /// If true, `billing_cycle_anchor` will be updated to the date/time the threshold was last reached; otherwise, the value will remain unchanged.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reset_billing_cycle_anchor: Option<bool>,
@@ -1332,7 +1248,6 @@ impl UpdateSubscriptionScheduleDefaultSettingsBillingThresholds {
     }
 }
 /// Either `charge_automatically`, or `send_invoice`.
-///
 /// When charging automatically, Stripe will attempt to pay the underlying subscription at the end of each billing cycle using the default source attached to the customer.
 /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
 /// Defaults to `charge_automatically` on creation.
@@ -1390,7 +1305,6 @@ impl serde::Serialize for UpdateSubscriptionScheduleDefaultSettingsCollectionMet
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateSubscriptionScheduleDefaultSettingsInvoiceSettings {
     /// Number of days within which a customer must pay invoices generated by this subscription schedule.
-    ///
     /// This value will be `null` for subscription schedules where `collection_method=charge_automatically`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub days_until_due: Option<u32>,
@@ -1404,7 +1318,6 @@ impl UpdateSubscriptionScheduleDefaultSettingsInvoiceSettings {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateSubscriptionScheduleDefaultSettingsTransferData<'a> {
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
     /// By default, the entire amount is transferred to the destination.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1418,7 +1331,6 @@ impl<'a> UpdateSubscriptionScheduleDefaultSettingsTransferData<'a> {
     }
 }
 /// Behavior of the subscription schedule and underlying subscription when it ends.
-///
 /// Possible values are `release` or `cancel` with the default being `release`.
 /// `release` will end the subscription schedule and keep the underlying subscription running.`cancel` will end the subscription schedule and cancel the underlying subscription.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1478,19 +1390,16 @@ impl serde::Serialize for UpdateSubscriptionScheduleEndBehavior {
     }
 }
 /// List representing phases of the subscription schedule.
-///
 /// Each phase can be customized to have different durations, plans, and coupons.
 /// If there are multiple phases, the `end_date` of one phase will always equal the `start_date` of the next phase.
 /// Note that past phases can be omitted.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateSubscriptionSchedulePhases<'a> {
     /// A list of prices and quantities that will generate invoice items appended to the next invoice for this phase.
-    ///
     /// You may pass up to 20 items.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub add_invoice_items: Option<&'a [UpdateSubscriptionSchedulePhasesAddInvoiceItems<'a>]>,
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the application owner's Stripe account.
     /// The request must be made by a platform account on a connected account in order to set an application fee percentage.
     /// For more information, see the application fees [documentation](https://stripe.com/docs/connect/subscriptions#collecting-fees-on-subscriptions).
@@ -1500,18 +1409,15 @@ pub struct UpdateSubscriptionSchedulePhases<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub automatic_tax: Option<UpdateSubscriptionSchedulePhasesAutomaticTax>,
     /// Can be set to `phase_start` to set the anchor to the start of the phase or `automatic` to automatically change it if needed.
-    ///
     /// Cannot be set to `phase_start` if this phase specifies a trial.
     /// For more information, see the billing cycle [documentation](https://stripe.com/docs/billing/subscriptions/billing-cycle).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_cycle_anchor: Option<UpdateSubscriptionSchedulePhasesBillingCycleAnchor>,
     /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-    ///
     /// Pass an empty string to remove previously-defined thresholds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_thresholds: Option<UpdateSubscriptionSchedulePhasesBillingThresholds>,
     /// Either `charge_automatically`, or `send_invoice`.
-    ///
     /// When charging automatically, Stripe will attempt to pay the underlying subscription at the end of each billing cycle using the default source attached to the customer.
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
     /// Defaults to `charge_automatically` on creation.
@@ -1521,28 +1427,23 @@ pub struct UpdateSubscriptionSchedulePhases<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub coupon: Option<&'a str>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<stripe_types::Currency>,
     /// ID of the default payment method for the subscription schedule.
-    ///
     /// It must belong to the customer associated with the subscription schedule.
     /// If not set, invoices will use the default payment method in the customer's invoice settings.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_payment_method: Option<&'a str>,
     /// A list of [Tax Rate](https://stripe.com/docs/api/tax_rates) ids.
-    ///
     /// These Tax Rates will set the Subscription's [`default_tax_rates`](https://stripe.com/docs/api/subscriptions/create#create_subscription-default_tax_rates), which means they will be the Invoice's [`default_tax_rates`](https://stripe.com/docs/api/invoices/create#create_invoice-default_tax_rates) for any Invoices issued by the Subscription during this Phase.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_tax_rates: Option<&'a [&'a str]>,
     /// Subscription description, meant to be displayable to the customer.
-    ///
     /// Use this field to optionally store an explanation of the subscription for rendering in Stripe surfaces and certain local payment methods UIs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// The date at which this phase of the subscription schedule ends.
-    ///
     /// If set, `iterations` must not be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub end_date: Option<UpdateSubscriptionSchedulePhasesEndDate>,
@@ -1552,13 +1453,11 @@ pub struct UpdateSubscriptionSchedulePhases<'a> {
     /// List of configuration items, each with an attached price, to apply during this phase of the subscription schedule.
     pub items: &'a [UpdateSubscriptionSchedulePhasesItems<'a>],
     /// Integer representing the multiplier applied to the price interval.
-    ///
     /// For example, `iterations=2` applied to a price with `interval=month` and `interval_count=3` results in a phase of duration `2 * 3 months = 6 months`.
     /// If set, `end_date` must not be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub iterations: Option<i64>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to a phase.
-    ///
     /// Metadata on a schedule's phase will update the underlying subscription's `metadata` when the phase is entered, adding new keys and replacing existing keys in the subscription's `metadata`.
     /// Individual keys in the subscription's `metadata` can be unset by posting an empty value to them in the phase's `metadata`.
     /// To unset all keys in the subscription's `metadata`, update the subscription directly or unset every key individually from the phase's `metadata`.
@@ -1568,14 +1467,12 @@ pub struct UpdateSubscriptionSchedulePhases<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub on_behalf_of: Option<&'a str>,
     /// Whether the subscription schedule will create [prorations](https://stripe.com/docs/billing/subscriptions/prorations) when transitioning to this phase.
-    ///
     /// The default value is `create_prorations`.
     /// This setting controls prorations when a phase is started asynchronously and it is persisted as a field on the phase.
     /// It's different from the request-level [proration_behavior](https://stripe.com/docs/api/subscription_schedules/update#update_subscription_schedule-proration_behavior) parameter which controls what happens if the update request affects the billing configuration of the current phase.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub proration_behavior: Option<UpdateSubscriptionSchedulePhasesProrationBehavior>,
     /// The date at which this phase of the subscription schedule starts or `now`.
-    ///
     /// Must be set on the first phase.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub start_date: Option<UpdateSubscriptionSchedulePhasesStartDate>,
@@ -1586,7 +1483,6 @@ pub struct UpdateSubscriptionSchedulePhases<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trial: Option<bool>,
     /// Sets the phase to trialing from the start date to this date.
-    ///
     /// Must be before the phase end date, can not be combined with `trial`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub trial_end: Option<UpdateSubscriptionSchedulePhasesTrialEnd>,
@@ -1620,7 +1516,6 @@ impl<'a> UpdateSubscriptionSchedulePhases<'a> {
     }
 }
 /// A list of prices and quantities that will generate invoice items appended to the next invoice for this phase.
-///
 /// You may pass up to 20 items.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesAddInvoiceItems<'a> {
@@ -1630,14 +1525,10 @@ pub struct UpdateSubscriptionSchedulePhasesAddInvoiceItems<'a> {
     /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price_data: Option<UpdateSubscriptionSchedulePhasesAddInvoiceItemsPriceData<'a>>,
-    /// Quantity for this item.
-    ///
-    /// Defaults to 1.
+    /// Quantity for this item. Defaults to 1.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
-    /// The tax rates which apply to the item.
-    ///
-    /// When set, the `default_tax_rates` do not apply to this item.
+    /// The tax rates which apply to the item. When set, the `default_tax_rates` do not apply to this item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_rates: Option<&'a [&'a str]>,
 }
@@ -1650,13 +1541,11 @@ impl<'a> UpdateSubscriptionSchedulePhasesAddInvoiceItems<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesAddInvoiceItemsPriceData<'a> {
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// The ID of the product that this price will belong to.
     pub product: &'a str,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -1666,7 +1555,6 @@ pub struct UpdateSubscriptionSchedulePhasesAddInvoiceItemsPriceData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<&'a str>,
@@ -1677,7 +1565,6 @@ impl<'a> UpdateSubscriptionSchedulePhasesAddInvoiceItemsPriceData<'a> {
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -1746,7 +1633,6 @@ impl UpdateSubscriptionSchedulePhasesAutomaticTax {
     }
 }
 /// Can be set to `phase_start` to set the anchor to the start of the phase or `automatic` to automatically change it if needed.
-///
 /// Cannot be set to `phase_start` if this phase specifies a trial.
 /// For more information, see the billing cycle [documentation](https://stripe.com/docs/billing/subscriptions/billing-cycle).
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1800,15 +1686,13 @@ impl serde::Serialize for UpdateSubscriptionSchedulePhasesBillingCycleAnchor {
     }
 }
 /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-///
 /// Pass an empty string to remove previously-defined thresholds.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesBillingThresholds {
-    /// Monetary threshold that triggers the subscription to advance to a new billing period.
+    /// Monetary threshold that triggers the subscription to advance to a new billing period
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount_gte: Option<i64>,
     /// Indicates if the `billing_cycle_anchor` should be reset when a threshold is reached.
-    ///
     /// If true, `billing_cycle_anchor` will be updated to the date/time the threshold was last reached; otherwise, the value will remain unchanged.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reset_billing_cycle_anchor: Option<bool>,
@@ -1819,7 +1703,6 @@ impl UpdateSubscriptionSchedulePhasesBillingThresholds {
     }
 }
 /// Either `charge_automatically`, or `send_invoice`.
-///
 /// When charging automatically, Stripe will attempt to pay the underlying subscription at the end of each billing cycle using the default source attached to the customer.
 /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
 /// Defaults to `charge_automatically` on creation.
@@ -1874,7 +1757,6 @@ impl serde::Serialize for UpdateSubscriptionSchedulePhasesCollectionMethod {
     }
 }
 /// The date at which this phase of the subscription schedule ends.
-///
 /// If set, `iterations` must not be set.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 #[serde(untagged)]
@@ -1886,7 +1768,6 @@ pub enum UpdateSubscriptionSchedulePhasesEndDate {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesInvoiceSettings {
     /// Number of days within which a customer must pay invoices generated by this subscription schedule.
-    ///
     /// This value will be `null` for subscription schedules where `billing=charge_automatically`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub days_until_due: Option<u32>,
@@ -1900,20 +1781,16 @@ impl UpdateSubscriptionSchedulePhasesInvoiceSettings {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesItems<'a> {
     /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-    ///
     /// When updating, pass an empty string to remove previously-defined thresholds.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub billing_thresholds: Option<UpdateSubscriptionSchedulePhasesItemsBillingThresholds>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to a configuration item.
-    ///
     /// Metadata on a configuration item will update the underlying subscription item's `metadata` when the phase is entered, adding new keys and replacing existing keys.
     /// Individual keys in the subscription item's `metadata` can be unset by posting an empty value to them in the configuration item's `metadata`.
     /// To unset all keys in the subscription item's `metadata`, update the subscription item directly or unset every key individually from the configuration item's `metadata`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
-    /// The plan ID to subscribe to.
-    ///
-    /// You may specify the same ID in `plan` and `price`.
+    /// The plan ID to subscribe to. You may specify the same ID in `plan` and `price`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub plan: Option<&'a str>,
     /// The ID of the price object.
@@ -1923,12 +1800,10 @@ pub struct UpdateSubscriptionSchedulePhasesItems<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price_data: Option<UpdateSubscriptionSchedulePhasesItemsPriceData<'a>>,
     /// Quantity for the given price.
-    ///
     /// Can be set only if the price's `usage_type` is `licensed` and not `metered`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
     /// A list of [Tax Rate](https://stripe.com/docs/api/tax_rates) ids.
-    ///
     /// These Tax Rates will override the [`default_tax_rates`](https://stripe.com/docs/api/subscriptions/create#create_subscription-default_tax_rates) on the Subscription.
     /// When updating, pass an empty string to remove previously-defined tax rates.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1940,7 +1815,6 @@ impl<'a> UpdateSubscriptionSchedulePhasesItems<'a> {
     }
 }
 /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-///
 /// When updating, pass an empty string to remove previously-defined thresholds.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesItemsBillingThresholds {
@@ -1956,7 +1830,6 @@ impl UpdateSubscriptionSchedulePhasesItemsBillingThresholds {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesItemsPriceData<'a> {
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// The ID of the product that this price will belong to.
@@ -1964,7 +1837,6 @@ pub struct UpdateSubscriptionSchedulePhasesItemsPriceData<'a> {
     /// The recurring components of a price such as `interval` and `interval_count`.
     pub recurring: UpdateSubscriptionSchedulePhasesItemsPriceDataRecurring,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -1974,7 +1846,6 @@ pub struct UpdateSubscriptionSchedulePhasesItemsPriceData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<&'a str>,
@@ -1998,12 +1869,9 @@ impl<'a> UpdateSubscriptionSchedulePhasesItemsPriceData<'a> {
 /// The recurring components of a price such as `interval` and `interval_count`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesItemsPriceDataRecurring {
-    /// Specifies billing frequency.
-    ///
-    /// Either `day`, `week`, `month` or `year`.
+    /// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
     pub interval: UpdateSubscriptionSchedulePhasesItemsPriceDataRecurringInterval,
     /// The number of intervals between subscription billings.
-    ///
     /// For example, `interval=month` and `interval_count=3` bills every 3 months.
     /// Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2014,9 +1882,7 @@ impl UpdateSubscriptionSchedulePhasesItemsPriceDataRecurring {
         Self { interval, interval_count: None }
     }
 }
-/// Specifies billing frequency.
-///
-/// Either `day`, `week`, `month` or `year`.
+/// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateSubscriptionSchedulePhasesItemsPriceDataRecurringInterval {
     Day,
@@ -2074,7 +1940,6 @@ impl serde::Serialize for UpdateSubscriptionSchedulePhasesItemsPriceDataRecurrin
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -2132,7 +1997,6 @@ impl serde::Serialize for UpdateSubscriptionSchedulePhasesItemsPriceDataTaxBehav
     }
 }
 /// Whether the subscription schedule will create [prorations](https://stripe.com/docs/billing/subscriptions/prorations) when transitioning to this phase.
-///
 /// The default value is `create_prorations`.
 /// This setting controls prorations when a phase is started asynchronously and it is persisted as a field on the phase.
 /// It's different from the request-level [proration_behavior](https://stripe.com/docs/api/subscription_schedules/update#update_subscription_schedule-proration_behavior) parameter which controls what happens if the update request affects the billing configuration of the current phase.
@@ -2190,7 +2054,6 @@ impl serde::Serialize for UpdateSubscriptionSchedulePhasesProrationBehavior {
     }
 }
 /// The date at which this phase of the subscription schedule starts or `now`.
-///
 /// Must be set on the first phase.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 #[serde(untagged)]
@@ -2202,7 +2065,6 @@ pub enum UpdateSubscriptionSchedulePhasesStartDate {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateSubscriptionSchedulePhasesTransferData<'a> {
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
     /// By default, the entire amount is transferred to the destination.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2216,7 +2078,6 @@ impl<'a> UpdateSubscriptionSchedulePhasesTransferData<'a> {
     }
 }
 /// Sets the phase to trialing from the start date to this date.
-///
 /// Must be before the phase end date, can not be combined with `trial`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 #[serde(untagged)]
@@ -2225,7 +2086,6 @@ pub enum UpdateSubscriptionSchedulePhasesTrialEnd {
     Now,
 }
 /// If the update changes the current phase, indicates whether the changes should be prorated.
-///
 /// The default value is `create_prorations`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateSubscriptionScheduleProrationBehavior {
@@ -2300,12 +2160,10 @@ pub struct CancelSubscriptionSchedule<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// If the subscription schedule is `active`, indicates if a final invoice will be generated that contains any un-invoiced metered usage and new/pending proration invoice items.
-    ///
     /// Defaults to `true`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_now: Option<bool>,
     /// If the subscription schedule is `active`, indicates if the cancellation should be prorated.
-    ///
     /// Defaults to `true`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prorate: Option<bool>,
@@ -2317,7 +2175,6 @@ impl<'a> CancelSubscriptionSchedule<'a> {
 }
 impl<'a> CancelSubscriptionSchedule<'a> {
     /// Cancels a subscription schedule and its associated subscription immediately (if the subscription schedule has an active subscription).
-    ///
     /// A subscription schedule can only be canceled if its status is `not_started` or `active`.
     pub fn send(
         &self,
@@ -2336,7 +2193,7 @@ pub struct ReleaseSubscriptionSchedule<'a> {
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
-    /// Keep any cancellation on the subscription that the schedule has set.
+    /// Keep any cancellation on the subscription that the schedule has set
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preserve_cancel_date: Option<bool>,
 }
@@ -2347,7 +2204,6 @@ impl<'a> ReleaseSubscriptionSchedule<'a> {
 }
 impl<'a> ReleaseSubscriptionSchedule<'a> {
     /// Releases the subscription schedule immediately, which will stop scheduling of its phases, but leave any existing subscription in place.
-    ///
     /// A schedule can only be released if its status is `not_started` or `active`.
     /// If the subscription schedule is currently associated with a subscription, releasing it will remove its `subscription` property and set the subscription’s ID to the `released_subscription` property.
     pub fn send(

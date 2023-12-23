@@ -1,6 +1,6 @@
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct QuotesResourceAutomaticTax {
-    /// Automatically calculate taxes.
+    /// Automatically calculate taxes
     pub enabled: bool,
     /// The status of the most recent automated tax calculation for this quote.
     pub status: Option<QuotesResourceAutomaticTaxStatus>,

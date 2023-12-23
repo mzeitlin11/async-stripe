@@ -161,6 +161,9 @@ impl CodeGen {
             write_to_file(struct_defs, types_file)?;
             append_to_file(
                 format!(
+                    // NB: we add doc(hidden) and doc(inline) to hide the implementation details
+                    // of these being public modules so that other generated crates can import them. It
+                    // just keeps the already giant rustdoc page a bit cleaner
                     "#[doc(hidden)]\npub mod {0};#[doc(inline)]\npub use {0}::*;",
                     comp.mod_path()
                 ),

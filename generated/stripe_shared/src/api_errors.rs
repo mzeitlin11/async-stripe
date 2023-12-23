@@ -13,12 +13,10 @@ pub struct ApiErrors {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub doc_url: Option<String>,
     /// A human-readable message providing more details about the error.
-    ///
     /// For card errors, these messages can be shown to your users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
     /// If the error is parameter-specific, the parameter related to the error.
-    ///
     /// For example, you can use this to display a message near the correct form field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub param: Option<String>,
@@ -27,7 +25,6 @@ pub struct ApiErrors {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method: Option<stripe_shared::PaymentMethod>,
     /// If the error is specific to the type of payment method, the payment method type that had a problem.
-    ///
     /// This field is only populated for invoice-related errors.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_type: Option<String>,
@@ -39,7 +36,6 @@ pub struct ApiErrors {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source: Option<stripe_shared::PaymentSource>,
     /// The type of error returned.
-    ///
     /// One of `api_error`, `card_error`, `idempotency_error`, or `invalid_request_error`.
     #[serde(rename = "type")]
     pub type_: ApiErrorsType,
@@ -625,7 +621,6 @@ impl<'de> serde::Deserialize<'de> for ApiErrorsCode {
     }
 }
 /// The type of error returned.
-///
 /// One of `api_error`, `card_error`, `idempotency_error`, or `invalid_request_error`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ApiErrorsType {

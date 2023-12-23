@@ -7,7 +7,6 @@ pub struct PaymentMethodSepaDebit {
     /// Two-letter ISO code representing the country the bank account is located in.
     pub country: Option<String>,
     /// Uniquely identifies this particular bank account.
-    ///
     /// You can use this attribute to check whether two bank accounts are the same.
     pub fingerprint: Option<String>,
     /// Information about the object that generated this PaymentMethod.

@@ -22,12 +22,10 @@ impl<'a> RetrieveQuote<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateQuote<'a> {
     /// The amount of the application fee (if any) that will be requested to be applied to the payment and transferred to the application owner's Stripe account.
-    ///
     /// There cannot be any line items with recurring prices when using this field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub application_fee_amount: Option<i64>,
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the application owner's Stripe account.
     /// There must be at least 1 line item with a recurring price to use this field.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -36,14 +34,12 @@ pub struct CreateQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub automatic_tax: Option<CreateQuoteAutomaticTax>,
     /// Either `charge_automatically`, or `send_invoice`.
-    ///
     /// When charging automatically, Stripe will attempt to pay invoices at the end of the subscription cycle or at invoice finalization using the default payment method attached to the subscription or customer.
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
     /// Defaults to `charge_automatically`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub collection_method: Option<CreateQuoteCollectionMethod>,
     /// The customer for which this quote belongs to.
-    ///
     /// A customer is required before finalizing the quote.
     /// Once specified, it cannot be changed.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -52,37 +48,30 @@ pub struct CreateQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_tax_rates: Option<&'a [&'a str]>,
     /// A description that will be displayed on the quote PDF.
-    ///
     /// If no value is passed, the default description configured in your [quote template settings](https://dashboard.stripe.com/settings/billing/quote) will be used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
-    /// The discounts applied to the quote.
-    ///
-    /// You can only set up to one discount.
+    /// The discounts applied to the quote. You can only set up to one discount.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub discounts: Option<&'a [CreateQuoteDiscounts<'a>]>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A future timestamp on which the quote will be canceled if in `open` or `draft` status.
-    ///
     /// Measured in seconds since the Unix epoch.
     /// If no value is passed, the default expiration date configured in your [quote template settings](https://dashboard.stripe.com/settings/billing/quote) will be used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<stripe_types::Timestamp>,
     /// A footer that will be displayed on the quote PDF.
-    ///
     /// If no value is passed, the default footer configured in your [quote template settings](https://dashboard.stripe.com/settings/billing/quote) will be used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub footer: Option<&'a str>,
     /// Clone an existing quote.
-    ///
     /// The new quote will be created in `status=draft`.
     /// When using this parameter, you cannot specify any other parameters except for `expires_at`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub from_quote: Option<CreateQuoteFromQuote<'a>>,
     /// A header that will be displayed on the quote PDF.
-    ///
     /// If no value is passed, the default header configured in your [quote template settings](https://dashboard.stripe.com/settings/billing/quote) will be used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub header: Option<&'a str>,
@@ -90,12 +79,10 @@ pub struct CreateQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_settings: Option<CreateQuoteInvoiceSettings>,
     /// A list of line items the customer is being quoted for.
-    ///
     /// Each line item includes information about the product, the quantity, and the resulting cost.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line_items: Option<&'a [CreateQuoteLineItems<'a>]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -105,7 +92,6 @@ pub struct CreateQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub on_behalf_of: Option<&'a str>,
     /// When creating a subscription or subscription schedule, the specified configuration data will be used.
-    ///
     /// There must be at least one line item with a recurring price for a subscription or subscription schedule to be created.
     /// A subscription schedule is created if `subscription_data[effective_date]` is present and in the future, otherwise a subscription is created.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -134,7 +120,6 @@ impl CreateQuoteAutomaticTax {
     }
 }
 /// Either `charge_automatically`, or `send_invoice`.
-///
 /// When charging automatically, Stripe will attempt to pay invoices at the end of the subscription cycle or at invoice finalization using the default payment method attached to the subscription or customer.
 /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
 /// Defaults to `charge_automatically`.
@@ -188,9 +173,7 @@ impl serde::Serialize for CreateQuoteCollectionMethod {
         serializer.serialize_str(self.as_str())
     }
 }
-/// The discounts applied to the quote.
-///
-/// You can only set up to one discount.
+/// The discounts applied to the quote. You can only set up to one discount.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateQuoteDiscounts<'a> {
     /// ID of the coupon to create a new discount for.
@@ -206,7 +189,6 @@ impl<'a> CreateQuoteDiscounts<'a> {
     }
 }
 /// Clone an existing quote.
-///
 /// The new quote will be created in `status=draft`.
 /// When using this parameter, you cannot specify any other parameters except for `expires_at`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -226,7 +208,6 @@ impl<'a> CreateQuoteFromQuote<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateQuoteInvoiceSettings {
     /// Number of days within which a customer must pay the invoice generated by this quote.
-    ///
     /// This value will be `null` for quotes where `collection_method=charge_automatically`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub days_until_due: Option<u32>,
@@ -237,17 +218,13 @@ impl CreateQuoteInvoiceSettings {
     }
 }
 /// A list of line items the customer is being quoted for.
-///
 /// Each line item includes information about the product, the quantity, and the resulting cost.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateQuoteLineItems<'a> {
-    /// The ID of the price object.
-    ///
-    /// One of `price` or `price_data` is required.
+    /// The ID of the price object. One of `price` or `price_data` is required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price: Option<&'a str>,
     /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
-    ///
     /// One of `price` or `price_data` is required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price_data: Option<CreateQuoteLineItemsPriceData<'a>>,
@@ -255,7 +232,6 @@ pub struct CreateQuoteLineItems<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
     /// The tax rates which apply to the line item.
-    ///
     /// When set, the `default_tax_rates` on the quote do not apply to this line item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_rates: Option<&'a [&'a str]>,
@@ -266,12 +242,10 @@ impl<'a> CreateQuoteLineItems<'a> {
     }
 }
 /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
-///
 /// One of `price` or `price_data` is required.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateQuoteLineItemsPriceData<'a> {
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// The ID of the product that this price will belong to.
@@ -280,7 +254,6 @@ pub struct CreateQuoteLineItemsPriceData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub recurring: Option<CreateQuoteLineItemsPriceDataRecurring>,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -290,7 +263,6 @@ pub struct CreateQuoteLineItemsPriceData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<&'a str>,
@@ -310,12 +282,9 @@ impl<'a> CreateQuoteLineItemsPriceData<'a> {
 /// The recurring components of a price such as `interval` and `interval_count`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateQuoteLineItemsPriceDataRecurring {
-    /// Specifies billing frequency.
-    ///
-    /// Either `day`, `week`, `month` or `year`.
+    /// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
     pub interval: CreateQuoteLineItemsPriceDataRecurringInterval,
     /// The number of intervals between subscription billings.
-    ///
     /// For example, `interval=month` and `interval_count=3` bills every 3 months.
     /// Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -326,9 +295,7 @@ impl CreateQuoteLineItemsPriceDataRecurring {
         Self { interval, interval_count: None }
     }
 }
-/// Specifies billing frequency.
-///
-/// Either `day`, `week`, `month` or `year`.
+/// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateQuoteLineItemsPriceDataRecurringInterval {
     Day,
@@ -386,7 +353,6 @@ impl serde::Serialize for CreateQuoteLineItemsPriceDataRecurringInterval {
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -444,25 +410,21 @@ impl serde::Serialize for CreateQuoteLineItemsPriceDataTaxBehavior {
     }
 }
 /// When creating a subscription or subscription schedule, the specified configuration data will be used.
-///
 /// There must be at least one line item with a recurring price for a subscription or subscription schedule to be created.
 /// A subscription schedule is created if `subscription_data[effective_date]` is present and in the future, otherwise a subscription is created.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateQuoteSubscriptionData<'a> {
     /// The subscription's description, meant to be displayable to the customer.
-    ///
     /// Use this field to optionally store an explanation of the subscription for rendering in Stripe surfaces and certain local payment methods UIs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// When creating a new subscription, the date of which the subscription schedule will start after the quote is accepted.
-    ///
     /// When updating a subscription, the date of which the subscription will be updated using a subscription schedule.
     /// The special value `current_period_end` can be provided to update a subscription at the end of its current period.
     /// The `effective_date` is ignored if it is in the past when the quote is accepted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub effective_date: Option<CreateQuoteSubscriptionDataEffectiveDate>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that will set metadata on the subscription or subscription schedule when the quote is accepted.
-    ///
     /// If a recurring price is included in `line_items`, this field will be passed to the resulting subscription's `metadata` field.
     /// If `subscription_data.effective_date` is used, this field will be passed to the resulting subscription schedule's `phases.metadata` field.
     /// Unlike object-level metadata, this field is declarative.
@@ -479,7 +441,6 @@ impl<'a> CreateQuoteSubscriptionData<'a> {
     }
 }
 /// When creating a new subscription, the date of which the subscription schedule will start after the quote is accepted.
-///
 /// When updating a subscription, the date of which the subscription will be updated using a subscription schedule.
 /// The special value `current_period_end` can be provided to update a subscription at the end of its current period.
 /// The `effective_date` is ignored if it is in the past when the quote is accepted.
@@ -493,13 +454,11 @@ pub enum CreateQuoteSubscriptionDataEffectiveDate {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateQuoteTransferData<'a> {
     /// The amount that will be transferred automatically when the invoice is paid.
-    ///
     /// If no amount is set, the full amount is transferred.
     /// There cannot be any line items with recurring prices when using this field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
     /// By default, the entire amount is transferred to the destination.
     /// There must be at least 1 line item with a recurring price to use this field.
@@ -515,7 +474,6 @@ impl<'a> CreateQuoteTransferData<'a> {
 }
 impl<'a> CreateQuote<'a> {
     /// A quote models prices and services for a customer.
-    ///
     /// Default options for `header`, `description`, `footer`, and `expires_at` can be set in the dashboard via the [quote template](https://dashboard.stripe.com/settings/billing/quote).
     pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::Quote> {
         client.send_form("/quotes", self, http_types::Method::Post)
@@ -524,12 +482,10 @@ impl<'a> CreateQuote<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateQuote<'a> {
     /// The amount of the application fee (if any) that will be requested to be applied to the payment and transferred to the application owner's Stripe account.
-    ///
     /// There cannot be any line items with recurring prices when using this field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub application_fee_amount: Option<i64>,
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the application owner's Stripe account.
     /// There must be at least 1 line item with a recurring price to use this field.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -538,14 +494,12 @@ pub struct UpdateQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub automatic_tax: Option<UpdateQuoteAutomaticTax>,
     /// Either `charge_automatically`, or `send_invoice`.
-    ///
     /// When charging automatically, Stripe will attempt to pay invoices at the end of the subscription cycle or at invoice finalization using the default payment method attached to the subscription or customer.
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
     /// Defaults to `charge_automatically`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub collection_method: Option<UpdateQuoteCollectionMethod>,
     /// The customer for which this quote belongs to.
-    ///
     /// A customer is required before finalizing the quote.
     /// Once specified, it cannot be changed.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -556,16 +510,13 @@ pub struct UpdateQuote<'a> {
     /// A description that will be displayed on the quote PDF.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
-    /// The discounts applied to the quote.
-    ///
-    /// You can only set up to one discount.
+    /// The discounts applied to the quote. You can only set up to one discount.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub discounts: Option<&'a [UpdateQuoteDiscounts<'a>]>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A future timestamp on which the quote will be canceled if in `open` or `draft` status.
-    ///
     /// Measured in seconds since the Unix epoch.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<stripe_types::Timestamp>,
@@ -579,12 +530,10 @@ pub struct UpdateQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_settings: Option<UpdateQuoteInvoiceSettings>,
     /// A list of line items the customer is being quoted for.
-    ///
     /// Each line item includes information about the product, the quantity, and the resulting cost.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line_items: Option<&'a [UpdateQuoteLineItems<'a>]>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -594,7 +543,6 @@ pub struct UpdateQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub on_behalf_of: Option<&'a str>,
     /// When creating a subscription or subscription schedule, the specified configuration data will be used.
-    ///
     /// There must be at least one line item with a recurring price for a subscription or subscription schedule to be created.
     /// A subscription schedule is created if `subscription_data[effective_date]` is present and in the future, otherwise a subscription is created.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -620,7 +568,6 @@ impl UpdateQuoteAutomaticTax {
     }
 }
 /// Either `charge_automatically`, or `send_invoice`.
-///
 /// When charging automatically, Stripe will attempt to pay invoices at the end of the subscription cycle or at invoice finalization using the default payment method attached to the subscription or customer.
 /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
 /// Defaults to `charge_automatically`.
@@ -674,9 +621,7 @@ impl serde::Serialize for UpdateQuoteCollectionMethod {
         serializer.serialize_str(self.as_str())
     }
 }
-/// The discounts applied to the quote.
-///
-/// You can only set up to one discount.
+/// The discounts applied to the quote. You can only set up to one discount.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateQuoteDiscounts<'a> {
     /// ID of the coupon to create a new discount for.
@@ -695,7 +640,6 @@ impl<'a> UpdateQuoteDiscounts<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateQuoteInvoiceSettings {
     /// Number of days within which a customer must pay the invoice generated by this quote.
-    ///
     /// This value will be `null` for quotes where `collection_method=charge_automatically`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub days_until_due: Option<u32>,
@@ -706,20 +650,16 @@ impl UpdateQuoteInvoiceSettings {
     }
 }
 /// A list of line items the customer is being quoted for.
-///
 /// Each line item includes information about the product, the quantity, and the resulting cost.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateQuoteLineItems<'a> {
     /// The ID of an existing line item on the quote.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<&'a str>,
-    /// The ID of the price object.
-    ///
-    /// One of `price` or `price_data` is required.
+    /// The ID of the price object. One of `price` or `price_data` is required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price: Option<&'a str>,
     /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
-    ///
     /// One of `price` or `price_data` is required.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price_data: Option<UpdateQuoteLineItemsPriceData<'a>>,
@@ -727,7 +667,6 @@ pub struct UpdateQuoteLineItems<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
     /// The tax rates which apply to the line item.
-    ///
     /// When set, the `default_tax_rates` on the quote do not apply to this line item.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_rates: Option<&'a [&'a str]>,
@@ -738,12 +677,10 @@ impl<'a> UpdateQuoteLineItems<'a> {
     }
 }
 /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
-///
 /// One of `price` or `price_data` is required.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateQuoteLineItemsPriceData<'a> {
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// The ID of the product that this price will belong to.
@@ -752,7 +689,6 @@ pub struct UpdateQuoteLineItemsPriceData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub recurring: Option<UpdateQuoteLineItemsPriceDataRecurring>,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-    ///
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -762,7 +698,6 @@ pub struct UpdateQuoteLineItemsPriceData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<&'a str>,
@@ -782,12 +717,9 @@ impl<'a> UpdateQuoteLineItemsPriceData<'a> {
 /// The recurring components of a price such as `interval` and `interval_count`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateQuoteLineItemsPriceDataRecurring {
-    /// Specifies billing frequency.
-    ///
-    /// Either `day`, `week`, `month` or `year`.
+    /// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
     pub interval: UpdateQuoteLineItemsPriceDataRecurringInterval,
     /// The number of intervals between subscription billings.
-    ///
     /// For example, `interval=month` and `interval_count=3` bills every 3 months.
     /// Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -798,9 +730,7 @@ impl UpdateQuoteLineItemsPriceDataRecurring {
         Self { interval, interval_count: None }
     }
 }
-/// Specifies billing frequency.
-///
-/// Either `day`, `week`, `month` or `year`.
+/// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdateQuoteLineItemsPriceDataRecurringInterval {
     Day,
@@ -858,7 +788,6 @@ impl serde::Serialize for UpdateQuoteLineItemsPriceDataRecurringInterval {
     }
 }
 /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-///
 /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
 /// One of `inclusive`, `exclusive`, or `unspecified`.
 /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
@@ -916,25 +845,21 @@ impl serde::Serialize for UpdateQuoteLineItemsPriceDataTaxBehavior {
     }
 }
 /// When creating a subscription or subscription schedule, the specified configuration data will be used.
-///
 /// There must be at least one line item with a recurring price for a subscription or subscription schedule to be created.
 /// A subscription schedule is created if `subscription_data[effective_date]` is present and in the future, otherwise a subscription is created.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateQuoteSubscriptionData<'a> {
     /// The subscription's description, meant to be displayable to the customer.
-    ///
     /// Use this field to optionally store an explanation of the subscription for rendering in Stripe surfaces and certain local payment methods UIs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
     /// When creating a new subscription, the date of which the subscription schedule will start after the quote is accepted.
-    ///
     /// When updating a subscription, the date of which the subscription will be updated using a subscription schedule.
     /// The special value `current_period_end` can be provided to update a subscription at the end of its current period.
     /// The `effective_date` is ignored if it is in the past when the quote is accepted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub effective_date: Option<UpdateQuoteSubscriptionDataEffectiveDate>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that will set metadata on the subscription or subscription schedule when the quote is accepted.
-    ///
     /// If a recurring price is included in `line_items`, this field will be passed to the resulting subscription's `metadata` field.
     /// If `subscription_data.effective_date` is used, this field will be passed to the resulting subscription schedule's `phases.metadata` field.
     /// Unlike object-level metadata, this field is declarative.
@@ -951,7 +876,6 @@ impl<'a> UpdateQuoteSubscriptionData<'a> {
     }
 }
 /// When creating a new subscription, the date of which the subscription schedule will start after the quote is accepted.
-///
 /// When updating a subscription, the date of which the subscription will be updated using a subscription schedule.
 /// The special value `current_period_end` can be provided to update a subscription at the end of its current period.
 /// The `effective_date` is ignored if it is in the past when the quote is accepted.
@@ -965,13 +889,11 @@ pub enum UpdateQuoteSubscriptionDataEffectiveDate {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdateQuoteTransferData<'a> {
     /// The amount that will be transferred automatically when the invoice is paid.
-    ///
     /// If no amount is set, the full amount is transferred.
     /// There cannot be any line items with recurring prices when using this field.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
     /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    ///
     /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
     /// By default, the entire amount is transferred to the destination.
     /// There must be at least 1 line item with a recurring price to use this field.
@@ -1022,7 +944,6 @@ pub struct FinalizeQuoteQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A future timestamp on which the quote will be canceled if in `open` or `draft` status.
-    ///
     /// Measured in seconds since the Unix epoch.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expires_at: Option<stripe_types::Timestamp>,
@@ -1069,7 +990,6 @@ pub struct ListQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1078,12 +998,10 @@ pub struct ListQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1092,7 +1010,6 @@ pub struct ListQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<ListQuoteStatus>,
     /// Provides a list of quotes that are associated with the specified test clock.
-    ///
     /// The response will not include quotes with test clocks if this and the customer parameter is not set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub test_clock: Option<&'a str>,
@@ -1174,7 +1091,6 @@ impl<'a> ListQuote<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListLineItemsQuote<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1183,12 +1099,10 @@ pub struct ListLineItemsQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1201,7 +1115,6 @@ impl<'a> ListLineItemsQuote<'a> {
 }
 impl<'a> ListLineItemsQuote<'a> {
     /// When retrieving a quote, there is an includable **line_items** property containing the first handful of those items.
-    ///
     /// There is also a URL where you can retrieve the full (paginated) list of line items.
     pub fn send(
         &self,
@@ -1220,7 +1133,6 @@ impl<'a> ListLineItemsQuote<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListComputedUpfrontLineItemsQuote<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1229,12 +1141,10 @@ pub struct ListComputedUpfrontLineItemsQuote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1247,7 +1157,6 @@ impl<'a> ListComputedUpfrontLineItemsQuote<'a> {
 }
 impl<'a> ListComputedUpfrontLineItemsQuote<'a> {
     /// When retrieving a quote, there is an includable <a href="<https://stripe.com/docs/api/quotes/object#quote_object-computed-upfront-line_items>">**computed.upfront.line_items**</a> property containing the first handful of those items.
-    ///
     /// There is also a URL where you can retrieve the full (paginated) list of upfront line items.
     pub fn send(
         &self,

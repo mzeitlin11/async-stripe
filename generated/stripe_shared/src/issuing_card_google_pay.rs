@@ -1,11 +1,11 @@
 #[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct IssuingCardGooglePay {
-    /// Google Pay Eligibility.
+    /// Google Pay Eligibility
     pub eligible: bool,
-    /// Reason the card is ineligible for Google Pay.
+    /// Reason the card is ineligible for Google Pay
     pub ineligible_reason: Option<IssuingCardGooglePayIneligibleReason>,
 }
-/// Reason the card is ineligible for Google Pay.
+/// Reason the card is ineligible for Google Pay
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingCardGooglePayIneligibleReason {
     MissingAgreement,

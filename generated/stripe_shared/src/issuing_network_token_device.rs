@@ -7,7 +7,6 @@ pub struct IssuingNetworkTokenDevice {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
     /// The geographic latitude/longitude coordinates of the device at provisioning time.
-    ///
     /// The format is [+-]decimal/[+-]decimal.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub location: Option<String>,

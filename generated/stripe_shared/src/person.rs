@@ -3,7 +3,7 @@
 /// A platform cannot access a Standard or Express account's persons after the account starts onboarding, such as after generating an account link for the account.
 /// See the [Standard onboarding](https://stripe.com/docs/connect/standard-accounts) or [Express onboarding documentation](https://stripe.com/docs/connect/express-accounts) for information about platform prefilling and account onboarding steps.
 ///
-/// Related guide: [Handling identity verification with the API](https://stripe.com/docs/connect/handling-api-verification#person-information)
+/// Related guide: [Handling identity verification with the API](https://stripe.com/docs/connect/handling-api-verification#person-information).
 ///
 /// For more details see <<https://stripe.com/docs/api/persons/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
@@ -21,9 +21,7 @@ pub struct Person {
     /// The Kanji variation of the person's address (Japan only).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub address_kanji: Option<stripe_shared::LegalEntityJapanAddress>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dob: Option<stripe_shared::LegalEntityDob>,
@@ -51,7 +49,6 @@ pub struct Person {
     /// Unique identifier for the object.
     pub id: stripe_shared::PersonId,
     /// Whether the person's `id_number` was provided.
-    ///
     /// True if either the full ID number was provided or if only the required part of the ID number was provided (ex.
     /// last four of an individual's SSN for the US indicated by `ssn_last_4_provided`).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -72,7 +69,6 @@ pub struct Person {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maiden_name: Option<String>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<std::collections::HashMap<String, String>>,
@@ -92,9 +88,7 @@ pub struct Person {
     /// Information about the requirements for this person, including what information needs to be collected, and by when.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub requirements: Option<stripe_shared::PersonRequirements>,
-    /// Whether the last four digits of the person's Social Security number have been provided (U.S.
-    ///
-    /// only).
+    /// Whether the last four digits of the person's Social Security number have been provided (U.S. only).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ssn_last_4_provided: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]

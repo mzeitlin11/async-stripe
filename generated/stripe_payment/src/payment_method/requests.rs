@@ -31,7 +31,6 @@ pub struct CreatePaymentMethod<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub boleto: Option<CreatePaymentMethodBoleto<'a>>,
     /// If this is a `card` PaymentMethod, this hash contains the user's card details.
-    ///
     /// For backwards compatibility, you can alternatively provide a Stripe token (e.g., for Apple Pay, Amex Express Checkout, or legacy Checkout) into the card hash with format `card: {token: "tok_visa"}`.
     /// When providing a card number, you must meet the requirements for [PCI compliance](https://stripe.com/docs/security#validating-pci-compliance).
     /// We strongly recommend using Stripe.js instead of interacting with this API directly.
@@ -77,7 +76,6 @@ pub struct CreatePaymentMethod<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link: Option<&'a serde_json::Value>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -105,7 +103,6 @@ pub struct CreatePaymentMethod<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub promptpay: Option<&'a serde_json::Value>,
     /// Options to configure Radar.
-    ///
     /// See [Radar Session](https://stripe.com/docs/radar/radar-session) for more information.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub radar_options: Option<CreatePaymentMethodRadarOptions<'a>>,
@@ -119,7 +116,6 @@ pub struct CreatePaymentMethod<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sofort: Option<CreatePaymentMethodSofort>,
     /// The type of the PaymentMethod.
-    ///
     /// An additional hash is included on the PaymentMethod with a name matching this value.
     /// It contains additional information specific to the PaymentMethod type.
     #[serde(rename = "type")]
@@ -178,9 +174,7 @@ pub struct CreatePaymentMethodBacsDebit<'a> {
     /// Account number of the bank account that the funds will be debited from.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_number: Option<&'a str>,
-    /// Sort code of the bank account.
-    ///
-    /// (e.g., `10-20-30`).
+    /// Sort code of the bank account. (e.g., `10-20-30`)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sort_code: Option<&'a str>,
 }
@@ -240,7 +234,7 @@ impl<'a> CreatePaymentMethodBillingDetailsAddress<'a> {
 /// If this is a `boleto` PaymentMethod, this hash contains details about the Boleto payment method.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentMethodBoleto<'a> {
-    /// The tax ID of the customer (CPF for individual consumers or CNPJ for businesses consumers).
+    /// The tax ID of the customer (CPF for individual consumers or CNPJ for businesses consumers)
     pub tax_id: &'a str,
 }
 impl<'a> CreatePaymentMethodBoleto<'a> {
@@ -249,7 +243,6 @@ impl<'a> CreatePaymentMethodBoleto<'a> {
     }
 }
 /// If this is a `card` PaymentMethod, this hash contains the user's card details.
-///
 /// For backwards compatibility, you can alternatively provide a Stripe token (e.g., for Apple Pay, Amex Express Checkout, or legacy Checkout) into the card hash with format `card: {token: "tok_visa"}`.
 /// When providing a card number, you must meet the requirements for [PCI compliance](https://stripe.com/docs/security#validating-pci-compliance).
 /// We strongly recommend using Stripe.js instead of interacting with this API directly.
@@ -260,15 +253,12 @@ pub enum CreatePaymentMethodCard<'a> {
     TokenParams(CreatePaymentMethodTokenParams<'a>),
 }
 /// If this is a `card` PaymentMethod, this hash contains the user's card details.
-///
 /// For backwards compatibility, you can alternatively provide a Stripe token (e.g., for Apple Pay, Amex Express Checkout, or legacy Checkout) into the card hash with format `card: {token: "tok_visa"}`.
 /// When providing a card number, you must meet the requirements for [PCI compliance](https://stripe.com/docs/security#validating-pci-compliance).
 /// We strongly recommend using Stripe.js instead of interacting with this API directly.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentMethodCardDetailsParams<'a> {
-    /// The card's CVC.
-    ///
-    /// It is highly recommended to always include this value.
+    /// The card's CVC. It is highly recommended to always include this value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cvc: Option<&'a str>,
     /// Two-digit number representing the card's expiration month.
@@ -284,7 +274,6 @@ impl<'a> CreatePaymentMethodCardDetailsParams<'a> {
     }
 }
 /// If this is a `card` PaymentMethod, this hash contains the user's card details.
-///
 /// For backwards compatibility, you can alternatively provide a Stripe token (e.g., for Apple Pay, Amex Express Checkout, or legacy Checkout) into the card hash with format `card: {token: "tok_visa"}`.
 /// When providing a card number, you must meet the requirements for [PCI compliance](https://stripe.com/docs/security#validating-pci-compliance).
 /// We strongly recommend using Stripe.js instead of interacting with this API directly.
@@ -446,7 +435,7 @@ impl serde::Serialize for CreatePaymentMethodEpsBank {
 /// If this is an `fpx` PaymentMethod, this hash contains details about the FPX payment method.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentMethodFpx {
-    /// Account holder type for FPX transaction.
+    /// Account holder type for FPX transaction
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_holder_type: Option<CreatePaymentMethodFpxAccountHolderType>,
     /// The customer's bank.
@@ -457,7 +446,7 @@ impl CreatePaymentMethodFpx {
         Self { account_holder_type: None, bank }
     }
 }
-/// Account holder type for FPX transaction.
+/// Account holder type for FPX transaction
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentMethodFpxAccountHolderType {
     Company,
@@ -732,7 +721,7 @@ impl serde::Serialize for CreatePaymentMethodIdealBank {
 /// If this is a `klarna` PaymentMethod, this hash contains details about the Klarna payment method.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodKlarna {
-    /// Customer's date of birth.
+    /// Customer's date of birth
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dob: Option<CreatePaymentMethodKlarnaDob>,
 }
@@ -741,7 +730,7 @@ impl CreatePaymentMethodKlarna {
         Self::default()
     }
 }
-/// Customer's date of birth.
+/// Customer's date of birth
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreatePaymentMethodKlarnaDob {
     /// The day of birth, between 1 and 31.
@@ -893,7 +882,6 @@ impl serde::Serialize for CreatePaymentMethodP24Bank {
     }
 }
 /// Options to configure Radar.
-///
 /// See [Radar Session](https://stripe.com/docs/radar/radar-session) for more information.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePaymentMethodRadarOptions<'a> {
@@ -992,7 +980,6 @@ impl serde::Serialize for CreatePaymentMethodSofortCountry {
     }
 }
 /// The type of the PaymentMethod.
-///
 /// An additional hash is included on the PaymentMethod with a name matching this value.
 /// It contains additional information specific to the PaymentMethod type.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1148,9 +1135,7 @@ pub struct CreatePaymentMethodUsBankAccount<'a> {
     /// Account number of the bank account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_number: Option<&'a str>,
-    /// Account type: checkings or savings.
-    ///
-    /// Defaults to checking if omitted.
+    /// Account type: checkings or savings. Defaults to checking if omitted.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_type: Option<CreatePaymentMethodUsBankAccountAccountType>,
     /// The ID of a Financial Connections Account to use as a payment method.
@@ -1216,9 +1201,7 @@ impl serde::Serialize for CreatePaymentMethodUsBankAccountAccountHolderType {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Account type: checkings or savings.
-///
-/// Defaults to checking if omitted.
+/// Account type: checkings or savings. Defaults to checking if omitted.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentMethodUsBankAccountAccountType {
     Checking,
@@ -1271,8 +1254,9 @@ impl serde::Serialize for CreatePaymentMethodUsBankAccountAccountType {
 }
 impl<'a> CreatePaymentMethod<'a> {
     /// Creates a PaymentMethod object.
+    /// Read the [Stripe.js reference](https://stripe.com/docs/stripe-js/reference#stripe-create-payment-method) to learn how to create PaymentMethods via Stripe.js.
     ///
-    /// Read the [Stripe.js reference](https://stripe.com/docs/stripe-js/reference#stripe-create-payment-method) to learn how to create PaymentMethods via Stripe.js.  Instead of creating a PaymentMethod directly, we recommend using the [PaymentIntents](https://stripe.com/docs/payments/accept-a-payment) API to accept a payment immediately or the [SetupIntent](https://stripe.com/docs/payments/save-and-reuse) API to collect payment method details ahead of a future payment.
+    /// Instead of creating a PaymentMethod directly, we recommend using the [PaymentIntents](https://stripe.com/docs/payments/accept-a-payment) API to accept a payment immediately or the [SetupIntent](https://stripe.com/docs/payments/save-and-reuse) API to collect payment method details ahead of a future payment.
     pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.send_form("/payment_methods", self, http_types::Method::Post)
     }
@@ -1290,7 +1274,6 @@ impl<'a> RetrievePaymentMethod<'a> {
 }
 impl<'a> RetrievePaymentMethod<'a> {
     /// Retrieves a PaymentMethod object attached to the StripeAccount.
-    ///
     /// To retrieve a payment method attached to a Customer, you should use [Retrieve a Customer’s PaymentMethods](https://stripe.com/docs/api/payment_methods/customer).
     pub fn send(
         &self,
@@ -1315,7 +1298,6 @@ pub struct UpdatePaymentMethod<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub link: Option<&'a serde_json::Value>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -1457,9 +1439,7 @@ impl serde::Serialize for UpdatePaymentMethodUsBankAccountAccountHolderType {
     }
 }
 impl<'a> UpdatePaymentMethod<'a> {
-    /// Updates a PaymentMethod object.
-    ///
-    /// A PaymentMethod must be attached a customer to be updated.
+    /// Updates a PaymentMethod object. A PaymentMethod must be attached a customer to be updated.
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -1478,7 +1458,6 @@ pub struct ListPaymentMethod<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1487,18 +1466,15 @@ pub struct ListPaymentMethod<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub starting_after: Option<&'a str>,
     /// An optional filter on the list, based on the object `type` field.
-    ///
     /// Without the filter, the list includes all current and future payment method types.
     /// If your integration expects only one type of payment method in the response, make sure to provide a type value in the request.
     #[serde(rename = "type")]
@@ -1511,7 +1487,6 @@ impl<'a> ListPaymentMethod<'a> {
     }
 }
 /// An optional filter on the list, based on the object `type` field.
-///
 /// Without the filter, the list includes all current and future payment method types.
 /// If your integration expects only one type of payment method in the response, make sure to provide a type value in the request.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1660,7 +1635,6 @@ impl serde::Serialize for ListPaymentMethodType {
 }
 impl<'a> ListPaymentMethod<'a> {
     /// Returns a list of PaymentMethods for Treasury flows.
-    ///
     /// If you want to list the PaymentMethods attached to a Customer for payments, you should use the [List a Customer’s PaymentMethods](https://stripe.com/docs/api/payment_methods/customer_list) API instead.
     pub fn send(
         &self,
@@ -1690,11 +1664,18 @@ impl<'a> AttachPaymentMethod<'a> {
 impl<'a> AttachPaymentMethod<'a> {
     /// Attaches a PaymentMethod object to a Customer.
     ///
-    /// To attach a new PaymentMethod to a customer for future payments, we recommend you use a [SetupIntent](https://stripe.com/docs/api/setup_intents)
+    /// To attach a new PaymentMethod to a customer for future payments, we recommend you use a [SetupIntent](https://stripe.com/docs/api/setup_intents).
     /// or a PaymentIntent with [setup_future_usage](https://stripe.com/docs/api/payment_intents/create#create_payment_intent-setup_future_usage).
     /// These approaches will perform any necessary steps to set up the PaymentMethod for future payments.
+    /// Using the `/v1/payment_methods/:id/attach`.
+    /// endpoint without first using a SetupIntent or PaymentIntent with `setup_future_usage` does not optimize the PaymentMethod for.
+    /// future use, which makes later declines and payment friction more likely.
+    /// See [Optimizing cards for future payments](https://stripe.com/docs/payments/payment-intents#future-usage) for more information about setting up.
+    /// future payments.
     ///
-    /// Using the `/v1/payment_methods/:id/attach` endpoint without first using a SetupIntent or PaymentIntent with `setup_future_usage` does not optimize the PaymentMethod for future use, which makes later declines and payment friction more likely. See [Optimizing cards for future payments](https://stripe.com/docs/payments/payment-intents#future-usage) for more information about setting up future payments.  To use this PaymentMethod as the default for invoice or subscription payments, set <a href="/docs/api/customers/update#update_customer-invoice_settings-default_payment_method">`invoice_settings.default_payment_method`</a>, on the Customer to the PaymentMethod’s ID.
+    /// To use this PaymentMethod as the default for invoice or subscription payments,
+    /// set <a href="/docs/api/customers/update#update_customer-invoice_settings-default_payment_method">`invoice_settings.default_payment_method`</a>,.
+    /// on the Customer to the PaymentMethod’s ID.
     pub fn send(
         &self,
         client: &stripe::Client,
@@ -1720,7 +1701,6 @@ impl<'a> DetachPaymentMethod<'a> {
 }
 impl<'a> DetachPaymentMethod<'a> {
     /// Detaches a PaymentMethod object from a Customer.
-    ///
     /// After a PaymentMethod is detached, it can no longer be used for a payment or re-attached to a Customer.
     pub fn send(
         &self,

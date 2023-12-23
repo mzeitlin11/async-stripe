@@ -7,14 +7,11 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PaymentMethodDomain {
     pub apple_pay: stripe_payment::PaymentMethodDomainResourcePaymentMethodStatus,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// The domain name that this payment method domain object represents.
     pub domain_name: String,
     /// Whether this payment method domain is enabled.
-    ///
     /// If the domain is not enabled, payment methods that require a payment method domain will not appear in Elements.
     pub enabled: bool,
     pub google_pay: stripe_payment::PaymentMethodDomainResourcePaymentMethodStatus,

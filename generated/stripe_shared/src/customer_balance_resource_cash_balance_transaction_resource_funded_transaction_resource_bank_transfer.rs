@@ -8,8 +8,7 @@ pub gb_bank_transfer: Option<stripe_shared::CustomerBalanceResourceCashBalanceTr
 pub jp_bank_transfer: Option<stripe_shared::CustomerBalanceResourceCashBalanceTransactionResourceFundedTransactionResourceBankTransferResourceJpBankTransfer>,
     /// The user-supplied reference field on the bank transfer.
 pub reference: Option<String>,
-    /// The funding method type used to fund the customer balance.
-    ///
+        /// The funding method type used to fund the customer balance.
     /// Permitted values include: `eu_bank_transfer`, `gb_bank_transfer`, `jp_bank_transfer`, `mx_bank_transfer`, or `us_bank_transfer`.
 #[serde(rename = "type")]
 pub type_: CustomerBalanceResourceCashBalanceTransactionResourceFundedTransactionResourceBankTransferType,
@@ -18,7 +17,6 @@ pub us_bank_transfer: Option<stripe_shared::CustomerBalanceResourceCashBalanceTr
 
 }
 /// The funding method type used to fund the customer balance.
-///
 /// Permitted values include: `eu_bank_transfer`, `gb_bank_transfer`, `jp_bank_transfer`, `mx_bank_transfer`, or `us_bank_transfer`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CustomerBalanceResourceCashBalanceTransactionResourceFundedTransactionResourceBankTransferType

@@ -7,7 +7,6 @@ pub struct CreateCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub credit_amount: Option<i64>,
     /// The date when this credit note is in effect.
-    ///
     /// Same as `created` unless overwritten.
     /// When defined, this value replaces the system-generated 'Date of issue' printed on the credit note PDF.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -24,7 +23,6 @@ pub struct CreateCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub memo: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -40,7 +38,6 @@ pub struct CreateCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refund: Option<&'a str>,
     /// The integer amount in cents (or local equivalent) representing the amount to refund.
-    ///
     /// If set, a refund will be created for the charge associated with the invoice.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refund_amount: Option<i64>,
@@ -70,45 +67,34 @@ impl<'a> CreateCreditNote<'a> {
 /// Line items that make up the credit note.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCreditNoteLines<'a> {
-    /// The line item amount to credit.
-    ///
-    /// Only valid when `type` is `invoice_line_item`.
+    /// The line item amount to credit. Only valid when `type` is `invoice_line_item`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
-    /// The description of the credit note line item.
-    ///
-    /// Only valid when the `type` is `custom_line_item`.
+    /// The description of the credit note line item. Only valid when the `type` is `custom_line_item`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
-    /// The invoice line item to credit.
-    ///
-    /// Only valid when the `type` is `invoice_line_item`.
+    /// The invoice line item to credit. Only valid when the `type` is `invoice_line_item`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_line_item: Option<&'a str>,
     /// The line item quantity to credit.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
-    /// A list of up to 10 tax amounts for the credit note line item.
-    ///
-    /// Cannot be mixed with `tax_rates`.
+    /// A list of up to 10 tax amounts for the credit note line item. Cannot be mixed with `tax_rates`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_amounts: Option<&'a [CreateCreditNoteLinesTaxAmounts<'a>]>,
     /// The tax rates which apply to the credit note line item.
-    ///
     /// Only valid when the `type` is `custom_line_item` and cannot be mixed with `tax_amounts`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_rates: Option<&'a [&'a str]>,
-    /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`.
+    /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
     #[serde(rename = "type")]
     pub type_: CreateCreditNoteLinesType,
     /// The integer unit amount in cents (or local equivalent) of the credit note line item.
-    ///
     /// This `unit_amount` will be multiplied by the quantity to get the full amount to credit for this line item.
     /// Only valid when `type` is `custom_line_item`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<&'a str>,
@@ -128,15 +114,12 @@ impl<'a> CreateCreditNoteLines<'a> {
         }
     }
 }
-/// A list of up to 10 tax amounts for the credit note line item.
-///
-/// Cannot be mixed with `tax_rates`.
+/// A list of up to 10 tax amounts for the credit note line item. Cannot be mixed with `tax_rates`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCreditNoteLinesTaxAmounts<'a> {
     /// The amount, in cents (or local equivalent), of the tax.
     pub amount: i64,
     /// The id of the tax rate for this tax amount.
-    ///
     /// The tax rate must have been automatically created by Stripe.
     pub tax_rate: &'a str,
     /// The amount on which tax is calculated, in cents (or local equivalent).
@@ -147,7 +130,7 @@ impl<'a> CreateCreditNoteLinesTaxAmounts<'a> {
         Self { amount, tax_rate, taxable_amount }
     }
 }
-/// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`.
+/// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateCreditNoteLinesType {
     CustomLineItem,
@@ -269,11 +252,23 @@ impl<'a> CreateCreditNoteShippingCost<'a> {
 }
 impl<'a> CreateCreditNote<'a> {
     /// Issue a credit note to adjust the amount of a finalized invoice.
-    ///
-    /// For a `status=open` invoice, a credit note reduces its `amount_due`.
+    /// For a `status=open` invoice, a credit note reduces.
+    /// its `amount_due`.
     /// For a `status=paid` invoice, a credit note does not affect its `amount_due`.
-    /// Instead, it can result in any combination of the following:  <ul> <li>Refund: create a new refund (using `refund_amount`) or link an existing refund (using `refund`).</li> <li>Customer balance credit: credit the customer’s balance (using `credit_amount`) which will be automatically applied to their next invoice when it’s finalized.</li> <li>Outside of Stripe credit: record the amount that is or will be credited outside of Stripe (using `out_of_band_amount`).</li> </ul>  For post-payment credit notes the sum of the refund, credit and outside of Stripe amounts must equal the credit note total.  You may issue multiple credit notes for an invoice.
-    /// Each credit note will increment the invoice’s `pre_payment_credit_notes_amount` or `post_payment_credit_notes_amount` depending on its `status` at the time of credit note creation.
+    /// Instead, it can result.
+    /// in any combination of the following:
+    ///
+    /// <ul>
+    /// <li>Refund: create a new refund (using `refund_amount`) or link an existing refund (using `refund`).</li>.
+    /// <li>Customer balance credit: credit the customer’s balance (using `credit_amount`) which will be automatically applied to their next invoice when it’s finalized.</li>.
+    /// <li>Outside of Stripe credit: record the amount that is or will be credited outside of Stripe (using `out_of_band_amount`).</li>.
+    /// </ul>
+    ///
+    /// For post-payment credit notes the sum of the refund, credit and outside of Stripe amounts must equal the credit note total.
+    ///
+    /// You may issue multiple credit notes for an invoice.
+    /// Each credit note will increment the invoice’s `pre_payment_credit_notes_amount`.
+    /// or `post_payment_credit_notes_amount` depending on its `status` at the time of credit note creation.
     pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::CreditNote> {
         client.send_form("/credit_notes", self, http_types::Method::Post)
     }
@@ -287,7 +282,6 @@ pub struct PreviewCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub credit_amount: Option<i64>,
     /// The date when this credit note is in effect.
-    ///
     /// Same as `created` unless overwritten.
     /// When defined, this value replaces the system-generated 'Date of issue' printed on the credit note PDF.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -304,7 +298,6 @@ pub struct PreviewCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub memo: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -320,7 +313,6 @@ pub struct PreviewCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refund: Option<&'a str>,
     /// The integer amount in cents (or local equivalent) representing the amount to refund.
-    ///
     /// If set, a refund will be created for the charge associated with the invoice.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refund_amount: Option<i64>,
@@ -350,45 +342,34 @@ impl<'a> PreviewCreditNote<'a> {
 /// Line items that make up the credit note.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct PreviewCreditNoteLines<'a> {
-    /// The line item amount to credit.
-    ///
-    /// Only valid when `type` is `invoice_line_item`.
+    /// The line item amount to credit. Only valid when `type` is `invoice_line_item`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
-    /// The description of the credit note line item.
-    ///
-    /// Only valid when the `type` is `custom_line_item`.
+    /// The description of the credit note line item. Only valid when the `type` is `custom_line_item`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
-    /// The invoice line item to credit.
-    ///
-    /// Only valid when the `type` is `invoice_line_item`.
+    /// The invoice line item to credit. Only valid when the `type` is `invoice_line_item`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_line_item: Option<&'a str>,
     /// The line item quantity to credit.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
-    /// A list of up to 10 tax amounts for the credit note line item.
-    ///
-    /// Cannot be mixed with `tax_rates`.
+    /// A list of up to 10 tax amounts for the credit note line item. Cannot be mixed with `tax_rates`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_amounts: Option<&'a [PreviewCreditNoteLinesTaxAmounts<'a>]>,
     /// The tax rates which apply to the credit note line item.
-    ///
     /// Only valid when the `type` is `custom_line_item` and cannot be mixed with `tax_amounts`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_rates: Option<&'a [&'a str]>,
-    /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`.
+    /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
     #[serde(rename = "type")]
     pub type_: PreviewCreditNoteLinesType,
     /// The integer unit amount in cents (or local equivalent) of the credit note line item.
-    ///
     /// This `unit_amount` will be multiplied by the quantity to get the full amount to credit for this line item.
     /// Only valid when `type` is `custom_line_item`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<&'a str>,
@@ -408,15 +389,12 @@ impl<'a> PreviewCreditNoteLines<'a> {
         }
     }
 }
-/// A list of up to 10 tax amounts for the credit note line item.
-///
-/// Cannot be mixed with `tax_rates`.
+/// A list of up to 10 tax amounts for the credit note line item. Cannot be mixed with `tax_rates`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct PreviewCreditNoteLinesTaxAmounts<'a> {
     /// The amount, in cents (or local equivalent), of the tax.
     pub amount: i64,
     /// The id of the tax rate for this tax amount.
-    ///
     /// The tax rate must have been automatically created by Stripe.
     pub tax_rate: &'a str,
     /// The amount on which tax is calculated, in cents (or local equivalent).
@@ -427,7 +405,7 @@ impl<'a> PreviewCreditNoteLinesTaxAmounts<'a> {
         Self { amount, tax_rate, taxable_amount }
     }
 }
-/// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`.
+/// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PreviewCreditNoteLinesType {
     CustomLineItem,
@@ -580,7 +558,6 @@ pub struct ListCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -592,12 +569,10 @@ pub struct ListCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice: Option<&'a str>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -629,7 +604,6 @@ pub struct UpdateCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub memo: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -664,7 +638,6 @@ impl<'a> VoidCreditNoteCreditNote<'a> {
 }
 impl<'a> VoidCreditNoteCreditNote<'a> {
     /// Marks a credit note as void.
-    ///
     /// Learn more about [voiding credit notes](https://stripe.com/docs/billing/invoices/credit-notes#voiding).
     pub fn send(
         &self,
@@ -683,13 +656,11 @@ pub struct PreviewLinesCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub credit_amount: Option<i64>,
     /// The date when this credit note is in effect.
-    ///
     /// Same as `created` unless overwritten.
     /// When defined, this value replaces the system-generated 'Date of issue' printed on the credit note PDF.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub effective_at: Option<stripe_types::Timestamp>,
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -700,7 +671,6 @@ pub struct PreviewLinesCreditNote<'a> {
     /// ID of the invoice.
     pub invoice: &'a str,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
@@ -711,7 +681,6 @@ pub struct PreviewLinesCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub memo: Option<&'a str>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
     /// All keys can be unset by posting an empty value to `metadata`.
@@ -727,7 +696,6 @@ pub struct PreviewLinesCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refund: Option<&'a str>,
     /// The integer amount in cents (or local equivalent) representing the amount to refund.
-    ///
     /// If set, a refund will be created for the charge associated with the invoice.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refund_amount: Option<i64>,
@@ -735,7 +703,6 @@ pub struct PreviewLinesCreditNote<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_cost: Option<PreviewLinesCreditNoteShippingCost<'a>>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -766,45 +733,34 @@ impl<'a> PreviewLinesCreditNote<'a> {
 /// Line items that make up the credit note.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct PreviewLinesCreditNoteLines<'a> {
-    /// The line item amount to credit.
-    ///
-    /// Only valid when `type` is `invoice_line_item`.
+    /// The line item amount to credit. Only valid when `type` is `invoice_line_item`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
-    /// The description of the credit note line item.
-    ///
-    /// Only valid when the `type` is `custom_line_item`.
+    /// The description of the credit note line item. Only valid when the `type` is `custom_line_item`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
-    /// The invoice line item to credit.
-    ///
-    /// Only valid when the `type` is `invoice_line_item`.
+    /// The invoice line item to credit. Only valid when the `type` is `invoice_line_item`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_line_item: Option<&'a str>,
     /// The line item quantity to credit.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
-    /// A list of up to 10 tax amounts for the credit note line item.
-    ///
-    /// Cannot be mixed with `tax_rates`.
+    /// A list of up to 10 tax amounts for the credit note line item. Cannot be mixed with `tax_rates`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_amounts: Option<&'a [PreviewLinesCreditNoteLinesTaxAmounts<'a>]>,
     /// The tax rates which apply to the credit note line item.
-    ///
     /// Only valid when the `type` is `custom_line_item` and cannot be mixed with `tax_amounts`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_rates: Option<&'a [&'a str]>,
-    /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`.
+    /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
     #[serde(rename = "type")]
     pub type_: PreviewLinesCreditNoteLinesType,
     /// The integer unit amount in cents (or local equivalent) of the credit note line item.
-    ///
     /// This `unit_amount` will be multiplied by the quantity to get the full amount to credit for this line item.
     /// Only valid when `type` is `custom_line_item`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount: Option<i64>,
     /// Same as `unit_amount`, but accepts a decimal value in cents (or local equivalent) with at most 12 decimal places.
-    ///
     /// Only one of `unit_amount` and `unit_amount_decimal` can be set.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unit_amount_decimal: Option<&'a str>,
@@ -824,15 +780,12 @@ impl<'a> PreviewLinesCreditNoteLines<'a> {
         }
     }
 }
-/// A list of up to 10 tax amounts for the credit note line item.
-///
-/// Cannot be mixed with `tax_rates`.
+/// A list of up to 10 tax amounts for the credit note line item. Cannot be mixed with `tax_rates`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct PreviewLinesCreditNoteLinesTaxAmounts<'a> {
     /// The amount, in cents (or local equivalent), of the tax.
     pub amount: i64,
     /// The id of the tax rate for this tax amount.
-    ///
     /// The tax rate must have been automatically created by Stripe.
     pub tax_rate: &'a str,
     /// The amount on which tax is calculated, in cents (or local equivalent).
@@ -843,7 +796,7 @@ impl<'a> PreviewLinesCreditNoteLinesTaxAmounts<'a> {
         Self { amount, tax_rate, taxable_amount }
     }
 }
-/// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`.
+/// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PreviewLinesCreditNoteLinesType {
     CustomLineItem,
@@ -965,7 +918,6 @@ impl<'a> PreviewLinesCreditNoteShippingCost<'a> {
 }
 impl<'a> PreviewLinesCreditNote<'a> {
     /// When retrieving a credit note preview, you’ll get a **lines** property containing the first handful of those items.
-    ///
     /// This URL you can retrieve the full (paginated) list of line items.
     pub fn send(
         &self,

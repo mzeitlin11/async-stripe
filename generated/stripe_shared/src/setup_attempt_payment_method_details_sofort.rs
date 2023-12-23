@@ -13,16 +13,14 @@ pub struct SetupAttemptPaymentMethodDetailsSofort {
     /// Last four characters of the IBAN.
     pub iban_last4: Option<String>,
     /// Preferred language of the Sofort authorization page that the customer is redirected to.
-    /// Can be one of `en`, `de`, `fr`, or `nl`.
+    /// Can be one of `en`, `de`, `fr`, or `nl`
     pub preferred_language: Option<SetupAttemptPaymentMethodDetailsSofortPreferredLanguage>,
-    /// Owner's verified full name.
-    ///
-    /// Values are verified or provided by Sofort directly (if supported) at the time of authorization or settlement.
-    /// They cannot be set or mutated.
+    /// Owner's verified full name. Values are verified or provided by Sofort directly
+    /// (if supported) at the time of authorization or settlement. They cannot be set or mutated.
     pub verified_name: Option<String>,
 }
 /// Preferred language of the Sofort authorization page that the customer is redirected to.
-/// Can be one of `en`, `de`, `fr`, or `nl`.
+/// Can be one of `en`, `de`, `fr`, or `nl`
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum SetupAttemptPaymentMethodDetailsSofortPreferredLanguage {
     De,

@@ -1,13 +1,11 @@
-/// Result from a document check.
+/// Result from a document check
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct GelatoDocumentReport {
     /// Address as it appears in the document.
     pub address: Option<stripe_shared::Address>,
     /// Date of birth as it appears in the document.
     pub dob: Option<stripe_misc::GelatoDataDocumentReportDateOfBirth>,
-    /// Details on the verification error.
-    ///
-    /// Present when status is `unverified`.
+    /// Details on the verification error. Present when status is `unverified`.
     pub error: Option<stripe_misc::GelatoDocumentReportError>,
     /// Expiration date of the document.
     pub expiration_date: Option<stripe_misc::GelatoDataDocumentReportExpirationDate>,

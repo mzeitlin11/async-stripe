@@ -3,14 +3,12 @@ pub struct PaymentLinksResourceCustomFields {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub dropdown: Option<stripe_shared::PaymentLinksResourceCustomFieldsDropdown>,
     /// String of your choice that your integration can use to reconcile this field.
-    ///
     /// Must be unique to this field, alphanumeric, and up to 200 characters.
     pub key: String,
     pub label: stripe_shared::PaymentLinksResourceCustomFieldsLabel,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub numeric: Option<stripe_shared::PaymentLinksResourceCustomFieldsNumeric>,
     /// Whether the customer is required to complete the field before completing the Checkout Session.
-    ///
     /// Defaults to `false`.
     pub optional: bool,
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -1,13 +1,12 @@
 /// If you have [scheduled a Sigma query](https://stripe.com/docs/sigma/scheduled-queries), you'll
 /// receive a `sigma.scheduled_query_run.created` webhook each time the query
-/// runs.
+/// runs. The webhook contains a `ScheduledQueryRun` object, which you can use to
+/// retrieve the query results.
 ///
-/// The webhook contains a `ScheduledQueryRun` object, which you can use to retrieve the query results.  For more details see <<https://stripe.com/docs/api/sigma/scheduled_queries/object>>.
+/// For more details see <<https://stripe.com/docs/api/sigma/scheduled_queries/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct ScheduledQueryRun {
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// When the query was run, Sigma contained a snapshot of your Stripe data at this time.
     pub data_load_time: stripe_types::Timestamp,

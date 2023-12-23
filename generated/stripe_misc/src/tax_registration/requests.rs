@@ -1,7 +1,6 @@
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListTaxRegistration<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -10,12 +9,10 @@ pub struct ListTaxRegistration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -103,7 +100,6 @@ impl<'a> ListTaxRegistration<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTaxRegistration<'a> {
     /// Time at which the Tax Registration becomes active.
-    ///
     /// It can be either `now` to indicate the current time, or a future timestamp measured in seconds since the Unix epoch.
     pub active_from: CreateTaxRegistrationActiveFrom,
     /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
@@ -114,7 +110,6 @@ pub struct CreateTaxRegistration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// If set, the Tax Registration stops being active at this time.
-    ///
     /// If not set, the Tax Registration will be active indefinitely.
     /// Timestamp measured in seconds since the Unix epoch.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -130,7 +125,6 @@ impl<'a> CreateTaxRegistration<'a> {
     }
 }
 /// Time at which the Tax Registration becomes active.
-///
 /// It can be either `now` to indicate the current time, or a future timestamp measured in seconds since the Unix epoch.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 #[serde(untagged)]
@@ -5150,7 +5144,6 @@ impl<'a> CreateTaxRegistrationCountryOptionsUs<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTaxRegistrationCountryOptionsUsLocalAmusementTax<'a> {
     /// A [FIPS code](https://www.census.gov/library/reference/code-lists/ansi.html) representing the local jurisdiction.
-    ///
     /// Supported FIPS codes are: `14000` (Chicago), `06613` (Bloomington), `21696` (East Dundee), `24582` (Evanston), and `68081` (Schiller Park).
     pub jurisdiction: &'a str,
 }
@@ -5163,7 +5156,6 @@ impl<'a> CreateTaxRegistrationCountryOptionsUsLocalAmusementTax<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTaxRegistrationCountryOptionsUsLocalLeaseTax<'a> {
     /// A [FIPS code](https://www.census.gov/library/reference/code-lists/ansi.html) representing the local jurisdiction.
-    ///
     /// Supported FIPS codes are: `14000` (Chicago).
     pub jurisdiction: &'a str,
 }
@@ -5358,7 +5350,6 @@ impl<'a> CreateTaxRegistration<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateTaxRegistration<'a> {
     /// Time at which the registration becomes active.
-    ///
     /// It can be either `now` to indicate the current time, or a timestamp measured in seconds since the Unix epoch.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub active_from: Option<UpdateTaxRegistrationActiveFrom>,
@@ -5366,7 +5357,6 @@ pub struct UpdateTaxRegistration<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// If set, the registration stops being active at this time.
-    ///
     /// If not set, the registration will be active indefinitely.
     /// It can be either `now` to indicate the current time, or a timestamp measured in seconds since the Unix epoch.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -5378,7 +5368,6 @@ impl<'a> UpdateTaxRegistration<'a> {
     }
 }
 /// Time at which the registration becomes active.
-///
 /// It can be either `now` to indicate the current time, or a timestamp measured in seconds since the Unix epoch.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 #[serde(untagged)]
@@ -5387,7 +5376,6 @@ pub enum UpdateTaxRegistrationActiveFrom {
     Timestamp(stripe_types::Timestamp),
 }
 /// If set, the registration stops being active at this time.
-///
 /// If not set, the registration will be active indefinitely.
 /// It can be either `now` to indicate the current time, or a timestamp measured in seconds since the Unix epoch.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -5400,7 +5388,6 @@ impl<'a> UpdateTaxRegistration<'a> {
     /// Updates an existing Tax `Registration` object.
     ///
     /// A registration cannot be deleted after it has been created.
-    ///
     /// If you wish to end a registration you may do so by setting `expires_at`.
     pub fn send(
         &self,

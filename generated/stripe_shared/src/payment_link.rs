@@ -1,11 +1,15 @@
 /// A payment link is a shareable URL that will take your customers to a hosted payment page.
+/// A payment link can be shared and used multiple times.
 ///
-/// A payment link can be shared and used multiple times.  When a customer opens a payment link it will open a new [checkout session](https://stripe.com/docs/api/checkout/sessions) to render the payment page.
-/// You can use [checkout session events](https://stripe.com/docs/api/events/types#event_types-checkout.session.completed) to track payments through payment links.  Related guide: [Payment Links API](https://stripe.com/docs/payment-links)  For more details see <<https://stripe.com/docs/api/payment_links/payment_links/object>>.
+/// When a customer opens a payment link it will open a new [checkout session](https://stripe.com/docs/api/checkout/sessions) to render the payment page.
+/// You can use [checkout session events](https://stripe.com/docs/api/events/types#event_types-checkout.session.completed) to track payments through payment links.
+///
+/// Related guide: [Payment Links API](https://stripe.com/docs/payment-links)
+///
+/// For more details see <<https://stripe.com/docs/api/payment_links/payment_links/object>>.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PaymentLink {
     /// Whether the payment link's `url` is active.
-    ///
     /// If `false`, customers visiting the URL will be shown a page saying that the link has been deactivated.
     pub active: bool,
     pub after_completion: stripe_shared::PaymentLinksResourceAfterCompletion,
@@ -23,11 +27,9 @@ pub struct PaymentLink {
     /// When set, provides configuration to gather active consent from customers.
     pub consent_collection: Option<stripe_shared::PaymentLinksResourceConsentCollection>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// Collect additional information from your customer using custom fields.
-    ///
     /// Up to 2 fields are supported.
     pub custom_fields: Vec<stripe_shared::PaymentLinksResourceCustomFields>,
     pub custom_text: stripe_shared::PaymentLinksResourceCustomText,
@@ -43,11 +45,9 @@ pub struct PaymentLink {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: std::collections::HashMap<String, String>,
     /// The account on behalf of which to charge.
-    ///
     /// See the [Connect documentation](https://support.stripe.com/questions/sending-invoices-on-behalf-of-connected-accounts) for details.
     pub on_behalf_of: Option<stripe_types::Expandable<stripe_shared::Account>>,
     /// Indicates the parameters to be passed to PaymentIntent creation during checkout.
@@ -55,7 +55,6 @@ pub struct PaymentLink {
     /// Configuration for collecting a payment method during checkout.
     pub payment_method_collection: PaymentLinkPaymentMethodCollection,
     /// The list of payment method types that customers can use.
-    ///
     /// When `null`, Stripe will dynamically show relevant payment methods you've enabled in your [payment method settings](https://dashboard.stripe.com/settings/payment_methods).
     pub payment_method_types: Option<Vec<PaymentLinkPaymentMethodTypes>>,
     pub phone_number_collection: stripe_shared::PaymentLinksResourcePhoneNumberCollection,
@@ -67,7 +66,6 @@ pub struct PaymentLink {
     /// Indicates the type of transaction being performed which customizes relevant text on the page, such as the submit button.
     pub submit_type: PaymentLinkSubmitType,
     /// When creating a subscription, the specified configuration data will be used.
-    ///
     /// There must be at least one line item with a recurring price to use `subscription_data`.
     pub subscription_data: Option<stripe_shared::PaymentLinksResourceSubscriptionData>,
     pub tax_id_collection: stripe_shared::PaymentLinksResourceTaxIdCollection,
@@ -256,7 +254,6 @@ impl<'de> serde::Deserialize<'de> for PaymentLinkPaymentMethodCollection {
     }
 }
 /// The list of payment method types that customers can use.
-///
 /// When `null`, Stripe will dynamically show relevant payment methods you've enabled in your [payment method settings](https://dashboard.stripe.com/settings/payment_methods).
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]

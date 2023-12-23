@@ -1,12 +1,10 @@
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct IssuingCardholderAuthorizationControls {
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to allow.
-    ///
     /// All other categories will be blocked.
     /// Cannot be set with `blocked_categories`.
     pub allowed_categories: Option<Vec<IssuingCardholderAuthorizationControlsAllowedCategories>>,
     /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to decline.
-    ///
     /// All other categories will be allowed.
     /// Cannot be set with `allowed_categories`.
     pub blocked_categories: Option<Vec<IssuingCardholderAuthorizationControlsBlockedCategories>>,
@@ -16,7 +14,6 @@ pub struct IssuingCardholderAuthorizationControls {
     pub spending_limits_currency: Option<stripe_types::Currency>,
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to allow.
-///
 /// All other categories will be blocked.
 /// Cannot be set with `blocked_categories`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -1053,7 +1050,6 @@ impl<'de> serde::Deserialize<'de> for IssuingCardholderAuthorizationControlsAllo
     }
 }
 /// Array of strings containing [categories](https://stripe.com/docs/api#issuing_authorization_object-merchant_data-category) of authorizations to decline.
-///
 /// All other categories will be allowed.
 /// Cannot be set with `allowed_categories`.
 #[derive(Copy, Clone, Eq, PartialEq)]

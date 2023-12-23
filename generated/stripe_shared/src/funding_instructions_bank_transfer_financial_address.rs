@@ -9,19 +9,19 @@ pub struct FundingInstructionsBankTransferFinancialAddress {
     pub sort_code: Option<stripe_shared::FundingInstructionsBankTransferSortCodeRecord>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub spei: Option<stripe_shared::FundingInstructionsBankTransferSpeiRecord>,
-    /// The payment networks supported by this FinancialAddress.
+    /// The payment networks supported by this FinancialAddress
     #[serde(skip_serializing_if = "Option::is_none")]
     pub supported_networks:
         Option<Vec<FundingInstructionsBankTransferFinancialAddressSupportedNetworks>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub swift: Option<stripe_shared::FundingInstructionsBankTransferSwiftRecord>,
-    /// The type of financial address.
+    /// The type of financial address
     #[serde(rename = "type")]
     pub type_: FundingInstructionsBankTransferFinancialAddressType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub zengin: Option<stripe_shared::FundingInstructionsBankTransferZenginRecord>,
 }
-/// The payment networks supported by this FinancialAddress.
+/// The payment networks supported by this FinancialAddress
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum FundingInstructionsBankTransferFinancialAddressSupportedNetworks {
     Ach,
@@ -99,7 +99,7 @@ impl<'de> serde::Deserialize<'de>
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for FundingInstructionsBankTransferFinancialAddressSupportedNetworks"))
     }
 }
-/// The type of financial address.
+/// The type of financial address
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum FundingInstructionsBankTransferFinancialAddressType {
     Aba,

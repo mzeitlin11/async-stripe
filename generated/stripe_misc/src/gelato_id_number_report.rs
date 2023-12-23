@@ -1,11 +1,9 @@
-/// Result from an id_number check.
+/// Result from an id_number check
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct GelatoIdNumberReport {
     /// Date of birth.
     pub dob: Option<stripe_misc::GelatoDataIdNumberReportDate>,
-    /// Details on the verification error.
-    ///
-    /// Present when status is `unverified`.
+    /// Details on the verification error. Present when status is `unverified`.
     pub error: Option<stripe_misc::GelatoIdNumberReportError>,
     /// First name.
     pub first_name: Option<String>,

@@ -71,7 +71,6 @@ pub struct AdvanceTestHelpersTestClock<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// The time to advance the test clock.
-    ///
     /// Must be after the test clock's current frozen time.
     /// Cannot be more than two intervals in the future from the shortest subscription in this test clock.
     /// If there are no subscriptions in this test clock, it cannot be more than two years in the future.
@@ -84,7 +83,6 @@ impl<'a> AdvanceTestHelpersTestClock<'a> {
 }
 impl<'a> AdvanceTestHelpersTestClock<'a> {
     /// Starts advancing a test clock to a specified time in the future.
-    ///
     /// Advancement is done when status changes to `Ready`.
     pub fn send(
         &self,
@@ -101,7 +99,6 @@ impl<'a> AdvanceTestHelpersTestClock<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListTestHelpersTestClock<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -110,12 +107,10 @@ pub struct ListTestHelpersTestClock<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]

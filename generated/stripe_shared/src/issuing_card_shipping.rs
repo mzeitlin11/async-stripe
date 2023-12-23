@@ -10,12 +10,10 @@ pub struct IssuingCardShipping {
     /// Recipient name.
     pub name: String,
     /// The phone number of the receiver of the shipment.
-    ///
     /// Our courier partners will use this number to contact you in the event of card delivery issues.
     /// For individual shipments to the EU/UK, if this field is empty, we will provide them with the phone number provided when the cardholder was initially created.
     pub phone_number: Option<String>,
     /// Whether a signature is required for card delivery.
-    ///
     /// This feature is only supported for US users.
     /// Standard shipping service does not support signature on delivery.
     /// The default value for standard shipping service is false and for express and priority services is true.

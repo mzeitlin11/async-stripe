@@ -1,11 +1,9 @@
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTaxCalculation<'a> {
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// The ID of an existing customer to use for this calculation.
-    ///
     /// If provided, the customer's address and tax IDs are copied to `customer_details`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer: Option<&'a str>,
@@ -21,7 +19,6 @@ pub struct CreateTaxCalculation<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_cost: Option<CreateTaxCalculationShippingCost<'a>>,
     /// Timestamp of date at which the tax rules and rates in effect applies for the calculation.
-    ///
     /// Measured in seconds since the Unix epoch.
     /// Can be up to 48 hours in the past, and up to 48 hours in the future.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -59,7 +56,6 @@ pub struct CreateTaxCalculationCustomerDetails<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_ids: Option<&'a [CreateTaxCalculationCustomerDetailsTaxIds<'a>]>,
     /// Overrides the tax calculation result to allow you to not collect tax from your customer.
-    ///
     /// Use this if you've manually checked your customer's tax exemptions.
     /// Prefer providing the customer's `tax_ids` where possible, which automatically determines whether `reverse_charge` applies.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -88,7 +84,6 @@ pub struct CreateTaxCalculationCustomerDetailsAddress<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub postal_code: Option<&'a str>,
     /// State, county, province, or region.
-    ///
     /// We recommend sending [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) subdivision code value when possible.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<&'a str>,
@@ -411,7 +406,6 @@ impl serde::Serialize for CreateTaxCalculationCustomerDetailsTaxIdsType {
     }
 }
 /// Overrides the tax calculation result to allow you to not collect tax from your customer.
-///
 /// Use this if you've manually checked your customer's tax exemptions.
 /// Prefer providing the customer's `tax_ids` where possible, which automatically determines whether `reverse_charge` applies.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -471,7 +465,6 @@ impl serde::Serialize for CreateTaxCalculationCustomerDetailsTaxabilityOverride 
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTaxCalculationLineItems<'a> {
     /// A positive integer in cents representing the line item's total price.
-    ///
     /// If `tax_behavior=inclusive`, then this amount includes taxes.
     /// Otherwise, taxes are calculated on top of this amount.
     pub amount: i64,
@@ -479,23 +472,18 @@ pub struct CreateTaxCalculationLineItems<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub product: Option<&'a str>,
     /// The number of units of the item being purchased.
-    ///
     /// Used to calculate the per-unit price from the total `amount` for the line.
     /// For example, if `amount=100` and `quantity=4`, the calculated unit price is 25.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
     /// A custom identifier for this line item, which must be unique across the line items in the calculation.
-    ///
     /// The reference helps identify each line item in exported [tax reports](https://stripe.com/docs/tax/reports).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reference: Option<&'a str>,
-    /// Specifies whether the `amount` includes taxes.
-    ///
-    /// Defaults to `exclusive`.
+    /// Specifies whether the `amount` includes taxes. Defaults to `exclusive`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_behavior: Option<CreateTaxCalculationLineItemsTaxBehavior>,
     /// A [tax code](https://stripe.com/docs/tax/tax-categories) ID to use for this line item.
-    ///
     /// If not provided, we will use the tax code from the provided `product` param.
     /// If neither `tax_code` nor `product` is provided, we will use the default tax code from your Tax Settings.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -513,9 +501,7 @@ impl<'a> CreateTaxCalculationLineItems<'a> {
         }
     }
 }
-/// Specifies whether the `amount` includes taxes.
-///
-/// Defaults to `exclusive`.
+/// Specifies whether the `amount` includes taxes. Defaults to `exclusive`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateTaxCalculationLineItemsTaxBehavior {
     Exclusive,
@@ -570,24 +556,20 @@ impl serde::Serialize for CreateTaxCalculationLineItemsTaxBehavior {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateTaxCalculationShippingCost<'a> {
     /// A positive integer in cents representing the shipping charge.
-    ///
     /// If `tax_behavior=inclusive`, then this amount includes taxes.
     /// Otherwise, taxes are calculated on top of this amount.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
     /// If provided, the [shipping rate](https://stripe.com/docs/api/shipping_rates/object)'s `amount`, `tax_code` and `tax_behavior` are used.
-    ///
     /// If you provide a shipping rate, then you cannot pass the `amount`, `tax_code`, or `tax_behavior` parameters.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_rate: Option<&'a str>,
     /// Specifies whether the `amount` includes taxes.
-    ///
     /// If `tax_behavior=inclusive`, then the amount includes taxes.
     /// Defaults to `exclusive`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_behavior: Option<CreateTaxCalculationShippingCostTaxBehavior>,
     /// The [tax code](https://stripe.com/docs/tax/tax-categories) used to calculate tax on shipping.
-    ///
     /// If not provided, the default shipping tax code from your [Tax Settings](/settings/tax) is used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_code: Option<&'a str>,
@@ -598,7 +580,6 @@ impl<'a> CreateTaxCalculationShippingCost<'a> {
     }
 }
 /// Specifies whether the `amount` includes taxes.
-///
 /// If `tax_behavior=inclusive`, then the amount includes taxes.
 /// Defaults to `exclusive`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -660,7 +641,6 @@ impl<'a> CreateTaxCalculation<'a> {
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListLineItemsTaxCalculation<'a> {
     /// A cursor for use in pagination.
-    ///
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -669,12 +649,10 @@ pub struct ListLineItemsTaxCalculation<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
     /// A limit on the number of objects to be returned.
-    ///
     /// Limit can range between 1 and 100, and the default is 10.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub limit: Option<i64>,
     /// A cursor for use in pagination.
-    ///
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
     #[serde(skip_serializing_if = "Option::is_none")]

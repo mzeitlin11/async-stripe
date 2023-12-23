@@ -1,4 +1,4 @@
-/// Represents a reader action to set the reader display.
+/// Represents a reader action to set the reader display
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TerminalReaderReaderResourceSetReaderDisplayAction {
     /// Cart object to be displayed by the reader.

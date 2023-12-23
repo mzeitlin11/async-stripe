@@ -1,4 +1,4 @@
-/// The resource representing a Stripe Polymorphic.
+/// The resource representing a Stripe Polymorphic
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "object")]
 pub enum PaymentSource {

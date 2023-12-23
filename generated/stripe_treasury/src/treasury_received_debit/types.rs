@@ -1,43 +1,35 @@
 /// ReceivedDebits represent funds pulled from a [FinancialAccount](https://stripe.com/docs/api#financial_accounts).
-///
 /// These are not initiated from the FinancialAccount.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TreasuryReceivedDebit {
     /// Amount (in cents) transferred.
 pub amount: i64,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
 pub created: stripe_types::Timestamp,
-    /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
+        /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
 pub currency: stripe_types::Currency,
-    /// An arbitrary string attached to the object.
-    ///
-    /// Often useful for displaying to users.
+    /// An arbitrary string attached to the object. Often useful for displaying to users.
 pub description: String,
-    /// Reason for the failure.
-    ///
+        /// Reason for the failure.
     /// A ReceivedDebit might fail because the FinancialAccount doesn't have sufficient funds, is closed, or is frozen.
 pub failure_code: Option<TreasuryReceivedDebitFailureCode>,
     /// The FinancialAccount that funds were pulled from.
 pub financial_account: Option<String>,
-    /// A [hosted transaction receipt](https://stripe.com/docs/treasury/moving-money/regulatory-receipts) URL that is provided when money movement is considered regulated under Stripe's money transmission licenses.
+        /// A [hosted transaction receipt](https://stripe.com/docs/treasury/moving-money/regulatory-receipts) URL that is provided when money movement is considered regulated under Stripe's money transmission licenses.
 pub hosted_regulatory_receipt_url: Option<String>,
     /// Unique identifier for the object.
 pub id: stripe_treasury::TreasuryReceivedDebitId,
 #[serde(skip_serializing_if = "Option::is_none")]
 pub initiating_payment_method_details: Option<stripe_treasury::TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetails>,
 pub linked_flows: stripe_treasury::TreasuryReceivedDebitsResourceLinkedFlows,
-    /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
+        /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
 pub livemode: bool,
     /// The network used for the ReceivedDebit.
 pub network: TreasuryReceivedDebitNetwork,
     /// Details describing when a ReceivedDebit might be reversed.
 pub reversal_details: Option<stripe_treasury::TreasuryReceivedDebitsResourceReversalDetails>,
-    /// Status of the ReceivedDebit.
-    ///
+        /// Status of the ReceivedDebit.
     /// ReceivedDebits are created with a status of either `succeeded` (approved) or `failed` (declined).
     /// The failure reason can be found under the `failure_code`.
 pub status: TreasuryReceivedDebitStatus,
@@ -46,7 +38,6 @@ pub transaction: Option<stripe_types::Expandable<stripe_treasury::TreasuryTransa
 
 }
 /// Reason for the failure.
-///
 /// A ReceivedDebit might fail because the FinancialAccount doesn't have sufficient funds, is closed, or is frozen.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryReceivedDebitFailureCode {
@@ -176,7 +167,6 @@ impl<'de> serde::Deserialize<'de> for TreasuryReceivedDebitNetwork {
     }
 }
 /// Status of the ReceivedDebit.
-///
 /// ReceivedDebits are created with a status of either `succeeded` (approved) or `failed` (declined).
 /// The failure reason can be found under the `failure_code`.
 #[derive(Copy, Clone, Eq, PartialEq)]

@@ -1,4 +1,4 @@
-/// Any use of an [issued card](https://stripe.com/docs/issuing) that results in funds entering or leaving
+/// Any use of an [issued card](https://stripe.com/docs/issuing) that results in funds entering or leaving.
 /// your Stripe account, such as a completed purchase or refund, is represented by an Issuing
 /// `Transaction` object.
 ///
@@ -8,11 +8,9 @@
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct IssuingTransaction {
     /// The transaction amount, which will be reflected in your balance.
-    ///
     /// This amount is in your currency and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
     pub amount: i64,
     /// Detailed breakdown of amount components.
-    ///
     /// These amounts are denominated in `currency` and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
     pub amount_details: Option<stripe_shared::IssuingTransactionAmountDetails>,
     /// The `Authorization` object that led to this transaction.
@@ -23,12 +21,9 @@ pub struct IssuingTransaction {
     pub card: stripe_types::Expandable<stripe_shared::IssuingCard>,
     /// The cardholder to whom this transaction belongs.
     pub cardholder: Option<stripe_types::Expandable<stripe_shared::IssuingCardholder>>,
-    /// Time at which the object was created.
-    ///
-    /// Measured in seconds since the Unix epoch.
+    /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
-    ///
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
     /// If you've disputed the transaction, the ID of the dispute.
@@ -38,14 +33,12 @@ pub struct IssuingTransaction {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// The amount that the merchant will receive, denominated in `merchant_currency` and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
-    ///
     /// It will be different from `amount` if the merchant is taking payment in a different currency.
     pub merchant_amount: i64,
     /// The currency with which the merchant is taking payment.
     pub merchant_currency: stripe_types::Currency,
     pub merchant_data: stripe_shared::IssuingAuthorizationMerchantData,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
-    ///
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: std::collections::HashMap<String, String>,
     /// Details about the transaction, such as processing dates, set by the card network.
@@ -53,7 +46,6 @@ pub struct IssuingTransaction {
     /// Additional purchase information that is optionally provided by the merchant.
     pub purchase_details: Option<stripe_shared::IssuingTransactionPurchaseDetails>,
     /// [Token](https://stripe.com/docs/api/issuing/tokens/object) object used for this transaction.
-    ///
     /// If a network token was not used for this transaction, this field will be null.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub token: Option<stripe_types::Expandable<stripe_shared::IssuingToken>>,
@@ -63,9 +55,7 @@ pub struct IssuingTransaction {
     /// The nature of the transaction.
     #[serde(rename = "type")]
     pub type_: IssuingTransactionType,
-    /// The digital wallet used for this transaction.
-    ///
-    /// One of `apple_pay`, `google_pay`, or `samsung_pay`.
+    /// The digital wallet used for this transaction. One of `apple_pay`, `google_pay`, or `samsung_pay`.
     pub wallet: Option<IssuingTransactionWallet>,
 }
 /// The nature of the transaction.
@@ -127,9 +117,7 @@ impl<'de> serde::Deserialize<'de> for IssuingTransactionType {
             .map_err(|_| serde::de::Error::custom("Unknown value for IssuingTransactionType"))
     }
 }
-/// The digital wallet used for this transaction.
-///
-/// One of `apple_pay`, `google_pay`, or `samsung_pay`.
+/// The digital wallet used for this transaction. One of `apple_pay`, `google_pay`, or `samsung_pay`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingTransactionWallet {
     ApplePay,

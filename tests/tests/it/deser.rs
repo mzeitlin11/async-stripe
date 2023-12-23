@@ -1,5 +1,7 @@
 use serde_json::json;
-use stripe_core::Customer;
+use stripe_core::charge::ChargeStatus;
+use stripe_core::{Charge, Customer};
+use stripe_types::Currency;
 
 #[test]
 fn deserialize_customer_with_card() {
@@ -197,4 +199,30 @@ fn deserialize_checkout_event() {
     });
     let result = serde_json::from_value::<Event>(example);
     assert!(result.is_ok(), "expected ok; was {:?}", result);
+}
+
+#[test]
+// https://github.com/arlyon/async-stripe/issues/456
+// NB: deserialization test because `stripe_mock` always includes `refunds`
+fn deserialize_charge_with_no_refunds() {
+    let example = json!({
+      "amount": 0,
+      "billing_details": {},
+      "amount_captured": 0,
+      "amount_refunded": 0,
+      "captured": true,
+      "currency": "cad",
+      "created": 1703349829,
+      "disputed": false,
+      "id": "ch_123",
+      "livemode": false,
+      "metadata": {},
+      "paid": false,
+      "status": "pending",
+      "refunded": false,
+    });
+    let charge: Charge = serde_json::from_value(example).unwrap();
+    assert_eq!(charge.id.as_str(), "ch_123");
+    assert_eq!(charge.currency, Currency::CAD);
+    assert_eq!(charge.status, ChargeStatus::Pending);
 }

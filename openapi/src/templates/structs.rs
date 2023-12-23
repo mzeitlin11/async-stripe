@@ -90,9 +90,6 @@ impl<'a> ObjectWriter<'a> {
             if let Some(skip_ser) = field.rust_type.skip_serializing() {
                 let _ = writeln!(out, r#"#[serde(skip_serializing_if = "{skip_ser}")]"#);
             }
-            if let Some(default) = field.rust_type.deser_default() {
-                let _ = writeln!(out, "{}", default.to_serde_attr());
-            }
         }
 
         let printable = self.get_printable(&field.rust_type);

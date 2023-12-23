@@ -80,6 +80,8 @@ should include the dependency `stripe_webhook` and import from that crate instea
 - `Deleted<>` objects (such `Deleted<Account>`) no longer expose a boolean `deleted`. This was always `true` and only
 used internally as a discriminant when deserializing. The generic type `Deleted` has been removed and replaced by 
 generated types such as `DeletedAccount`, which sometimes contain additional fields.
+- Optional `List<T>` no longer deserialized with `serde(default)`, the type has been changed `List<T>` -> `Option<List<T>>`. The default
+implementation of `List<T>` produced data not upholding the `List<T>` invariant of having a meaningful `url`.
 - Types used only for requests now use borrowed types more consistently (and more often). For example, previously the top-level
 `CreateCustomer.description` expected `Option<&str>`, but `CreateCustomerShipping.phone` expected `Option<String>`. Now
 both expect `Option<&str>`. In general, the following changes are made to request parameters that required owned data:

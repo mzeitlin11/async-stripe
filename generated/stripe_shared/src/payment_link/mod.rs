@@ -38,8 +38,8 @@ pub struct PaymentLink {
     /// Configuration for creating invoice for payment mode payment links.
     pub invoice_creation: Option<stripe_shared::PaymentLinksResourceInvoiceCreation>,
     /// The line items representing what is being sold.
-    #[serde(default)]
-    pub line_items: stripe_types::List<stripe_shared::CheckoutSessionItem>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub line_items: Option<stripe_types::List<stripe_shared::CheckoutSessionItem>>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.

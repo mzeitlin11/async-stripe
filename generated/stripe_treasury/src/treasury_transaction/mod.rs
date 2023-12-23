@@ -19,7 +19,7 @@ pub struct TreasuryTransaction {
     /// A list of TransactionEntries that are part of this Transaction.
     ///
     /// This cannot be expanded in any list endpoints.
-    pub entries: stripe_types::List<stripe_treasury::TreasuryTransactionEntry>,
+    pub entries: Option<stripe_types::List<stripe_treasury::TreasuryTransactionEntry>>,
     /// The FinancialAccount associated with this object.
     pub financial_account: String,
     /// ID of the flow that created the Transaction.

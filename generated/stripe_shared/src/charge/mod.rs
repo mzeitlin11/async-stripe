@@ -109,7 +109,7 @@ pub struct Charge {
     /// If the charge is only partially refunded, this attribute will still be false.
     pub refunded: bool,
     /// A list of refunds that have been applied to the charge.
-    pub refunds: stripe_types::List<stripe_shared::Refund>,
+    pub refunds: Option<stripe_types::List<stripe_shared::Refund>>,
     /// ID of the review associated with this charge if one exists.
     pub review: Option<stripe_types::Expandable<stripe_shared::Review>>,
     /// Shipping information for the charge.

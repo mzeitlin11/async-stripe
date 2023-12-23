@@ -19,7 +19,7 @@ pub struct TaxCalculation {
     /// Unique identifier for the calculation.
     pub id: Option<stripe_misc::tax_calculation::TaxCalculationId>,
     /// The list of items the customer is purchasing.
-    pub line_items: stripe_types::List<stripe_misc::TaxCalculationLineItem>,
+    pub line_items: Option<stripe_types::List<stripe_misc::TaxCalculationLineItem>>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// The shipping cost details for the calculation.

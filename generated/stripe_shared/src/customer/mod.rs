@@ -88,11 +88,11 @@ pub struct Customer {
     /// Appears on invoices emailed to this customer.
     pub shipping: Option<stripe_shared::Shipping>,
     /// The customer's payment sources, if any.
-    #[serde(default)]
-    pub sources: stripe_types::List<stripe_shared::PaymentSource>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sources: Option<stripe_types::List<stripe_shared::PaymentSource>>,
     /// The customer's current subscriptions, if any.
-    #[serde(default)]
-    pub subscriptions: stripe_types::List<stripe_shared::Subscription>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub subscriptions: Option<stripe_types::List<stripe_shared::Subscription>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax: Option<stripe_shared::CustomerTax>,
     /// Describes the customer's tax exemption status, which is `none`, `exempt`, or `reverse`.
@@ -101,8 +101,8 @@ pub struct Customer {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_exempt: Option<CustomerTaxExempt>,
     /// The customer's tax IDs.
-    #[serde(default)]
-    pub tax_ids: stripe_types::List<stripe_shared::TaxId>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tax_ids: Option<stripe_types::List<stripe_shared::TaxId>>,
     /// ID of the test clock that this customer belongs to.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub test_clock: Option<stripe_types::Expandable<stripe_shared::TestHelpersTestClock>>,

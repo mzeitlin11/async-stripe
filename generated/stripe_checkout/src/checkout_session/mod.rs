@@ -71,8 +71,8 @@ pub struct CheckoutSession {
     /// Details on the state of invoice creation for the Checkout Session.
     pub invoice_creation: Option<stripe_checkout::PaymentPagesCheckoutSessionInvoiceCreation>,
     /// The line items purchased by the customer.
-    #[serde(default)]
-    pub line_items: stripe_types::List<stripe_shared::CheckoutSessionItem>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub line_items: Option<stripe_types::List<stripe_shared::CheckoutSessionItem>>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// The IETF language tag of the locale Checkout is displayed in.

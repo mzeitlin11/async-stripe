@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Display, Formatter};
 
 use crate::components::Components;
-use crate::rust_object::{DeserDefault, ObjectMetadata, RustObject};
+use crate::rust_object::{ObjectMetadata, RustObject};
 use crate::types::{ComponentPath, RustIdent};
 use crate::visitor::{Visit, VisitMut};
 
@@ -202,7 +202,7 @@ impl RustType {
 
     pub fn into_nullable(self) -> Self {
         match self {
-            Self::Container(Container::List(_)) | Self::Container(Container::Option(_)) => self,
+            Self::Container(Container::Option(_)) => self,
             _ => Self::option(self),
         }
     }
@@ -246,15 +246,6 @@ impl RustType {
 
     pub fn as_rust_object(&self) -> Option<&RustObject> {
         self.as_object().map(|r| r.0)
-    }
-
-    pub fn deser_default(&self) -> Option<DeserDefault> {
-        match self {
-            Self::Simple(SimpleType::Bool)
-            | Self::Container(Container::Vec(_))
-            | Self::Container(Container::List(_)) => Some(DeserDefault::Default),
-            _ => None,
-        }
     }
 
     pub fn visit<'a, T: Visit<'a>>(&'a self, visitor: &mut T) {

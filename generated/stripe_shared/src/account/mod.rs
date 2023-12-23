@@ -46,8 +46,8 @@ pub struct Account {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
     /// External accounts (bank accounts and debit cards) currently attached to this account.
-    #[serde(default)]
-    pub external_accounts: stripe_types::List<stripe_shared::ExternalAccount>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub external_accounts: Option<stripe_types::List<stripe_shared::ExternalAccount>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub future_requirements: Option<stripe_shared::AccountFutureRequirements>,
     /// Unique identifier for the object.

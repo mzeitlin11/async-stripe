@@ -75,16 +75,17 @@ pub async fn run_checkout_session_example(client: &stripe::Client) -> Result<(),
         params.send(client).await?
     };
 
+    let created_item = &checkout_session.line_items.expect("line items were created").data[0];
     println!(
         "created a {} checkout session for {} {:?} for {} {} at {}",
         checkout_session.payment_status,
-        checkout_session.line_items.data[0].quantity.unwrap(),
-        match &checkout_session.line_items.data[0].price.as_ref().unwrap().product {
+        created_item.quantity.unwrap(),
+        match &created_item.price.as_ref().unwrap().product {
             Expandable::Object(p) => &p.name,
             _ => panic!("product not found"),
         },
         checkout_session.amount_subtotal.unwrap() / 100,
-        checkout_session.line_items.data[0].price.as_ref().unwrap().currency,
+        created_item.price.as_ref().unwrap().currency,
         checkout_session.url.unwrap()
     );
     Ok(())

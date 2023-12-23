@@ -19,7 +19,7 @@ pub struct TaxTransaction {
     /// Unique identifier for the transaction.
     pub id: stripe_misc::tax_transaction::TaxTransactionId,
     /// The tax collected or refunded, by line item.
-    pub line_items: stripe_types::List<stripe_misc::TaxTransactionLineItem>,
+    pub line_items: Option<stripe_types::List<stripe_misc::TaxTransactionLineItem>>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.

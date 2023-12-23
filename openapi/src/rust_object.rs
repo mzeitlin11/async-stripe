@@ -221,23 +221,6 @@ impl StructField {
     }
 }
 
-/// Specifications for a `serde(default = ...)` attribute
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Default, Hash)]
-pub enum DeserDefault {
-    /// Just `serde(default)`
-    #[default]
-    Default,
-}
-
-impl DeserDefault {
-    /// The corresponding `serde` attribute
-    pub fn to_serde_attr(self) -> &'static str {
-        match self {
-            Self::Default => "#[serde(default)]",
-        }
-    }
-}
-
 pub struct ObjectRef {
     pub path: ComponentPath,
     pub feature_gate: Option<String>,

@@ -15,8 +15,8 @@ pub struct File {
     /// Unique identifier for the object.
     pub id: stripe_shared::file::FileId,
     /// A list of [file links](https://stripe.com/docs/api#file_links) that point at this file.
-    #[serde(default)]
-    pub links: stripe_types::List<stripe_shared::FileLink>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub links: Option<stripe_types::List<stripe_shared::FileLink>>,
     /// The [purpose](https://stripe.com/docs/file-upload#uploading-a-file) of the uploaded file.
     pub purpose: FilePurpose,
     /// The size of the file object in bytes.

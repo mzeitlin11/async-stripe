@@ -118,12 +118,6 @@ pub struct List<T> {
     pub url: String,
 }
 
-impl<T> Default for List<T> {
-    fn default() -> Self {
-        List { data: Vec::new(), has_more: false, total_count: None, url: String::new() }
-    }
-}
-
 impl<T: Clone> Clone for List<T> {
     fn clone(&self) -> Self {
         List {

@@ -129,7 +129,7 @@ impl<'a> RetrieveIssuingToken<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        token: &stripe_shared::issuing_token::IssuingTokenId,
+        token: &stripe_shared::IssuingTokenId,
     ) -> stripe::Response<stripe_shared::IssuingToken> {
         client.get_query(&format!("/issuing/tokens/{token}"), self)
     }
@@ -206,7 +206,7 @@ impl<'a> UpdateIssuingToken<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        token: &stripe_shared::issuing_token::IssuingTokenId,
+        token: &stripe_shared::IssuingTokenId,
     ) -> stripe::Response<stripe_shared::IssuingToken> {
         client.send_form(&format!("/issuing/tokens/{token}"), self, http_types::Method::Post)
     }

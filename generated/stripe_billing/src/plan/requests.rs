@@ -644,7 +644,7 @@ impl<'a> RetrievePlan<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        plan: &stripe_shared::plan::PlanId,
+        plan: &stripe_shared::PlanId,
     ) -> stripe::Response<stripe_shared::Plan> {
         client.get_query(&format!("/plans/{plan}"), self)
     }
@@ -689,7 +689,7 @@ impl<'a> UpdatePlan<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        plan: &stripe_shared::plan::PlanId,
+        plan: &stripe_shared::PlanId,
     ) -> stripe::Response<stripe_shared::Plan> {
         client.send_form(&format!("/plans/{plan}"), self, http_types::Method::Post)
     }
@@ -708,7 +708,7 @@ impl DeletePlan {
     pub fn send(
         &self,
         client: &stripe::Client,
-        plan: &stripe_shared::plan::PlanId,
+        plan: &stripe_shared::PlanId,
     ) -> stripe::Response<stripe_shared::DeletedPlan> {
         client.send_form(&format!("/plans/{plan}"), self, http_types::Method::Delete)
     }

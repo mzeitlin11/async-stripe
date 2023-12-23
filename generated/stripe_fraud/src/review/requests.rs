@@ -58,7 +58,7 @@ impl<'a> RetrieveReview<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        review: &stripe_shared::review::ReviewId,
+        review: &stripe_shared::ReviewId,
     ) -> stripe::Response<stripe_shared::Review> {
         client.get_query(&format!("/reviews/{review}"), self)
     }
@@ -79,7 +79,7 @@ impl<'a> ApproveReview<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        review: &stripe_shared::review::ReviewId,
+        review: &stripe_shared::ReviewId,
     ) -> stripe::Response<stripe_shared::Review> {
         client.send_form(&format!("/reviews/{review}/approve"), self, http_types::Method::Post)
     }

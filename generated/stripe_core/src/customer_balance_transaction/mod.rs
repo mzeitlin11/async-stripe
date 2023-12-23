@@ -1,4 +1,3 @@
-pub use stripe_shared::customer_balance_transaction::*;
 #[cfg(feature = "customer_balance_transaction")]
 mod requests;
 #[cfg(feature = "customer_balance_transaction")]

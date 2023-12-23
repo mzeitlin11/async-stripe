@@ -58,7 +58,7 @@ impl<'a> RetrieveSubscriptionItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        item: &stripe_shared::subscription_item::SubscriptionItemId,
+        item: &stripe_shared::SubscriptionItemId,
     ) -> stripe::Response<stripe_shared::SubscriptionItem> {
         client.get_query(&format!("/subscription_items/{item}"), self)
     }
@@ -861,7 +861,7 @@ impl<'a> UpdateSubscriptionItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        item: &stripe_shared::subscription_item::SubscriptionItemId,
+        item: &stripe_shared::SubscriptionItemId,
     ) -> stripe::Response<stripe_shared::SubscriptionItem> {
         client.send_form(&format!("/subscription_items/{item}"), self, http_types::Method::Post)
     }
@@ -952,7 +952,7 @@ impl DeleteSubscriptionItem {
     pub fn send(
         &self,
         client: &stripe::Client,
-        item: &stripe_shared::subscription_item::SubscriptionItemId,
+        item: &stripe_shared::SubscriptionItemId,
     ) -> stripe::Response<stripe_shared::DeletedSubscriptionItem> {
         client.send_form(&format!("/subscription_items/{item}"), self, http_types::Method::Delete)
     }
@@ -994,7 +994,7 @@ impl<'a> UsageRecordSummariesSubscriptionItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        subscription_item: &stripe_shared::subscription_item::SubscriptionItemId,
+        subscription_item: &stripe_shared::SubscriptionItemId,
     ) -> stripe::Response<stripe_types::List<stripe_shared::UsageRecordSummary>> {
         client.get_query(
             &format!("/subscription_items/{subscription_item}/usage_record_summaries"),
@@ -1003,7 +1003,7 @@ impl<'a> UsageRecordSummariesSubscriptionItem<'a> {
     }
     pub fn paginate(
         self,
-        subscription_item: &stripe_shared::subscription_item::SubscriptionItemId,
+        subscription_item: &stripe_shared::SubscriptionItemId,
     ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::UsageRecordSummary>> {
         stripe::ListPaginator::from_list_params(
             &format!("/subscription_items/{subscription_item}/usage_record_summaries"),

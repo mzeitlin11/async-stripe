@@ -16,7 +16,7 @@ impl<'a> RetrievePromotionCode<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        promotion_code: &stripe_shared::promotion_code::PromotionCodeId,
+        promotion_code: &stripe_shared::PromotionCodeId,
     ) -> stripe::Response<stripe_shared::PromotionCode> {
         client.get_query(&format!("/promotion_codes/{promotion_code}"), self)
     }
@@ -194,7 +194,7 @@ impl<'a> UpdatePromotionCode<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        promotion_code: &stripe_shared::promotion_code::PromotionCodeId,
+        promotion_code: &stripe_shared::PromotionCodeId,
     ) -> stripe::Response<stripe_shared::PromotionCode> {
         client.send_form(
             &format!("/promotion_codes/{promotion_code}"),

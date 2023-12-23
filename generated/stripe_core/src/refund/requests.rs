@@ -243,7 +243,7 @@ impl<'a> RetrieveRefund<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        refund: &stripe_shared::refund::RefundId,
+        refund: &stripe_shared::RefundId,
     ) -> stripe::Response<stripe_shared::Refund> {
         client.get_query(&format!("/refunds/{refund}"), self)
     }
@@ -273,7 +273,7 @@ impl<'a> UpdateRefund<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        refund: &stripe_shared::refund::RefundId,
+        refund: &stripe_shared::RefundId,
     ) -> stripe::Response<stripe_shared::Refund> {
         client.send_form(&format!("/refunds/{refund}"), self, http_types::Method::Post)
     }
@@ -298,7 +298,7 @@ impl<'a> CancelRefund<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        refund: &stripe_shared::refund::RefundId,
+        refund: &stripe_shared::RefundId,
     ) -> stripe::Response<stripe_shared::Refund> {
         client.send_form(&format!("/refunds/{refund}/cancel"), self, http_types::Method::Post)
     }

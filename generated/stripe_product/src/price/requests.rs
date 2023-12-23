@@ -1165,7 +1165,7 @@ impl<'a> RetrievePrice<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        price: &stripe_shared::price::PriceId,
+        price: &stripe_shared::PriceId,
     ) -> stripe::Response<stripe_shared::Price> {
         client.get_query(&format!("/prices/{price}"), self)
     }
@@ -1446,7 +1446,7 @@ impl<'a> UpdatePrice<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        price: &stripe_shared::price::PriceId,
+        price: &stripe_shared::PriceId,
     ) -> stripe::Response<stripe_shared::Price> {
         client.send_form(&format!("/prices/{price}"), self, http_types::Method::Post)
     }

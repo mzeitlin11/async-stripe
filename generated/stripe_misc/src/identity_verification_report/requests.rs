@@ -14,7 +14,7 @@ impl<'a> RetrieveIdentityVerificationReport<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        report: &stripe_misc::identity_verification_report::IdentityVerificationReportId,
+        report: &stripe_misc::IdentityVerificationReportId,
     ) -> stripe::Response<stripe_misc::IdentityVerificationReport> {
         client.get_query(&format!("/identity/verification_reports/{report}"), self)
     }

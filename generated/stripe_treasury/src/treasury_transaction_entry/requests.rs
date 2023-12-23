@@ -14,7 +14,7 @@ impl<'a> RetrieveTreasuryTransactionEntry<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_treasury::treasury_transaction_entry::TreasuryTransactionEntryId,
+        id: &stripe_treasury::TreasuryTransactionEntryId,
     ) -> stripe::Response<stripe_treasury::TreasuryTransactionEntry> {
         client.get_query(&format!("/treasury/transaction_entries/{id}"), self)
     }

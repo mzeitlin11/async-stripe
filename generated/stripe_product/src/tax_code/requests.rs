@@ -56,7 +56,7 @@ impl<'a> RetrieveTaxCode<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_shared::tax_code::TaxCodeId,
+        id: &stripe_shared::TaxCodeId,
     ) -> stripe::Response<stripe_shared::TaxCode> {
         client.get_query(&format!("/tax_codes/{id}"), self)
     }

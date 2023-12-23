@@ -3,7 +3,7 @@ use stripe_connect::account::{
     CreateAccount, CreateAccountCapabilities, CreateAccountCapabilitiesAcssDebitPayments,
     ListAccount,
 };
-use stripe_connect::account_capabilities::AccountCapabilitiesCardPayments;
+use stripe_connect::AccountCapabilitiesCardPayments;
 
 use crate::mock;
 

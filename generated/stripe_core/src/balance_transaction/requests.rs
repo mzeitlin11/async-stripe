@@ -80,7 +80,7 @@ impl<'a> RetrieveBalanceTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_shared::balance_transaction::BalanceTransactionId,
+        id: &stripe_shared::BalanceTransactionId,
     ) -> stripe::Response<stripe_shared::BalanceTransaction> {
         client.get_query(&format!("/balance_transactions/{id}"), self)
     }

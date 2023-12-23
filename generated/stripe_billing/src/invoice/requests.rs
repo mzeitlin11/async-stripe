@@ -3178,7 +3178,7 @@ impl<'a> UpdateInvoice<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoice: &stripe_shared::invoice::InvoiceId,
+        invoice: &stripe_shared::InvoiceId,
     ) -> stripe::Response<stripe_shared::Invoice> {
         client.send_form(&format!("/invoices/{invoice}"), self, http_types::Method::Post)
     }
@@ -3235,7 +3235,7 @@ impl<'a> PayInvoice<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoice: &stripe_shared::invoice::InvoiceId,
+        invoice: &stripe_shared::InvoiceId,
     ) -> stripe::Response<stripe_shared::Invoice> {
         client.send_form(&format!("/invoices/{invoice}/pay"), self, http_types::Method::Post)
     }
@@ -6741,7 +6741,7 @@ impl<'a> RetrieveInvoice<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoice: &stripe_shared::invoice::InvoiceId,
+        invoice: &stripe_shared::InvoiceId,
     ) -> stripe::Response<stripe_shared::Invoice> {
         client.get_query(&format!("/invoices/{invoice}"), self)
     }
@@ -6761,7 +6761,7 @@ impl DeleteInvoice {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoice: &stripe_shared::invoice::InvoiceId,
+        invoice: &stripe_shared::InvoiceId,
     ) -> stripe::Response<stripe_shared::DeletedInvoice> {
         client.send_form(&format!("/invoices/{invoice}"), self, http_types::Method::Delete)
     }
@@ -6789,7 +6789,7 @@ impl<'a> FinalizeInvoiceInvoice<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoice: &stripe_shared::invoice::InvoiceId,
+        invoice: &stripe_shared::InvoiceId,
     ) -> stripe::Response<stripe_shared::Invoice> {
         client.send_form(&format!("/invoices/{invoice}/finalize"), self, http_types::Method::Post)
     }
@@ -6813,7 +6813,7 @@ impl<'a> SendInvoiceInvoice<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoice: &stripe_shared::invoice::InvoiceId,
+        invoice: &stripe_shared::InvoiceId,
     ) -> stripe::Response<stripe_shared::Invoice> {
         client.send_form(&format!("/invoices/{invoice}/send"), self, http_types::Method::Post)
     }
@@ -6834,7 +6834,7 @@ impl<'a> MarkUncollectibleInvoice<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoice: &stripe_shared::invoice::InvoiceId,
+        invoice: &stripe_shared::InvoiceId,
     ) -> stripe::Response<stripe_shared::Invoice> {
         client.send_form(
             &format!("/invoices/{invoice}/mark_uncollectible"),
@@ -6862,7 +6862,7 @@ impl<'a> VoidInvoiceInvoice<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoice: &stripe_shared::invoice::InvoiceId,
+        invoice: &stripe_shared::InvoiceId,
     ) -> stripe::Response<stripe_shared::Invoice> {
         client.send_form(&format!("/invoices/{invoice}/void"), self, http_types::Method::Post)
     }

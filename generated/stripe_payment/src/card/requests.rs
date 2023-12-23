@@ -158,7 +158,7 @@ impl<'a> UpdateCustomerCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
         id: &str,
     ) -> stripe::Response<UpdateCustomerReturned> {
         client.send_form(
@@ -194,7 +194,7 @@ impl<'a> DeleteCustomerCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
         id: &str,
     ) -> stripe::Response<DeleteCustomerReturned> {
         client.send_form(
@@ -424,7 +424,7 @@ impl<'a> UpdateAccountCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_shared::account::AccountId,
+        account: &stripe_shared::AccountId,
         id: &str,
     ) -> stripe::Response<stripe_shared::ExternalAccount> {
         client.send_form(
@@ -446,7 +446,7 @@ impl DeleteAccountCard {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_shared::account::AccountId,
+        account: &stripe_shared::AccountId,
         id: &str,
     ) -> stripe::Response<stripe_shared::DeletedExternalAccount> {
         client.send_form(

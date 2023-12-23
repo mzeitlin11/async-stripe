@@ -333,7 +333,7 @@ impl<'a> RetrieveCharge<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        charge: &stripe_shared::charge::ChargeId,
+        charge: &stripe_shared::ChargeId,
     ) -> stripe::Response<stripe_shared::Charge> {
         client.get_query(&format!("/charges/{charge}"), self)
     }
@@ -516,7 +516,7 @@ impl<'a> UpdateCharge<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        charge: &stripe_shared::charge::ChargeId,
+        charge: &stripe_shared::ChargeId,
     ) -> stripe::Response<stripe_shared::Charge> {
         client.send_form(&format!("/charges/{charge}"), self, http_types::Method::Post)
     }
@@ -599,7 +599,7 @@ impl<'a> CaptureCharge<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        charge: &stripe_shared::charge::ChargeId,
+        charge: &stripe_shared::ChargeId,
     ) -> stripe::Response<stripe_shared::Charge> {
         client.send_form(&format!("/charges/{charge}/capture"), self, http_types::Method::Post)
     }

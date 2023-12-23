@@ -1,5 +1,6 @@
 #![recursion_limit = "256"]
 #![allow(clippy::large_enum_variant)]
+#![allow(rustdoc::broken_intra_doc_links)]
 #![allow(rustdoc::invalid_html_tags)]
 
 //! This crate provides Rust bindings to the Stripe HTTP API, specifically
@@ -7,157 +8,281 @@
 //! and `Webhooks` sections of the [Stripe API docs](https://stripe.com/docs/api)
 
 extern crate self as stripe_misc;
+pub use apple_pay_domain::types::*;
 pub mod apple_pay_domain;
-pub use apple_pay_domain::ApplePayDomain;
+#[doc(hidden)]
 pub mod bank_connections_resource_accountholder;
-pub use bank_connections_resource_accountholder::BankConnectionsResourceAccountholder;
+#[doc(inline)]
+pub use bank_connections_resource_accountholder::*;
+#[doc(hidden)]
 pub mod bank_connections_resource_balance;
-pub use bank_connections_resource_balance::BankConnectionsResourceBalance;
+#[doc(inline)]
+pub use bank_connections_resource_balance::*;
+#[doc(hidden)]
 pub mod bank_connections_resource_balance_api_resource_cash_balance;
-pub use bank_connections_resource_balance_api_resource_cash_balance::BankConnectionsResourceBalanceApiResourceCashBalance;
+#[doc(inline)]
+pub use bank_connections_resource_balance_api_resource_cash_balance::*;
+#[doc(hidden)]
 pub mod bank_connections_resource_balance_api_resource_credit_balance;
-pub use bank_connections_resource_balance_api_resource_credit_balance::BankConnectionsResourceBalanceApiResourceCreditBalance;
+#[doc(inline)]
+pub use bank_connections_resource_balance_api_resource_credit_balance::*;
+#[doc(hidden)]
 pub mod bank_connections_resource_balance_refresh;
-pub use bank_connections_resource_balance_refresh::BankConnectionsResourceBalanceRefresh;
+#[doc(inline)]
+pub use bank_connections_resource_balance_refresh::*;
+#[doc(hidden)]
 pub mod bank_connections_resource_link_account_session_filters;
-pub use bank_connections_resource_link_account_session_filters::BankConnectionsResourceLinkAccountSessionFilters;
+#[doc(inline)]
+pub use bank_connections_resource_link_account_session_filters::*;
+#[doc(hidden)]
 pub mod bank_connections_resource_ownership_refresh;
-pub use bank_connections_resource_ownership_refresh::BankConnectionsResourceOwnershipRefresh;
+#[doc(inline)]
+pub use bank_connections_resource_ownership_refresh::*;
+#[doc(hidden)]
 pub mod deleted_apple_pay_domain;
-pub use deleted_apple_pay_domain::DeletedApplePayDomain;
-pub mod webhook_endpoint;
-pub use webhook_endpoint::WebhookEndpoint;
+#[doc(inline)]
+pub use deleted_apple_pay_domain::*;
+pub use webhook_endpoint::types::*;
+#[doc(hidden)]
 pub mod verification_session_redaction;
-pub use verification_session_redaction::VerificationSessionRedaction;
+pub mod webhook_endpoint;
+#[doc(inline)]
+pub use verification_session_redaction::*;
+#[doc(hidden)]
 pub mod deleted_webhook_endpoint;
-pub use deleted_webhook_endpoint::DeletedWebhookEndpoint;
+#[doc(inline)]
+pub use deleted_webhook_endpoint::*;
+pub use ephemeral_key::types::*;
 pub mod ephemeral_key;
-pub use ephemeral_key::EphemeralKey;
+pub use exchange_rate::types::*;
 pub mod exchange_rate;
-pub use exchange_rate::ExchangeRate;
+pub use financial_connections_account::types::*;
 pub mod financial_connections_account;
-pub use financial_connections_account::FinancialConnectionsAccount;
+#[doc(hidden)]
 pub mod financial_connections_account_owner;
-pub use financial_connections_account_owner::FinancialConnectionsAccountOwner;
+#[doc(inline)]
+pub use financial_connections_account_owner::*;
+#[doc(hidden)]
 pub mod financial_connections_account_ownership;
-pub use financial_connections_account_ownership::FinancialConnectionsAccountOwnership;
+#[doc(inline)]
+pub use financial_connections_account_ownership::*;
+pub use financial_connections_session::types::*;
 pub mod financial_connections_session;
-pub use financial_connections_session::FinancialConnectionsSession;
+#[doc(hidden)]
 pub mod financial_reporting_finance_report_run_run_parameters;
-pub use financial_reporting_finance_report_run_run_parameters::FinancialReportingFinanceReportRunRunParameters;
+#[doc(inline)]
+pub use financial_reporting_finance_report_run_run_parameters::*;
+#[doc(hidden)]
 pub mod gelato_data_document_report_date_of_birth;
-pub use gelato_data_document_report_date_of_birth::GelatoDataDocumentReportDateOfBirth;
+#[doc(inline)]
+pub use gelato_data_document_report_date_of_birth::*;
+#[doc(hidden)]
 pub mod gelato_data_document_report_expiration_date;
-pub use gelato_data_document_report_expiration_date::GelatoDataDocumentReportExpirationDate;
+#[doc(inline)]
+pub use gelato_data_document_report_expiration_date::*;
+#[doc(hidden)]
 pub mod gelato_data_document_report_issued_date;
-pub use gelato_data_document_report_issued_date::GelatoDataDocumentReportIssuedDate;
+#[doc(inline)]
+pub use gelato_data_document_report_issued_date::*;
+#[doc(hidden)]
 pub mod gelato_data_id_number_report_date;
-pub use gelato_data_id_number_report_date::GelatoDataIdNumberReportDate;
+#[doc(inline)]
+pub use gelato_data_id_number_report_date::*;
+#[doc(hidden)]
 pub mod gelato_data_verified_outputs_date;
-pub use gelato_data_verified_outputs_date::GelatoDataVerifiedOutputsDate;
+#[doc(inline)]
+pub use gelato_data_verified_outputs_date::*;
+#[doc(hidden)]
 pub mod gelato_document_report;
-pub use gelato_document_report::GelatoDocumentReport;
+#[doc(inline)]
+pub use gelato_document_report::*;
+#[doc(hidden)]
 pub mod gelato_document_report_error;
-pub use gelato_document_report_error::GelatoDocumentReportError;
+#[doc(inline)]
+pub use gelato_document_report_error::*;
+#[doc(hidden)]
 pub mod gelato_id_number_report;
-pub use gelato_id_number_report::GelatoIdNumberReport;
+#[doc(inline)]
+pub use gelato_id_number_report::*;
+#[doc(hidden)]
 pub mod gelato_id_number_report_error;
-pub use gelato_id_number_report_error::GelatoIdNumberReportError;
+#[doc(inline)]
+pub use gelato_id_number_report_error::*;
+#[doc(hidden)]
 pub mod gelato_report_document_options;
-pub use gelato_report_document_options::GelatoReportDocumentOptions;
+#[doc(inline)]
+pub use gelato_report_document_options::*;
+#[doc(hidden)]
 pub mod gelato_report_id_number_options;
-pub use gelato_report_id_number_options::GelatoReportIdNumberOptions;
+#[doc(inline)]
+pub use gelato_report_id_number_options::*;
+#[doc(hidden)]
 pub mod gelato_selfie_report;
-pub use gelato_selfie_report::GelatoSelfieReport;
+#[doc(inline)]
+pub use gelato_selfie_report::*;
+#[doc(hidden)]
 pub mod gelato_selfie_report_error;
-pub use gelato_selfie_report_error::GelatoSelfieReportError;
+#[doc(inline)]
+pub use gelato_selfie_report_error::*;
+#[doc(hidden)]
 pub mod gelato_session_document_options;
-pub use gelato_session_document_options::GelatoSessionDocumentOptions;
+#[doc(inline)]
+pub use gelato_session_document_options::*;
+#[doc(hidden)]
 pub mod gelato_session_id_number_options;
-pub use gelato_session_id_number_options::GelatoSessionIdNumberOptions;
+#[doc(inline)]
+pub use gelato_session_id_number_options::*;
+#[doc(hidden)]
 pub mod gelato_session_last_error;
-pub use gelato_session_last_error::GelatoSessionLastError;
+#[doc(inline)]
+pub use gelato_session_last_error::*;
+#[doc(hidden)]
 pub mod gelato_verification_report_options;
-pub use gelato_verification_report_options::GelatoVerificationReportOptions;
+#[doc(inline)]
+pub use gelato_verification_report_options::*;
+#[doc(hidden)]
 pub mod gelato_verification_session_options;
-pub use gelato_verification_session_options::GelatoVerificationSessionOptions;
+#[doc(inline)]
+pub use gelato_verification_session_options::*;
+#[doc(hidden)]
 pub mod gelato_verified_outputs;
-pub use gelato_verified_outputs::GelatoVerifiedOutputs;
+#[doc(inline)]
+pub use gelato_verified_outputs::*;
+pub use identity_verification_report::types::*;
 pub mod identity_verification_report;
-pub use identity_verification_report::IdentityVerificationReport;
+pub use identity_verification_session::types::*;
 pub mod identity_verification_session;
-pub use identity_verification_session::IdentityVerificationSession;
+pub use reporting_report_run::types::*;
 pub mod reporting_report_run;
-pub use reporting_report_run::ReportingReportRun;
+pub use reporting_report_type::types::*;
 pub mod reporting_report_type;
-pub use reporting_report_type::ReportingReportType;
+pub use scheduled_query_run::types::*;
 pub mod scheduled_query_run;
-pub use scheduled_query_run::ScheduledQueryRun;
+#[doc(hidden)]
 pub mod sigma_scheduled_query_run_error;
-pub use sigma_scheduled_query_run_error::SigmaScheduledQueryRunError;
+#[doc(inline)]
+pub use sigma_scheduled_query_run_error::*;
+pub use tax_calculation::types::*;
 pub mod tax_calculation;
-pub use tax_calculation::TaxCalculation;
+#[doc(hidden)]
 pub mod tax_calculation_line_item;
-pub use tax_calculation_line_item::TaxCalculationLineItem;
+#[doc(inline)]
+pub use tax_calculation_line_item::*;
+pub use tax_registration::types::*;
 pub mod tax_registration;
-pub use tax_registration::TaxRegistration;
+pub use tax_settings::types::*;
 pub mod tax_settings;
-pub use tax_settings::TaxSettings;
+pub use tax_transaction::types::*;
 pub mod tax_transaction;
-pub use tax_transaction::TaxTransaction;
+#[doc(hidden)]
 pub mod tax_transaction_line_item;
-pub use tax_transaction_line_item::TaxTransactionLineItem;
+#[doc(inline)]
+pub use tax_transaction_line_item::*;
+#[doc(hidden)]
 pub mod tax_product_registrations_resource_country_options;
-pub use tax_product_registrations_resource_country_options::TaxProductRegistrationsResourceCountryOptions;
+#[doc(inline)]
+pub use tax_product_registrations_resource_country_options::*;
+#[doc(hidden)]
 pub mod tax_product_registrations_resource_country_options_ca_province_standard;
-pub use tax_product_registrations_resource_country_options_ca_province_standard::TaxProductRegistrationsResourceCountryOptionsCaProvinceStandard;
+#[doc(inline)]
+pub use tax_product_registrations_resource_country_options_ca_province_standard::*;
+#[doc(hidden)]
 pub mod tax_product_registrations_resource_country_options_canada;
-pub use tax_product_registrations_resource_country_options_canada::TaxProductRegistrationsResourceCountryOptionsCanada;
+#[doc(inline)]
+pub use tax_product_registrations_resource_country_options_canada::*;
+#[doc(hidden)]
 pub mod tax_product_registrations_resource_country_options_default;
-pub use tax_product_registrations_resource_country_options_default::TaxProductRegistrationsResourceCountryOptionsDefault;
+#[doc(inline)]
+pub use tax_product_registrations_resource_country_options_default::*;
+#[doc(hidden)]
 pub mod tax_product_registrations_resource_country_options_eu_standard;
-pub use tax_product_registrations_resource_country_options_eu_standard::TaxProductRegistrationsResourceCountryOptionsEuStandard;
+#[doc(inline)]
+pub use tax_product_registrations_resource_country_options_eu_standard::*;
+#[doc(hidden)]
 pub mod tax_product_registrations_resource_country_options_europe;
-pub use tax_product_registrations_resource_country_options_europe::TaxProductRegistrationsResourceCountryOptionsEurope;
+#[doc(inline)]
+pub use tax_product_registrations_resource_country_options_europe::*;
+#[doc(hidden)]
 pub mod tax_product_registrations_resource_country_options_simplified;
-pub use tax_product_registrations_resource_country_options_simplified::TaxProductRegistrationsResourceCountryOptionsSimplified;
+#[doc(inline)]
+pub use tax_product_registrations_resource_country_options_simplified::*;
+#[doc(hidden)]
 pub mod tax_product_registrations_resource_country_options_united_states;
-pub use tax_product_registrations_resource_country_options_united_states::TaxProductRegistrationsResourceCountryOptionsUnitedStates;
+#[doc(inline)]
+pub use tax_product_registrations_resource_country_options_united_states::*;
+#[doc(hidden)]
 pub mod tax_product_registrations_resource_country_options_us_local_amusement_tax;
-pub use tax_product_registrations_resource_country_options_us_local_amusement_tax::TaxProductRegistrationsResourceCountryOptionsUsLocalAmusementTax;
+#[doc(inline)]
+pub use tax_product_registrations_resource_country_options_us_local_amusement_tax::*;
+#[doc(hidden)]
 pub mod tax_product_registrations_resource_country_options_us_local_lease_tax;
-pub use tax_product_registrations_resource_country_options_us_local_lease_tax::TaxProductRegistrationsResourceCountryOptionsUsLocalLeaseTax;
+#[doc(inline)]
+pub use tax_product_registrations_resource_country_options_us_local_lease_tax::*;
+#[doc(hidden)]
 pub mod tax_product_resource_customer_details;
-pub use tax_product_resource_customer_details::TaxProductResourceCustomerDetails;
+#[doc(inline)]
+pub use tax_product_resource_customer_details::*;
+#[doc(hidden)]
 pub mod tax_product_resource_customer_details_resource_tax_id;
-pub use tax_product_resource_customer_details_resource_tax_id::TaxProductResourceCustomerDetailsResourceTaxId;
+#[doc(inline)]
+pub use tax_product_resource_customer_details_resource_tax_id::*;
+#[doc(hidden)]
 pub mod tax_product_resource_jurisdiction;
-pub use tax_product_resource_jurisdiction::TaxProductResourceJurisdiction;
+#[doc(inline)]
+pub use tax_product_resource_jurisdiction::*;
+#[doc(hidden)]
 pub mod tax_product_resource_line_item_tax_breakdown;
-pub use tax_product_resource_line_item_tax_breakdown::TaxProductResourceLineItemTaxBreakdown;
+#[doc(inline)]
+pub use tax_product_resource_line_item_tax_breakdown::*;
+#[doc(hidden)]
 pub mod tax_product_resource_line_item_tax_rate_details;
-pub use tax_product_resource_line_item_tax_rate_details::TaxProductResourceLineItemTaxRateDetails;
+#[doc(inline)]
+pub use tax_product_resource_line_item_tax_rate_details::*;
+#[doc(hidden)]
 pub mod tax_product_resource_postal_address;
-pub use tax_product_resource_postal_address::TaxProductResourcePostalAddress;
+#[doc(inline)]
+pub use tax_product_resource_postal_address::*;
+#[doc(hidden)]
 pub mod tax_product_resource_tax_breakdown;
-pub use tax_product_resource_tax_breakdown::TaxProductResourceTaxBreakdown;
+#[doc(inline)]
+pub use tax_product_resource_tax_breakdown::*;
+#[doc(hidden)]
 pub mod tax_product_resource_tax_calculation_shipping_cost;
-pub use tax_product_resource_tax_calculation_shipping_cost::TaxProductResourceTaxCalculationShippingCost;
+#[doc(inline)]
+pub use tax_product_resource_tax_calculation_shipping_cost::*;
+#[doc(hidden)]
 pub mod tax_product_resource_tax_rate_details;
-pub use tax_product_resource_tax_rate_details::TaxProductResourceTaxRateDetails;
+#[doc(inline)]
+pub use tax_product_resource_tax_rate_details::*;
+#[doc(hidden)]
 pub mod tax_product_resource_tax_settings_defaults;
-pub use tax_product_resource_tax_settings_defaults::TaxProductResourceTaxSettingsDefaults;
+#[doc(inline)]
+pub use tax_product_resource_tax_settings_defaults::*;
+#[doc(hidden)]
 pub mod tax_product_resource_tax_settings_head_office;
-pub use tax_product_resource_tax_settings_head_office::TaxProductResourceTaxSettingsHeadOffice;
+#[doc(inline)]
+pub use tax_product_resource_tax_settings_head_office::*;
+#[doc(hidden)]
 pub mod tax_product_resource_tax_settings_status_details;
-pub use tax_product_resource_tax_settings_status_details::TaxProductResourceTaxSettingsStatusDetails;
+#[doc(inline)]
+pub use tax_product_resource_tax_settings_status_details::*;
+#[doc(hidden)]
 pub mod tax_product_resource_tax_settings_status_details_resource_active;
-pub use tax_product_resource_tax_settings_status_details_resource_active::TaxProductResourceTaxSettingsStatusDetailsResourceActive;
+#[doc(inline)]
+pub use tax_product_resource_tax_settings_status_details_resource_active::*;
+#[doc(hidden)]
 pub mod tax_product_resource_tax_settings_status_details_resource_pending;
-pub use tax_product_resource_tax_settings_status_details_resource_pending::TaxProductResourceTaxSettingsStatusDetailsResourcePending;
+#[doc(inline)]
+pub use tax_product_resource_tax_settings_status_details_resource_pending::*;
+#[doc(hidden)]
 pub mod tax_product_resource_tax_transaction_line_item_resource_reversal;
-pub use tax_product_resource_tax_transaction_line_item_resource_reversal::TaxProductResourceTaxTransactionLineItemResourceReversal;
+#[doc(inline)]
+pub use tax_product_resource_tax_transaction_line_item_resource_reversal::*;
+#[doc(hidden)]
 pub mod tax_product_resource_tax_transaction_resource_reversal;
-pub use tax_product_resource_tax_transaction_resource_reversal::TaxProductResourceTaxTransactionResourceReversal;
+#[doc(inline)]
+pub use tax_product_resource_tax_transaction_resource_reversal::*;
+#[doc(hidden)]
 pub mod tax_product_resource_tax_transaction_shipping_cost;
-pub use tax_product_resource_tax_transaction_shipping_cost::TaxProductResourceTaxTransactionShippingCost;
+#[doc(inline)]
+pub use tax_product_resource_tax_transaction_shipping_cost::*;

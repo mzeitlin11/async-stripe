@@ -14,7 +14,7 @@ impl<'a> RetrieveCashBalance<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<stripe_shared::CashBalance> {
         client.get_query(&format!("/customers/{customer}/cash_balance"), self)
     }
@@ -110,7 +110,7 @@ impl<'a> UpdateCashBalance<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<stripe_shared::CashBalance> {
         client.send_form(
             &format!("/customers/{customer}/cash_balance"),

@@ -126,7 +126,7 @@ impl<'a> RetrieveTreasuryCreditReversal<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        credit_reversal: &stripe_treasury::treasury_credit_reversal::TreasuryCreditReversalId,
+        credit_reversal: &stripe_treasury::TreasuryCreditReversalId,
     ) -> stripe::Response<stripe_treasury::TreasuryCreditReversal> {
         client.get_query(&format!("/treasury/credit_reversals/{credit_reversal}"), self)
     }

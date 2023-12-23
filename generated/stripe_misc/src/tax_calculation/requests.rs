@@ -690,13 +690,13 @@ impl<'a> ListLineItemsTaxCalculation<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        calculation: &stripe_misc::tax_calculation::TaxCalculationId,
+        calculation: &stripe_misc::TaxCalculationId,
     ) -> stripe::Response<stripe_types::List<stripe_misc::TaxCalculationLineItem>> {
         client.get_query(&format!("/tax/calculations/{calculation}/line_items"), self)
     }
     pub fn paginate(
         self,
-        calculation: &stripe_misc::tax_calculation::TaxCalculationId,
+        calculation: &stripe_misc::TaxCalculationId,
     ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::TaxCalculationLineItem>> {
         stripe::ListPaginator::from_list_params(
             &format!("/tax/calculations/{calculation}/line_items"),

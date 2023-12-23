@@ -1,240 +1,183 @@
 #![recursion_limit = "256"]
 #![allow(clippy::large_enum_variant)]
+#![allow(rustdoc::broken_intra_doc_links)]
 #![allow(rustdoc::invalid_html_tags)]
 
 //! This crate provides Rust bindings to the Stripe HTTP API, specifically
 //! for requests mentioned in the `Billing` section of the [Stripe API docs](https://stripe.com/docs/api)
 
 extern crate self as stripe_billing;
-pub use stripe_shared::AutomaticTax;
-pub mod automatic_tax;
+pub use billing_portal_configuration::types::*;
+pub use stripe_shared::automatic_tax::*;
 pub mod billing_portal_configuration;
-pub use billing_portal_configuration::BillingPortalConfiguration;
+pub use billing_portal_session::types::*;
 pub mod billing_portal_session;
-pub use billing_portal_session::BillingPortalSession;
-pub use stripe_shared::CancellationDetails;
-pub mod cancellation_details;
-pub use stripe_shared::CreditNote;
+pub use stripe_shared::cancellation_details::*;
 pub mod credit_note;
-pub use stripe_shared::CreditNoteLineItem;
+pub use stripe_shared::credit_note::*;
 pub mod credit_note_line_item;
-pub use stripe_shared::CreditNoteTaxAmount;
-pub mod credit_note_tax_amount;
-pub use stripe_shared::DeletedInvoice;
-pub mod deleted_invoice;
-pub use stripe_shared::DeletedInvoiceitem;
-pub mod deleted_invoiceitem;
-pub use stripe_shared::DeletedPlan;
-pub mod deleted_plan;
-pub use stripe_shared::DeletedSubscriptionItem;
-pub mod deleted_subscription_item;
-pub use stripe_shared::DeletedTaxId;
-pub mod deleted_tax_id;
-pub use stripe_shared::DeletedTestHelpersTestClock;
-pub mod deleted_test_helpers_test_clock;
-pub use stripe_shared::DiscountsResourceDiscountAmount;
-pub mod discounts_resource_discount_amount;
-pub use stripe_shared::Invoice;
+pub use stripe_shared::credit_note_line_item::*;
+pub use stripe_shared::credit_note_tax_amount::*;
+pub use stripe_shared::deleted_invoice::*;
+pub use stripe_shared::deleted_invoiceitem::*;
+pub use stripe_shared::deleted_plan::*;
+pub use stripe_shared::deleted_subscription_item::*;
+pub use stripe_shared::deleted_tax_id::*;
+pub use stripe_shared::deleted_test_helpers_test_clock::*;
+pub use stripe_shared::discounts_resource_discount_amount::*;
 pub mod invoice;
-pub use stripe_shared::InvoiceInstallmentsCard;
-pub mod invoice_installments_card;
-pub use stripe_shared::InvoiceItemThresholdReason;
-pub mod invoice_item_threshold_reason;
-pub use stripe_shared::InvoiceLineItemPeriod;
-pub mod invoice_line_item_period;
-pub use stripe_shared::InvoiceMandateOptionsCard;
-pub mod invoice_mandate_options_card;
-pub use stripe_shared::InvoicePaymentMethodOptionsAcssDebit;
-pub mod invoice_payment_method_options_acss_debit;
-pub use stripe_shared::InvoicePaymentMethodOptionsAcssDebitMandateOptions;
-pub mod invoice_payment_method_options_acss_debit_mandate_options;
-pub use stripe_shared::InvoicePaymentMethodOptionsBancontact;
-pub mod invoice_payment_method_options_bancontact;
-pub use stripe_shared::InvoicePaymentMethodOptionsCard;
-pub mod invoice_payment_method_options_card;
-pub use stripe_shared::InvoicePaymentMethodOptionsCustomerBalance;
-pub mod invoice_payment_method_options_customer_balance;
-pub use stripe_shared::InvoicePaymentMethodOptionsCustomerBalanceBankTransfer;
-pub mod invoice_payment_method_options_customer_balance_bank_transfer;
-pub use stripe_shared::InvoicePaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer;
-pub mod invoice_payment_method_options_customer_balance_bank_transfer_eu_bank_transfer;
-pub use stripe_shared::InvoicePaymentMethodOptionsKonbini;
-pub mod invoice_payment_method_options_konbini;
-pub use stripe_shared::InvoicePaymentMethodOptionsUsBankAccount;
-pub mod invoice_payment_method_options_us_bank_account;
-pub use stripe_shared::InvoicePaymentMethodOptionsUsBankAccountLinkedAccountOptions;
-pub mod invoice_payment_method_options_us_bank_account_linked_account_options;
-pub use stripe_shared::InvoiceRenderingPdf;
-pub mod invoice_rendering_pdf;
-pub use stripe_shared::InvoiceSettingCustomField;
-pub mod invoice_setting_custom_field;
-pub use stripe_shared::InvoiceSettingCustomerSetting;
-pub mod invoice_setting_customer_setting;
-pub use stripe_shared::InvoiceSettingQuoteSetting;
-pub mod invoice_setting_quote_setting;
-pub use stripe_shared::InvoiceSettingRenderingOptions;
-pub mod invoice_setting_rendering_options;
-pub use stripe_shared::InvoiceSettingSubscriptionSchedulePhaseSetting;
-pub mod invoice_setting_subscription_schedule_phase_setting;
-pub use stripe_shared::InvoiceSettingSubscriptionScheduleSetting;
-pub mod invoice_setting_subscription_schedule_setting;
-pub use stripe_shared::InvoiceTaxAmount;
-pub mod invoice_tax_amount;
-pub use stripe_shared::InvoiceThresholdReason;
-pub mod invoice_threshold_reason;
-pub use stripe_shared::InvoiceTransferData;
-pub mod invoice_transfer_data;
-pub use stripe_shared::InvoiceItem;
+pub use stripe_shared::invoice::*;pub use stripe_shared::invoice_installments_card::*;pub use stripe_shared::invoice_item_threshold_reason::*;pub use stripe_shared::invoice_line_item_period::*;pub use stripe_shared::invoice_mandate_options_card::*;pub use stripe_shared::invoice_payment_method_options_acss_debit::*;pub use stripe_shared::invoice_payment_method_options_acss_debit_mandate_options::*;pub use stripe_shared::invoice_payment_method_options_bancontact::*;pub use stripe_shared::invoice_payment_method_options_card::*;pub use stripe_shared::invoice_payment_method_options_customer_balance::*;pub use stripe_shared::invoice_payment_method_options_customer_balance_bank_transfer::*;pub use stripe_shared::invoice_payment_method_options_customer_balance_bank_transfer_eu_bank_transfer::*;pub use stripe_shared::invoice_payment_method_options_konbini::*;pub use stripe_shared::invoice_payment_method_options_us_bank_account::*;pub use stripe_shared::invoice_payment_method_options_us_bank_account_linked_account_options::*;pub use stripe_shared::invoice_rendering_pdf::*;pub use stripe_shared::invoice_setting_custom_field::*;pub use stripe_shared::invoice_setting_customer_setting::*;pub use stripe_shared::invoice_setting_quote_setting::*;pub use stripe_shared::invoice_setting_rendering_options::*;pub use stripe_shared::invoice_setting_subscription_schedule_phase_setting::*;pub use stripe_shared::invoice_setting_subscription_schedule_setting::*;pub use stripe_shared::invoice_tax_amount::*;pub use stripe_shared::invoice_threshold_reason::*;pub use stripe_shared::invoice_transfer_data::*;
 pub mod invoice_item;
-pub use stripe_shared::InvoicesFromInvoice;
-pub mod invoices_from_invoice;
-pub use stripe_shared::InvoicesInvoiceRendering;
-pub mod invoices_invoice_rendering;
-pub use stripe_shared::InvoicesPaymentMethodOptions;
-pub mod invoices_payment_method_options;
-pub use stripe_shared::InvoicesPaymentSettings;
-pub mod invoices_payment_settings;
-pub use stripe_shared::InvoicesResourceInvoiceTaxId;
-pub mod invoices_resource_invoice_tax_id;
-pub use stripe_shared::InvoicesResourceLineItemsCreditedItems;
-pub mod invoices_resource_line_items_credited_items;
-pub use stripe_shared::InvoicesResourceLineItemsProrationDetails;
-pub mod invoices_resource_line_items_proration_details;
-pub use stripe_shared::InvoicesShippingCost;
-pub mod invoices_shipping_cost;
-pub use stripe_shared::InvoicesStatusTransitions;
-pub mod invoices_status_transitions;
-pub use stripe_shared::CheckoutSessionItem;
-pub mod checkout_session_item;
-pub use stripe_shared::InvoiceLineItem;
+pub use stripe_shared::checkout_session_item::*;
+pub use stripe_shared::invoice_item::*;
+pub use stripe_shared::invoices_from_invoice::*;
+pub use stripe_shared::invoices_invoice_rendering::*;
+pub use stripe_shared::invoices_payment_method_options::*;
+pub use stripe_shared::invoices_payment_settings::*;
+pub use stripe_shared::invoices_resource_invoice_tax_id::*;
+pub use stripe_shared::invoices_resource_line_items_credited_items::*;
+pub use stripe_shared::invoices_resource_line_items_proration_details::*;
+pub use stripe_shared::invoices_shipping_cost::*;
+pub use stripe_shared::invoices_status_transitions::*;
 pub mod invoice_line_item;
-pub use stripe_shared::UsageRecordSummary;
+pub use stripe_shared::invoice_line_item::*;
 pub mod usage_record_summary;
-pub use stripe_shared::Period;
-pub mod period;
-pub use stripe_shared::Plan;
+pub use stripe_shared::period::*;
+pub use stripe_shared::usage_record_summary::*;
 pub mod plan;
-pub use stripe_shared::PlanTier;
-pub mod plan_tier;
+pub use stripe_shared::plan::*;
+pub use stripe_shared::plan_tier::*;
+#[doc(hidden)]
 pub mod portal_business_profile;
-pub use portal_business_profile::PortalBusinessProfile;
+#[doc(inline)]
+pub use portal_business_profile::*;
+#[doc(hidden)]
 pub mod portal_customer_update;
-pub use portal_customer_update::PortalCustomerUpdate;
+#[doc(inline)]
+pub use portal_customer_update::*;
+#[doc(hidden)]
 pub mod portal_features;
-pub use portal_features::PortalFeatures;
+#[doc(inline)]
+pub use portal_features::*;
+#[doc(hidden)]
 pub mod portal_flows_after_completion_hosted_confirmation;
-pub use portal_flows_after_completion_hosted_confirmation::PortalFlowsAfterCompletionHostedConfirmation;
+#[doc(inline)]
+pub use portal_flows_after_completion_hosted_confirmation::*;
+#[doc(hidden)]
 pub mod portal_flows_after_completion_redirect;
-pub use portal_flows_after_completion_redirect::PortalFlowsAfterCompletionRedirect;
+#[doc(inline)]
+pub use portal_flows_after_completion_redirect::*;
+#[doc(hidden)]
 pub mod portal_flows_coupon_offer;
-pub use portal_flows_coupon_offer::PortalFlowsCouponOffer;
+#[doc(inline)]
+pub use portal_flows_coupon_offer::*;
+#[doc(hidden)]
 pub mod portal_flows_flow;
-pub use portal_flows_flow::PortalFlowsFlow;
+#[doc(inline)]
+pub use portal_flows_flow::*;
+#[doc(hidden)]
 pub mod portal_flows_flow_after_completion;
-pub use portal_flows_flow_after_completion::PortalFlowsFlowAfterCompletion;
+#[doc(inline)]
+pub use portal_flows_flow_after_completion::*;
+#[doc(hidden)]
 pub mod portal_flows_flow_subscription_cancel;
-pub use portal_flows_flow_subscription_cancel::PortalFlowsFlowSubscriptionCancel;
+#[doc(inline)]
+pub use portal_flows_flow_subscription_cancel::*;
+#[doc(hidden)]
 pub mod portal_flows_flow_subscription_update;
-pub use portal_flows_flow_subscription_update::PortalFlowsFlowSubscriptionUpdate;
+#[doc(inline)]
+pub use portal_flows_flow_subscription_update::*;
+#[doc(hidden)]
 pub mod portal_flows_flow_subscription_update_confirm;
-pub use portal_flows_flow_subscription_update_confirm::PortalFlowsFlowSubscriptionUpdateConfirm;
+#[doc(inline)]
+pub use portal_flows_flow_subscription_update_confirm::*;
+#[doc(hidden)]
 pub mod portal_flows_retention;
-pub use portal_flows_retention::PortalFlowsRetention;
+#[doc(inline)]
+pub use portal_flows_retention::*;
+#[doc(hidden)]
 pub mod portal_flows_subscription_update_confirm_discount;
-pub use portal_flows_subscription_update_confirm_discount::PortalFlowsSubscriptionUpdateConfirmDiscount;
+#[doc(inline)]
+pub use portal_flows_subscription_update_confirm_discount::*;
+#[doc(hidden)]
 pub mod portal_flows_subscription_update_confirm_item;
-pub use portal_flows_subscription_update_confirm_item::PortalFlowsSubscriptionUpdateConfirmItem;
+#[doc(inline)]
+pub use portal_flows_subscription_update_confirm_item::*;
+#[doc(hidden)]
 pub mod portal_invoice_list;
-pub use portal_invoice_list::PortalInvoiceList;
+#[doc(inline)]
+pub use portal_invoice_list::*;
+#[doc(hidden)]
 pub mod portal_login_page;
-pub use portal_login_page::PortalLoginPage;
+#[doc(inline)]
+pub use portal_login_page::*;
+#[doc(hidden)]
 pub mod portal_payment_method_update;
-pub use portal_payment_method_update::PortalPaymentMethodUpdate;
+#[doc(inline)]
+pub use portal_payment_method_update::*;
+#[doc(hidden)]
 pub mod portal_subscription_cancel;
-pub use portal_subscription_cancel::PortalSubscriptionCancel;
+#[doc(inline)]
+pub use portal_subscription_cancel::*;
+#[doc(hidden)]
 pub mod portal_subscription_cancellation_reason;
-pub use portal_subscription_cancellation_reason::PortalSubscriptionCancellationReason;
+#[doc(inline)]
+pub use portal_subscription_cancellation_reason::*;
+#[doc(hidden)]
 pub mod portal_subscription_pause;
-pub use portal_subscription_pause::PortalSubscriptionPause;
+#[doc(inline)]
+pub use portal_subscription_pause::*;
+#[doc(hidden)]
 pub mod portal_subscription_update;
-pub use portal_subscription_update::PortalSubscriptionUpdate;
+#[doc(inline)]
+pub use portal_subscription_update::*;
+#[doc(hidden)]
 pub mod portal_subscription_update_product;
-pub use portal_subscription_update_product::PortalSubscriptionUpdateProduct;
-pub use stripe_shared::Quote;
+#[doc(inline)]
+pub use portal_subscription_update_product::*;
 pub mod quote;
-pub use stripe_shared::QuotesResourceAutomaticTax;
-pub mod quotes_resource_automatic_tax;
-pub use stripe_shared::QuotesResourceComputed;
-pub mod quotes_resource_computed;
-pub use stripe_shared::QuotesResourceFromQuote;
-pub mod quotes_resource_from_quote;
-pub use stripe_shared::QuotesResourceRecurring;
-pub mod quotes_resource_recurring;
-pub use stripe_shared::QuotesResourceStatusTransitions;
-pub mod quotes_resource_status_transitions;
-pub use stripe_shared::QuotesResourceSubscriptionDataSubscriptionData;
-pub mod quotes_resource_subscription_data_subscription_data;
-pub use stripe_shared::QuotesResourceTotalDetails;
-pub mod quotes_resource_total_details;
-pub use stripe_shared::QuotesResourceTotalDetailsResourceBreakdown;
-pub mod quotes_resource_total_details_resource_breakdown;
-pub use stripe_shared::QuotesResourceTransferData;
-pub mod quotes_resource_transfer_data;
-pub use stripe_shared::QuotesResourceUpfront;
-pub mod quotes_resource_upfront;
-pub use stripe_shared::SchedulesPhaseAutomaticTax;
-pub mod schedules_phase_automatic_tax;
-pub mod usage_record;
-pub use stripe_shared::Subscription;
-pub use usage_record::UsageRecord;
+pub use stripe_shared::quote::*;
+pub use stripe_shared::quotes_resource_automatic_tax::*;
+pub use stripe_shared::quotes_resource_computed::*;
+pub use stripe_shared::quotes_resource_from_quote::*;
+pub use stripe_shared::quotes_resource_recurring::*;
+pub use stripe_shared::quotes_resource_status_transitions::*;
+pub use stripe_shared::quotes_resource_subscription_data_subscription_data::*;
+pub use stripe_shared::quotes_resource_total_details::*;
+pub use stripe_shared::quotes_resource_total_details_resource_breakdown::*;
+pub use stripe_shared::quotes_resource_transfer_data::*;
+pub use stripe_shared::quotes_resource_upfront::*;
+pub use stripe_shared::schedules_phase_automatic_tax::*;
+pub use usage_record::types::*;
 pub mod subscription;
-pub use stripe_shared::SubscriptionAutomaticTax;
-pub mod subscription_automatic_tax;
-pub use stripe_shared::SubscriptionBillingThresholds;
-pub mod subscription_billing_thresholds;
-pub use stripe_shared::SubscriptionDetailsData;
-pub mod subscription_details_data;
-pub use stripe_shared::SubscriptionItem;
+pub mod usage_record;
+pub use stripe_shared::subscription::*;
+pub use stripe_shared::subscription_automatic_tax::*;
+pub use stripe_shared::subscription_billing_thresholds::*;
+pub use stripe_shared::subscription_details_data::*;
 pub mod subscription_item;
-pub use stripe_shared::SubscriptionItemBillingThresholds;
-pub mod subscription_item_billing_thresholds;
-pub use stripe_shared::SubscriptionPaymentMethodOptionsCard;
-pub mod subscription_payment_method_options_card;
-pub use stripe_shared::SubscriptionPendingInvoiceItemInterval;
-pub mod subscription_pending_invoice_item_interval;
-pub use stripe_shared::SubscriptionSchedule;
+pub use stripe_shared::subscription_item::*;
+pub use stripe_shared::subscription_item_billing_thresholds::*;
+pub use stripe_shared::subscription_payment_method_options_card::*;
+pub use stripe_shared::subscription_pending_invoice_item_interval::*;
 pub mod subscription_schedule;
-pub use stripe_shared::SubscriptionScheduleAddInvoiceItem;
-pub mod subscription_schedule_add_invoice_item;
-pub use stripe_shared::SubscriptionScheduleConfigurationItem;
-pub mod subscription_schedule_configuration_item;
-pub use stripe_shared::SubscriptionScheduleCurrentPhase;
-pub mod subscription_schedule_current_phase;
-pub use stripe_shared::SubscriptionSchedulePhaseConfiguration;
-pub mod subscription_schedule_phase_configuration;
-pub use stripe_shared::SubscriptionSchedulesResourceDefaultSettings;
-pub mod subscription_schedules_resource_default_settings;
-pub use stripe_shared::SubscriptionSchedulesResourceDefaultSettingsAutomaticTax;
-pub mod subscription_schedules_resource_default_settings_automatic_tax;
-pub use stripe_shared::SubscriptionTransferData;
-pub mod subscription_transfer_data;
-pub use stripe_shared::SubscriptionsResourcePauseCollection;
-pub mod subscriptions_resource_pause_collection;
-pub use stripe_shared::SubscriptionsResourcePaymentMethodOptions;
-pub mod subscriptions_resource_payment_method_options;
-pub use stripe_shared::SubscriptionsResourcePaymentSettings;
-pub mod subscriptions_resource_payment_settings;
-pub use stripe_shared::SubscriptionsResourcePendingUpdate;
-pub mod subscriptions_resource_pending_update;
-pub use stripe_shared::SubscriptionsTrialsResourceEndBehavior;
-pub mod subscriptions_trials_resource_end_behavior;
-pub use stripe_shared::SubscriptionsTrialsResourceTrialSettings;
-pub mod subscriptions_trials_resource_trial_settings;
-pub use stripe_shared::TaxId;
+pub use stripe_shared::subscription_schedule::*;
+pub use stripe_shared::subscription_schedule_add_invoice_item::*;
+pub use stripe_shared::subscription_schedule_configuration_item::*;
+pub use stripe_shared::subscription_schedule_current_phase::*;
+pub use stripe_shared::subscription_schedule_phase_configuration::*;
+pub use stripe_shared::subscription_schedules_resource_default_settings::*;
+pub use stripe_shared::subscription_schedules_resource_default_settings_automatic_tax::*;
+pub use stripe_shared::subscription_transfer_data::*;
+pub use stripe_shared::subscriptions_resource_pause_collection::*;
+pub use stripe_shared::subscriptions_resource_payment_method_options::*;
+pub use stripe_shared::subscriptions_resource_payment_settings::*;
+pub use stripe_shared::subscriptions_resource_pending_update::*;
+pub use stripe_shared::subscriptions_trials_resource_end_behavior::*;
+pub use stripe_shared::subscriptions_trials_resource_trial_settings::*;
 pub mod tax_id;
-pub use stripe_shared::TaxIdVerification;
-pub mod tax_id_verification;
-pub use stripe_shared::TestHelpersTestClock;
+pub use stripe_shared::tax_id::*;
+pub use stripe_shared::tax_id_verification::*;
 pub mod test_helpers_test_clock;
-pub use stripe_shared::TransformUsage;
-pub mod transform_usage;
+pub use stripe_shared::test_helpers_test_clock::*;
+pub use stripe_shared::transform_usage::*;

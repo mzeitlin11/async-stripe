@@ -77,7 +77,7 @@ impl<'a> RetrieveEvent<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_shared::event::EventId,
+        id: &stripe_shared::EventId,
     ) -> stripe::Response<stripe_shared::Event> {
         client.get_query(&format!("/events/{id}"), self)
     }

@@ -164,7 +164,7 @@ impl<'a> RetrieveTreasuryOutboundTransfer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        outbound_transfer: &stripe_treasury::treasury_outbound_transfer::TreasuryOutboundTransferId,
+        outbound_transfer: &stripe_treasury::TreasuryOutboundTransferId,
     ) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
         client.get_query(&format!("/treasury/outbound_transfers/{outbound_transfer}"), self)
     }
@@ -299,7 +299,7 @@ impl<'a> CancelTreasuryOutboundTransfer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        outbound_transfer: &stripe_treasury::treasury_outbound_transfer::TreasuryOutboundTransferId,
+        outbound_transfer: &stripe_treasury::TreasuryOutboundTransferId,
     ) -> stripe::Response<stripe_treasury::TreasuryOutboundTransfer> {
         client.send_form(
             &format!("/treasury/outbound_transfers/{outbound_transfer}/cancel"),

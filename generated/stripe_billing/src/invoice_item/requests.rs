@@ -386,7 +386,7 @@ impl<'a> RetrieveInvoiceItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoiceitem: &stripe_shared::invoice_item::InvoiceItemId,
+        invoiceitem: &stripe_shared::InvoiceItemId,
     ) -> stripe::Response<stripe_shared::InvoiceItem> {
         client.get_query(&format!("/invoiceitems/{invoiceitem}"), self)
     }
@@ -668,7 +668,7 @@ impl<'a> UpdateInvoiceItem<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoiceitem: &stripe_shared::invoice_item::InvoiceItemId,
+        invoiceitem: &stripe_shared::InvoiceItemId,
     ) -> stripe::Response<stripe_shared::InvoiceItem> {
         client.send_form(&format!("/invoiceitems/{invoiceitem}"), self, http_types::Method::Post)
     }
@@ -687,7 +687,7 @@ impl DeleteInvoiceItem {
     pub fn send(
         &self,
         client: &stripe::Client,
-        invoiceitem: &stripe_shared::invoice_item::InvoiceItemId,
+        invoiceitem: &stripe_shared::InvoiceItemId,
     ) -> stripe::Response<stripe_shared::DeletedInvoiceitem> {
         client.send_form(&format!("/invoiceitems/{invoiceitem}"), self, http_types::Method::Delete)
     }

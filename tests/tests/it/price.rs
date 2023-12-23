@@ -1,5 +1,4 @@
-use stripe_product::currency_option::CurrencyOptionTaxBehavior;
-use stripe_product::Price;
+use stripe_product::{CurrencyOptionTaxBehavior, Price};
 use stripe_types::Currency;
 
 // Using fixture for this test because the stripe-mock server does not (currently [2023-05-25]) support the `currency_options` field.

@@ -1,4 +1,3 @@
-pub use stripe_shared::payment_link::*;
 #[cfg(feature = "payment_link")]
 mod requests;
 #[cfg(feature = "payment_link")]

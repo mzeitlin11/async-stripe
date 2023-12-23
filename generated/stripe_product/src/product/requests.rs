@@ -611,7 +611,7 @@ impl<'a> RetrieveProduct<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_shared::product::ProductId,
+        id: &stripe_shared::ProductId,
     ) -> stripe::Response<stripe_shared::Product> {
         client.get_query(&format!("/products/{id}"), self)
     }
@@ -729,7 +729,7 @@ impl<'a> UpdateProduct<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_shared::product::ProductId,
+        id: &stripe_shared::ProductId,
     ) -> stripe::Response<stripe_shared::Product> {
         client.send_form(&format!("/products/{id}"), self, http_types::Method::Post)
     }
@@ -863,7 +863,7 @@ impl DeleteProduct {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_shared::product::ProductId,
+        id: &stripe_shared::ProductId,
     ) -> stripe::Response<stripe_shared::DeletedProduct> {
         client.send_form(&format!("/products/{id}"), self, http_types::Method::Delete)
     }

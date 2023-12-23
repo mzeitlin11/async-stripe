@@ -1,6 +1,5 @@
 use serde_json::json;
-use stripe_core::charge::ChargeStatus;
-use stripe_core::{Charge, Customer};
+use stripe_core::{Charge, ChargeStatus, Customer};
 use stripe_types::Currency;
 
 #[test]
@@ -225,4 +224,5 @@ fn deserialize_charge_with_no_refunds() {
     assert_eq!(charge.id.as_str(), "ch_123");
     assert_eq!(charge.currency, Currency::CAD);
     assert_eq!(charge.status, ChargeStatus::Pending);
+    assert_eq!(charge.created, 1703349829);
 }

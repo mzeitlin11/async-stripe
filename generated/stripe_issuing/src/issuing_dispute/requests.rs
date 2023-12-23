@@ -1274,7 +1274,7 @@ impl<'a> UpdateIssuingDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_shared::issuing_dispute::IssuingDisputeId,
+        dispute: &stripe_shared::IssuingDisputeId,
     ) -> stripe::Response<stripe_shared::IssuingDispute> {
         client.send_form(&format!("/issuing/disputes/{dispute}"), self, http_types::Method::Post)
     }
@@ -1295,7 +1295,7 @@ impl<'a> RetrieveIssuingDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_shared::issuing_dispute::IssuingDisputeId,
+        dispute: &stripe_shared::IssuingDisputeId,
     ) -> stripe::Response<stripe_shared::IssuingDispute> {
         client.get_query(&format!("/issuing/disputes/{dispute}"), self)
     }
@@ -1326,7 +1326,7 @@ impl<'a> SubmitIssuingDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_shared::issuing_dispute::IssuingDisputeId,
+        dispute: &stripe_shared::IssuingDisputeId,
     ) -> stripe::Response<stripe_shared::IssuingDispute> {
         client.send_form(
             &format!("/issuing/disputes/{dispute}/submit"),

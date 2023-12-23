@@ -57,7 +57,7 @@ impl<'a> RetrievePaymentLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_link: &stripe_shared::payment_link::PaymentLinkId,
+        payment_link: &stripe_shared::PaymentLinkId,
     ) -> stripe::Response<stripe_shared::PaymentLink> {
         client.get_query(&format!("/payment_links/{payment_link}"), self)
     }
@@ -97,13 +97,13 @@ impl<'a> ListLineItemsPaymentLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_link: &stripe_shared::payment_link::PaymentLinkId,
+        payment_link: &stripe_shared::PaymentLinkId,
     ) -> stripe::Response<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
         client.get_query(&format!("/payment_links/{payment_link}/line_items"), self)
     }
     pub fn paginate(
         self,
-        payment_link: &stripe_shared::payment_link::PaymentLinkId,
+        payment_link: &stripe_shared::PaymentLinkId,
     ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
         stripe::ListPaginator::from_list_params(
             &format!("/payment_links/{payment_link}/line_items"),
@@ -4082,7 +4082,7 @@ impl<'a> UpdatePaymentLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_link: &stripe_shared::payment_link::PaymentLinkId,
+        payment_link: &stripe_shared::PaymentLinkId,
     ) -> stripe::Response<stripe_shared::PaymentLink> {
         client.send_form(&format!("/payment_links/{payment_link}"), self, http_types::Method::Post)
     }

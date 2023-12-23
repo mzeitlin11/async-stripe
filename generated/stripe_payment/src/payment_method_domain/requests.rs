@@ -14,7 +14,7 @@ impl<'a> RetrievePaymentMethodDomain<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_method_domain: &stripe_payment::payment_method_domain::PaymentMethodDomainId,
+        payment_method_domain: &stripe_payment::PaymentMethodDomainId,
     ) -> stripe::Response<stripe_payment::PaymentMethodDomain> {
         client.get_query(&format!("/payment_method_domains/{payment_method_domain}"), self)
     }
@@ -117,7 +117,7 @@ impl<'a> UpdatePaymentMethodDomain<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_method_domain: &stripe_payment::payment_method_domain::PaymentMethodDomainId,
+        payment_method_domain: &stripe_payment::PaymentMethodDomainId,
     ) -> stripe::Response<stripe_payment::PaymentMethodDomain> {
         client.send_form(
             &format!("/payment_method_domains/{payment_method_domain}"),
@@ -144,7 +144,7 @@ impl<'a> ValidatePaymentMethodDomain<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_method_domain: &stripe_payment::payment_method_domain::PaymentMethodDomainId,
+        payment_method_domain: &stripe_payment::PaymentMethodDomainId,
     ) -> stripe::Response<stripe_payment::PaymentMethodDomain> {
         client.send_form(
             &format!("/payment_method_domains/{payment_method_domain}/validate"),

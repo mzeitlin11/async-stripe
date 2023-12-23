@@ -14,7 +14,7 @@ impl<'a> DetachSource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
         id: &str,
     ) -> stripe::Response<DetachReturned> {
         client.send_form(
@@ -53,7 +53,7 @@ impl<'a> RetrieveSource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        source: &stripe_shared::source::SourceId,
+        source: &stripe_shared::SourceId,
     ) -> stripe::Response<stripe_shared::Source> {
         client.get_query(&format!("/sources/{source}"), self)
     }
@@ -1468,7 +1468,7 @@ impl<'a> UpdateSource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        source: &stripe_shared::source::SourceId,
+        source: &stripe_shared::SourceId,
     ) -> stripe::Response<stripe_shared::Source> {
         client.send_form(&format!("/sources/{source}"), self, http_types::Method::Post)
     }
@@ -1491,7 +1491,7 @@ impl<'a> VerifySource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        source: &stripe_shared::source::SourceId,
+        source: &stripe_shared::SourceId,
     ) -> stripe::Response<stripe_shared::Source> {
         client.send_form(&format!("/sources/{source}/verify"), self, http_types::Method::Post)
     }
@@ -1529,13 +1529,13 @@ impl<'a> SourceTransactionsSource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        source: &stripe_shared::source::SourceId,
+        source: &stripe_shared::SourceId,
     ) -> stripe::Response<stripe_types::List<stripe_shared::SourceTransaction>> {
         client.get_query(&format!("/sources/{source}/source_transactions"), self)
     }
     pub fn paginate(
         self,
-        source: &stripe_shared::source::SourceId,
+        source: &stripe_shared::SourceId,
     ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::SourceTransaction>> {
         stripe::ListPaginator::from_list_params(
             &format!("/sources/{source}/source_transactions"),

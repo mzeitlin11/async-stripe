@@ -162,7 +162,7 @@ impl<'a> RetrieveFile<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        file: &stripe_shared::file::FileId,
+        file: &stripe_shared::FileId,
     ) -> stripe::Response<stripe_shared::File> {
         client.get_query(&format!("/files/{file}"), self)
     }

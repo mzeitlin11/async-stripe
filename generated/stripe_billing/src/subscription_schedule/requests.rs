@@ -1146,7 +1146,7 @@ impl<'a> RetrieveSubscriptionSchedule<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        schedule: &stripe_shared::subscription_schedule::SubscriptionScheduleId,
+        schedule: &stripe_shared::SubscriptionScheduleId,
     ) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
         client.get_query(&format!("/subscription_schedules/{schedule}"), self)
     }
@@ -2285,7 +2285,7 @@ impl<'a> UpdateSubscriptionSchedule<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        schedule: &stripe_shared::subscription_schedule::SubscriptionScheduleId,
+        schedule: &stripe_shared::SubscriptionScheduleId,
     ) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
         client.send_form(
             &format!("/subscription_schedules/{schedule}"),
@@ -2322,7 +2322,7 @@ impl<'a> CancelSubscriptionSchedule<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        schedule: &stripe_shared::subscription_schedule::SubscriptionScheduleId,
+        schedule: &stripe_shared::SubscriptionScheduleId,
     ) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
         client.send_form(
             &format!("/subscription_schedules/{schedule}/cancel"),
@@ -2353,7 +2353,7 @@ impl<'a> ReleaseSubscriptionSchedule<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        schedule: &stripe_shared::subscription_schedule::SubscriptionScheduleId,
+        schedule: &stripe_shared::SubscriptionScheduleId,
     ) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
         client.send_form(
             &format!("/subscription_schedules/{schedule}/release"),

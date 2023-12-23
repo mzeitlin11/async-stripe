@@ -1,1 +1,0 @@
-pub use stripe_shared::payment_method_config_biz_payment_method_configuration_details::*;

@@ -34,13 +34,13 @@ impl<'a> ListPaymentSource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<stripe_types::List<stripe_shared::PaymentSource>> {
         client.get_query(&format!("/customers/{customer}/sources"), self)
     }
     pub fn paginate(
         self,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PaymentSource>> {
         stripe::ListPaginator::from_list_params(&format!("/customers/{customer}/sources"), self)
     }
@@ -61,7 +61,7 @@ impl<'a> RetrievePaymentSource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
         id: &str,
     ) -> stripe::Response<stripe_shared::PaymentSource> {
         client.get_query(&format!("/customers/{customer}/sources/{id}"), self)
@@ -98,7 +98,7 @@ impl<'a> CreatePaymentSource<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<stripe_shared::PaymentSource> {
         client.send_form(&format!("/customers/{customer}/sources"), self, http_types::Method::Post)
     }

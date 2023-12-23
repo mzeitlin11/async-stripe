@@ -1,1 +1,0 @@
-pub use stripe_shared::invoice_payment_method_options_customer_balance_bank_transfer_eu_bank_transfer::*;

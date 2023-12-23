@@ -62,7 +62,7 @@ impl<'a> RetrieveDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_shared::dispute::DisputeId,
+        dispute: &stripe_shared::DisputeId,
     ) -> stripe::Response<stripe_shared::Dispute> {
         client.get_query(&format!("/disputes/{dispute}"), self)
     }
@@ -231,7 +231,7 @@ impl<'a> UpdateDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_shared::dispute::DisputeId,
+        dispute: &stripe_shared::DisputeId,
     ) -> stripe::Response<stripe_shared::Dispute> {
         client.send_form(&format!("/disputes/{dispute}"), self, http_types::Method::Post)
     }
@@ -256,7 +256,7 @@ impl<'a> CloseDispute<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        dispute: &stripe_shared::dispute::DisputeId,
+        dispute: &stripe_shared::DisputeId,
     ) -> stripe::Response<stripe_shared::Dispute> {
         client.send_form(&format!("/disputes/{dispute}/close"), self, http_types::Method::Post)
     }

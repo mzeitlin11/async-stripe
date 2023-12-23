@@ -16,13 +16,13 @@ impl<'a> ListCapability<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_shared::account::AccountId,
+        account: &stripe_shared::AccountId,
     ) -> stripe::Response<stripe_types::List<stripe_shared::Capability>> {
         client.get_query(&format!("/accounts/{account}/capabilities"), self)
     }
     pub fn paginate(
         self,
-        account: &stripe_shared::account::AccountId,
+        account: &stripe_shared::AccountId,
     ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Capability>> {
         stripe::ListPaginator::from_list_params(&format!("/accounts/{account}/capabilities"), self)
     }
@@ -43,7 +43,7 @@ impl<'a> RetrieveCapability<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_shared::account::AccountId,
+        account: &stripe_shared::AccountId,
         capability: &str,
     ) -> stripe::Response<stripe_shared::Capability> {
         client.get_query(&format!("/accounts/{account}/capabilities/{capability}"), self)
@@ -75,7 +75,7 @@ impl<'a> UpdateCapability<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_shared::account::AccountId,
+        account: &stripe_shared::AccountId,
         capability: &str,
     ) -> stripe::Response<stripe_shared::Capability> {
         client.send_form(

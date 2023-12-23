@@ -3798,7 +3798,7 @@ impl<'a> RetrieveIssuingCardholder<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        cardholder: &stripe_shared::issuing_cardholder::IssuingCardholderId,
+        cardholder: &stripe_shared::IssuingCardholderId,
     ) -> stripe::Response<stripe_shared::IssuingCardholder> {
         client.get_query(&format!("/issuing/cardholders/{cardholder}"), self)
     }
@@ -7330,7 +7330,7 @@ impl<'a> UpdateIssuingCardholder<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        cardholder: &stripe_shared::issuing_cardholder::IssuingCardholderId,
+        cardholder: &stripe_shared::IssuingCardholderId,
     ) -> stripe::Response<stripe_shared::IssuingCardholder> {
         client.send_form(
             &format!("/issuing/cardholders/{cardholder}"),

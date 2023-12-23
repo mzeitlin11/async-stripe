@@ -66,7 +66,7 @@ impl<'a> RetrieveRadarValueList<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        value_list: &stripe_fraud::radar_value_list::RadarValueListId,
+        value_list: &stripe_fraud::RadarValueListId,
     ) -> stripe::Response<stripe_fraud::RadarValueList> {
         client.get_query(&format!("/radar/value_lists/{value_list}"), self)
     }
@@ -215,7 +215,7 @@ impl<'a> UpdateRadarValueList<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        value_list: &stripe_fraud::radar_value_list::RadarValueListId,
+        value_list: &stripe_fraud::RadarValueListId,
     ) -> stripe::Response<stripe_fraud::RadarValueList> {
         client.send_form(
             &format!("/radar/value_lists/{value_list}"),
@@ -238,7 +238,7 @@ impl DeleteRadarValueList {
     pub fn send(
         &self,
         client: &stripe::Client,
-        value_list: &stripe_fraud::radar_value_list::RadarValueListId,
+        value_list: &stripe_fraud::RadarValueListId,
     ) -> stripe::Response<stripe_fraud::DeletedRadarValueList> {
         client.send_form(
             &format!("/radar/value_lists/{value_list}"),

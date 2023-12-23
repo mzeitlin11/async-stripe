@@ -203,7 +203,7 @@ impl<'a> RetrieveIdentityVerificationSession<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        session: &stripe_misc::identity_verification_session::IdentityVerificationSessionId,
+        session: &stripe_misc::IdentityVerificationSessionId,
     ) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
         client.get_query(&format!("/identity/verification_sessions/{session}"), self)
     }
@@ -337,7 +337,7 @@ impl<'a> CancelIdentityVerificationSession<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        session: &stripe_misc::identity_verification_session::IdentityVerificationSessionId,
+        session: &stripe_misc::IdentityVerificationSessionId,
     ) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
         client.send_form(
             &format!("/identity/verification_sessions/{session}/cancel"),
@@ -369,7 +369,7 @@ impl<'a> RedactIdentityVerificationSession<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        session: &stripe_misc::identity_verification_session::IdentityVerificationSessionId,
+        session: &stripe_misc::IdentityVerificationSessionId,
     ) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
         client.send_form(
             &format!("/identity/verification_sessions/{session}/redact"),
@@ -555,7 +555,7 @@ impl<'a> UpdateIdentityVerificationSession<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        session: &stripe_misc::identity_verification_session::IdentityVerificationSessionId,
+        session: &stripe_misc::IdentityVerificationSessionId,
     ) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
         client.send_form(
             &format!("/identity/verification_sessions/{session}"),

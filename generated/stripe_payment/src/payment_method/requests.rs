@@ -1295,7 +1295,7 @@ impl<'a> RetrievePaymentMethod<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_method: &stripe_shared::payment_method::PaymentMethodId,
+        payment_method: &stripe_shared::PaymentMethodId,
     ) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.get_query(&format!("/payment_methods/{payment_method}"), self)
     }
@@ -1463,7 +1463,7 @@ impl<'a> UpdatePaymentMethod<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_method: &stripe_shared::payment_method::PaymentMethodId,
+        payment_method: &stripe_shared::PaymentMethodId,
     ) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.send_form(
             &format!("/payment_methods/{payment_method}"),
@@ -1698,7 +1698,7 @@ impl<'a> AttachPaymentMethod<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_method: &stripe_shared::payment_method::PaymentMethodId,
+        payment_method: &stripe_shared::PaymentMethodId,
     ) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.send_form(
             &format!("/payment_methods/{payment_method}/attach"),
@@ -1725,7 +1725,7 @@ impl<'a> DetachPaymentMethod<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payment_method: &stripe_shared::payment_method::PaymentMethodId,
+        payment_method: &stripe_shared::PaymentMethodId,
     ) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.send_form(
             &format!("/payment_methods/{payment_method}/detach"),

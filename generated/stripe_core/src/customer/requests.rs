@@ -817,7 +817,7 @@ impl<'a> RetrieveCustomer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<RetrieveReturned> {
         client.get_query(&format!("/customers/{customer}"), self)
     }
@@ -1275,7 +1275,7 @@ impl<'a> UpdateCustomer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<stripe_shared::Customer> {
         client.send_form(&format!("/customers/{customer}"), self, http_types::Method::Post)
     }
@@ -1295,7 +1295,7 @@ impl DeleteCustomer {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<stripe_shared::DeletedCustomer> {
         client.send_form(&format!("/customers/{customer}"), self, http_types::Method::Delete)
     }
@@ -1488,13 +1488,13 @@ impl<'a> ListPaymentMethodsCustomer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<stripe_types::List<stripe_shared::PaymentMethod>> {
         client.get_query(&format!("/customers/{customer}/payment_methods"), self)
     }
     pub fn paginate(
         self,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PaymentMethod>> {
         stripe::ListPaginator::from_list_params(
             &format!("/customers/{customer}/payment_methods"),
@@ -1518,7 +1518,7 @@ impl<'a> RetrievePaymentMethodCustomer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
         payment_method: &str,
     ) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.get_query(&format!("/customers/{customer}/payment_methods/{payment_method}"), self)
@@ -1557,13 +1557,13 @@ impl<'a> BalanceTransactionsCustomer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<stripe_types::List<stripe_shared::CustomerBalanceTransaction>> {
         client.get_query(&format!("/customers/{customer}/balance_transactions"), self)
     }
     pub fn paginate(
         self,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CustomerBalanceTransaction>> {
         stripe::ListPaginator::from_list_params(
             &format!("/customers/{customer}/balance_transactions"),
@@ -1843,7 +1843,7 @@ impl<'a> CreateFundingInstructionsCustomer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<stripe_shared::FundingInstructions> {
         client.send_form(
             &format!("/customers/{customer}/funding_instructions"),
@@ -1864,7 +1864,7 @@ impl DeleteDiscountCustomer {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<stripe_shared::DeletedDiscount> {
         client.send_form(
             &format!("/customers/{customer}/discount"),

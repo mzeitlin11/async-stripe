@@ -14,7 +14,7 @@ impl<'a> RetrieveToken<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        token: &stripe_core::token::TokenId,
+        token: &stripe_core::TokenId,
     ) -> stripe::Response<stripe_core::Token> {
         client.get_query(&format!("/tokens/{token}"), self)
     }

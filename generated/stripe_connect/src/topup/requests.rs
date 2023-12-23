@@ -186,7 +186,7 @@ impl<'a> RetrieveTopup<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        topup: &stripe_shared::topup::TopupId,
+        topup: &stripe_shared::TopupId,
     ) -> stripe::Response<stripe_shared::Topup> {
         client.get_query(&format!("/topups/{topup}"), self)
     }
@@ -221,7 +221,7 @@ impl<'a> UpdateTopup<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        topup: &stripe_shared::topup::TopupId,
+        topup: &stripe_shared::TopupId,
     ) -> stripe::Response<stripe_shared::Topup> {
         client.send_form(&format!("/topups/{topup}"), self, http_types::Method::Post)
     }
@@ -244,7 +244,7 @@ impl<'a> CancelTopup<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        topup: &stripe_shared::topup::TopupId,
+        topup: &stripe_shared::TopupId,
     ) -> stripe::Response<stripe_shared::Topup> {
         client.send_form(&format!("/topups/{topup}/cancel"), self, http_types::Method::Post)
     }

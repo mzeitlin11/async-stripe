@@ -3,8 +3,6 @@
 use http_types::{Body, Method, Request, Url};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use stripe_shared::account::AccountId;
-use stripe_shared::application::ApplicationId;
 use stripe_shared::version::VERSION;
 
 use crate::client::headers::{AppInfo, Headers};
@@ -13,6 +11,7 @@ use crate::{
     config::err,
     StripeError,
 };
+use crate::{AccountId, ApplicationId};
 
 static USER_AGENT: &str = concat!("Stripe/v1 RustBindings/", env!("CARGO_PKG_VERSION"));
 

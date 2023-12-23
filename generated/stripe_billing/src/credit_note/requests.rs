@@ -569,7 +569,7 @@ impl<'a> RetrieveCreditNote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_shared::credit_note::CreditNoteId,
+        id: &stripe_shared::CreditNoteId,
     ) -> stripe::Response<stripe_shared::CreditNote> {
         client.get_query(&format!("/credit_notes/{id}"), self)
     }
@@ -646,7 +646,7 @@ impl<'a> UpdateCreditNote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_shared::credit_note::CreditNoteId,
+        id: &stripe_shared::CreditNoteId,
     ) -> stripe::Response<stripe_shared::CreditNote> {
         client.send_form(&format!("/credit_notes/{id}"), self, http_types::Method::Post)
     }
@@ -669,7 +669,7 @@ impl<'a> VoidCreditNoteCreditNote<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_shared::credit_note::CreditNoteId,
+        id: &stripe_shared::CreditNoteId,
     ) -> stripe::Response<stripe_shared::CreditNote> {
         client.send_form(&format!("/credit_notes/{id}/void"), self, http_types::Method::Post)
     }

@@ -690,7 +690,7 @@ impl<'a> UpdateTreasuryFinancialAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        financial_account: &stripe_treasury::treasury_financial_account::TreasuryFinancialAccountId,
+        financial_account: &stripe_treasury::TreasuryFinancialAccountId,
     ) -> stripe::Response<stripe_treasury::TreasuryFinancialAccount> {
         client.send_form(
             &format!("/treasury/financial_accounts/{financial_account}"),
@@ -895,7 +895,7 @@ impl<'a> UpdateFeaturesTreasuryFinancialAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        financial_account: &stripe_treasury::treasury_financial_account::TreasuryFinancialAccountId,
+        financial_account: &stripe_treasury::TreasuryFinancialAccountId,
     ) -> stripe::Response<stripe_treasury::TreasuryFinancialAccountFeatures> {
         client.send_form(
             &format!("/treasury/financial_accounts/{financial_account}/features"),
@@ -956,7 +956,7 @@ impl<'a> RetrieveTreasuryFinancialAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        financial_account: &stripe_treasury::treasury_financial_account::TreasuryFinancialAccountId,
+        financial_account: &stripe_treasury::TreasuryFinancialAccountId,
     ) -> stripe::Response<stripe_treasury::TreasuryFinancialAccount> {
         client.get_query(&format!("/treasury/financial_accounts/{financial_account}"), self)
     }
@@ -977,7 +977,7 @@ impl<'a> RetrieveFeaturesTreasuryFinancialAccount<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        financial_account: &stripe_treasury::treasury_financial_account::TreasuryFinancialAccountId,
+        financial_account: &stripe_treasury::TreasuryFinancialAccountId,
     ) -> stripe::Response<stripe_treasury::TreasuryFinancialAccountFeatures> {
         client
             .get_query(&format!("/treasury/financial_accounts/{financial_account}/features"), self)

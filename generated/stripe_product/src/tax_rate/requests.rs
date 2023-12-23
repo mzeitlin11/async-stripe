@@ -65,7 +65,7 @@ impl<'a> RetrieveTaxRate<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        tax_rate: &stripe_shared::tax_rate::TaxRateId,
+        tax_rate: &stripe_shared::TaxRateId,
     ) -> stripe::Response<stripe_shared::TaxRate> {
         client.get_query(&format!("/tax_rates/{tax_rate}"), self)
     }
@@ -368,7 +368,7 @@ impl<'a> UpdateTaxRate<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        tax_rate: &stripe_shared::tax_rate::TaxRateId,
+        tax_rate: &stripe_shared::TaxRateId,
     ) -> stripe::Response<stripe_shared::TaxRate> {
         client.send_form(&format!("/tax_rates/{tax_rate}"), self, http_types::Method::Post)
     }

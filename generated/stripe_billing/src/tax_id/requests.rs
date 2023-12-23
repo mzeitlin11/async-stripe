@@ -266,7 +266,7 @@ impl<'a> CreateTaxId<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<stripe_shared::TaxId> {
         client.send_form(&format!("/customers/{customer}/tax_ids"), self, http_types::Method::Post)
     }
@@ -287,7 +287,7 @@ impl<'a> RetrieveTaxId<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
         id: &str,
     ) -> stripe::Response<stripe_shared::TaxId> {
         client.get_query(&format!("/customers/{customer}/tax_ids/{id}"), self)
@@ -326,13 +326,13 @@ impl<'a> ListTaxId<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::Response<stripe_types::List<stripe_shared::TaxId>> {
         client.get_query(&format!("/customers/{customer}/tax_ids"), self)
     }
     pub fn paginate(
         self,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
     ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::TaxId>> {
         stripe::ListPaginator::from_list_params(&format!("/customers/{customer}/tax_ids"), self)
     }
@@ -349,7 +349,7 @@ impl DeleteTaxId {
     pub fn send(
         &self,
         client: &stripe::Client,
-        customer: &stripe_shared::customer::CustomerId,
+        customer: &stripe_shared::CustomerId,
         id: &str,
     ) -> stripe::Response<stripe_shared::DeletedTaxId> {
         client.send_form(

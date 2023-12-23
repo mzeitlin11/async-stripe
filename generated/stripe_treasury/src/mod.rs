@@ -1,118 +1,209 @@
 #![recursion_limit = "256"]
 #![allow(clippy::large_enum_variant)]
+#![allow(rustdoc::broken_intra_doc_links)]
 #![allow(rustdoc::invalid_html_tags)]
 
 //! This crate provides Rust bindings to the Stripe HTTP API, specifically
 //! for requests mentioned in the `Treasury` section of the [Stripe API docs](https://stripe.com/docs/api)
 
 extern crate self as stripe_treasury;
+#[doc(hidden)]
 pub mod inbound_transfers;
-pub use inbound_transfers::InboundTransfers;
+#[doc(inline)]
+pub use inbound_transfers::*;
+#[doc(hidden)]
 pub mod inbound_transfers_payment_method_details_us_bank_account;
-pub use inbound_transfers_payment_method_details_us_bank_account::InboundTransfersPaymentMethodDetailsUsBankAccount;
+#[doc(inline)]
+pub use inbound_transfers_payment_method_details_us_bank_account::*;
+#[doc(hidden)]
 pub mod outbound_payments_payment_method_details;
-pub use outbound_payments_payment_method_details::OutboundPaymentsPaymentMethodDetails;
+#[doc(inline)]
+pub use outbound_payments_payment_method_details::*;
+#[doc(hidden)]
 pub mod outbound_payments_payment_method_details_financial_account;
-pub use outbound_payments_payment_method_details_financial_account::OutboundPaymentsPaymentMethodDetailsFinancialAccount;
+#[doc(inline)]
+pub use outbound_payments_payment_method_details_financial_account::*;
+#[doc(hidden)]
 pub mod outbound_payments_payment_method_details_us_bank_account;
-pub use outbound_payments_payment_method_details_us_bank_account::OutboundPaymentsPaymentMethodDetailsUsBankAccount;
+#[doc(inline)]
+pub use outbound_payments_payment_method_details_us_bank_account::*;
+#[doc(hidden)]
 pub mod outbound_transfers_payment_method_details;
-pub use outbound_transfers_payment_method_details::OutboundTransfersPaymentMethodDetails;
+#[doc(inline)]
+pub use outbound_transfers_payment_method_details::*;
+#[doc(hidden)]
 pub mod outbound_transfers_payment_method_details_us_bank_account;
-pub use outbound_transfers_payment_method_details_us_bank_account::OutboundTransfersPaymentMethodDetailsUsBankAccount;
+#[doc(inline)]
+pub use outbound_transfers_payment_method_details_us_bank_account::*;
+#[doc(hidden)]
 pub mod treasury_transactions_resource_flow_details;
-pub use treasury_transactions_resource_flow_details::TreasuryTransactionsResourceFlowDetails;
+#[doc(inline)]
+pub use treasury_transactions_resource_flow_details::*;
+#[doc(hidden)]
 pub mod received_payment_method_details_financial_account;
-pub use received_payment_method_details_financial_account::ReceivedPaymentMethodDetailsFinancialAccount;
+#[doc(inline)]
+pub use received_payment_method_details_financial_account::*;
+#[doc(hidden)]
 pub mod treasury_transactions_resource_balance_impact;
-pub use treasury_transactions_resource_balance_impact::TreasuryTransactionsResourceBalanceImpact;
+#[doc(inline)]
+pub use treasury_transactions_resource_balance_impact::*;
+#[doc(hidden)]
 pub mod treasury_transactions_resource_abstract_transaction_resource_status_transitions;
-pub use treasury_transactions_resource_abstract_transaction_resource_status_transitions::TreasuryTransactionsResourceAbstractTransactionResourceStatusTransitions;
+#[doc(inline)]
+pub use treasury_transactions_resource_abstract_transaction_resource_status_transitions::*;
+#[doc(hidden)]
 pub mod treasury_shared_resource_initiating_payment_method_details_us_bank_account;
-pub use treasury_shared_resource_initiating_payment_method_details_us_bank_account::TreasurySharedResourceInitiatingPaymentMethodDetailsUsBankAccount;
+pub use treasury_credit_reversal::types::*;
+#[doc(inline)]
+pub use treasury_shared_resource_initiating_payment_method_details_us_bank_account::*;
 pub mod treasury_credit_reversal;
-pub use treasury_credit_reversal::TreasuryCreditReversal;
+pub use treasury_debit_reversal::types::*;
 pub mod treasury_debit_reversal;
-pub use treasury_debit_reversal::TreasuryDebitReversal;
+pub use treasury_financial_account::types::*;
 pub mod treasury_financial_account;
-pub use treasury_financial_account::TreasuryFinancialAccount;
+#[doc(hidden)]
 pub mod treasury_financial_account_features;
-pub use treasury_financial_account_features::TreasuryFinancialAccountFeatures;
+#[doc(inline)]
+pub use treasury_financial_account_features::*;
+pub use treasury_inbound_transfer::types::*;
 pub mod treasury_inbound_transfer;
-pub use treasury_inbound_transfer::TreasuryInboundTransfer;
+pub use treasury_outbound_payment::types::*;
 pub mod treasury_outbound_payment;
-pub use treasury_outbound_payment::TreasuryOutboundPayment;
+pub use treasury_outbound_transfer::types::*;
 pub mod treasury_outbound_transfer;
-pub use treasury_outbound_transfer::TreasuryOutboundTransfer;
+pub use treasury_received_credit::types::*;
 pub mod treasury_received_credit;
-pub use treasury_received_credit::TreasuryReceivedCredit;
+pub use treasury_received_debit::types::*;
 pub mod treasury_received_debit;
-pub use treasury_received_debit::TreasuryReceivedDebit;
+pub use treasury_transaction::types::*;
 pub mod treasury_transaction;
-pub use treasury_transaction::TreasuryTransaction;
-pub mod treasury_transaction_entry;
-pub use treasury_transaction_entry::TreasuryTransactionEntry;
+pub use treasury_transaction_entry::types::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_aba_record;
-pub use treasury_financial_accounts_resource_aba_record::TreasuryFinancialAccountsResourceAbaRecord;
+pub mod treasury_transaction_entry;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_aba_record::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_aba_toggle_settings;
-pub use treasury_financial_accounts_resource_aba_toggle_settings::TreasuryFinancialAccountsResourceAbaToggleSettings;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_aba_toggle_settings::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_ach_toggle_settings;
-pub use treasury_financial_accounts_resource_ach_toggle_settings::TreasuryFinancialAccountsResourceAchToggleSettings;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_ach_toggle_settings::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_balance;
-pub use treasury_financial_accounts_resource_balance::TreasuryFinancialAccountsResourceBalance;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_balance::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_closed_status_details;
-pub use treasury_financial_accounts_resource_closed_status_details::TreasuryFinancialAccountsResourceClosedStatusDetails;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_closed_status_details::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_financial_address;
-pub use treasury_financial_accounts_resource_financial_address::TreasuryFinancialAccountsResourceFinancialAddress;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_financial_address::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_financial_addresses_features;
-pub use treasury_financial_accounts_resource_financial_addresses_features::TreasuryFinancialAccountsResourceFinancialAddressesFeatures;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_financial_addresses_features::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_inbound_transfers;
-pub use treasury_financial_accounts_resource_inbound_transfers::TreasuryFinancialAccountsResourceInboundTransfers;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_inbound_transfers::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_outbound_payments;
-pub use treasury_financial_accounts_resource_outbound_payments::TreasuryFinancialAccountsResourceOutboundPayments;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_outbound_payments::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_outbound_transfers;
-pub use treasury_financial_accounts_resource_outbound_transfers::TreasuryFinancialAccountsResourceOutboundTransfers;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_outbound_transfers::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_platform_restrictions;
-pub use treasury_financial_accounts_resource_platform_restrictions::TreasuryFinancialAccountsResourcePlatformRestrictions;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_platform_restrictions::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_status_details;
-pub use treasury_financial_accounts_resource_status_details::TreasuryFinancialAccountsResourceStatusDetails;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_status_details::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_toggle_settings;
-pub use treasury_financial_accounts_resource_toggle_settings::TreasuryFinancialAccountsResourceToggleSettings;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_toggle_settings::*;
+#[doc(hidden)]
 pub mod treasury_financial_accounts_resource_toggles_setting_status_details;
-pub use treasury_financial_accounts_resource_toggles_setting_status_details::TreasuryFinancialAccountsResourceTogglesSettingStatusDetails;
+#[doc(inline)]
+pub use treasury_financial_accounts_resource_toggles_setting_status_details::*;
+#[doc(hidden)]
 pub mod treasury_inbound_transfers_resource_failure_details;
-pub use treasury_inbound_transfers_resource_failure_details::TreasuryInboundTransfersResourceFailureDetails;
+#[doc(inline)]
+pub use treasury_inbound_transfers_resource_failure_details::*;
+#[doc(hidden)]
 pub mod treasury_inbound_transfers_resource_inbound_transfer_resource_linked_flows;
-pub use treasury_inbound_transfers_resource_inbound_transfer_resource_linked_flows::TreasuryInboundTransfersResourceInboundTransferResourceLinkedFlows;
+#[doc(inline)]
+pub use treasury_inbound_transfers_resource_inbound_transfer_resource_linked_flows::*;
+#[doc(hidden)]
 pub mod treasury_inbound_transfers_resource_inbound_transfer_resource_status_transitions;
-pub use treasury_inbound_transfers_resource_inbound_transfer_resource_status_transitions::TreasuryInboundTransfersResourceInboundTransferResourceStatusTransitions;
+#[doc(inline)]
+pub use treasury_inbound_transfers_resource_inbound_transfer_resource_status_transitions::*;
+#[doc(hidden)]
 pub mod treasury_outbound_payments_resource_outbound_payment_resource_end_user_details;
-pub use treasury_outbound_payments_resource_outbound_payment_resource_end_user_details::TreasuryOutboundPaymentsResourceOutboundPaymentResourceEndUserDetails;
+#[doc(inline)]
+pub use treasury_outbound_payments_resource_outbound_payment_resource_end_user_details::*;
+#[doc(hidden)]
 pub mod treasury_outbound_payments_resource_outbound_payment_resource_status_transitions;
-pub use treasury_outbound_payments_resource_outbound_payment_resource_status_transitions::TreasuryOutboundPaymentsResourceOutboundPaymentResourceStatusTransitions;
+#[doc(inline)]
+pub use treasury_outbound_payments_resource_outbound_payment_resource_status_transitions::*;
+#[doc(hidden)]
 pub mod treasury_outbound_payments_resource_returned_status;
-pub use treasury_outbound_payments_resource_returned_status::TreasuryOutboundPaymentsResourceReturnedStatus;
+#[doc(inline)]
+pub use treasury_outbound_payments_resource_returned_status::*;
+#[doc(hidden)]
 pub mod treasury_outbound_transfers_resource_returned_details;
-pub use treasury_outbound_transfers_resource_returned_details::TreasuryOutboundTransfersResourceReturnedDetails;
+#[doc(inline)]
+pub use treasury_outbound_transfers_resource_returned_details::*;
+#[doc(hidden)]
 pub mod treasury_outbound_transfers_resource_status_transitions;
-pub use treasury_outbound_transfers_resource_status_transitions::TreasuryOutboundTransfersResourceStatusTransitions;
+#[doc(inline)]
+pub use treasury_outbound_transfers_resource_status_transitions::*;
+#[doc(hidden)]
 pub mod treasury_received_credits_resource_linked_flows;
-pub use treasury_received_credits_resource_linked_flows::TreasuryReceivedCreditsResourceLinkedFlows;
+#[doc(inline)]
+pub use treasury_received_credits_resource_linked_flows::*;
+#[doc(hidden)]
 pub mod treasury_received_credits_resource_reversal_details;
-pub use treasury_received_credits_resource_reversal_details::TreasuryReceivedCreditsResourceReversalDetails;
+#[doc(inline)]
+pub use treasury_received_credits_resource_reversal_details::*;
+#[doc(hidden)]
 pub mod treasury_received_credits_resource_source_flows_details;
-pub use treasury_received_credits_resource_source_flows_details::TreasuryReceivedCreditsResourceSourceFlowsDetails;
+#[doc(inline)]
+pub use treasury_received_credits_resource_source_flows_details::*;
+#[doc(hidden)]
 pub mod treasury_received_credits_resource_status_transitions;
-pub use treasury_received_credits_resource_status_transitions::TreasuryReceivedCreditsResourceStatusTransitions;
+#[doc(inline)]
+pub use treasury_received_credits_resource_status_transitions::*;
+#[doc(hidden)]
 pub mod treasury_received_debits_resource_debit_reversal_linked_flows;
-pub use treasury_received_debits_resource_debit_reversal_linked_flows::TreasuryReceivedDebitsResourceDebitReversalLinkedFlows;
+#[doc(inline)]
+pub use treasury_received_debits_resource_debit_reversal_linked_flows::*;
+#[doc(hidden)]
 pub mod treasury_received_debits_resource_linked_flows;
-pub use treasury_received_debits_resource_linked_flows::TreasuryReceivedDebitsResourceLinkedFlows;
+#[doc(inline)]
+pub use treasury_received_debits_resource_linked_flows::*;
+#[doc(hidden)]
 pub mod treasury_received_debits_resource_reversal_details;
-pub use treasury_received_debits_resource_reversal_details::TreasuryReceivedDebitsResourceReversalDetails;
+#[doc(inline)]
+pub use treasury_received_debits_resource_reversal_details::*;
+#[doc(hidden)]
 pub mod treasury_received_debits_resource_status_transitions;
-pub use treasury_received_debits_resource_status_transitions::TreasuryReceivedDebitsResourceStatusTransitions;
+#[doc(inline)]
+pub use treasury_received_debits_resource_status_transitions::*;
+#[doc(hidden)]
 pub mod treasury_shared_resource_billing_details;
-pub use treasury_shared_resource_billing_details::TreasurySharedResourceBillingDetails;
+#[doc(inline)]
+pub use treasury_shared_resource_billing_details::*;
+#[doc(hidden)]
 pub mod treasury_shared_resource_initiating_payment_method_details_initiating_payment_method_details;
-pub use treasury_shared_resource_initiating_payment_method_details_initiating_payment_method_details::TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetails;
+#[doc(inline)]
+pub use treasury_shared_resource_initiating_payment_method_details_initiating_payment_method_details::*;

@@ -56,7 +56,7 @@ impl<'a> RetrieveCountrySpec<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        country: &stripe_connect::country_spec::CountrySpecId,
+        country: &stripe_connect::CountrySpecId,
     ) -> stripe::Response<stripe_connect::CountrySpec> {
         client.get_query(&format!("/country_specs/{country}"), self)
     }

@@ -214,7 +214,7 @@ impl<'a> RetrieveCoupon<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        coupon: &stripe_shared::coupon::CouponId,
+        coupon: &stripe_shared::CouponId,
     ) -> stripe::Response<stripe_shared::Coupon> {
         client.get_query(&format!("/coupons/{coupon}"), self)
     }
@@ -268,7 +268,7 @@ impl<'a> UpdateCoupon<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        coupon: &stripe_shared::coupon::CouponId,
+        coupon: &stripe_shared::CouponId,
     ) -> stripe::Response<stripe_shared::Coupon> {
         client.send_form(&format!("/coupons/{coupon}"), self, http_types::Method::Post)
     }
@@ -288,7 +288,7 @@ impl DeleteCoupon {
     pub fn send(
         &self,
         client: &stripe::Client,
-        coupon: &stripe_shared::coupon::CouponId,
+        coupon: &stripe_shared::CouponId,
     ) -> stripe::Response<stripe_shared::DeletedCoupon> {
         client.send_form(&format!("/coupons/{coupon}"), self, http_types::Method::Delete)
     }

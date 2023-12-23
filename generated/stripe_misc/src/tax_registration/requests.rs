@@ -5405,7 +5405,7 @@ impl<'a> UpdateTaxRegistration<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_misc::tax_registration::TaxRegistrationId,
+        id: &stripe_misc::TaxRegistrationId,
     ) -> stripe::Response<stripe_misc::TaxRegistration> {
         client.send_form(&format!("/tax/registrations/{id}"), self, http_types::Method::Post)
     }

@@ -1,4 +1,3 @@
-pub use stripe_shared::credit_note_line_item::*;
 #[cfg(feature = "credit_note_line_item")]
 mod requests;
 #[cfg(feature = "credit_note_line_item")]

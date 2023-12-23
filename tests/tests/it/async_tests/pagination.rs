@@ -3,8 +3,8 @@ use futures_util::TryStreamExt;
 use stripe::PaginationExt;
 use stripe::{AccountId, Client};
 use stripe_connect::account::ListAccount;
-use stripe_core::customer::{CustomerId, ListCustomer, SearchCustomer};
-use stripe_core::Customer;
+use stripe_core::customer::{ListCustomer, SearchCustomer};
+use stripe_core::{Customer, CustomerId};
 
 use crate::mock::get_client;
 use crate::pagination_utils::{cons_cus_id, parse_cus_id, PaginationMock, PaginationMockKind};

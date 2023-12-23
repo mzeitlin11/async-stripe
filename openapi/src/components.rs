@@ -75,7 +75,7 @@ impl Components {
     pub fn resolve_path(&self, path: &ComponentPath) -> PathInfo {
         let component = self.get(path);
         let krate = component.krate_unwrapped().for_types();
-        PathInfo { krate, path: Some(component.mod_path()) }
+        PathInfo { krate, path: None }
     }
 
     pub fn construct_printable_type_from_path(&self, path: &ComponentPath) -> PrintableType {

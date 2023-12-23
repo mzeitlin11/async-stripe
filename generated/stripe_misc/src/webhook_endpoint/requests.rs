@@ -56,7 +56,7 @@ impl<'a> RetrieveWebhookEndpoint<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        webhook_endpoint: &stripe_misc::webhook_endpoint::WebhookEndpointId,
+        webhook_endpoint: &stripe_misc::WebhookEndpointId,
     ) -> stripe::Response<stripe_misc::WebhookEndpoint> {
         client.get_query(&format!("/webhook_endpoints/{webhook_endpoint}"), self)
     }
@@ -1643,7 +1643,7 @@ impl<'a> UpdateWebhookEndpoint<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        webhook_endpoint: &stripe_misc::webhook_endpoint::WebhookEndpointId,
+        webhook_endpoint: &stripe_misc::WebhookEndpointId,
     ) -> stripe::Response<stripe_misc::WebhookEndpoint> {
         client.send_form(
             &format!("/webhook_endpoints/{webhook_endpoint}"),
@@ -1664,7 +1664,7 @@ impl DeleteWebhookEndpoint {
     pub fn send(
         &self,
         client: &stripe::Client,
-        webhook_endpoint: &stripe_misc::webhook_endpoint::WebhookEndpointId,
+        webhook_endpoint: &stripe_misc::WebhookEndpointId,
     ) -> stripe::Response<stripe_misc::DeletedWebhookEndpoint> {
         client.send_form(
             &format!("/webhook_endpoints/{webhook_endpoint}"),

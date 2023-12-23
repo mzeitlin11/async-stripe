@@ -14,7 +14,7 @@ impl<'a> RetrieveTerminalLocation<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        location: &stripe_terminal::terminal_location::TerminalLocationId,
+        location: &stripe_terminal::TerminalLocationId,
     ) -> stripe::Response<RetrieveReturned> {
         client.get_query(&format!("/terminal/locations/{location}"), self)
     }
@@ -147,7 +147,7 @@ impl<'a> UpdateTerminalLocation<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        location: &stripe_terminal::terminal_location::TerminalLocationId,
+        location: &stripe_terminal::TerminalLocationId,
     ) -> stripe::Response<UpdateReturned> {
         client.send_form(&format!("/terminal/locations/{location}"), self, http_types::Method::Post)
     }
@@ -212,7 +212,7 @@ impl DeleteTerminalLocation {
     pub fn send(
         &self,
         client: &stripe::Client,
-        location: &stripe_terminal::terminal_location::TerminalLocationId,
+        location: &stripe_terminal::TerminalLocationId,
     ) -> stripe::Response<stripe_terminal::DeletedTerminalLocation> {
         client.send_form(
             &format!("/terminal/locations/{location}"),

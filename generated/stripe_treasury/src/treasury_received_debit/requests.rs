@@ -119,7 +119,7 @@ impl<'a> RetrieveTreasuryReceivedDebit<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_treasury::treasury_received_debit::TreasuryReceivedDebitId,
+        id: &stripe_treasury::TreasuryReceivedDebitId,
     ) -> stripe::Response<stripe_treasury::TreasuryReceivedDebit> {
         client.get_query(&format!("/treasury/received_debits/{id}"), self)
     }

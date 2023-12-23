@@ -257,7 +257,7 @@ impl<'a> RetrieveFinancialConnectionsSession<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        session: &stripe_misc::financial_connections_session::FinancialConnectionsSessionId,
+        session: &stripe_misc::FinancialConnectionsSessionId,
     ) -> stripe::Response<stripe_misc::FinancialConnectionsSession> {
         client.get_query(&format!("/financial_connections/sessions/{session}"), self)
     }

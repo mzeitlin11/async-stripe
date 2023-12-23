@@ -14,7 +14,7 @@ impl<'a> RetrieveFileLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        link: &stripe_shared::file_link::FileLinkId,
+        link: &stripe_shared::FileLinkId,
     ) -> stripe::Response<stripe_shared::FileLink> {
         client.get_query(&format!("/file_links/{link}"), self)
     }
@@ -85,7 +85,7 @@ impl<'a> UpdateFileLink<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        link: &stripe_shared::file_link::FileLinkId,
+        link: &stripe_shared::FileLinkId,
     ) -> stripe::Response<stripe_shared::FileLink> {
         client.send_form(&format!("/file_links/{link}"), self, http_types::Method::Post)
     }

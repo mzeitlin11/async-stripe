@@ -104,7 +104,7 @@ impl<'a> CreateUsageRecord<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        subscription_item: &stripe_shared::subscription_item::SubscriptionItemId,
+        subscription_item: &stripe_shared::SubscriptionItemId,
     ) -> stripe::Response<stripe_billing::UsageRecord> {
         client.send_form(
             &format!("/subscription_items/{subscription_item}/usage_records"),

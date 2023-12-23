@@ -126,7 +126,7 @@ impl<'a> RetrieveIssuingTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        transaction: &stripe_shared::issuing_transaction::IssuingTransactionId,
+        transaction: &stripe_shared::IssuingTransactionId,
     ) -> stripe::Response<stripe_shared::IssuingTransaction> {
         client.get_query(&format!("/issuing/transactions/{transaction}"), self)
     }
@@ -156,7 +156,7 @@ impl<'a> UpdateIssuingTransaction<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        transaction: &stripe_shared::issuing_transaction::IssuingTransactionId,
+        transaction: &stripe_shared::IssuingTransactionId,
     ) -> stripe::Response<stripe_shared::IssuingTransaction> {
         client.send_form(
             &format!("/issuing/transactions/{transaction}"),

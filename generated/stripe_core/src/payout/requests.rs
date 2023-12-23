@@ -17,7 +17,7 @@ impl<'a> RetrievePayout<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payout: &stripe_shared::payout::PayoutId,
+        payout: &stripe_shared::PayoutId,
     ) -> stripe::Response<stripe_shared::Payout> {
         client.get_query(&format!("/payouts/{payout}"), self)
     }
@@ -286,7 +286,7 @@ impl<'a> UpdatePayout<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payout: &stripe_shared::payout::PayoutId,
+        payout: &stripe_shared::PayoutId,
     ) -> stripe::Response<stripe_shared::Payout> {
         client.send_form(&format!("/payouts/{payout}"), self, http_types::Method::Post)
     }
@@ -310,7 +310,7 @@ impl<'a> CancelPayout<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payout: &stripe_shared::payout::PayoutId,
+        payout: &stripe_shared::PayoutId,
     ) -> stripe::Response<stripe_shared::Payout> {
         client.send_form(&format!("/payouts/{payout}/cancel"), self, http_types::Method::Post)
     }
@@ -341,7 +341,7 @@ impl<'a> ReversePayout<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        payout: &stripe_shared::payout::PayoutId,
+        payout: &stripe_shared::PayoutId,
     ) -> stripe::Response<stripe_shared::Payout> {
         client.send_form(&format!("/payouts/{payout}/reverse"), self, http_types::Method::Post)
     }

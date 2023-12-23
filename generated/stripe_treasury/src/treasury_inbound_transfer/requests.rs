@@ -14,7 +14,7 @@ impl<'a> CancelTreasuryInboundTransfer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        inbound_transfer: &stripe_treasury::treasury_inbound_transfer::TreasuryInboundTransferId,
+        inbound_transfer: &stripe_treasury::TreasuryInboundTransferId,
     ) -> stripe::Response<stripe_treasury::TreasuryInboundTransfer> {
         client.send_form(
             &format!("/treasury/inbound_transfers/{inbound_transfer}/cancel"),
@@ -100,7 +100,7 @@ impl<'a> RetrieveTreasuryInboundTransfer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_treasury::treasury_inbound_transfer::TreasuryInboundTransferId,
+        id: &stripe_treasury::TreasuryInboundTransferId,
     ) -> stripe::Response<stripe_treasury::TreasuryInboundTransfer> {
         client.get_query(&format!("/treasury/inbound_transfers/{id}"), self)
     }

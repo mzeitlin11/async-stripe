@@ -3798,7 +3798,7 @@ impl<'a> RetrieveIssuingCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        card: &stripe_shared::issuing_card::IssuingCardId,
+        card: &stripe_shared::IssuingCardId,
     ) -> stripe::Response<stripe_shared::IssuingCard> {
         client.get_query(&format!("/issuing/cards/{card}"), self)
     }
@@ -7163,7 +7163,7 @@ impl<'a> UpdateIssuingCard<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        card: &stripe_shared::issuing_card::IssuingCardId,
+        card: &stripe_shared::IssuingCardId,
     ) -> stripe::Response<stripe_shared::IssuingCard> {
         client.send_form(&format!("/issuing/cards/{card}"), self, http_types::Method::Post)
     }

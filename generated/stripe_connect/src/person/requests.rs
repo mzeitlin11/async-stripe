@@ -60,13 +60,13 @@ impl<'a> ListPerson<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_shared::account::AccountId,
+        account: &stripe_shared::AccountId,
     ) -> stripe::Response<stripe_types::List<stripe_shared::Person>> {
         client.get_query(&format!("/accounts/{account}/persons"), self)
     }
     pub fn paginate(
         self,
-        account: &stripe_shared::account::AccountId,
+        account: &stripe_shared::AccountId,
     ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Person>> {
         stripe::ListPaginator::from_list_params(&format!("/accounts/{account}/persons"), self)
     }
@@ -87,7 +87,7 @@ impl<'a> RetrievePerson<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_shared::account::AccountId,
+        account: &stripe_shared::AccountId,
         person: &str,
     ) -> stripe::Response<stripe_shared::Person> {
         client.get_query(&format!("/accounts/{account}/persons/{person}"), self)
@@ -506,7 +506,7 @@ impl<'a> CreatePerson<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_shared::account::AccountId,
+        account: &stripe_shared::AccountId,
     ) -> stripe::Response<stripe_shared::Person> {
         client.send_form(&format!("/accounts/{account}/persons"), self, http_types::Method::Post)
     }
@@ -924,7 +924,7 @@ impl<'a> UpdatePerson<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_shared::account::AccountId,
+        account: &stripe_shared::AccountId,
         person: &str,
     ) -> stripe::Response<stripe_shared::Person> {
         client.send_form(
@@ -949,7 +949,7 @@ impl DeletePerson {
     pub fn send(
         &self,
         client: &stripe::Client,
-        account: &stripe_shared::account::AccountId,
+        account: &stripe_shared::AccountId,
         person: &str,
     ) -> stripe::Response<stripe_shared::DeletedPerson> {
         client.send_form(

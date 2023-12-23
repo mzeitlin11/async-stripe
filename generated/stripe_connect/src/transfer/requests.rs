@@ -190,7 +190,7 @@ impl<'a> RetrieveTransfer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        transfer: &stripe_shared::transfer::TransferId,
+        transfer: &stripe_shared::TransferId,
     ) -> stripe::Response<stripe_shared::Transfer> {
         client.get_query(&format!("/transfers/{transfer}"), self)
     }
@@ -225,7 +225,7 @@ impl<'a> UpdateTransfer<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        transfer: &stripe_shared::transfer::TransferId,
+        transfer: &stripe_shared::TransferId,
     ) -> stripe::Response<stripe_shared::Transfer> {
         client.send_form(&format!("/transfers/{transfer}"), self, http_types::Method::Post)
     }

@@ -65,7 +65,7 @@ impl<'a> RetrieveApplicationFee<'a> {
     pub fn send(
         &self,
         client: &stripe::Client,
-        id: &stripe_shared::application_fee::ApplicationFeeId,
+        id: &stripe_shared::ApplicationFeeId,
     ) -> stripe::Response<stripe_shared::ApplicationFee> {
         client.get_query(&format!("/application_fees/{id}"), self)
     }

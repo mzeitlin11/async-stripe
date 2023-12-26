@@ -24,7 +24,7 @@ impl<'a> ObjectWriter<'a> {
                 let _ = writeln!(enum_body, "{variant},");
             }
         }
-        self.write_derives_line(out);
+        self.write_automatic_derives(out);
         let lifetime_str = self.lifetime_param();
         let _ = writedoc!(
             out,
@@ -65,7 +65,7 @@ impl<'a> ObjectWriter<'a> {
             let _ = writeln!(enum_body, r"Unknown");
         }
 
-        self.write_derives_line(out);
+        self.write_automatic_derives(out);
         self.write_nonexhaustive_attr(out);
         let _ = writedoc!(
             out,
@@ -113,17 +113,12 @@ impl<'a> ObjectWriter<'a> {
         }
         let _ = writeln!(from_str_body, "_ => Err(())");
 
-        let mut derives = self.derives;
-        let derive_deser = derives.deserialize;
-        let derive_serialize = derives.serialize;
-
-        // NB: we unset the derive flags for serialize + deserialize + debug to avoid duplicating
-        // the (potentially many) strings in `as_str` and `from_str` through the default derive.
+        // NB: we manually implement Debug, Serialize, Deserialize to avoid duplicating
+        // the (potentially many) strings in `as_str` and `from_str` used with the default derive.
         // These derived implementations often show up running `llvm-lines`, so easy
         // binary size + compile time win by doing this.
-        derives.copy(true).eq(true).serialize(false).deserialize(false).debug(false);
 
-        write_derives_line(out, derives);
+        write_derives_line(out, self.derives.eq(true).debug(false));
         self.write_nonexhaustive_attr(out);
         let _ = writedoc!(
             out,
@@ -168,7 +163,7 @@ impl<'a> ObjectWriter<'a> {
         "#
         );
 
-        if derive_serialize {
+        if self.obj_kind.should_impl_serialize() {
             let _ = writedoc!(
                 out,
                 r#"
@@ -181,7 +176,7 @@ impl<'a> ObjectWriter<'a> {
             );
         }
 
-        if derive_deser {
+        if self.obj_kind.should_impl_deserialize() {
             let ret_line = if self.provide_unknown_variant {
                 format!("Ok(Self::from_str(&s).unwrap_or({enum_name}::Unknown))")
             } else {

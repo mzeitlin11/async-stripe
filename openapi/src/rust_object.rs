@@ -3,7 +3,6 @@ use std::fmt::{Debug, Display, Formatter};
 use indexmap::IndexMap;
 
 use crate::components::Components;
-use crate::object_writing::ObjectGenInfo;
 use crate::rust_type::RustType;
 use crate::types::{ComponentPath, RustIdent};
 use crate::visitor::{Visit, VisitMut};
@@ -30,12 +29,12 @@ pub struct ObjectMetadata {
     pub title: Option<String>,
     /// The name of the field in the OpenAPI schema
     pub field_name: Option<String>,
-    pub gen_info: ObjectGenInfo,
+    pub kind: ObjectKind,
 }
 
 impl ObjectMetadata {
-    pub fn new(ident: RustIdent, gen_info: ObjectGenInfo) -> Self {
-        Self { ident, doc: None, title: None, field_name: None, gen_info }
+    pub fn new(ident: RustIdent, kind: ObjectKind) -> Self {
+        Self { ident, doc: None, title: None, field_name: None, kind }
     }
 
     /// Attach a doc comment.
@@ -238,4 +237,28 @@ pub fn as_enum_of_objects<'a>(
         object_map.insert(name, ObjectRef { path: path.clone(), feature_gate: None });
     }
     Some(object_map)
+}
+
+#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
+pub enum ObjectKind {
+    /// Only used as a request parameter
+    RequestParam,
+    /// Only returned from a request
+    RequestReturned,
+    /// A core type potentially referenced anywhere
+    Type,
+}
+
+impl ObjectKind {
+    pub fn is_request_param(self) -> bool {
+        matches!(self, Self::RequestParam)
+    }
+
+    pub fn should_impl_serialize(self) -> bool {
+        true
+    }
+
+    pub fn should_impl_deserialize(self) -> bool {
+        matches!(self, Self::RequestReturned | Self::Type)
+    }
 }

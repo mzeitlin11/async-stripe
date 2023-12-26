@@ -5,6 +5,12 @@ use crate::rust_object::{ObjectMetadata, RustObject};
 use crate::types::{ComponentPath, RustIdent};
 use crate::visitor::{Visit, VisitMut};
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+pub enum DeduppedLocation {
+    Request,
+    Types,
+}
+
 /// A path to a type defined elsewhere.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum PathToType {
@@ -14,6 +20,10 @@ pub enum PathToType {
     ObjectId(ComponentPath),
     /// A type defined in `stripe_shared`
     Shared(RustIdent),
+    Dedupped {
+        path: ComponentPath,
+        ident: RustIdent,
+    },
 }
 
 impl PathToType {
@@ -30,6 +40,9 @@ impl PathToType {
             PathToType::Shared(ident) => {
                 components.get_extra_type(ident).obj.has_reference(components)
             }
+            PathToType::Dedupped { .. } => {
+                todo!()
+            }
         }
     }
 
@@ -44,6 +57,9 @@ impl PathToType {
             // Always either backed by `String` or `smol_str::SmolStr`
             PathToType::ObjectId(_) => false,
             PathToType::Shared(ident) => components.get_extra_type(ident).obj.is_copy(components),
+            PathToType::Dedupped { .. } => {
+                todo!()
+            }
         }
     }
 }

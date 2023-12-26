@@ -8,12 +8,7 @@ use crate::templates::utils::{write_doc_comment, write_serde_rename};
 use crate::templates::ObjectWriter;
 
 impl<'a> ObjectWriter<'a> {
-    pub fn write_struct(
-        &self,
-        out: &mut String,
-        fields: &[StructField],
-        include_constructor: bool,
-    ) {
+    pub fn write_struct(&self, out: &mut String, fields: &[StructField]) {
         let name = self.ident;
 
         let mut fields_str = String::with_capacity(64);
@@ -22,7 +17,7 @@ impl<'a> ObjectWriter<'a> {
         }
 
         let lifetime_str = self.lifetime_param();
-        self.write_derives_line(out);
+        self.write_automatic_derives(out);
         let _ = writedoc!(
             out,
             r"
@@ -32,7 +27,7 @@ impl<'a> ObjectWriter<'a> {
     "
         );
 
-        if include_constructor {
+        if self.obj_kind.is_request_param() {
             let cons_body = if self.derives.default {
                 r"
             pub fn new() -> Self {

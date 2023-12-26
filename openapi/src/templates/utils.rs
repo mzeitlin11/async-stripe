@@ -20,7 +20,7 @@ pub fn write_doc_comment(description: &str, depth: u8) -> String {
     if description.trim().is_empty() {
         return String::new();
     }
-    let mut out = String::with_capacity(32);
+    let mut out = String::with_capacity(description.len());
     let doc = format_doc_comment(description);
 
     for (i, line) in doc.split('\n').enumerate() {

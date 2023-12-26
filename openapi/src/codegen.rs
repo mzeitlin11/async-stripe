@@ -7,8 +7,8 @@ use indoc::formatdoc;
 use crate::components::{get_components, Components};
 use crate::crate_table::write_crate_table;
 use crate::crates::{get_crate_doc_comment, Crate, ALL_CRATES};
-use crate::object_writing::{gen_obj, gen_requests, ObjectGenInfo};
-use crate::rust_object::ObjectMetadata;
+use crate::object_writing::{gen_obj, gen_requests};
+use crate::rust_object::{ObjectKind, ObjectMetadata};
 use crate::spec::Spec;
 use crate::spec_inference::infer_doc_comment;
 use crate::stripe_object::StripeObject;
@@ -63,11 +63,7 @@ impl CodeGen {
         let crate_mod_path = crate_path.join("mod.rs");
         for (ident, typ_info) in &self.components.extra_types {
             let mut out = String::new();
-            let mut metadata = ObjectMetadata::new(ident.clone(), typ_info.gen_info);
-            if let Some(doc) = &typ_info.doc {
-                metadata = metadata.doc(doc.clone());
-            }
-            self.components.write_object(&typ_info.obj, &metadata, &mut out);
+            self.components.write_object(&typ_info.obj, &typ_info.metadata, &mut out);
             write_to_file(out, crate_path.join(format!("{}.rs", typ_info.mod_path)))?;
             append_to_file(
                 format!("pub mod {0}; pub use {0}::{1};", typ_info.mod_path, ident),
@@ -198,8 +194,7 @@ impl CodeGen {
         let base_obj = comp.rust_obj();
         let schema = self.spec.get_component_schema(comp.path());
         let doc_comment = infer_doc_comment(schema, comp.stripe_doc_url.as_deref());
-        let meta =
-            ObjectMetadata::new(comp.ident().clone(), ObjectGenInfo::new_deser()).doc(doc_comment);
+        let meta = ObjectMetadata::new(comp.ident().clone(), ObjectKind::Type).doc(doc_comment);
 
         gen_obj(base_obj, &meta, comp, &self.components)
     }

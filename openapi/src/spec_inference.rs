@@ -8,8 +8,9 @@ use openapiv3::{
     Type, VariantOrUnknownOrEmpty,
 };
 
-use crate::object_writing::ObjectGenInfo;
-use crate::rust_object::{EnumVariant, FieldlessVariant, ObjectMetadata, RustObject, StructField};
+use crate::rust_object::{
+    EnumVariant, FieldlessVariant, ObjectKind, ObjectMetadata, RustObject, StructField,
+};
 use crate::rust_type::{ExtType, IntType, RustType, SimpleType};
 use crate::spec::{
     as_data_array_item, as_object_enum_name, is_enum_with_just_empty_string, ExpansionResources,
@@ -25,11 +26,11 @@ pub struct Inference<'a> {
     description: Option<&'a str>,
     title: Option<&'a str>,
     required: bool,
-    gen_info: ObjectGenInfo,
+    kind: ObjectKind,
 }
 
 impl<'a> Inference<'a> {
-    pub fn new(ident: &'a RustIdent, gen_info: ObjectGenInfo) -> Self {
+    pub fn new(ident: &'a RustIdent, kind: ObjectKind) -> Self {
         Self {
             can_borrow: false,
             field_name: None,
@@ -38,7 +39,7 @@ impl<'a> Inference<'a> {
             curr_ident: ident,
             id_path: None,
             title: None,
-            gen_info,
+            kind,
         }
     }
 
@@ -93,7 +94,7 @@ impl<'a> Inference<'a> {
                 doc: self.description.map(|d| d.to_string()),
                 title: self.title.map(|t| t.to_string()),
                 field_name: self.field_name.map(|t| t.to_string()),
-                gen_info: self.gen_info,
+                kind: self.kind,
             },
         )
     }

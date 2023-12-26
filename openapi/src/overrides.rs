@@ -2,7 +2,7 @@ use anyhow::Context;
 use indexmap::IndexMap;
 
 use crate::components::{Components, RequestSource};
-use crate::rust_object::RustObject;
+use crate::rust_object::{ObjectKind, ObjectMetadata, RustObject};
 use crate::rust_type::{PathToType, RustType};
 use crate::stripe_object::OperationType;
 use crate::types::RustIdent;
@@ -11,8 +11,7 @@ use crate::visitor::VisitMut;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct OverrideMetadata {
-    pub ident: RustIdent,
-    pub doc: String,
+    pub metadata: ObjectMetadata,
     pub mod_path: String,
 }
 
@@ -64,8 +63,13 @@ fn get_override_object(
     Ok((
         obj.clone(),
         OverrideMetadata {
-            ident: RustIdent::unchanged(data.ident),
-            doc: data.doc.to_string(),
+            metadata: ObjectMetadata {
+                ident: RustIdent::unchanged(data.ident),
+                doc: Some(data.doc.to_string()),
+                title: None,
+                field_name: None,
+                kind: ObjectKind::Type,
+            },
             mod_path: data.mod_path.to_string(),
         },
     ))
@@ -75,7 +79,7 @@ impl VisitMut for Overrides {
     fn visit_typ_mut(&mut self, typ: &mut RustType) {
         if let Some((obj, _)) = typ.as_object_mut() {
             if let Some(meta) = self.overrides.get(obj) {
-                *typ = RustType::path(PathToType::Shared(meta.ident.clone()), false);
+                *typ = RustType::path(PathToType::Shared(meta.metadata.ident.clone()), false);
             }
         }
         typ.visit_mut(self);

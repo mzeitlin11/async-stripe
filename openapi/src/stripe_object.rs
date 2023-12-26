@@ -1,13 +1,14 @@
 use std::collections::HashMap;
 
 use heck::ToSnakeCase;
+use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use openapiv3::Schema;
 use serde::{Deserialize, Serialize};
 
+use crate::components::TypeSpec;
 use crate::crates::Crate;
-use crate::object_writing::ObjectGenInfo;
-use crate::rust_object::RustObject;
+use crate::rust_object::{ObjectKind, RustObject};
 use crate::rust_type::RustType;
 use crate::spec_inference::Inference;
 use crate::types::{ComponentPath, RustIdent};
@@ -52,6 +53,7 @@ pub struct StripeObject {
     pub data: StripeObjectData,
     pub krate: Option<CrateInfo>,
     pub stripe_doc_url: Option<String>,
+    pub deduplicated_objects: IndexMap<RustIdent, TypeSpec>,
 }
 
 impl StripeObject {
@@ -139,7 +141,7 @@ pub fn parse_stripe_schema_as_rust_object(
 ) -> StripeObjectData {
     let not_deleted_path = path.as_not_deleted();
     let infer_ctx =
-        Inference::new(ident, ObjectGenInfo::new_deser()).id_path(&not_deleted_path).required(true);
+        Inference::new(ident, ObjectKind::Type).id_path(&not_deleted_path).required(true);
     let typ = infer_ctx.infer_schema_type(schema);
     let Some((mut rust_obj, _)) = typ.into_object() else {
         panic!("Unexpected top level schema type for {}", path);

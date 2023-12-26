@@ -20,33 +20,23 @@ impl Derives {
         }
     }
 
-    pub fn debug(&mut self, debug: bool) -> &mut Self {
+    pub fn debug(mut self, debug: bool) -> Self {
         self.debug = debug;
         self
     }
 
-    pub fn copy(&mut self, copy: bool) -> &mut Self {
+    pub fn copy(mut self, copy: bool) -> Self {
         self.copy = copy;
         self
     }
 
-    pub fn default(&mut self, default: bool) -> &mut Self {
+    pub fn default(mut self, default: bool) -> Self {
         self.default = default;
         self
     }
 
-    pub fn eq(&mut self, eq: bool) -> &mut Self {
+    pub fn eq(mut self, eq: bool) -> Self {
         self.eq = eq;
-        self
-    }
-
-    pub fn serialize(&mut self, serialize: bool) -> &mut Self {
-        self.serialize = serialize;
-        self
-    }
-
-    pub fn deserialize(&mut self, deserialize: bool) -> &mut Self {
-        self.deserialize = deserialize;
         self
     }
 }

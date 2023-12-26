@@ -2,6 +2,7 @@ use std::fmt::Write;
 
 use crate::components::Components;
 use crate::printable::{Lifetime, PrintableType};
+use crate::rust_object::ObjectKind;
 use crate::rust_type::RustType;
 use crate::templates::derives::Derives;
 use crate::types::RustIdent;
@@ -13,16 +14,18 @@ pub struct ObjectWriter<'a> {
     pub lifetime: Option<Lifetime>,
     pub ident: &'a RustIdent,
     pub provide_unknown_variant: bool,
+    pub obj_kind: ObjectKind,
 }
 
 impl<'a> ObjectWriter<'a> {
-    pub fn new(components: &'a Components, ident: &'a RustIdent) -> Self {
+    pub fn new(components: &'a Components, ident: &'a RustIdent, obj_kind: ObjectKind) -> Self {
         Self {
             components,
             derives: Derives::new(),
             lifetime: None,
             ident,
             provide_unknown_variant: false,
+            obj_kind,
         }
     }
 
@@ -36,13 +39,14 @@ impl<'a> ObjectWriter<'a> {
         self
     }
 
-    pub fn derives(&mut self, derives: Derives) -> &mut Self {
-        self.derives = derives;
+    pub fn derive_copy(&mut self, derive_copy: bool) -> &mut Self {
+        self.derives = self.derives.copy(derive_copy);
         self
     }
 
-    pub fn derives_mut(&mut self) -> &mut Derives {
-        &mut self.derives
+    pub fn derive_default(&mut self, derive_default: bool) -> &mut Self {
+        self.derives = self.derives.default(derive_default);
+        self
     }
 
     pub fn get_printable(&self, typ: &RustType) -> PrintableType {
@@ -59,8 +63,11 @@ impl<'a> ObjectWriter<'a> {
         }
     }
 
-    pub fn write_derives_line(&self, out: &mut String) {
-        write_derives_line(out, self.derives);
+    pub fn write_automatic_derives(&self, out: &mut String) {
+        let mut derives = self.derives;
+        derives.serialize = self.obj_kind.should_impl_serialize();
+        derives.deserialize = self.obj_kind.should_impl_deserialize();
+        write_derives_line(out, derives)
     }
 }
 

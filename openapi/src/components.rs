@@ -8,11 +8,10 @@ use tracing::{debug, info};
 
 use crate::crate_inference::validate_crate_info;
 use crate::crates::{infer_crate_by_package, maybe_infer_crate_by_path, Crate};
-use crate::object_writing::ObjectGenInfo;
 use crate::overrides::Overrides;
 use crate::printable::{PrintableContainer, PrintableType};
 use crate::requests::parse_requests;
-use crate::rust_object::RustObject;
+use crate::rust_object::{ObjectMetadata, RustObject};
 use crate::rust_type::{Container, PathToType, RustType};
 use crate::spec::Spec;
 use crate::stripe_object::{
@@ -24,9 +23,8 @@ use crate::visitor::Visit;
 
 #[derive(Clone, Debug)]
 pub struct TypeSpec {
-    pub doc: Option<String>,
-    pub gen_info: ObjectGenInfo,
     pub obj: RustObject,
+    pub metadata: ObjectMetadata,
     pub mod_path: String,
 }
 
@@ -119,6 +117,9 @@ impl Components {
                     ident: ident.clone(),
                 }
             }
+            RustType::Path { path: PathToType::Dedupped { .. }, is_ref: _ } => {
+                todo!()
+            }
             RustType::Simple(typ) => PrintableType::Simple(*typ),
             RustType::Container(typ) => {
                 let inner = Box::new(self.construct_printable_type(typ.value_typ()));
@@ -189,6 +190,15 @@ impl Components {
         None
     }
 
+    // fn run_deduplication_pass(&mut self) {
+    //     for comp in self.components.values_mut() {
+    //         let extra_typs = deduplicate_types(comp);
+    //         for (ident, typ) in extra_typs {
+    //             comp.deduplicated_objects.insert(ident, typ);
+    //         }
+    //     }
+    // }
+
     #[tracing::instrument(level = "debug", skip(self))]
     fn apply_overrides(&mut self) -> anyhow::Result<()> {
         let mut overrides = Overrides::new(self)?;
@@ -197,12 +207,11 @@ impl Components {
         }
         for (obj, override_meta) in overrides.overrides {
             self.extra_types.insert(
-                override_meta.ident,
+                override_meta.metadata.ident.clone(),
                 TypeSpec {
-                    doc: Some(override_meta.doc),
-                    mod_path: override_meta.mod_path,
-                    gen_info: ObjectGenInfo::new_deser(),
                     obj,
+                    metadata: override_meta.metadata,
+                    mod_path: override_meta.mod_path,
                 },
             );
         }
@@ -270,6 +279,7 @@ pub fn get_components(spec: &Spec) -> anyhow::Result<Components> {
                 data,
                 krate: inferred_krate.map(CrateInfo::new),
                 stripe_doc_url: None,
+                deduplicated_objects: IndexMap::default(),
             },
         );
     }
@@ -283,6 +293,9 @@ pub fn get_components(spec: &Spec) -> anyhow::Result<Components> {
 
     components.apply_overrides()?;
     debug!("Finished applying overrides");
+
+    // components.run_deduplication_pass();
+    // info!("Finished deduplication pass");
 
     Ok(components)
 }

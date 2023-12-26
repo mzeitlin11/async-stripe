@@ -1,4 +1,4 @@
-#[derive(Clone, Debug, serde::Deserialize)]
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[non_exhaustive]
 #[serde(tag = "object")]
 pub enum EventObject {

@@ -8,10 +8,11 @@ use tracing::{debug, info};
 
 use crate::crate_inference::validate_crate_info;
 use crate::crates::{infer_crate_by_package, maybe_infer_crate_by_path, Crate};
+use crate::deduplication::{deduplicate_types, DeduppedObject};
 use crate::overrides::Overrides;
 use crate::printable::{PrintableContainer, PrintableType};
 use crate::requests::parse_requests;
-use crate::rust_object::{ObjectMetadata, RustObject};
+use crate::rust_object::{ObjectKind, RustObject};
 use crate::rust_type::{Container, PathToType, RustType};
 use crate::spec::Spec;
 use crate::stripe_object::{
@@ -24,7 +25,8 @@ use crate::visitor::Visit;
 #[derive(Clone, Debug)]
 pub struct TypeSpec {
     pub obj: RustObject,
-    pub metadata: ObjectMetadata,
+    pub doc: Option<String>,
+    pub ident: RustIdent,
     pub mod_path: String,
 }
 
@@ -33,7 +35,7 @@ pub struct Components {
     pub extra_types: IndexMap<RustIdent, TypeSpec>,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct PathInfo {
     pub krate: Crate,
     pub path: Option<String>,
@@ -48,12 +50,12 @@ impl PathInfo {
 impl Components {
     #[track_caller]
     pub fn get(&self, path: &ComponentPath) -> &StripeObject {
-        &self.components[path.as_ref()]
+        &self.components[path]
     }
 
     #[track_caller]
     pub fn get_mut(&mut self, path: &ComponentPath) -> &mut StripeObject {
-        &mut self.components[path.as_ref()]
+        &mut self.components[path]
     }
 
     pub fn get_crate_members(&self, krate: Crate) -> IndexSet<&ComponentPath> {
@@ -67,13 +69,6 @@ impl Components {
             }
         }
         members
-    }
-
-    #[track_caller]
-    pub fn resolve_path(&self, path: &ComponentPath) -> PathInfo {
-        let component = self.get(path);
-        let krate = component.krate_unwrapped().for_types();
-        PathInfo { krate, path: None }
     }
 
     pub fn construct_printable_type_from_path(&self, path: &ComponentPath) -> PrintableType {
@@ -99,12 +94,32 @@ impl Components {
             }
             RustType::Path { path: PathToType::ObjectId(path), is_ref } => {
                 let obj = self.get(path);
-                let path_info = self.resolve_path(path);
+                let krate = obj.krate_unwrapped().for_types();
                 PrintableType::QualifiedPath {
-                    path: Some(path_info),
+                    path: Some(PathInfo::new(krate)),
                     ident: obj.id_type_ident(),
                     is_ref: *is_ref,
                     has_ref: false,
+                }
+            }
+            RustType::Path { path: PathToType::Deduplicated { path, ident }, is_ref } => {
+                let referred_typ = self.get_dedupped_type(ident, path);
+                let has_ref = referred_typ.object.has_reference(self);
+                let path = if referred_typ.info.kind == ObjectKind::Type {
+                    Some(PathInfo {
+                        krate: self.get(path).krate_unwrapped().for_types(),
+                        path: None,
+                    })
+                } else {
+                    // For now, deduplicated request types always can just reference
+                    // the same file
+                    None
+                };
+                PrintableType::QualifiedPath {
+                    path,
+                    ident: ident.clone(),
+                    is_ref: *is_ref,
+                    has_ref,
                 }
             }
             RustType::Path { path: PathToType::Shared(ident), is_ref } => {
@@ -112,14 +127,12 @@ impl Components {
                 let has_ref = referred_typ.obj.has_reference(self);
                 PrintableType::QualifiedPath {
                     path: Some(PathInfo { krate: Crate::SHARED, path: None }),
-                    has_ref,
-                    is_ref: *is_ref,
                     ident: ident.clone(),
+                    is_ref: *is_ref,
+                    has_ref,
                 }
             }
-            RustType::Path { path: PathToType::Dedupped { .. }, is_ref: _ } => {
-                todo!()
-            }
+
             RustType::Simple(typ) => PrintableType::Simple(*typ),
             RustType::Container(typ) => {
                 let inner = Box::new(self.construct_printable_type(typ.value_typ()));
@@ -151,8 +164,8 @@ impl Components {
     }
 
     pub fn filter_unused_components(&mut self) {
-        let mut unused = vec![];
         loop {
+            let mut unused = vec![];
             let graph = self.gen_component_dep_graph();
             for (path, component) in &self.components {
                 // This will be a false positive here since we don't include `ApiError` in
@@ -173,7 +186,7 @@ impl Components {
             }
 
             debug!("Filtering unused components: {unused:#?}");
-            for unused_mod in unused.drain(..) {
+            for unused_mod in unused {
                 self.components.remove(unused_mod.as_ref());
             }
         }
@@ -190,14 +203,14 @@ impl Components {
         None
     }
 
-    // fn run_deduplication_pass(&mut self) {
-    //     for comp in self.components.values_mut() {
-    //         let extra_typs = deduplicate_types(comp);
-    //         for (ident, typ) in extra_typs {
-    //             comp.deduplicated_objects.insert(ident, typ);
-    //         }
-    //     }
-    // }
+    fn run_deduplication_pass(&mut self) {
+        for comp in self.components.values_mut() {
+            let extra_typs = deduplicate_types(comp);
+            for (ident, typ) in extra_typs {
+                comp.deduplicated_objects.insert(ident, typ);
+            }
+        }
+    }
 
     #[tracing::instrument(level = "debug", skip(self))]
     fn apply_overrides(&mut self) -> anyhow::Result<()> {
@@ -210,7 +223,8 @@ impl Components {
                 override_meta.metadata.ident.clone(),
                 TypeSpec {
                     obj,
-                    metadata: override_meta.metadata,
+                    doc: override_meta.metadata.doc,
+                    ident: override_meta.metadata.ident,
                     mod_path: override_meta.mod_path,
                 },
             );
@@ -222,6 +236,11 @@ impl Components {
     #[track_caller]
     pub fn get_extra_type(&self, ident: &RustIdent) -> &TypeSpec {
         &self.extra_types[ident]
+    }
+
+    #[track_caller]
+    pub fn get_dedupped_type(&self, ident: &RustIdent, comp: &ComponentPath) -> &DeduppedObject {
+        &self.get(comp).deduplicated_objects[ident]
     }
 }
 
@@ -294,8 +313,8 @@ pub fn get_components(spec: &Spec) -> anyhow::Result<Components> {
     components.apply_overrides()?;
     debug!("Finished applying overrides");
 
-    // components.run_deduplication_pass();
-    // info!("Finished deduplication pass");
+    components.run_deduplication_pass();
+    info!("Finished deduplication pass");
 
     Ok(components)
 }

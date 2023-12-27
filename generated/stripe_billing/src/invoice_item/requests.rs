@@ -74,7 +74,7 @@ pub struct CreateInvoiceItem<'a> {
     pub discountable: Option<bool>,
     /// The coupons to redeem into discounts for the invoice item or invoice line item.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub discounts: Option<&'a [CreateInvoiceItemDiscounts<'a>]>,
+    pub discounts: Option<&'a [DiscountsDataParam<'a>]>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
@@ -95,7 +95,7 @@ pub struct CreateInvoiceItem<'a> {
     /// If you have [Stripe Revenue Recognition](https://stripe.com/docs/revenue-recognition) enabled, the period will be used to recognize and defer revenue.
     /// See the [Revenue Recognition documentation](https://stripe.com/docs/revenue-recognition/methodology/subscriptions-and-invoicing) for details.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub period: Option<CreateInvoiceItemPeriod>,
+    pub period: Option<Period>,
     /// The ID of the price object.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price: Option<&'a str>,
@@ -157,37 +157,6 @@ impl<'a> CreateInvoiceItem<'a> {
             unit_amount: None,
             unit_amount_decimal: None,
         }
-    }
-}
-/// The coupons to redeem into discounts for the invoice item or invoice line item.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateInvoiceItemDiscounts<'a> {
-    /// ID of the coupon to create a new discount for.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub coupon: Option<&'a str>,
-    /// ID of an existing discount on the object (or one of its ancestors) to reuse.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub discount: Option<&'a str>,
-}
-impl<'a> CreateInvoiceItemDiscounts<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// The period associated with this invoice item.
-/// When set to different values, the period will be rendered on the invoice.
-/// If you have [Stripe Revenue Recognition](https://stripe.com/docs/revenue-recognition) enabled, the period will be used to recognize and defer revenue.
-/// See the [Revenue Recognition documentation](https://stripe.com/docs/revenue-recognition/methodology/subscriptions-and-invoicing) for details.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateInvoiceItemPeriod {
-    /// The end of the period, which must be greater than or equal to the start. This value is inclusive.
-    pub end: stripe_types::Timestamp,
-    /// The start of the period. This value is inclusive.
-    pub start: stripe_types::Timestamp,
-}
-impl CreateInvoiceItemPeriod {
-    pub fn new(end: stripe_types::Timestamp, start: stripe_types::Timestamp) -> Self {
-        Self { end, start }
     }
 }
 /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
@@ -378,7 +347,7 @@ pub struct UpdateInvoiceItem<'a> {
     /// Item discounts are applied before invoice discounts.
     /// Pass an empty string to remove previously-defined discounts.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub discounts: Option<&'a [UpdateInvoiceItemDiscounts<'a>]>,
+    pub discounts: Option<&'a [DiscountsDataParam<'a>]>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
@@ -393,7 +362,7 @@ pub struct UpdateInvoiceItem<'a> {
     /// If you have [Stripe Revenue Recognition](https://stripe.com/docs/revenue-recognition) enabled, the period will be used to recognize and defer revenue.
     /// See the [Revenue Recognition documentation](https://stripe.com/docs/revenue-recognition/methodology/subscriptions-and-invoicing) for details.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub period: Option<UpdateInvoiceItemPeriod>,
+    pub period: Option<Period>,
     /// The ID of the price object.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub price: Option<&'a str>,
@@ -430,39 +399,6 @@ pub struct UpdateInvoiceItem<'a> {
 impl<'a> UpdateInvoiceItem<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// The coupons & existing discounts which apply to the invoice item or invoice line item.
-/// Item discounts are applied before invoice discounts.
-/// Pass an empty string to remove previously-defined discounts.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateInvoiceItemDiscounts<'a> {
-    /// ID of the coupon to create a new discount for.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub coupon: Option<&'a str>,
-    /// ID of an existing discount on the object (or one of its ancestors) to reuse.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub discount: Option<&'a str>,
-}
-impl<'a> UpdateInvoiceItemDiscounts<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// The period associated with this invoice item.
-/// When set to different values, the period will be rendered on the invoice.
-/// If you have [Stripe Revenue Recognition](https://stripe.com/docs/revenue-recognition) enabled, the period will be used to recognize and defer revenue.
-/// See the [Revenue Recognition documentation](https://stripe.com/docs/revenue-recognition/methodology/subscriptions-and-invoicing) for details.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateInvoiceItemPeriod {
-    /// The end of the period, which must be greater than or equal to the start. This value is inclusive.
-    pub end: stripe_types::Timestamp,
-    /// The start of the period. This value is inclusive.
-    pub start: stripe_types::Timestamp,
-}
-impl UpdateInvoiceItemPeriod {
-    pub fn new(end: stripe_types::Timestamp, start: stripe_types::Timestamp) -> Self {
-        Self { end, start }
     }
 }
 /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
@@ -633,5 +569,31 @@ impl DeleteInvoiceItem {
         invoiceitem: &stripe_shared::InvoiceItemId,
     ) -> stripe::Response<stripe_shared::DeletedInvoiceitem> {
         client.send_form(&format!("/invoiceitems/{invoiceitem}"), self, http_types::Method::Delete)
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct DiscountsDataParam<'a> {
+    /// ID of the coupon to create a new discount for.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub coupon: Option<&'a str>,
+    /// ID of an existing discount on the object (or one of its ancestors) to reuse.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub discount: Option<&'a str>,
+}
+impl<'a> DiscountsDataParam<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct Period {
+    /// The end of the period, which must be greater than or equal to the start. This value is inclusive.
+    pub end: stripe_types::Timestamp,
+    /// The start of the period. This value is inclusive.
+    pub start: stripe_types::Timestamp,
+}
+impl Period {
+    pub fn new(end: stripe_types::Timestamp, start: stripe_types::Timestamp) -> Self {
+        Self { end, start }
     }
 }

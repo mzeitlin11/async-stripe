@@ -1,4 +1,4 @@
-#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct InvoicePaymentMethodOptionsCard {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub installments: Option<stripe_shared::InvoiceInstallmentsCard>,

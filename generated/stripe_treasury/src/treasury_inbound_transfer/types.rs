@@ -41,16 +41,19 @@ pub struct TreasuryInboundTransfer {
     /// An InboundTransfer is `processing` if it is created and pending.
     /// The status changes to `succeeded` once the funds have been "confirmed" and a `transaction` is created and posted.
     /// The status changes to `failed` if the transfer fails.
-    pub status: TreasuryInboundTransferStatus,
+    pub status: stripe_treasury::TreasuryInboundTransferStatus,
     pub status_transitions:
         stripe_treasury::TreasuryInboundTransfersResourceInboundTransferResourceStatusTransitions,
     /// The Transaction associated with this object.
     pub transaction: Option<stripe_types::Expandable<stripe_treasury::TreasuryTransaction>>,
 }
-/// Status of the InboundTransfer: `processing`, `succeeded`, `failed`, and `canceled`.
-/// An InboundTransfer is `processing` if it is created and pending.
-/// The status changes to `succeeded` once the funds have been "confirmed" and a `transaction` is created and posted.
-/// The status changes to `failed` if the transfer fails.
+impl stripe_types::Object for TreasuryInboundTransfer {
+    type Id = stripe_treasury::TreasuryInboundTransferId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(TreasuryInboundTransferId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryInboundTransferStatus {
     Canceled,
@@ -116,10 +119,3 @@ impl<'de> serde::Deserialize<'de> for TreasuryInboundTransferStatus {
         })
     }
 }
-impl stripe_types::Object for TreasuryInboundTransfer {
-    type Id = stripe_treasury::TreasuryInboundTransferId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(TreasuryInboundTransferId);

@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 use heck::ToSnakeCase;
 use indexmap::IndexMap;
@@ -6,8 +7,8 @@ use lazy_static::lazy_static;
 use openapiv3::Schema;
 use serde::{Deserialize, Serialize};
 
-use crate::components::TypeSpec;
 use crate::crates::Crate;
+use crate::deduplication::DeduppedObject;
 use crate::rust_object::{ObjectKind, RustObject};
 use crate::rust_type::RustType;
 use crate::spec_inference::Inference;
@@ -53,7 +54,7 @@ pub struct StripeObject {
     pub data: StripeObjectData,
     pub krate: Option<CrateInfo>,
     pub stripe_doc_url: Option<String>,
-    pub deduplicated_objects: IndexMap<RustIdent, TypeSpec>,
+    pub deduplicated_objects: IndexMap<RustIdent, DeduppedObject>,
 }
 
 impl StripeObject {
@@ -82,6 +83,52 @@ impl StripeObject {
         self.resource.mod_path()
     }
 
+    pub fn types_split_from_requests(&self) -> bool {
+        self.types_are_shared() && self.krate_unwrapped().base() != Crate::SHARED
+    }
+
+    /// Do schema definitions live in `stripe_shared`?
+    pub fn types_are_shared(&self) -> bool {
+        let krate = self.krate_unwrapped();
+        krate.for_types() == Crate::SHARED
+    }
+
+    /// The crate we write schema definitions to
+    pub fn types_crate(&self) -> Crate {
+        let krate = self.krate_unwrapped();
+        krate.for_types()
+    }
+
+    /// The crate we write request content to
+    pub fn req_crate(&self) -> Crate {
+        let krate = self.krate_unwrapped();
+        krate.base()
+    }
+
+    fn get_requests_folder_path(&self) -> PathBuf {
+        self.req_crate().get_path().join(self.mod_path())
+    }
+
+    pub fn get_requests_module_path(&self) -> PathBuf {
+        self.get_requests_folder_path().join("mod.rs")
+    }
+
+    pub fn get_requests_content_path(&self) -> PathBuf {
+        self.get_requests_folder_path().join("requests.rs")
+    }
+
+    pub fn get_types_content_path(&self) -> PathBuf {
+        if !self.has_requests() || self.types_split_from_requests() {
+            self.types_crate().get_path().join(format!("{}.rs", self.mod_path()))
+        } else {
+            self.get_requests_folder_path().join("types.rs")
+        }
+    }
+
+    pub fn has_requests(&self) -> bool {
+        !self.requests.is_empty()
+    }
+
     pub fn path(&self) -> &ComponentPath {
         &self.resource.path
     }
@@ -102,7 +149,7 @@ impl StripeObject {
         &self.data.obj
     }
 
-    pub fn is_nested_resource_of(&self, other: &StripeObject) -> bool {
+    pub fn is_nested_resource_of(&self, other: &Self) -> bool {
         if self.requests.is_empty() {
             return false;
         }

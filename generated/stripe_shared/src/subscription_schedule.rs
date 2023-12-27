@@ -21,7 +21,7 @@ pub struct SubscriptionSchedule {
     /// Behavior of the subscription schedule and underlying subscription when it ends.
     /// Possible values are `release` or `cancel` with the default being `release`.
     /// `release` will end the subscription schedule and keep the underlying subscription running.`cancel` will end the subscription schedule and cancel the underlying subscription.
-    pub end_behavior: SubscriptionScheduleEndBehavior,
+    pub end_behavior: stripe_shared::SubscriptionScheduleEndBehavior,
     /// Unique identifier for the object.
     pub id: stripe_shared::SubscriptionScheduleId,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
@@ -43,74 +43,6 @@ pub struct SubscriptionSchedule {
     pub subscription: Option<stripe_types::Expandable<stripe_shared::Subscription>>,
     /// ID of the test clock this subscription schedule belongs to.
     pub test_clock: Option<stripe_types::Expandable<stripe_shared::TestHelpersTestClock>>,
-}
-/// Behavior of the subscription schedule and underlying subscription when it ends.
-/// Possible values are `release` or `cancel` with the default being `release`.
-/// `release` will end the subscription schedule and keep the underlying subscription running.`cancel` will end the subscription schedule and cancel the underlying subscription.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum SubscriptionScheduleEndBehavior {
-    Cancel,
-    None,
-    Release,
-    Renew,
-}
-impl SubscriptionScheduleEndBehavior {
-    pub fn as_str(self) -> &'static str {
-        use SubscriptionScheduleEndBehavior::*;
-        match self {
-            Cancel => "cancel",
-            None => "none",
-            Release => "release",
-            Renew => "renew",
-        }
-    }
-}
-
-impl std::str::FromStr for SubscriptionScheduleEndBehavior {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use SubscriptionScheduleEndBehavior::*;
-        match s {
-            "cancel" => Ok(Cancel),
-            "none" => Ok(None),
-            "release" => Ok(Release),
-            "renew" => Ok(Renew),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for SubscriptionScheduleEndBehavior {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for SubscriptionScheduleEndBehavior {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for SubscriptionScheduleEndBehavior {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for SubscriptionScheduleEndBehavior {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for SubscriptionScheduleEndBehavior {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for SubscriptionScheduleEndBehavior")
-        })
-    }
 }
 /// The present status of the subscription schedule.
 /// Possible values are `not_started`, `active`, `completed`, `released`, and `canceled`.
@@ -189,3 +121,68 @@ impl stripe_types::Object for SubscriptionSchedule {
     }
 }
 stripe_types::def_id!(SubscriptionScheduleId, "sub_sched_");
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum SubscriptionScheduleEndBehavior {
+    Cancel,
+    None,
+    Release,
+    Renew,
+}
+impl SubscriptionScheduleEndBehavior {
+    pub fn as_str(self) -> &'static str {
+        use SubscriptionScheduleEndBehavior::*;
+        match self {
+            Cancel => "cancel",
+            None => "none",
+            Release => "release",
+            Renew => "renew",
+        }
+    }
+}
+
+impl std::str::FromStr for SubscriptionScheduleEndBehavior {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use SubscriptionScheduleEndBehavior::*;
+        match s {
+            "cancel" => Ok(Cancel),
+            "none" => Ok(None),
+            "release" => Ok(Release),
+            "renew" => Ok(Renew),
+            _ => Err(()),
+        }
+    }
+}
+impl AsRef<str> for SubscriptionScheduleEndBehavior {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+impl std::fmt::Display for SubscriptionScheduleEndBehavior {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::fmt::Debug for SubscriptionScheduleEndBehavior {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl serde::Serialize for SubscriptionScheduleEndBehavior {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> serde::Deserialize<'de> for SubscriptionScheduleEndBehavior {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use std::str::FromStr;
+        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for SubscriptionScheduleEndBehavior")
+        })
+    }
+}

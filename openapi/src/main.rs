@@ -89,7 +89,7 @@ fn main() -> Result<()> {
     let mut fmt_cmd = std::process::Command::new("cargo");
     fmt_cmd.arg("+nightly").arg("fmt").arg("--");
     for krate in &*ALL_CRATES {
-        fmt_cmd.arg(format!("out/{}", format!("{}/src/mod.rs", krate.generated_out_path())));
+        fmt_cmd.arg(format!("out/{}/src/mod.rs", krate.generated_out_path()));
     }
     fmt_cmd.arg("out/stripe_webhook/mod.rs");
 

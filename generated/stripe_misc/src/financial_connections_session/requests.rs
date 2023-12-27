@@ -11,10 +11,10 @@ pub struct CreateFinancialConnectionsSession<'a> {
     /// List of data features that you would like to request access to.
     ///
     /// Possible values are `balances`, `transactions`, `ownership`, and `payment_method`.
-    pub permissions: &'a [CreateFinancialConnectionsSessionPermissions],
+    pub permissions: &'a [stripe_misc::FinancialConnectionsSessionPermissions],
     /// List of data features that you would like to retrieve upon account creation.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub prefetch: Option<&'a [CreateFinancialConnectionsSessionPrefetch]>,
+    pub prefetch: Option<&'a [stripe_misc::FinancialConnectionsSessionPrefetch]>,
     /// For webview integrations only.
     /// Upon completing OAuth login in the native browser, the user will be redirected to this URL to return to your app.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -23,7 +23,7 @@ pub struct CreateFinancialConnectionsSession<'a> {
 impl<'a> CreateFinancialConnectionsSession<'a> {
     pub fn new(
         account_holder: CreateFinancialConnectionsSessionAccountHolder<'a>,
-        permissions: &'a [CreateFinancialConnectionsSessionPermissions],
+        permissions: &'a [stripe_misc::FinancialConnectionsSessionPermissions],
     ) -> Self {
         Self {
             account_holder,
@@ -115,116 +115,6 @@ pub struct CreateFinancialConnectionsSessionFilters<'a> {
 impl<'a> CreateFinancialConnectionsSessionFilters<'a> {
     pub fn new(countries: &'a [&'a str]) -> Self {
         Self { countries }
-    }
-}
-/// List of data features that you would like to request access to.
-///
-/// Possible values are `balances`, `transactions`, `ownership`, and `payment_method`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateFinancialConnectionsSessionPermissions {
-    Balances,
-    Ownership,
-    PaymentMethod,
-    Transactions,
-}
-impl CreateFinancialConnectionsSessionPermissions {
-    pub fn as_str(self) -> &'static str {
-        use CreateFinancialConnectionsSessionPermissions::*;
-        match self {
-            Balances => "balances",
-            Ownership => "ownership",
-            PaymentMethod => "payment_method",
-            Transactions => "transactions",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateFinancialConnectionsSessionPermissions {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateFinancialConnectionsSessionPermissions::*;
-        match s {
-            "balances" => Ok(Balances),
-            "ownership" => Ok(Ownership),
-            "payment_method" => Ok(PaymentMethod),
-            "transactions" => Ok(Transactions),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateFinancialConnectionsSessionPermissions {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateFinancialConnectionsSessionPermissions {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateFinancialConnectionsSessionPermissions {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateFinancialConnectionsSessionPermissions {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// List of data features that you would like to retrieve upon account creation.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateFinancialConnectionsSessionPrefetch {
-    Balances,
-    Ownership,
-}
-impl CreateFinancialConnectionsSessionPrefetch {
-    pub fn as_str(self) -> &'static str {
-        use CreateFinancialConnectionsSessionPrefetch::*;
-        match self {
-            Balances => "balances",
-            Ownership => "ownership",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateFinancialConnectionsSessionPrefetch {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateFinancialConnectionsSessionPrefetch::*;
-        match s {
-            "balances" => Ok(Balances),
-            "ownership" => Ok(Ownership),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateFinancialConnectionsSessionPrefetch {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateFinancialConnectionsSessionPrefetch {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateFinancialConnectionsSessionPrefetch {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateFinancialConnectionsSessionPrefetch {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> CreateFinancialConnectionsSession<'a> {

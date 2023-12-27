@@ -29,7 +29,7 @@ pub struct Subscription {
     /// Either `charge_automatically`, or `send_invoice`.
     /// When charging automatically, Stripe will attempt to pay this subscription at the end of the cycle using the default source attached to the customer.
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
-    pub collection_method: SubscriptionCollectionMethod,
+    pub collection_method: stripe_shared::SubscriptionCollectionMethod,
     /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
@@ -132,67 +132,6 @@ pub struct Subscription {
     pub trial_settings: Option<stripe_shared::SubscriptionsTrialsResourceTrialSettings>,
     /// If the subscription has a trial, the beginning of that trial.
     pub trial_start: Option<stripe_types::Timestamp>,
-}
-/// Either `charge_automatically`, or `send_invoice`.
-/// When charging automatically, Stripe will attempt to pay this subscription at the end of the cycle using the default source attached to the customer.
-/// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum SubscriptionCollectionMethod {
-    ChargeAutomatically,
-    SendInvoice,
-}
-impl SubscriptionCollectionMethod {
-    pub fn as_str(self) -> &'static str {
-        use SubscriptionCollectionMethod::*;
-        match self {
-            ChargeAutomatically => "charge_automatically",
-            SendInvoice => "send_invoice",
-        }
-    }
-}
-
-impl std::str::FromStr for SubscriptionCollectionMethod {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use SubscriptionCollectionMethod::*;
-        match s {
-            "charge_automatically" => Ok(ChargeAutomatically),
-            "send_invoice" => Ok(SendInvoice),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for SubscriptionCollectionMethod {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for SubscriptionCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for SubscriptionCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for SubscriptionCollectionMethod {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for SubscriptionCollectionMethod {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for SubscriptionCollectionMethod"))
-    }
 }
 /// Possible values are `incomplete`, `incomplete_expired`, `trialing`, `active`, `past_due`, `canceled`, or `unpaid`.
 ///
@@ -297,3 +236,61 @@ impl stripe_types::Object for Subscription {
     }
 }
 stripe_types::def_id!(SubscriptionId, "sub_");
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum SubscriptionCollectionMethod {
+    ChargeAutomatically,
+    SendInvoice,
+}
+impl SubscriptionCollectionMethod {
+    pub fn as_str(self) -> &'static str {
+        use SubscriptionCollectionMethod::*;
+        match self {
+            ChargeAutomatically => "charge_automatically",
+            SendInvoice => "send_invoice",
+        }
+    }
+}
+
+impl std::str::FromStr for SubscriptionCollectionMethod {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use SubscriptionCollectionMethod::*;
+        match s {
+            "charge_automatically" => Ok(ChargeAutomatically),
+            "send_invoice" => Ok(SendInvoice),
+            _ => Err(()),
+        }
+    }
+}
+impl AsRef<str> for SubscriptionCollectionMethod {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+impl std::fmt::Display for SubscriptionCollectionMethod {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::fmt::Debug for SubscriptionCollectionMethod {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl serde::Serialize for SubscriptionCollectionMethod {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> serde::Deserialize<'de> for SubscriptionCollectionMethod {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use std::str::FromStr;
+        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
+        Self::from_str(&s)
+            .map_err(|_| serde::de::Error::custom("Unknown value for SubscriptionCollectionMethod"))
+    }
+}

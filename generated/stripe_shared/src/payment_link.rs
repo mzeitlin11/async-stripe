@@ -23,7 +23,7 @@ pub struct PaymentLink {
     pub application_fee_percent: Option<f64>,
     pub automatic_tax: stripe_shared::PaymentLinksResourceAutomaticTax,
     /// Configuration for collecting the customer's billing address.
-    pub billing_address_collection: PaymentLinkBillingAddressCollection,
+    pub billing_address_collection: stripe_shared::PaymentLinkBillingAddressCollection,
     /// When set, provides configuration to gather active consent from customers.
     pub consent_collection: Option<stripe_shared::PaymentLinksResourceConsentCollection>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
@@ -56,7 +56,7 @@ pub struct PaymentLink {
     pub payment_method_collection: PaymentLinkPaymentMethodCollection,
     /// The list of payment method types that customers can use.
     /// When `null`, Stripe will dynamically show relevant payment methods you've enabled in your [payment method settings](https://dashboard.stripe.com/settings/payment_methods).
-    pub payment_method_types: Option<Vec<PaymentLinkPaymentMethodTypes>>,
+    pub payment_method_types: Option<Vec<stripe_shared::PaymentLinkPaymentMethodTypes>>,
     pub phone_number_collection: stripe_shared::PaymentLinksResourcePhoneNumberCollection,
     /// Configuration for collecting the customer's shipping address.
     pub shipping_address_collection:
@@ -64,7 +64,7 @@ pub struct PaymentLink {
     /// The shipping rate options applied to the session.
     pub shipping_options: Vec<stripe_shared::PaymentLinksResourceShippingOption>,
     /// Indicates the type of transaction being performed which customizes relevant text on the page, such as the submit button.
-    pub submit_type: PaymentLinkSubmitType,
+    pub submit_type: stripe_shared::PaymentLinkSubmitType,
     /// When creating a subscription, the specified configuration data will be used.
     /// There must be at least one line item with a recurring price to use `subscription_data`.
     pub subscription_data: Option<stripe_shared::PaymentLinksResourceSubscriptionData>,
@@ -73,66 +73,6 @@ pub struct PaymentLink {
     pub transfer_data: Option<stripe_shared::PaymentLinksResourceTransferData>,
     /// The public URL that can be shared with customers.
     pub url: String,
-}
-/// Configuration for collecting the customer's billing address.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum PaymentLinkBillingAddressCollection {
-    Auto,
-    Required,
-}
-impl PaymentLinkBillingAddressCollection {
-    pub fn as_str(self) -> &'static str {
-        use PaymentLinkBillingAddressCollection::*;
-        match self {
-            Auto => "auto",
-            Required => "required",
-        }
-    }
-}
-
-impl std::str::FromStr for PaymentLinkBillingAddressCollection {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use PaymentLinkBillingAddressCollection::*;
-        match s {
-            "auto" => Ok(Auto),
-            "required" => Ok(Required),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for PaymentLinkBillingAddressCollection {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for PaymentLinkBillingAddressCollection {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for PaymentLinkBillingAddressCollection {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for PaymentLinkBillingAddressCollection {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for PaymentLinkBillingAddressCollection {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for PaymentLinkBillingAddressCollection")
-        })
-    }
 }
 /// Configuration for Customer creation during checkout.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -253,8 +193,72 @@ impl<'de> serde::Deserialize<'de> for PaymentLinkPaymentMethodCollection {
         })
     }
 }
-/// The list of payment method types that customers can use.
-/// When `null`, Stripe will dynamically show relevant payment methods you've enabled in your [payment method settings](https://dashboard.stripe.com/settings/payment_methods).
+impl stripe_types::Object for PaymentLink {
+    type Id = stripe_shared::PaymentLinkId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(PaymentLinkId, "plink_");
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum PaymentLinkBillingAddressCollection {
+    Auto,
+    Required,
+}
+impl PaymentLinkBillingAddressCollection {
+    pub fn as_str(self) -> &'static str {
+        use PaymentLinkBillingAddressCollection::*;
+        match self {
+            Auto => "auto",
+            Required => "required",
+        }
+    }
+}
+
+impl std::str::FromStr for PaymentLinkBillingAddressCollection {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use PaymentLinkBillingAddressCollection::*;
+        match s {
+            "auto" => Ok(Auto),
+            "required" => Ok(Required),
+            _ => Err(()),
+        }
+    }
+}
+impl AsRef<str> for PaymentLinkBillingAddressCollection {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+impl std::fmt::Display for PaymentLinkBillingAddressCollection {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::fmt::Debug for PaymentLinkBillingAddressCollection {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl serde::Serialize for PaymentLinkBillingAddressCollection {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> serde::Deserialize<'de> for PaymentLinkBillingAddressCollection {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use std::str::FromStr;
+        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for PaymentLinkBillingAddressCollection")
+        })
+    }
+}
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum PaymentLinkPaymentMethodTypes {
@@ -394,7 +398,6 @@ impl<'de> serde::Deserialize<'de> for PaymentLinkPaymentMethodTypes {
         Ok(Self::from_str(&s).unwrap_or(PaymentLinkPaymentMethodTypes::Unknown))
     }
 }
-/// Indicates the type of transaction being performed which customizes relevant text on the page, such as the submit button.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PaymentLinkSubmitType {
     Auto,
@@ -459,10 +462,3 @@ impl<'de> serde::Deserialize<'de> for PaymentLinkSubmitType {
             .map_err(|_| serde::de::Error::custom("Unknown value for PaymentLinkSubmitType"))
     }
 }
-impl stripe_types::Object for PaymentLink {
-    type Id = stripe_shared::PaymentLinkId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(PaymentLinkId, "plink_");

@@ -24,7 +24,7 @@ pub struct ListTreasuryReceivedCredit<'a> {
     pub starting_after: Option<&'a str>,
     /// Only return ReceivedCredits that have the given status: `succeeded` or `failed`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<ListTreasuryReceivedCreditStatus>,
+    pub status: Option<stripe_treasury::TreasuryReceivedCreditStatus>,
 }
 impl<'a> ListTreasuryReceivedCredit<'a> {
     pub fn new(financial_account: &'a str) -> Self {
@@ -100,57 +100,6 @@ impl std::fmt::Debug for ListTreasuryReceivedCreditLinkedFlowsSourceFlowType {
     }
 }
 impl serde::Serialize for ListTreasuryReceivedCreditLinkedFlowsSourceFlowType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// Only return ReceivedCredits that have the given status: `succeeded` or `failed`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListTreasuryReceivedCreditStatus {
-    Failed,
-    Succeeded,
-}
-impl ListTreasuryReceivedCreditStatus {
-    pub fn as_str(self) -> &'static str {
-        use ListTreasuryReceivedCreditStatus::*;
-        match self {
-            Failed => "failed",
-            Succeeded => "succeeded",
-        }
-    }
-}
-
-impl std::str::FromStr for ListTreasuryReceivedCreditStatus {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListTreasuryReceivedCreditStatus::*;
-        match s {
-            "failed" => Ok(Failed),
-            "succeeded" => Ok(Succeeded),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListTreasuryReceivedCreditStatus {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListTreasuryReceivedCreditStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListTreasuryReceivedCreditStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListTreasuryReceivedCreditStatus {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

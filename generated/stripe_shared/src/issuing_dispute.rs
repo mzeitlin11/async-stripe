@@ -23,14 +23,20 @@ pub struct IssuingDispute {
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: std::collections::HashMap<String, String>,
     /// Current status of the dispute.
-    pub status: IssuingDisputeStatus,
+    pub status: stripe_shared::IssuingDisputeStatus,
     /// The transaction being disputed.
     pub transaction: stripe_types::Expandable<stripe_shared::IssuingTransaction>,
     /// [Treasury](https://stripe.com/docs/api/treasury) details related to this dispute if it was created on a [FinancialAccount](/docs/api/treasury/financial_accounts.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub treasury: Option<stripe_shared::IssuingDisputeTreasury>,
 }
-/// Current status of the dispute.
+impl stripe_types::Object for IssuingDispute {
+    type Id = stripe_shared::IssuingDisputeId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(IssuingDisputeId, "idp_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingDisputeStatus {
     Expired,
@@ -98,10 +104,3 @@ impl<'de> serde::Deserialize<'de> for IssuingDisputeStatus {
             .map_err(|_| serde::de::Error::custom("Unknown value for IssuingDisputeStatus"))
     }
 }
-impl stripe_types::Object for IssuingDispute {
-    type Id = stripe_shared::IssuingDisputeId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(IssuingDisputeId, "idp_");

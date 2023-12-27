@@ -33,11 +33,8 @@ impl RequestSpec {
         let mut req_out = String::with_capacity(128);
         self.write_req_body(&mut req_out, components);
 
-        let lifetime_str = if self.params.has_reference(components) {
-            Lifetime::new().as_param()
-        } else {
-            "".into()
-        };
+        let lifetime_str =
+            if self.params.has_reference(components) { Lifetime.as_param() } else { "" };
         let impl_for = components.construct_printable_type(&self.params);
         if let Some(pagination_kind) = as_pagination_kind(&self.returned) {
             self.gen_paginate(

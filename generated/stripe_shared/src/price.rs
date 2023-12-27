@@ -16,7 +16,7 @@ pub struct Price {
     /// Either `per_unit` or `tiered`.
     /// `per_unit` indicates that the fixed amount (specified in `unit_amount` or `unit_amount_decimal`) will be charged per unit in `quantity` (for prices with `usage_type=licensed`), or per unit of total usage (for prices with `usage_type=metered`).
     /// `tiered` indicates that the unit pricing will be computed using a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
-    pub billing_scheme: PriceBillingScheme,
+    pub billing_scheme: stripe_shared::PriceBillingScheme,
     /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
@@ -49,7 +49,7 @@ pub struct Price {
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
-    pub tax_behavior: Option<PriceTaxBehavior>,
+    pub tax_behavior: Option<stripe_shared::PriceTaxBehavior>,
     /// Each element represents a pricing tier.
     /// This parameter requires `billing_scheme` to be set to `tiered`.
     /// See also the documentation for `billing_scheme`.
@@ -58,13 +58,13 @@ pub struct Price {
     /// Defines if the tiering price should be `graduated` or `volume` based.
     /// In `volume`-based tiering, the maximum quantity within a period determines the per unit price.
     /// In `graduated` tiering, pricing can change as the quantity grows.
-    pub tiers_mode: Option<PriceTiersMode>,
+    pub tiers_mode: Option<stripe_shared::PriceTiersMode>,
     /// Apply a transformation to the reported usage or set quantity before computing the amount billed.
     /// Cannot be combined with `tiers`.
     pub transform_quantity: Option<stripe_shared::TransformQuantity>,
     /// One of `one_time` or `recurring` depending on whether the price is for a one-time purchase or a recurring (subscription) purchase.
     #[serde(rename = "type")]
-    pub type_: PriceType,
+    pub type_: stripe_shared::PriceType,
     /// The unit amount in cents (or local equivalent) to be charged, represented as a whole integer if possible.
     /// Only set if `billing_scheme=per_unit`.
     pub unit_amount: Option<i64>,
@@ -72,10 +72,13 @@ pub struct Price {
     /// Only set if `billing_scheme=per_unit`.
     pub unit_amount_decimal: Option<String>,
 }
-/// Describes how to compute the price per period.
-/// Either `per_unit` or `tiered`.
-/// `per_unit` indicates that the fixed amount (specified in `unit_amount` or `unit_amount_decimal`) will be charged per unit in `quantity` (for prices with `usage_type=licensed`), or per unit of total usage (for prices with `usage_type=metered`).
-/// `tiered` indicates that the unit pricing will be computed using a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
+impl stripe_types::Object for Price {
+    type Id = stripe_shared::PriceId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(PriceId, "price_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PriceBillingScheme {
     PerUnit,
@@ -134,10 +137,6 @@ impl<'de> serde::Deserialize<'de> for PriceBillingScheme {
             .map_err(|_| serde::de::Error::custom("Unknown value for PriceBillingScheme"))
     }
 }
-/// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-/// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
-/// One of `inclusive`, `exclusive`, or `unspecified`.
-/// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PriceTaxBehavior {
     Exclusive,
@@ -199,9 +198,6 @@ impl<'de> serde::Deserialize<'de> for PriceTaxBehavior {
             .map_err(|_| serde::de::Error::custom("Unknown value for PriceTaxBehavior"))
     }
 }
-/// Defines if the tiering price should be `graduated` or `volume` based.
-/// In `volume`-based tiering, the maximum quantity within a period determines the per unit price.
-/// In `graduated` tiering, pricing can change as the quantity grows.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PriceTiersMode {
     Graduated,
@@ -259,7 +255,6 @@ impl<'de> serde::Deserialize<'de> for PriceTiersMode {
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PriceTiersMode"))
     }
 }
-/// One of `one_time` or `recurring` depending on whether the price is for a one-time purchase or a recurring (subscription) purchase.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PriceType {
     OneTime,
@@ -317,10 +312,3 @@ impl<'de> serde::Deserialize<'de> for PriceType {
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PriceType"))
     }
 }
-impl stripe_types::Object for Price {
-    type Id = stripe_shared::PriceId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(PriceId, "price_");

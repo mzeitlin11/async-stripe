@@ -26,16 +26,21 @@ pub struct ShippingRate {
     pub metadata: std::collections::HashMap<String, String>,
     /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
-    pub tax_behavior: Option<ShippingRateTaxBehavior>,
+    pub tax_behavior: Option<stripe_shared::ShippingRateTaxBehavior>,
     /// A [tax code](https://stripe.com/docs/tax/tax-categories) ID.
     /// The Shipping tax code is `txcd_92010001`.
     pub tax_code: Option<stripe_types::Expandable<stripe_shared::TaxCode>>,
     /// The type of calculation to use on the shipping rate. Can only be `fixed_amount` for now.
     #[serde(rename = "type")]
-    pub type_: ShippingRateType,
+    pub type_: stripe_shared::ShippingRateType,
 }
-/// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
-/// One of `inclusive`, `exclusive`, or `unspecified`.
+impl stripe_types::Object for ShippingRate {
+    type Id = stripe_shared::ShippingRateId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(ShippingRateId, "shr_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ShippingRateTaxBehavior {
     Exclusive,
@@ -97,7 +102,6 @@ impl<'de> serde::Deserialize<'de> for ShippingRateTaxBehavior {
             .map_err(|_| serde::de::Error::custom("Unknown value for ShippingRateTaxBehavior"))
     }
 }
-/// The type of calculation to use on the shipping rate. Can only be `fixed_amount` for now.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ShippingRateType {
     FixedAmount,
@@ -153,10 +157,3 @@ impl<'de> serde::Deserialize<'de> for ShippingRateType {
             .map_err(|_| serde::de::Error::custom("Unknown value for ShippingRateType"))
     }
 }
-impl stripe_types::Object for ShippingRate {
-    type Id = stripe_shared::ShippingRateId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(ShippingRateId, "shr_");

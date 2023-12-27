@@ -18,7 +18,7 @@ pub struct Account {
     pub business_profile: Option<stripe_shared::AccountBusinessProfile>,
     /// The business type.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub business_type: Option<AccountBusinessType>,
+    pub business_type: Option<stripe_shared::AccountBusinessType>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub capabilities: Option<stripe_shared::AccountCapabilities>,
     /// Whether the account can create live charges.
@@ -72,9 +72,15 @@ pub struct Account {
     /// The Stripe account type. Can be `standard`, `express`, or `custom`.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_: Option<AccountType>,
+    pub type_: Option<stripe_shared::AccountType>,
 }
-/// The business type.
+impl stripe_types::Object for Account {
+    type Id = stripe_shared::AccountId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(AccountId, "acct_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum AccountBusinessType {
     Company,
@@ -139,7 +145,6 @@ impl<'de> serde::Deserialize<'de> for AccountBusinessType {
             .map_err(|_| serde::de::Error::custom("Unknown value for AccountBusinessType"))
     }
 }
-/// The Stripe account type. Can be `standard`, `express`, or `custom`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum AccountType {
     Custom,
@@ -200,10 +205,3 @@ impl<'de> serde::Deserialize<'de> for AccountType {
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for AccountType"))
     }
 }
-impl stripe_types::Object for Account {
-    type Id = stripe_shared::AccountId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(AccountId, "acct_");

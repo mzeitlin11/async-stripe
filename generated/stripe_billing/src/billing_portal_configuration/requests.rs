@@ -117,7 +117,7 @@ pub struct CreateBillingPortalConfigurationFeatures<'a> {
     pub subscription_cancel: Option<CreateBillingPortalConfigurationFeaturesSubscriptionCancel<'a>>,
     /// Information about pausing subscriptions in the portal.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub subscription_pause: Option<CreateBillingPortalConfigurationFeaturesSubscriptionPause>,
+    pub subscription_pause: Option<SubscriptionPauseParam>,
     /// Information about updating subscriptions in the portal.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subscription_update: Option<CreateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a>>,
@@ -462,18 +462,6 @@ impl serde::Serialize
         serializer.serialize_str(self.as_str())
     }
 }
-/// Information about pausing subscriptions in the portal.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateBillingPortalConfigurationFeaturesSubscriptionPause {
-    /// Whether the feature is enabled.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub enabled: Option<bool>,
-}
-impl CreateBillingPortalConfigurationFeaturesSubscriptionPause {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
 /// Information about updating subscriptions in the portal.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a> {
@@ -483,7 +471,7 @@ pub struct CreateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a> {
     /// Whether the feature is enabled.
     pub enabled: bool,
     /// The list of up to 10 products that support subscription updates.
-    pub products: &'a [CreateBillingPortalConfigurationFeaturesSubscriptionUpdateProducts<'a>],
+    pub products: &'a [SubscriptionUpdateProductParam<'a>],
     /// Determines how to handle prorations resulting from subscription updates.
     /// Valid values are `none`, `create_prorations`, and `always_invoice`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -494,7 +482,7 @@ impl<'a> CreateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a> {
     pub fn new(
         default_allowed_updates: &'a [CreateBillingPortalConfigurationFeaturesSubscriptionUpdateDefaultAllowedUpdates],
         enabled: bool,
-        products: &'a [CreateBillingPortalConfigurationFeaturesSubscriptionUpdateProducts<'a>],
+        products: &'a [SubscriptionUpdateProductParam<'a>],
     ) -> Self {
         Self { default_allowed_updates, enabled, products, proration_behavior: None }
     }
@@ -561,19 +549,6 @@ impl serde::Serialize
         S: serde::Serializer,
     {
         serializer.serialize_str(self.as_str())
-    }
-}
-/// The list of up to 10 products that support subscription updates.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateBillingPortalConfigurationFeaturesSubscriptionUpdateProducts<'a> {
-    /// The list of price IDs for the product that a subscription can be updated to.
-    pub prices: &'a [&'a str],
-    /// The product id.
-    pub product: &'a str,
-}
-impl<'a> CreateBillingPortalConfigurationFeaturesSubscriptionUpdateProducts<'a> {
-    pub fn new(prices: &'a [&'a str], product: &'a str) -> Self {
-        Self { prices, product }
     }
 }
 /// Determines how to handle prorations resulting from subscription updates.
@@ -729,7 +704,7 @@ pub struct UpdateBillingPortalConfigurationFeatures<'a> {
     pub subscription_cancel: Option<UpdateBillingPortalConfigurationFeaturesSubscriptionCancel<'a>>,
     /// Information about pausing subscriptions in the portal.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub subscription_pause: Option<UpdateBillingPortalConfigurationFeaturesSubscriptionPause>,
+    pub subscription_pause: Option<SubscriptionPauseParam>,
     /// Information about updating subscriptions in the portal.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subscription_update: Option<UpdateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a>>,
@@ -1075,18 +1050,6 @@ impl serde::Serialize
         serializer.serialize_str(self.as_str())
     }
 }
-/// Information about pausing subscriptions in the portal.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateBillingPortalConfigurationFeaturesSubscriptionPause {
-    /// Whether the feature is enabled.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub enabled: Option<bool>,
-}
-impl UpdateBillingPortalConfigurationFeaturesSubscriptionPause {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
 /// Information about updating subscriptions in the portal.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a> {
@@ -1100,8 +1063,7 @@ pub struct UpdateBillingPortalConfigurationFeaturesSubscriptionUpdate<'a> {
     pub enabled: Option<bool>,
     /// The list of up to 10 products that support subscription updates.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub products:
-        Option<&'a [UpdateBillingPortalConfigurationFeaturesSubscriptionUpdateProducts<'a>]>,
+    pub products: Option<&'a [SubscriptionUpdateProductParam<'a>]>,
     /// Determines how to handle prorations resulting from subscription updates.
     /// Valid values are `none`, `create_prorations`, and `always_invoice`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1175,19 +1137,6 @@ impl serde::Serialize
         S: serde::Serializer,
     {
         serializer.serialize_str(self.as_str())
-    }
-}
-/// The list of up to 10 products that support subscription updates.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateBillingPortalConfigurationFeaturesSubscriptionUpdateProducts<'a> {
-    /// The list of price IDs for the product that a subscription can be updated to.
-    pub prices: &'a [&'a str],
-    /// The product id.
-    pub product: &'a str,
-}
-impl<'a> UpdateBillingPortalConfigurationFeaturesSubscriptionUpdateProducts<'a> {
-    pub fn new(prices: &'a [&'a str], product: &'a str) -> Self {
-        Self { prices, product }
     }
 }
 /// Determines how to handle prorations resulting from subscription updates.
@@ -1300,5 +1249,28 @@ impl<'a> RetrieveBillingPortalConfiguration<'a> {
         configuration: &stripe_billing::BillingPortalConfigurationId,
     ) -> stripe::Response<stripe_billing::BillingPortalConfiguration> {
         client.get_query(&format!("/billing_portal/configurations/{configuration}"), self)
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct SubscriptionPauseParam {
+    /// Whether the feature is enabled.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub enabled: Option<bool>,
+}
+impl SubscriptionPauseParam {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct SubscriptionUpdateProductParam<'a> {
+    /// The list of price IDs for the product that a subscription can be updated to.
+    pub prices: &'a [&'a str],
+    /// The product id.
+    pub product: &'a str,
+}
+impl<'a> SubscriptionUpdateProductParam<'a> {
+    pub fn new(prices: &'a [&'a str], product: &'a str) -> Self {
+        Self { prices, product }
     }
 }

@@ -105,7 +105,7 @@ pub struct CreateTaxRate<'a> {
     pub state: Option<&'a str>,
     /// The high-level tax type, such as `vat` or `sales_tax`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_type: Option<CreateTaxRateTaxType>,
+    pub tax_type: Option<stripe_shared::TaxRateTaxType>,
 }
 impl<'a> CreateTaxRate<'a> {
     pub fn new(display_name: &'a str, inclusive: bool, percentage: f64) -> Self {
@@ -122,94 +122,6 @@ impl<'a> CreateTaxRate<'a> {
             state: None,
             tax_type: None,
         }
-    }
-}
-/// The high-level tax type, such as `vat` or `sales_tax`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-#[non_exhaustive]
-pub enum CreateTaxRateTaxType {
-    AmusementTax,
-    CommunicationsTax,
-    Gst,
-    Hst,
-    Igst,
-    Jct,
-    LeaseTax,
-    Pst,
-    Qst,
-    Rst,
-    SalesTax,
-    ServiceTax,
-    Vat,
-    /// An unrecognized value from Stripe. Should not be used as a request parameter.
-    Unknown,
-}
-impl CreateTaxRateTaxType {
-    pub fn as_str(self) -> &'static str {
-        use CreateTaxRateTaxType::*;
-        match self {
-            AmusementTax => "amusement_tax",
-            CommunicationsTax => "communications_tax",
-            Gst => "gst",
-            Hst => "hst",
-            Igst => "igst",
-            Jct => "jct",
-            LeaseTax => "lease_tax",
-            Pst => "pst",
-            Qst => "qst",
-            Rst => "rst",
-            SalesTax => "sales_tax",
-            ServiceTax => "service_tax",
-            Vat => "vat",
-            Unknown => "unknown",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateTaxRateTaxType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateTaxRateTaxType::*;
-        match s {
-            "amusement_tax" => Ok(AmusementTax),
-            "communications_tax" => Ok(CommunicationsTax),
-            "gst" => Ok(Gst),
-            "hst" => Ok(Hst),
-            "igst" => Ok(Igst),
-            "jct" => Ok(Jct),
-            "lease_tax" => Ok(LeaseTax),
-            "pst" => Ok(Pst),
-            "qst" => Ok(Qst),
-            "rst" => Ok(Rst),
-            "sales_tax" => Ok(SalesTax),
-            "service_tax" => Ok(ServiceTax),
-            "vat" => Ok(Vat),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateTaxRateTaxType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateTaxRateTaxType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateTaxRateTaxType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateTaxRateTaxType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> CreateTaxRate<'a> {
@@ -254,99 +166,11 @@ pub struct UpdateTaxRate<'a> {
     pub state: Option<&'a str>,
     /// The high-level tax type, such as `vat` or `sales_tax`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_type: Option<UpdateTaxRateTaxType>,
+    pub tax_type: Option<stripe_shared::TaxRateTaxType>,
 }
 impl<'a> UpdateTaxRate<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// The high-level tax type, such as `vat` or `sales_tax`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-#[non_exhaustive]
-pub enum UpdateTaxRateTaxType {
-    AmusementTax,
-    CommunicationsTax,
-    Gst,
-    Hst,
-    Igst,
-    Jct,
-    LeaseTax,
-    Pst,
-    Qst,
-    Rst,
-    SalesTax,
-    ServiceTax,
-    Vat,
-    /// An unrecognized value from Stripe. Should not be used as a request parameter.
-    Unknown,
-}
-impl UpdateTaxRateTaxType {
-    pub fn as_str(self) -> &'static str {
-        use UpdateTaxRateTaxType::*;
-        match self {
-            AmusementTax => "amusement_tax",
-            CommunicationsTax => "communications_tax",
-            Gst => "gst",
-            Hst => "hst",
-            Igst => "igst",
-            Jct => "jct",
-            LeaseTax => "lease_tax",
-            Pst => "pst",
-            Qst => "qst",
-            Rst => "rst",
-            SalesTax => "sales_tax",
-            ServiceTax => "service_tax",
-            Vat => "vat",
-            Unknown => "unknown",
-        }
-    }
-}
-
-impl std::str::FromStr for UpdateTaxRateTaxType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use UpdateTaxRateTaxType::*;
-        match s {
-            "amusement_tax" => Ok(AmusementTax),
-            "communications_tax" => Ok(CommunicationsTax),
-            "gst" => Ok(Gst),
-            "hst" => Ok(Hst),
-            "igst" => Ok(Igst),
-            "jct" => Ok(Jct),
-            "lease_tax" => Ok(LeaseTax),
-            "pst" => Ok(Pst),
-            "qst" => Ok(Qst),
-            "rst" => Ok(Rst),
-            "sales_tax" => Ok(SalesTax),
-            "service_tax" => Ok(ServiceTax),
-            "vat" => Ok(Vat),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for UpdateTaxRateTaxType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for UpdateTaxRateTaxType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for UpdateTaxRateTaxType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for UpdateTaxRateTaxType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> UpdateTaxRate<'a> {

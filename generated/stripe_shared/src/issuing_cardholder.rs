@@ -30,21 +30,25 @@ pub struct IssuingCardholder {
     /// The cardholder’s preferred locales (languages), ordered by preference.
     /// Locales can be `de`, `en`, `es`, `fr`, or `it`.
     /// This changes the language of the [3D Secure flow](https://stripe.com/docs/issuing/3d-secure) and one-time password messages sent to the cardholder.
-    pub preferred_locales: Option<Vec<IssuingCardholderPreferredLocales>>,
+    pub preferred_locales: Option<Vec<stripe_shared::IssuingCardholderPreferredLocales>>,
     pub requirements: stripe_shared::IssuingCardholderRequirements,
     /// Rules that control spending across this cardholder's cards.
     /// Refer to our [documentation](https://stripe.com/docs/issuing/controls/spending-controls) for more details.
     pub spending_controls: Option<stripe_shared::IssuingCardholderAuthorizationControls>,
     /// Specifies whether to permit authorizations on this cardholder's cards.
-    pub status: IssuingCardholderStatus,
+    pub status: stripe_shared::IssuingCardholderStatus,
     /// One of `individual` or `company`.
     /// See [Choose a cardholder type](https://stripe.com/docs/issuing/other/choose-cardholder) for more details.
     #[serde(rename = "type")]
-    pub type_: IssuingCardholderType,
+    pub type_: stripe_shared::IssuingCardholderType,
 }
-/// The cardholder’s preferred locales (languages), ordered by preference.
-/// Locales can be `de`, `en`, `es`, `fr`, or `it`.
-/// This changes the language of the [3D Secure flow](https://stripe.com/docs/issuing/3d-secure) and one-time password messages sent to the cardholder.
+impl stripe_types::Object for IssuingCardholder {
+    type Id = stripe_shared::IssuingCardholderId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(IssuingCardholderId, "ich_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingCardholderPreferredLocales {
     De,
@@ -113,7 +117,6 @@ impl<'de> serde::Deserialize<'de> for IssuingCardholderPreferredLocales {
         })
     }
 }
-/// Specifies whether to permit authorizations on this cardholder's cards.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingCardholderStatus {
     Active,
@@ -175,8 +178,6 @@ impl<'de> serde::Deserialize<'de> for IssuingCardholderStatus {
             .map_err(|_| serde::de::Error::custom("Unknown value for IssuingCardholderStatus"))
     }
 }
-/// One of `individual` or `company`.
-/// See [Choose a cardholder type](https://stripe.com/docs/issuing/other/choose-cardholder) for more details.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingCardholderType {
     Company,
@@ -235,10 +236,3 @@ impl<'de> serde::Deserialize<'de> for IssuingCardholderType {
             .map_err(|_| serde::de::Error::custom("Unknown value for IssuingCardholderType"))
     }
 }
-impl stripe_types::Object for IssuingCardholder {
-    type Id = stripe_shared::IssuingCardholderId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(IssuingCardholderId, "ich_");

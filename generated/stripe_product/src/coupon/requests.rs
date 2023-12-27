@@ -54,10 +54,10 @@ pub struct CreateCoupon<'a> {
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency_options:
-        Option<&'a std::collections::HashMap<stripe_types::Currency, CreateCouponCurrencyOptions>>,
+        Option<&'a std::collections::HashMap<stripe_types::Currency, CurrencyOption>>,
     /// Specifies how long the discount will be in effect if used on a subscription. Defaults to `once`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub duration: Option<CreateCouponDuration>,
+    pub duration: Option<stripe_shared::CouponDuration>,
     /// Required only if `duration` is `repeating`, in which case it must be a positive integer that specifies the number of months the discount will be in effect.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration_in_months: Option<i64>,
@@ -107,72 +107,6 @@ impl<'a> CreateCouponAppliesTo<'a> {
         Self::default()
     }
 }
-/// Coupons defined in each available currency option (only supported if `amount_off` is passed).
-/// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateCouponCurrencyOptions {
-    /// A positive integer representing the amount to subtract from an invoice total.
-    pub amount_off: i64,
-}
-impl CreateCouponCurrencyOptions {
-    pub fn new(amount_off: i64) -> Self {
-        Self { amount_off }
-    }
-}
-/// Specifies how long the discount will be in effect if used on a subscription. Defaults to `once`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateCouponDuration {
-    Forever,
-    Once,
-    Repeating,
-}
-impl CreateCouponDuration {
-    pub fn as_str(self) -> &'static str {
-        use CreateCouponDuration::*;
-        match self {
-            Forever => "forever",
-            Once => "once",
-            Repeating => "repeating",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateCouponDuration {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateCouponDuration::*;
-        match s {
-            "forever" => Ok(Forever),
-            "once" => Ok(Once),
-            "repeating" => Ok(Repeating),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateCouponDuration {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateCouponDuration {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateCouponDuration {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateCouponDuration {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 impl<'a> CreateCoupon<'a> {
     /// You can create coupons easily via the [coupon management](https://dashboard.stripe.com/coupons) page of the Stripe dashboard.
     /// Coupon creation is also accessible via the API if you need to create coupons on the fly.
@@ -211,7 +145,7 @@ pub struct UpdateCoupon<'a> {
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency_options:
-        Option<&'a std::collections::HashMap<stripe_types::Currency, UpdateCouponCurrencyOptions>>,
+        Option<&'a std::collections::HashMap<stripe_types::Currency, CurrencyOption>>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
@@ -229,18 +163,6 @@ pub struct UpdateCoupon<'a> {
 impl<'a> UpdateCoupon<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Coupons defined in each available currency option (only supported if the coupon is amount-based).
-/// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateCouponCurrencyOptions {
-    /// A positive integer representing the amount to subtract from an invoice total.
-    pub amount_off: i64,
-}
-impl UpdateCouponCurrencyOptions {
-    pub fn new(amount_off: i64) -> Self {
-        Self { amount_off }
     }
 }
 impl<'a> UpdateCoupon<'a> {
@@ -271,5 +193,15 @@ impl DeleteCoupon {
         coupon: &stripe_shared::CouponId,
     ) -> stripe::Response<stripe_shared::DeletedCoupon> {
         client.send_form(&format!("/coupons/{coupon}"), self, http_types::Method::Delete)
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct CurrencyOption {
+    /// A positive integer representing the amount to subtract from an invoice total.
+    pub amount_off: i64,
+}
+impl CurrencyOption {
+    pub fn new(amount_off: i64) -> Self {
+        Self { amount_off }
     }
 }

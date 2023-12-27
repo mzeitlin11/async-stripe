@@ -12,18 +12,16 @@
 //! brand color. See more: <https://dashboard.stripe.com/connect/accounts/overview>
 
 use stripe::StripeError;
-use stripe_connect::account::{
-    CreateAccount, CreateAccountCapabilities, CreateAccountCapabilitiesCardPayments,
-    CreateAccountCapabilitiesTransfers, CreateAccountType,
-};
+use stripe_connect::account::{CapabilitiesParam, CapabilityParam, CreateAccount};
 use stripe_connect::account_link::{CreateAccountLink, CreateAccountLinkType};
+use stripe_connect::AccountType;
 
 pub async fn run_connect_example(client: &stripe::Client) -> Result<(), StripeError> {
     let account = CreateAccount {
-        type_: Some(CreateAccountType::Express),
-        capabilities: Some(CreateAccountCapabilities {
-            card_payments: Some(CreateAccountCapabilitiesCardPayments { requested: Some(true) }),
-            transfers: Some(CreateAccountCapabilitiesTransfers { requested: Some(true) }),
+        type_: Some(AccountType::Express),
+        capabilities: Some(CapabilitiesParam {
+            card_payments: Some(CapabilityParam { requested: Some(true) }),
+            transfers: Some(CapabilityParam { requested: Some(true) }),
             ..Default::default()
         }),
         ..Default::default()

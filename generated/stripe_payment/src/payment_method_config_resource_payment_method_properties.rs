@@ -1,4 +1,4 @@
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PaymentMethodConfigResourcePaymentMethodProperties {
     /// Whether this payment method may be offered at checkout.
     /// True if `display_preference` is `on` and the payment method's capability is active.

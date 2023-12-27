@@ -35,7 +35,7 @@ pub struct SetupIntent {
     pub automatic_payment_methods:
         Option<stripe_shared::PaymentFlowsAutomaticPaymentMethodsSetupIntent>,
     /// Reason for cancellation of this SetupIntent, one of `abandoned`, `requested_by_customer`, or `duplicate`.
-    pub cancellation_reason: Option<SetupIntentCancellationReason>,
+    pub cancellation_reason: Option<stripe_shared::SetupIntentCancellationReason>,
     /// The client secret of this SetupIntent. Used for client-side retrieval using a publishable key.
     ///
     /// The client secret can be used to complete payment setup from your frontend.
@@ -56,7 +56,7 @@ pub struct SetupIntent {
     /// Include `inbound` if you intend to use the payment method as the origin to pull funds from.
     /// Include `outbound` if you intend to use the payment method as the destination to send funds to.
     /// You can include both if you intend to use the payment method for both purposes.
-    pub flow_directions: Option<Vec<SetupIntentFlowDirections>>,
+    pub flow_directions: Option<Vec<stripe_shared::SetupIntentFlowDirections>>,
     /// Unique identifier for the object.
     pub id: stripe_shared::SetupIntentId,
     /// The error encountered in the previous SetupIntent confirmation.
@@ -93,132 +93,6 @@ pub struct SetupIntent {
     /// Use `off_session` if your customer may or may not be in your checkout flow.
     /// If not provided, this value defaults to `off_session`.
     pub usage: String,
-}
-/// Reason for cancellation of this SetupIntent, one of `abandoned`, `requested_by_customer`, or `duplicate`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum SetupIntentCancellationReason {
-    Abandoned,
-    Duplicate,
-    RequestedByCustomer,
-}
-impl SetupIntentCancellationReason {
-    pub fn as_str(self) -> &'static str {
-        use SetupIntentCancellationReason::*;
-        match self {
-            Abandoned => "abandoned",
-            Duplicate => "duplicate",
-            RequestedByCustomer => "requested_by_customer",
-        }
-    }
-}
-
-impl std::str::FromStr for SetupIntentCancellationReason {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use SetupIntentCancellationReason::*;
-        match s {
-            "abandoned" => Ok(Abandoned),
-            "duplicate" => Ok(Duplicate),
-            "requested_by_customer" => Ok(RequestedByCustomer),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for SetupIntentCancellationReason {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for SetupIntentCancellationReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for SetupIntentCancellationReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for SetupIntentCancellationReason {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for SetupIntentCancellationReason {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for SetupIntentCancellationReason")
-        })
-    }
-}
-/// Indicates the directions of money movement for which this payment method is intended to be used.
-///
-/// Include `inbound` if you intend to use the payment method as the origin to pull funds from.
-/// Include `outbound` if you intend to use the payment method as the destination to send funds to.
-/// You can include both if you intend to use the payment method for both purposes.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum SetupIntentFlowDirections {
-    Inbound,
-    Outbound,
-}
-impl SetupIntentFlowDirections {
-    pub fn as_str(self) -> &'static str {
-        use SetupIntentFlowDirections::*;
-        match self {
-            Inbound => "inbound",
-            Outbound => "outbound",
-        }
-    }
-}
-
-impl std::str::FromStr for SetupIntentFlowDirections {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use SetupIntentFlowDirections::*;
-        match s {
-            "inbound" => Ok(Inbound),
-            "outbound" => Ok(Outbound),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for SetupIntentFlowDirections {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for SetupIntentFlowDirections {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for SetupIntentFlowDirections {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for SetupIntentFlowDirections {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for SetupIntentFlowDirections {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for SetupIntentFlowDirections"))
-    }
 }
 /// [Status](https://stripe.com/docs/payments/intents#intent-statuses) of this SetupIntent, one of `requires_payment_method`, `requires_confirmation`, `requires_action`, `processing`, `canceled`, or `succeeded`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -298,3 +172,123 @@ impl stripe_types::Object for SetupIntent {
     }
 }
 stripe_types::def_id!(SetupIntentId, "seti_");
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum SetupIntentCancellationReason {
+    Abandoned,
+    Duplicate,
+    RequestedByCustomer,
+}
+impl SetupIntentCancellationReason {
+    pub fn as_str(self) -> &'static str {
+        use SetupIntentCancellationReason::*;
+        match self {
+            Abandoned => "abandoned",
+            Duplicate => "duplicate",
+            RequestedByCustomer => "requested_by_customer",
+        }
+    }
+}
+
+impl std::str::FromStr for SetupIntentCancellationReason {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use SetupIntentCancellationReason::*;
+        match s {
+            "abandoned" => Ok(Abandoned),
+            "duplicate" => Ok(Duplicate),
+            "requested_by_customer" => Ok(RequestedByCustomer),
+            _ => Err(()),
+        }
+    }
+}
+impl AsRef<str> for SetupIntentCancellationReason {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+impl std::fmt::Display for SetupIntentCancellationReason {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::fmt::Debug for SetupIntentCancellationReason {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl serde::Serialize for SetupIntentCancellationReason {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> serde::Deserialize<'de> for SetupIntentCancellationReason {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use std::str::FromStr;
+        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for SetupIntentCancellationReason")
+        })
+    }
+}
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum SetupIntentFlowDirections {
+    Inbound,
+    Outbound,
+}
+impl SetupIntentFlowDirections {
+    pub fn as_str(self) -> &'static str {
+        use SetupIntentFlowDirections::*;
+        match self {
+            Inbound => "inbound",
+            Outbound => "outbound",
+        }
+    }
+}
+
+impl std::str::FromStr for SetupIntentFlowDirections {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use SetupIntentFlowDirections::*;
+        match s {
+            "inbound" => Ok(Inbound),
+            "outbound" => Ok(Outbound),
+            _ => Err(()),
+        }
+    }
+}
+impl AsRef<str> for SetupIntentFlowDirections {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+impl std::fmt::Display for SetupIntentFlowDirections {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::fmt::Debug for SetupIntentFlowDirections {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl serde::Serialize for SetupIntentFlowDirections {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> serde::Deserialize<'de> for SetupIntentFlowDirections {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use std::str::FromStr;
+        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
+        Self::from_str(&s)
+            .map_err(|_| serde::de::Error::custom("Unknown value for SetupIntentFlowDirections"))
+    }
+}

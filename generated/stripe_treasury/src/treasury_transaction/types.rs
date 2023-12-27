@@ -27,7 +27,7 @@ pub struct TreasuryTransaction {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Status of the Transaction.
-    pub status: TreasuryTransactionStatus,
+    pub status: stripe_treasury::TreasuryTransactionStatus,
     pub status_transitions:
         stripe_treasury::TreasuryTransactionsResourceAbstractTransactionResourceStatusTransitions,
 }
@@ -111,7 +111,13 @@ impl<'de> serde::Deserialize<'de> for TreasuryTransactionFlowType {
             .map_err(|_| serde::de::Error::custom("Unknown value for TreasuryTransactionFlowType"))
     }
 }
-/// Status of the Transaction.
+impl stripe_types::Object for TreasuryTransaction {
+    type Id = stripe_treasury::TreasuryTransactionId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(TreasuryTransactionId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryTransactionStatus {
     Open,
@@ -173,10 +179,3 @@ impl<'de> serde::Deserialize<'de> for TreasuryTransactionStatus {
             .map_err(|_| serde::de::Error::custom("Unknown value for TreasuryTransactionStatus"))
     }
 }
-impl stripe_types::Object for TreasuryTransaction {
-    type Id = stripe_treasury::TreasuryTransactionId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(TreasuryTransactionId);

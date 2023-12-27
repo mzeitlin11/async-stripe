@@ -1,5 +1,5 @@
 use std::fmt::Write as _;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use anyhow::Context;
 use indoc::formatdoc;
@@ -38,7 +38,7 @@ impl CodeGen {
     }
 
     fn write_api_version_file(&self) -> anyhow::Result<()> {
-        let base_path = PathBuf::from(Crate::SHARED.generate_to());
+        let base_path = Crate::SHARED.get_path();
         let mut mod_rs_contents = String::new();
         let mod_rs_path = base_path.join("mod.rs");
 
@@ -59,11 +59,12 @@ impl CodeGen {
             self.write_component(component)?;
         }
 
-        let crate_path = PathBuf::from(Crate::SHARED.generate_to());
+        let crate_path = Crate::SHARED.get_path();
         let crate_mod_path = crate_path.join("mod.rs");
         for (ident, typ_info) in &self.components.extra_types {
             let mut out = String::new();
-            self.components.write_object(&typ_info.obj, &typ_info.metadata, &mut out);
+            let metadata = ObjectMetadata::new(ident.clone(), ObjectKind::Type);
+            self.components.write_object(&typ_info.obj, &metadata, &mut out);
             write_to_file(out, crate_path.join(format!("{}.rs", typ_info.mod_path)))?;
             append_to_file(
                 format!("pub mod {0}; pub use {0}::{1};", typ_info.mod_path, ident),
@@ -124,13 +125,9 @@ impl CodeGen {
         Ok(())
     }
 
-    fn write_component_requests(
-        &self,
-        comp: &StripeObject,
-        module_path: &Path,
-    ) -> anyhow::Result<()> {
+    fn write_component_requests(&self, comp: &StripeObject) -> anyhow::Result<()> {
         let req_content = gen_requests(&comp.requests, &self.components);
-        write_to_file(req_content, module_path.join("requests.rs"))?;
+        write_to_file(req_content, comp.get_requests_content_path())?;
         let feature_gate = comp.mod_path();
         let new_mod_file_content = formatdoc! {
             r#"
@@ -140,21 +137,14 @@ impl CodeGen {
             pub use requests::*;
             "#
         };
-        append_to_file(new_mod_file_content, module_path.join("mod.rs"))
+        append_to_file(new_mod_file_content, comp.get_requests_module_path())
     }
 
     #[tracing::instrument(level = "debug", skip_all, fields(path = %comp.path()))]
     fn write_component(&self, comp: &StripeObject) -> anyhow::Result<()> {
-        let krate = comp.krate_unwrapped();
-        let types_are_shared = krate.for_types() == Crate::SHARED && krate.base() != Crate::SHARED;
-        let types_crate_path = PathBuf::from(krate.for_types().generate_to());
-        let req_crate_path = PathBuf::from(krate.base().generate_to());
-        let comp_mod = req_crate_path.join(comp.mod_path());
-
         let struct_defs = self.gen_struct_definitions_for_component(comp);
-        if comp.requests.is_empty() || types_are_shared {
-            let types_file = types_crate_path.join(format!("{}.rs", comp.mod_path()));
-            write_to_file(struct_defs, types_file)?;
+        if !comp.has_requests() || comp.types_split_from_requests() {
+            write_to_file(struct_defs, comp.get_types_content_path())?;
             append_to_file(
                 format!(
                     // NB: we add doc(hidden) and doc(inline) to hide the implementation details
@@ -163,30 +153,47 @@ impl CodeGen {
                     "#[doc(hidden)]\npub mod {0};#[doc(inline)]\npub use {0}::*;",
                     comp.mod_path()
                 ),
-                types_crate_path.join("mod.rs"),
+                comp.types_crate().get_path_to_mod(),
             )?;
         } else {
-            write_to_file(struct_defs, comp_mod.join("types.rs"))?;
-            append_to_file("pub(crate) mod types;", comp_mod.join("mod.rs"))?;
+            write_to_file(struct_defs, comp.get_types_content_path())?;
+            append_to_file("pub(crate) mod types;", comp.get_requests_module_path())?;
             append_to_file(
                 format!("pub use {0}::types::*;", comp.mod_path()),
-                req_crate_path.join("mod.rs"),
+                comp.req_crate().get_path_to_mod(),
             )?;
         }
 
         if !comp.requests.is_empty() {
-            append_to_file(format!("pub mod {};", comp.mod_path()), req_crate_path.join("mod.rs"))?;
-            self.write_component_requests(comp, &comp_mod)?;
+            append_to_file(
+                format!("pub mod {};", comp.mod_path()),
+                comp.req_crate().get_path_to_mod(),
+            )?;
+            self.write_component_requests(comp)?;
         }
 
         // Reexport in this crate if we wrote types to `stripe_shared` instead of the
         // component's base crate.
-        if types_are_shared {
+        if comp.types_split_from_requests() {
             append_to_file(
                 format!("pub use {}::{}::*;", Crate::SHARED, comp.mod_path()),
-                req_crate_path.join("mod.rs"),
+                comp.req_crate().get_path_to_mod(),
             )?;
         }
+
+        for (ident, obj) in &comp.deduplicated_objects {
+            let mut out = String::new();
+            let metadata = ObjectMetadata::new(ident.clone(), obj.info.kind);
+            self.components.write_object(&obj.object, &metadata, &mut out);
+            let dst_file = match obj.info.kind {
+                ObjectKind::RequestParam | ObjectKind::RequestReturned => {
+                    comp.get_requests_content_path()
+                }
+                ObjectKind::Type => comp.get_types_content_path(),
+            };
+            append_to_file(out, dst_file)?;
+        }
+
         Ok(())
     }
 

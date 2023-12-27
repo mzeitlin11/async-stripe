@@ -41,10 +41,10 @@ pub struct IdentityVerificationSession {
     pub redaction: Option<stripe_misc::VerificationSessionRedaction>,
     /// Status of this VerificationSession.
     /// [Learn more about the lifecycle of sessions](https://stripe.com/docs/identity/how-sessions-work).
-    pub status: IdentityVerificationSessionStatus,
+    pub status: stripe_misc::IdentityVerificationSessionStatus,
     /// The type of [verification check](https://stripe.com/docs/identity/verification-checks) to be performed.
     #[serde(rename = "type")]
-    pub type_: Option<IdentityVerificationSessionType>,
+    pub type_: Option<stripe_misc::IdentityVerificationSessionType>,
     /// The short-lived URL that you use to redirect a user to Stripe to submit their identity information.
     /// This URL expires after 48 hours and can only be used once.
     /// Don’t store it, log it, send it in emails or expose it to anyone other than the user.
@@ -53,8 +53,13 @@ pub struct IdentityVerificationSession {
     /// The user’s verified data.
     pub verified_outputs: Option<stripe_misc::GelatoVerifiedOutputs>,
 }
-/// Status of this VerificationSession.
-/// [Learn more about the lifecycle of sessions](https://stripe.com/docs/identity/how-sessions-work).
+impl stripe_types::Object for IdentityVerificationSession {
+    type Id = stripe_misc::IdentityVerificationSessionId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(IdentityVerificationSessionId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IdentityVerificationSessionStatus {
     Canceled,
@@ -120,7 +125,6 @@ impl<'de> serde::Deserialize<'de> for IdentityVerificationSessionStatus {
         })
     }
 }
-/// The type of [verification check](https://stripe.com/docs/identity/verification-checks) to be performed.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IdentityVerificationSessionType {
     Document,
@@ -180,10 +184,3 @@ impl<'de> serde::Deserialize<'de> for IdentityVerificationSessionType {
         })
     }
 }
-impl stripe_types::Object for IdentityVerificationSession {
-    type Id = stripe_misc::IdentityVerificationSessionId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(IdentityVerificationSessionId);

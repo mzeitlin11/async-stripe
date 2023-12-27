@@ -154,26 +154,17 @@ impl Display for PrintableType {
     }
 }
 
+/// For now, we only support a single lifetime, so always creates `'a`
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub struct Lifetime(&'static str);
+pub struct Lifetime;
 
 impl Lifetime {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
     pub fn as_str(self) -> &'static str {
-        self.0
+        "'a"
     }
 
-    pub fn as_param(self) -> String {
-        format!("<{self}>")
-    }
-}
-
-impl Default for Lifetime {
-    fn default() -> Self {
-        Self("'a")
+    pub fn as_param(self) -> &'static str {
+        "<'a>"
     }
 }
 

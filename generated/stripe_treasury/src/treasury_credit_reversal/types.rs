@@ -25,7 +25,7 @@ pub struct TreasuryCreditReversal {
     /// The ReceivedCredit being reversed.
     pub received_credit: String,
     /// Status of the CreditReversal
-    pub status: TreasuryCreditReversalStatus,
+    pub status: stripe_treasury::TreasuryCreditReversalStatus,
     pub status_transitions: stripe_treasury::TreasuryReceivedCreditsResourceStatusTransitions,
     /// The Transaction associated with this object.
     pub transaction: Option<stripe_types::Expandable<stripe_treasury::TreasuryTransaction>>,
@@ -90,7 +90,13 @@ impl<'de> serde::Deserialize<'de> for TreasuryCreditReversalNetwork {
         })
     }
 }
-/// Status of the CreditReversal
+impl stripe_types::Object for TreasuryCreditReversal {
+    type Id = stripe_treasury::TreasuryCreditReversalId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(TreasuryCreditReversalId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryCreditReversalStatus {
     Canceled,
@@ -152,10 +158,3 @@ impl<'de> serde::Deserialize<'de> for TreasuryCreditReversalStatus {
             .map_err(|_| serde::de::Error::custom("Unknown value for TreasuryCreditReversalStatus"))
     }
 }
-impl stripe_types::Object for TreasuryCreditReversal {
-    type Id = stripe_treasury::TreasuryCreditReversalId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(TreasuryCreditReversalId);

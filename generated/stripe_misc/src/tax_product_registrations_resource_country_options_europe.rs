@@ -1,4 +1,4 @@
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct TaxProductRegistrationsResourceCountryOptionsEurope {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub standard: Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsEuStandard>,

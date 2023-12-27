@@ -94,7 +94,7 @@ pub struct Customer {
     /// Describes the customer's tax exemption status, which is `none`, `exempt`, or `reverse`.
     /// When set to `reverse`, invoice and receipt PDFs include the following text: **"Reverse charge"**.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_exempt: Option<CustomerTaxExempt>,
+    pub tax_exempt: Option<stripe_shared::CustomerTaxExempt>,
     /// The customer's tax IDs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_ids: Option<stripe_types::List<stripe_shared::TaxId>>,
@@ -102,8 +102,13 @@ pub struct Customer {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub test_clock: Option<stripe_types::Expandable<stripe_shared::TestHelpersTestClock>>,
 }
-/// Describes the customer's tax exemption status, which is `none`, `exempt`, or `reverse`.
-/// When set to `reverse`, invoice and receipt PDFs include the following text: **"Reverse charge"**.
+impl stripe_types::Object for Customer {
+    type Id = stripe_shared::CustomerId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(CustomerId, "cus_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CustomerTaxExempt {
     Exempt,
@@ -165,10 +170,3 @@ impl<'de> serde::Deserialize<'de> for CustomerTaxExempt {
             .map_err(|_| serde::de::Error::custom("Unknown value for CustomerTaxExempt"))
     }
 }
-impl stripe_types::Object for Customer {
-    type Id = stripe_shared::CustomerId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(CustomerId, "cus_");

@@ -47,7 +47,7 @@ pub struct Product {
     /// The type of the product.
     /// The product is either of type `good`, which is eligible for use with Orders and SKUs, or `service`, which is eligible for use with Subscriptions and Plans.
     #[serde(rename = "type")]
-    pub type_: ProductType,
+    pub type_: stripe_shared::ProductType,
     /// A label that represents units of this product.
     /// When set, this will be included in customers' receipts, invoices, Checkout, and the customer portal.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -57,8 +57,13 @@ pub struct Product {
     /// A URL of a publicly-accessible webpage for this product.
     pub url: Option<String>,
 }
-/// The type of the product.
-/// The product is either of type `good`, which is eligible for use with Orders and SKUs, or `service`, which is eligible for use with Subscriptions and Plans.
+impl stripe_types::Object for Product {
+    type Id = stripe_shared::ProductId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(ProductId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum ProductType {
     Good,
@@ -116,10 +121,3 @@ impl<'de> serde::Deserialize<'de> for ProductType {
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for ProductType"))
     }
 }
-impl stripe_types::Object for Product {
-    type Id = stripe_shared::ProductId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(ProductId);

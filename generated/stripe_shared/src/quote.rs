@@ -22,7 +22,7 @@ pub struct Quote {
     /// When charging automatically, Stripe will attempt to pay invoices at the end of the subscription cycle or on finalization using the default payment method attached to the subscription or customer.
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
     /// Defaults to `charge_automatically`.
-    pub collection_method: QuoteCollectionMethod,
+    pub collection_method: stripe_shared::QuoteCollectionMethod,
     pub computed: stripe_shared::QuotesResourceComputed,
     /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
@@ -71,7 +71,7 @@ pub struct Quote {
     /// See the [Connect documentation](https://support.stripe.com/questions/sending-invoices-on-behalf-of-connected-accounts) for details.
     pub on_behalf_of: Option<stripe_types::Expandable<stripe_shared::Account>>,
     /// The status of the quote.
-    pub status: QuoteStatus,
+    pub status: stripe_shared::QuoteStatus,
     pub status_transitions: stripe_shared::QuotesResourceStatusTransitions,
     /// The subscription that was created or updated from this quote.
     pub subscription: Option<stripe_types::Expandable<stripe_shared::Subscription>>,
@@ -85,10 +85,13 @@ pub struct Quote {
     /// The account (if any) the payments will be attributed to for tax reporting, and where funds from each payment will be transferred to for each of the invoices.
     pub transfer_data: Option<stripe_shared::QuotesResourceTransferData>,
 }
-/// Either `charge_automatically`, or `send_invoice`.
-/// When charging automatically, Stripe will attempt to pay invoices at the end of the subscription cycle or on finalization using the default payment method attached to the subscription or customer.
-/// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
-/// Defaults to `charge_automatically`.
+impl stripe_types::Object for Quote {
+    type Id = stripe_shared::QuoteId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(QuoteId, "qt_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum QuoteCollectionMethod {
     ChargeAutomatically,
@@ -147,7 +150,6 @@ impl<'de> serde::Deserialize<'de> for QuoteCollectionMethod {
             .map_err(|_| serde::de::Error::custom("Unknown value for QuoteCollectionMethod"))
     }
 }
-/// The status of the quote.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum QuoteStatus {
     Accepted,
@@ -211,10 +213,3 @@ impl<'de> serde::Deserialize<'de> for QuoteStatus {
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for QuoteStatus"))
     }
 }
-impl stripe_types::Object for Quote {
-    type Id = stripe_shared::QuoteId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(QuoteId, "qt_");

@@ -1,10 +1,8 @@
-use heck::ToLowerCamelCase;
 use indexmap::map::Entry;
 use indexmap::IndexMap;
 use tracing::debug;
 
-use crate::components::TypeSpec;
-use crate::rust_object::{ObjectMetadata, RustObject};
+use crate::rust_object::{ObjectKind, ObjectMetadata, RustObject};
 use crate::rust_type::{PathToType, RustType};
 use crate::stripe_object::StripeObject;
 use crate::types::{ComponentPath, RustIdent};
@@ -31,10 +29,16 @@ impl Visit<'_> for CollectDuplicateObjects {
     }
 }
 
-#[derive(Debug)]
-struct DeduppedObjectInfo {
-    ident: RustIdent,
-    gen_info: ObjectGenInfo,
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub struct DeduppedObjectInfo {
+    pub ident: RustIdent,
+    pub kind: ObjectKind,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub struct DeduppedObject {
+    pub info: DeduppedObjectInfo,
+    pub object: RustObject,
 }
 
 #[derive(Debug)]
@@ -57,7 +61,7 @@ impl VisitMut for DeduplicateObjects {
         if let Some((obj, _)) = typ.as_object_mut() {
             if let Some(dedup_spec) = self.objs.get(obj) {
                 *typ = RustType::Path {
-                    path: PathToType::Dedupped {
+                    path: PathToType::Deduplicated {
                         path: self.component_path.clone(),
                         ident: dedup_spec.ident.clone(),
                     },
@@ -69,7 +73,12 @@ impl VisitMut for DeduplicateObjects {
     }
 }
 
-fn doc_implied_name(doc: &str) -> Option<&str> {
+fn implied_name_from_meta_doc(metadata: &ObjectMetadata) -> Option<&str> {
+    let doc = metadata.doc.as_ref()?;
+    implied_name_from_doc(doc)
+}
+
+fn implied_name_from_doc(doc: &str) -> Option<&str> {
     let mut words = doc.split_ascii_whitespace();
     if words.next() != Some("The") {
         return None;
@@ -81,8 +90,22 @@ fn doc_implied_name(doc: &str) -> Option<&str> {
     second_word
 }
 
+fn maybe_infer_by_field_name(meta: &[ObjectMetadata]) -> Option<DeduppedObjectInfo> {
+    let type_data = meta.iter().find(|m| m.kind == ObjectKind::Type)?;
+    let parent = type_data.parent.as_ref()?;
+    let field_name = type_data.field_name.as_ref()?;
+
+    if meta.iter().any(|m| m.field_name.as_ref() != Some(field_name)) {
+        return None;
+    }
+    Some(DeduppedObjectInfo {
+        ident: RustIdent::joined(parent, field_name),
+        kind: ObjectKind::Type,
+    })
+}
+
 /// Try to infer an identifier given metadata about identical objects
-fn infer_ident_for_duplicate_objects(meta: &[ObjectMetadata]) -> Option<RustIdent> {
+fn infer_dedupped_ident(meta: &[ObjectMetadata]) -> Option<RustIdent> {
     let first = meta.first().unwrap();
     if let Some(title) = &first.title {
         // `param` is used very generally and will not be a helpful name to infer
@@ -90,27 +113,38 @@ fn infer_ident_for_duplicate_objects(meta: &[ObjectMetadata]) -> Option<RustIden
             return Some(RustIdent::create(title));
         }
     }
-    if let Some(field) = &first.field_name {
-        if meta.iter().all(|m| m.field_name.as_ref() == Some(field)) {
-            return Some(RustIdent::create(field));
-        }
-    }
 
-    if let Some(desc) = &first.doc {
-        if let Some(doc_name) = doc_implied_name(desc) {
-            if meta
-                .iter()
-                .all(|m| m.doc.as_ref().and_then(|m| doc_implied_name(m)) == Some(doc_name))
-            {
-                return Some(RustIdent::create(doc_name));
+    if let Some(doc_name) = implied_name_from_meta_doc(first) {
+        if let Some(parent) = &first.parent {
+            if meta.iter().all(|m| {
+                implied_name_from_meta_doc(m) == Some(doc_name) && m.parent.as_ref() == Some(parent)
+            }) {
+                return Some(RustIdent::joined(parent, doc_name));
             }
         }
     }
     None
 }
 
+fn infer_dedupped_object_for(
+    meta: &[ObjectMetadata],
+    obj: &RustObject,
+) -> Option<DeduppedObjectInfo> {
+    if matches!(obj, RustObject::FieldlessEnum(_)) {
+        if let Some(dedupped) = maybe_infer_by_field_name(meta) {
+            return Some(dedupped);
+        }
+    }
+    let ident = infer_dedupped_ident(meta)?;
+    let first_kind = meta.first().unwrap().kind;
+    if meta.iter().all(|m| m.kind == first_kind) {
+        return Some(DeduppedObjectInfo { ident, kind: first_kind });
+    }
+    None
+}
+
 #[tracing::instrument(level = "debug", skip(comp), fields(path = %comp.path()))]
-pub fn deduplicate_types(comp: &mut StripeObject) -> IndexMap<RustIdent, TypeSpec> {
+pub fn deduplicate_types(comp: &mut StripeObject) -> IndexMap<RustIdent, DeduppedObject> {
     let mut objs = IndexMap::new();
     let comp_path = comp.path().clone();
 
@@ -126,20 +160,11 @@ pub fn deduplicate_types(comp: &mut StripeObject) -> IndexMap<RustIdent, TypeSpe
             if meta.len() < 2 {
                 continue;
             }
-            if let Some(inferred) = infer_ident_for_duplicate_objects(&meta) {
+            if let Some(inferred) = infer_dedupped_object_for(&meta, &obj) {
+                let ident = &inferred.ident;
                 // Don't add another deduplicated type with the same name as an existing one
-                if dedupper.objs.values().all(|o| o.ident != inferred)
-                    && !objs.contains_key(&inferred)
-                {
-                    // Make sure we respect all requirements, e.g. if one item to generate required `Deserialize`,
-                    // make sure not to forget that when deduplicating
-                    let gen_info = meta.iter().fold(ObjectGenInfo::new(), |prev_meta, meta| {
-                        prev_meta.with_shared_requirements(&meta.gen_info)
-                    });
-
-                    dedupper
-                        .objs
-                        .insert(obj.clone(), DeduppedObjectInfo { ident: inferred, gen_info });
+                if dedupper.objs.values().all(|o| &o.ident != ident) && !objs.contains_key(ident) {
+                    dedupper.objs.insert(obj, inferred);
                 }
             }
         }
@@ -150,15 +175,9 @@ pub fn deduplicate_types(comp: &mut StripeObject) -> IndexMap<RustIdent, TypeSpe
 
         comp.visit_mut(&mut dedupper);
         for (obj, info) in dedupper.objs {
-            let mod_path = info.ident.to_lower_camel_case();
-            if objs
-                .insert(
-                    info.ident.clone(),
-                    TypeSpec { doc: None, gen_info: info.gen_info, obj, mod_path },
-                )
-                .is_some()
-            {
-                panic!("Tried to add duplicate ident {}", info.ident);
+            let ident = info.ident.clone();
+            if let Some(dup) = objs.insert(ident, DeduppedObject { info, object: obj }) {
+                panic!("Tried to add duplicate ident {}", dup.info.ident);
             }
         }
     }

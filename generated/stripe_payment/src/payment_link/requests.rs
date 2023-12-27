@@ -123,10 +123,10 @@ pub struct CreatePaymentLink<'a> {
     pub application_fee_percent: Option<f64>,
     /// Configuration for automatic tax collection.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub automatic_tax: Option<CreatePaymentLinkAutomaticTax>,
+    pub automatic_tax: Option<AutomaticTaxParams>,
     /// Configuration for collecting the customer's billing address.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_address_collection: Option<CreatePaymentLinkBillingAddressCollection>,
+    pub billing_address_collection: Option<stripe_shared::PaymentLinkBillingAddressCollection>,
     /// Configure fields to gather active consent from customers.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub consent_collection: Option<CreatePaymentLinkConsentCollection>,
@@ -140,7 +140,7 @@ pub struct CreatePaymentLink<'a> {
     pub custom_fields: Option<&'a [CreatePaymentLinkCustomFields<'a>]>,
     /// Display additional text for your customers using custom text.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub custom_text: Option<CreatePaymentLinkCustomText<'a>>,
+    pub custom_text: Option<CustomTextParam<'a>>,
     /// Configures whether [checkout sessions](https://stripe.com/docs/api/checkout/sessions) created by this payment link create a [Customer](https://stripe.com/docs/api/customers).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer_creation: Option<CreatePaymentLinkCustomerCreation>,
@@ -178,7 +178,7 @@ pub struct CreatePaymentLink<'a> {
     /// The list of payment method types that customers can use.
     /// If no value is passed, Stripe will dynamically show relevant payment methods from your [payment method settings](https://dashboard.stripe.com/settings/payment_methods) (20+ payment methods [supported](https://stripe.com/docs/payments/payment-methods/integration-options#payment-method-product-support)).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub payment_method_types: Option<&'a [CreatePaymentLinkPaymentMethodTypes]>,
+    pub payment_method_types: Option<&'a [stripe_shared::PaymentLinkPaymentMethodTypes]>,
     /// Controls phone number collection settings during checkout.
     ///
     /// We recommend that you review your privacy policy and check with your legal contacts.
@@ -193,7 +193,7 @@ pub struct CreatePaymentLink<'a> {
     /// Describes the type of transaction being performed in order to customize relevant text on the page, such as the submit button.
     /// Changing this value will also affect the hostname in the [url](https://stripe.com/docs/api/payment_links/payment_links/object#url) property (example: `donate.stripe.com`).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub submit_type: Option<CreatePaymentLinkSubmitType>,
+    pub submit_type: Option<stripe_shared::PaymentLinkSubmitType>,
     /// When creating a subscription, the specified configuration data will be used.
     /// There must be at least one line item with a recurring price to use `subscription_data`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -242,10 +242,10 @@ impl<'a> CreatePaymentLink<'a> {
 pub struct CreatePaymentLinkAfterCompletion<'a> {
     /// Configuration when `type=hosted_confirmation`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub hosted_confirmation: Option<CreatePaymentLinkAfterCompletionHostedConfirmation<'a>>,
+    pub hosted_confirmation: Option<AfterCompletionConfirmationPageParams<'a>>,
     /// Configuration when `type=redirect`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub redirect: Option<CreatePaymentLinkAfterCompletionRedirect<'a>>,
+    pub redirect: Option<AfterCompletionRedirectParams<'a>>,
     /// The specified behavior after the purchase is complete. Either `redirect` or `hosted_confirmation`.
     #[serde(rename = "type")]
     pub type_: CreatePaymentLinkAfterCompletionType,
@@ -253,30 +253,6 @@ pub struct CreatePaymentLinkAfterCompletion<'a> {
 impl<'a> CreatePaymentLinkAfterCompletion<'a> {
     pub fn new(type_: CreatePaymentLinkAfterCompletionType) -> Self {
         Self { hosted_confirmation: None, redirect: None, type_ }
-    }
-}
-/// Configuration when `type=hosted_confirmation`.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreatePaymentLinkAfterCompletionHostedConfirmation<'a> {
-    /// A custom message to display to the customer after the purchase is complete.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub custom_message: Option<&'a str>,
-}
-impl<'a> CreatePaymentLinkAfterCompletionHostedConfirmation<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Configuration when `type=redirect`.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreatePaymentLinkAfterCompletionRedirect<'a> {
-    /// The URL the customer will be redirected to after the purchase is complete.
-    /// You can embed `{CHECKOUT_SESSION_ID}` into the URL to have the `id` of the completed [checkout session](https://stripe.com/docs/api/checkout/sessions/object#checkout_session_object-id) included.
-    pub url: &'a str,
-}
-impl<'a> CreatePaymentLinkAfterCompletionRedirect<'a> {
-    pub fn new(url: &'a str) -> Self {
-        Self { url }
     }
 }
 /// The specified behavior after the purchase is complete. Either `redirect` or `hosted_confirmation`.
@@ -323,68 +299,6 @@ impl std::fmt::Debug for CreatePaymentLinkAfterCompletionType {
     }
 }
 impl serde::Serialize for CreatePaymentLinkAfterCompletionType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// Configuration for automatic tax collection.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreatePaymentLinkAutomaticTax {
-    /// If `true`, tax will be calculated automatically using the customer's location.
-    pub enabled: bool,
-}
-impl CreatePaymentLinkAutomaticTax {
-    pub fn new(enabled: bool) -> Self {
-        Self { enabled }
-    }
-}
-/// Configuration for collecting the customer's billing address.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreatePaymentLinkBillingAddressCollection {
-    Auto,
-    Required,
-}
-impl CreatePaymentLinkBillingAddressCollection {
-    pub fn as_str(self) -> &'static str {
-        use CreatePaymentLinkBillingAddressCollection::*;
-        match self {
-            Auto => "auto",
-            Required => "required",
-        }
-    }
-}
-
-impl std::str::FromStr for CreatePaymentLinkBillingAddressCollection {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreatePaymentLinkBillingAddressCollection::*;
-        match s {
-            "auto" => Ok(Auto),
-            "required" => Ok(Required),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreatePaymentLinkBillingAddressCollection {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreatePaymentLinkBillingAddressCollection {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreatePaymentLinkBillingAddressCollection {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreatePaymentLinkBillingAddressCollection {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -523,7 +437,7 @@ impl serde::Serialize for CreatePaymentLinkConsentCollectionTermsOfService {
 pub struct CreatePaymentLinkCustomFields<'a> {
     /// Configuration for `type=dropdown` fields.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub dropdown: Option<CreatePaymentLinkCustomFieldsDropdown<'a>>,
+    pub dropdown: Option<CustomFieldDropdownParam<'a>>,
     /// String of your choice that your integration can use to reconcile this field.
     /// Must be unique to this field, alphanumeric, and up to 200 characters.
     pub key: &'a str,
@@ -550,31 +464,6 @@ impl<'a> CreatePaymentLinkCustomFields<'a> {
         type_: CreatePaymentLinkCustomFieldsType,
     ) -> Self {
         Self { dropdown: None, key, label, numeric: None, optional: None, text: None, type_ }
-    }
-}
-/// Configuration for `type=dropdown` fields.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreatePaymentLinkCustomFieldsDropdown<'a> {
-    /// The options available for the customer to select. Up to 200 options allowed.
-    pub options: &'a [CreatePaymentLinkCustomFieldsDropdownOptions<'a>],
-}
-impl<'a> CreatePaymentLinkCustomFieldsDropdown<'a> {
-    pub fn new(options: &'a [CreatePaymentLinkCustomFieldsDropdownOptions<'a>]) -> Self {
-        Self { options }
-    }
-}
-/// The options available for the customer to select. Up to 200 options allowed.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreatePaymentLinkCustomFieldsDropdownOptions<'a> {
-    /// The label for the option, displayed to the customer. Up to 100 characters.
-    pub label: &'a str,
-    /// The value for this option, not displayed to the customer, used by your integration to reconcile the option selected by the customer.
-    /// Must be unique to this option, alphanumeric, and up to 100 characters.
-    pub value: &'a str,
-}
-impl<'a> CreatePaymentLinkCustomFieldsDropdownOptions<'a> {
-    pub fn new(label: &'a str, value: &'a str) -> Self {
-        Self { label, value }
     }
 }
 /// The label for the field, displayed to the customer.
@@ -723,58 +612,6 @@ impl serde::Serialize for CreatePaymentLinkCustomFieldsType {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Display additional text for your customers using custom text.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreatePaymentLinkCustomText<'a> {
-    /// Custom text that should be displayed alongside shipping address collection.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping_address: Option<CreatePaymentLinkCustomTextShippingAddress<'a>>,
-    /// Custom text that should be displayed alongside the payment confirmation button.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub submit: Option<CreatePaymentLinkCustomTextSubmit<'a>>,
-    /// Custom text that should be displayed in place of the default terms of service agreement text.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub terms_of_service_acceptance:
-        Option<CreatePaymentLinkCustomTextTermsOfServiceAcceptance<'a>>,
-}
-impl<'a> CreatePaymentLinkCustomText<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Custom text that should be displayed alongside shipping address collection.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreatePaymentLinkCustomTextShippingAddress<'a> {
-    /// Text may be up to 1200 characters in length.
-    pub message: &'a str,
-}
-impl<'a> CreatePaymentLinkCustomTextShippingAddress<'a> {
-    pub fn new(message: &'a str) -> Self {
-        Self { message }
-    }
-}
-/// Custom text that should be displayed alongside the payment confirmation button.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreatePaymentLinkCustomTextSubmit<'a> {
-    /// Text may be up to 1200 characters in length.
-    pub message: &'a str,
-}
-impl<'a> CreatePaymentLinkCustomTextSubmit<'a> {
-    pub fn new(message: &'a str) -> Self {
-        Self { message }
-    }
-}
-/// Custom text that should be displayed in place of the default terms of service agreement text.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreatePaymentLinkCustomTextTermsOfServiceAcceptance<'a> {
-    /// Text may be up to 1200 characters in length.
-    pub message: &'a str,
-}
-impl<'a> CreatePaymentLinkCustomTextTermsOfServiceAcceptance<'a> {
-    pub fn new(message: &'a str) -> Self {
-        Self { message }
-    }
-}
 /// Configures whether [checkout sessions](https://stripe.com/docs/api/checkout/sessions) created by this payment link create a [Customer](https://stripe.com/docs/api/customers).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreatePaymentLinkCustomerCreation {
@@ -848,7 +685,7 @@ pub struct CreatePaymentLinkInvoiceCreationInvoiceData<'a> {
     pub account_tax_ids: Option<&'a [&'a str]>,
     /// Default custom fields to be displayed on invoices for this customer.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub custom_fields: Option<&'a [CreatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a>]>,
+    pub custom_fields: Option<&'a [CustomFieldParams<'a>]>,
     /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
@@ -868,19 +705,6 @@ pub struct CreatePaymentLinkInvoiceCreationInvoiceData<'a> {
 impl<'a> CreatePaymentLinkInvoiceCreationInvoiceData<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Default custom fields to be displayed on invoices for this customer.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a> {
-    /// The name of the custom field. This may be up to 30 characters.
-    pub name: &'a str,
-    /// The value of the custom field. This may be up to 30 characters.
-    pub value: &'a str,
-}
-impl<'a> CreatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a> {
-    pub fn new(name: &'a str, value: &'a str) -> Self {
-        Self { name, value }
     }
 }
 /// Default options for invoice PDF rendering for this customer.
@@ -968,7 +792,7 @@ impl serde::Serialize
 pub struct CreatePaymentLinkLineItems<'a> {
     /// When set, provides configuration for this item’s quantity to be adjusted by the customer during checkout.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub adjustable_quantity: Option<CreatePaymentLinkLineItemsAdjustableQuantity>,
+    pub adjustable_quantity: Option<AdjustableQuantityParams>,
     /// The ID of the [Price](https://stripe.com/docs/api/prices) or [Plan](https://stripe.com/docs/api/plans) object.
     pub price: &'a str,
     /// The quantity of the line item being purchased.
@@ -977,27 +801,6 @@ pub struct CreatePaymentLinkLineItems<'a> {
 impl<'a> CreatePaymentLinkLineItems<'a> {
     pub fn new(price: &'a str, quantity: u64) -> Self {
         Self { adjustable_quantity: None, price, quantity }
-    }
-}
-/// When set, provides configuration for this item’s quantity to be adjusted by the customer during checkout.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreatePaymentLinkLineItemsAdjustableQuantity {
-    /// Set to true if the quantity can be adjusted to any non-negative Integer.
-    pub enabled: bool,
-    /// The maximum quantity the customer can purchase.
-    /// By default this value is 99.
-    /// You can specify a value up to 999.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub maximum: Option<i64>,
-    /// The minimum quantity the customer can purchase.
-    /// By default this value is 0.
-    /// If there is only one item in the cart then that item's quantity cannot go down to 0.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub minimum: Option<i64>,
-}
-impl CreatePaymentLinkLineItemsAdjustableQuantity {
-    pub fn new(enabled: bool) -> Self {
-        Self { enabled, maximum: None, minimum: None }
     }
 }
 /// A subset of parameters to be passed to PaymentIntent creation for Checkout Sessions in `payment` mode.
@@ -1208,140 +1011,6 @@ impl std::fmt::Debug for CreatePaymentLinkPaymentMethodCollection {
     }
 }
 impl serde::Serialize for CreatePaymentLinkPaymentMethodCollection {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// The list of payment method types that customers can use.
-/// If no value is passed, Stripe will dynamically show relevant payment methods from your [payment method settings](https://dashboard.stripe.com/settings/payment_methods) (20+ payment methods [supported](https://stripe.com/docs/payments/payment-methods/integration-options#payment-method-product-support)).
-#[derive(Copy, Clone, Eq, PartialEq)]
-#[non_exhaustive]
-pub enum CreatePaymentLinkPaymentMethodTypes {
-    Affirm,
-    AfterpayClearpay,
-    Alipay,
-    AuBecsDebit,
-    BacsDebit,
-    Bancontact,
-    Blik,
-    Boleto,
-    Card,
-    Cashapp,
-    Eps,
-    Fpx,
-    Giropay,
-    Grabpay,
-    Ideal,
-    Klarna,
-    Konbini,
-    Link,
-    Oxxo,
-    P24,
-    Paynow,
-    Paypal,
-    Pix,
-    Promptpay,
-    SepaDebit,
-    Sofort,
-    UsBankAccount,
-    WechatPay,
-    /// An unrecognized value from Stripe. Should not be used as a request parameter.
-    Unknown,
-}
-impl CreatePaymentLinkPaymentMethodTypes {
-    pub fn as_str(self) -> &'static str {
-        use CreatePaymentLinkPaymentMethodTypes::*;
-        match self {
-            Affirm => "affirm",
-            AfterpayClearpay => "afterpay_clearpay",
-            Alipay => "alipay",
-            AuBecsDebit => "au_becs_debit",
-            BacsDebit => "bacs_debit",
-            Bancontact => "bancontact",
-            Blik => "blik",
-            Boleto => "boleto",
-            Card => "card",
-            Cashapp => "cashapp",
-            Eps => "eps",
-            Fpx => "fpx",
-            Giropay => "giropay",
-            Grabpay => "grabpay",
-            Ideal => "ideal",
-            Klarna => "klarna",
-            Konbini => "konbini",
-            Link => "link",
-            Oxxo => "oxxo",
-            P24 => "p24",
-            Paynow => "paynow",
-            Paypal => "paypal",
-            Pix => "pix",
-            Promptpay => "promptpay",
-            SepaDebit => "sepa_debit",
-            Sofort => "sofort",
-            UsBankAccount => "us_bank_account",
-            WechatPay => "wechat_pay",
-            Unknown => "unknown",
-        }
-    }
-}
-
-impl std::str::FromStr for CreatePaymentLinkPaymentMethodTypes {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreatePaymentLinkPaymentMethodTypes::*;
-        match s {
-            "affirm" => Ok(Affirm),
-            "afterpay_clearpay" => Ok(AfterpayClearpay),
-            "alipay" => Ok(Alipay),
-            "au_becs_debit" => Ok(AuBecsDebit),
-            "bacs_debit" => Ok(BacsDebit),
-            "bancontact" => Ok(Bancontact),
-            "blik" => Ok(Blik),
-            "boleto" => Ok(Boleto),
-            "card" => Ok(Card),
-            "cashapp" => Ok(Cashapp),
-            "eps" => Ok(Eps),
-            "fpx" => Ok(Fpx),
-            "giropay" => Ok(Giropay),
-            "grabpay" => Ok(Grabpay),
-            "ideal" => Ok(Ideal),
-            "klarna" => Ok(Klarna),
-            "konbini" => Ok(Konbini),
-            "link" => Ok(Link),
-            "oxxo" => Ok(Oxxo),
-            "p24" => Ok(P24),
-            "paynow" => Ok(Paynow),
-            "paypal" => Ok(Paypal),
-            "pix" => Ok(Pix),
-            "promptpay" => Ok(Promptpay),
-            "sepa_debit" => Ok(SepaDebit),
-            "sofort" => Ok(Sofort),
-            "us_bank_account" => Ok(UsBankAccount),
-            "wechat_pay" => Ok(WechatPay),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreatePaymentLinkPaymentMethodTypes {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreatePaymentLinkPaymentMethodTypes {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreatePaymentLinkPaymentMethodTypes {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreatePaymentLinkPaymentMethodTypes {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -2151,64 +1820,6 @@ impl<'a> CreatePaymentLinkShippingOptions<'a> {
         Self::default()
     }
 }
-/// Describes the type of transaction being performed in order to customize relevant text on the page, such as the submit button.
-/// Changing this value will also affect the hostname in the [url](https://stripe.com/docs/api/payment_links/payment_links/object#url) property (example: `donate.stripe.com`).
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreatePaymentLinkSubmitType {
-    Auto,
-    Book,
-    Donate,
-    Pay,
-}
-impl CreatePaymentLinkSubmitType {
-    pub fn as_str(self) -> &'static str {
-        use CreatePaymentLinkSubmitType::*;
-        match self {
-            Auto => "auto",
-            Book => "book",
-            Donate => "donate",
-            Pay => "pay",
-        }
-    }
-}
-
-impl std::str::FromStr for CreatePaymentLinkSubmitType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreatePaymentLinkSubmitType::*;
-        match s {
-            "auto" => Ok(Auto),
-            "book" => Ok(Book),
-            "donate" => Ok(Donate),
-            "pay" => Ok(Pay),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreatePaymentLinkSubmitType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreatePaymentLinkSubmitType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreatePaymentLinkSubmitType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreatePaymentLinkSubmitType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 /// When creating a subscription, the specified configuration data will be used.
 /// There must be at least one line item with a recurring price to use `subscription_data`.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -2280,17 +1891,17 @@ pub struct UpdatePaymentLink<'a> {
     pub allow_promotion_codes: Option<bool>,
     /// Configuration for automatic tax collection.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub automatic_tax: Option<UpdatePaymentLinkAutomaticTax>,
+    pub automatic_tax: Option<AutomaticTaxParams>,
     /// Configuration for collecting the customer's billing address.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_address_collection: Option<UpdatePaymentLinkBillingAddressCollection>,
+    pub billing_address_collection: Option<stripe_shared::PaymentLinkBillingAddressCollection>,
     /// Collect additional information from your customer using custom fields.
     /// Up to 2 fields are supported.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub custom_fields: Option<&'a [UpdatePaymentLinkCustomFields<'a>]>,
     /// Display additional text for your customers using custom text.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub custom_text: Option<UpdatePaymentLinkCustomText<'a>>,
+    pub custom_text: Option<CustomTextParam<'a>>,
     /// Configures whether [checkout sessions](https://stripe.com/docs/api/checkout/sessions) created by this payment link create a [Customer](https://stripe.com/docs/api/customers).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub customer_creation: Option<UpdatePaymentLinkCustomerCreation>,
@@ -2326,7 +1937,7 @@ pub struct UpdatePaymentLink<'a> {
     /// The list of payment method types that customers can use.
     /// Pass an empty string to enable dynamic payment methods that use your [payment method settings](https://dashboard.stripe.com/settings/payment_methods).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub payment_method_types: Option<&'a [UpdatePaymentLinkPaymentMethodTypes]>,
+    pub payment_method_types: Option<&'a [stripe_shared::PaymentLinkPaymentMethodTypes]>,
     /// Configuration for collecting the customer's shipping address.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_address_collection: Option<UpdatePaymentLinkShippingAddressCollection<'a>>,
@@ -2345,10 +1956,10 @@ impl<'a> UpdatePaymentLink<'a> {
 pub struct UpdatePaymentLinkAfterCompletion<'a> {
     /// Configuration when `type=hosted_confirmation`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub hosted_confirmation: Option<UpdatePaymentLinkAfterCompletionHostedConfirmation<'a>>,
+    pub hosted_confirmation: Option<AfterCompletionConfirmationPageParams<'a>>,
     /// Configuration when `type=redirect`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub redirect: Option<UpdatePaymentLinkAfterCompletionRedirect<'a>>,
+    pub redirect: Option<AfterCompletionRedirectParams<'a>>,
     /// The specified behavior after the purchase is complete. Either `redirect` or `hosted_confirmation`.
     #[serde(rename = "type")]
     pub type_: UpdatePaymentLinkAfterCompletionType,
@@ -2356,30 +1967,6 @@ pub struct UpdatePaymentLinkAfterCompletion<'a> {
 impl<'a> UpdatePaymentLinkAfterCompletion<'a> {
     pub fn new(type_: UpdatePaymentLinkAfterCompletionType) -> Self {
         Self { hosted_confirmation: None, redirect: None, type_ }
-    }
-}
-/// Configuration when `type=hosted_confirmation`.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdatePaymentLinkAfterCompletionHostedConfirmation<'a> {
-    /// A custom message to display to the customer after the purchase is complete.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub custom_message: Option<&'a str>,
-}
-impl<'a> UpdatePaymentLinkAfterCompletionHostedConfirmation<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Configuration when `type=redirect`.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdatePaymentLinkAfterCompletionRedirect<'a> {
-    /// The URL the customer will be redirected to after the purchase is complete.
-    /// You can embed `{CHECKOUT_SESSION_ID}` into the URL to have the `id` of the completed [checkout session](https://stripe.com/docs/api/checkout/sessions/object#checkout_session_object-id) included.
-    pub url: &'a str,
-}
-impl<'a> UpdatePaymentLinkAfterCompletionRedirect<'a> {
-    pub fn new(url: &'a str) -> Self {
-        Self { url }
     }
 }
 /// The specified behavior after the purchase is complete. Either `redirect` or `hosted_confirmation`.
@@ -2433,75 +2020,13 @@ impl serde::Serialize for UpdatePaymentLinkAfterCompletionType {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Configuration for automatic tax collection.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdatePaymentLinkAutomaticTax {
-    /// If `true`, tax will be calculated automatically using the customer's location.
-    pub enabled: bool,
-}
-impl UpdatePaymentLinkAutomaticTax {
-    pub fn new(enabled: bool) -> Self {
-        Self { enabled }
-    }
-}
-/// Configuration for collecting the customer's billing address.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum UpdatePaymentLinkBillingAddressCollection {
-    Auto,
-    Required,
-}
-impl UpdatePaymentLinkBillingAddressCollection {
-    pub fn as_str(self) -> &'static str {
-        use UpdatePaymentLinkBillingAddressCollection::*;
-        match self {
-            Auto => "auto",
-            Required => "required",
-        }
-    }
-}
-
-impl std::str::FromStr for UpdatePaymentLinkBillingAddressCollection {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use UpdatePaymentLinkBillingAddressCollection::*;
-        match s {
-            "auto" => Ok(Auto),
-            "required" => Ok(Required),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for UpdatePaymentLinkBillingAddressCollection {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for UpdatePaymentLinkBillingAddressCollection {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for UpdatePaymentLinkBillingAddressCollection {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for UpdatePaymentLinkBillingAddressCollection {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 /// Collect additional information from your customer using custom fields.
 /// Up to 2 fields are supported.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpdatePaymentLinkCustomFields<'a> {
     /// Configuration for `type=dropdown` fields.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub dropdown: Option<UpdatePaymentLinkCustomFieldsDropdown<'a>>,
+    pub dropdown: Option<CustomFieldDropdownParam<'a>>,
     /// String of your choice that your integration can use to reconcile this field.
     /// Must be unique to this field, alphanumeric, and up to 200 characters.
     pub key: &'a str,
@@ -2528,31 +2053,6 @@ impl<'a> UpdatePaymentLinkCustomFields<'a> {
         type_: UpdatePaymentLinkCustomFieldsType,
     ) -> Self {
         Self { dropdown: None, key, label, numeric: None, optional: None, text: None, type_ }
-    }
-}
-/// Configuration for `type=dropdown` fields.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdatePaymentLinkCustomFieldsDropdown<'a> {
-    /// The options available for the customer to select. Up to 200 options allowed.
-    pub options: &'a [UpdatePaymentLinkCustomFieldsDropdownOptions<'a>],
-}
-impl<'a> UpdatePaymentLinkCustomFieldsDropdown<'a> {
-    pub fn new(options: &'a [UpdatePaymentLinkCustomFieldsDropdownOptions<'a>]) -> Self {
-        Self { options }
-    }
-}
-/// The options available for the customer to select. Up to 200 options allowed.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdatePaymentLinkCustomFieldsDropdownOptions<'a> {
-    /// The label for the option, displayed to the customer. Up to 100 characters.
-    pub label: &'a str,
-    /// The value for this option, not displayed to the customer, used by your integration to reconcile the option selected by the customer.
-    /// Must be unique to this option, alphanumeric, and up to 100 characters.
-    pub value: &'a str,
-}
-impl<'a> UpdatePaymentLinkCustomFieldsDropdownOptions<'a> {
-    pub fn new(label: &'a str, value: &'a str) -> Self {
-        Self { label, value }
     }
 }
 /// The label for the field, displayed to the customer.
@@ -2701,58 +2201,6 @@ impl serde::Serialize for UpdatePaymentLinkCustomFieldsType {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Display additional text for your customers using custom text.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdatePaymentLinkCustomText<'a> {
-    /// Custom text that should be displayed alongside shipping address collection.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping_address: Option<UpdatePaymentLinkCustomTextShippingAddress<'a>>,
-    /// Custom text that should be displayed alongside the payment confirmation button.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub submit: Option<UpdatePaymentLinkCustomTextSubmit<'a>>,
-    /// Custom text that should be displayed in place of the default terms of service agreement text.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub terms_of_service_acceptance:
-        Option<UpdatePaymentLinkCustomTextTermsOfServiceAcceptance<'a>>,
-}
-impl<'a> UpdatePaymentLinkCustomText<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Custom text that should be displayed alongside shipping address collection.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdatePaymentLinkCustomTextShippingAddress<'a> {
-    /// Text may be up to 1200 characters in length.
-    pub message: &'a str,
-}
-impl<'a> UpdatePaymentLinkCustomTextShippingAddress<'a> {
-    pub fn new(message: &'a str) -> Self {
-        Self { message }
-    }
-}
-/// Custom text that should be displayed alongside the payment confirmation button.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdatePaymentLinkCustomTextSubmit<'a> {
-    /// Text may be up to 1200 characters in length.
-    pub message: &'a str,
-}
-impl<'a> UpdatePaymentLinkCustomTextSubmit<'a> {
-    pub fn new(message: &'a str) -> Self {
-        Self { message }
-    }
-}
-/// Custom text that should be displayed in place of the default terms of service agreement text.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdatePaymentLinkCustomTextTermsOfServiceAcceptance<'a> {
-    /// Text may be up to 1200 characters in length.
-    pub message: &'a str,
-}
-impl<'a> UpdatePaymentLinkCustomTextTermsOfServiceAcceptance<'a> {
-    pub fn new(message: &'a str) -> Self {
-        Self { message }
-    }
-}
 /// Configures whether [checkout sessions](https://stripe.com/docs/api/checkout/sessions) created by this payment link create a [Customer](https://stripe.com/docs/api/customers).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum UpdatePaymentLinkCustomerCreation {
@@ -2826,7 +2274,7 @@ pub struct UpdatePaymentLinkInvoiceCreationInvoiceData<'a> {
     pub account_tax_ids: Option<&'a [&'a str]>,
     /// Default custom fields to be displayed on invoices for this customer.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub custom_fields: Option<&'a [UpdatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a>]>,
+    pub custom_fields: Option<&'a [CustomFieldParams<'a>]>,
     /// An arbitrary string attached to the object. Often useful for displaying to users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<&'a str>,
@@ -2846,19 +2294,6 @@ pub struct UpdatePaymentLinkInvoiceCreationInvoiceData<'a> {
 impl<'a> UpdatePaymentLinkInvoiceCreationInvoiceData<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Default custom fields to be displayed on invoices for this customer.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a> {
-    /// The name of the custom field. This may be up to 30 characters.
-    pub name: &'a str,
-    /// The value of the custom field. This may be up to 30 characters.
-    pub value: &'a str,
-}
-impl<'a> UpdatePaymentLinkInvoiceCreationInvoiceDataCustomFields<'a> {
-    pub fn new(name: &'a str, value: &'a str) -> Self {
-        Self { name, value }
     }
 }
 /// Default options for invoice PDF rendering for this customer.
@@ -2946,7 +2381,7 @@ impl serde::Serialize
 pub struct UpdatePaymentLinkLineItems<'a> {
     /// When set, provides configuration for this item’s quantity to be adjusted by the customer during checkout.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub adjustable_quantity: Option<UpdatePaymentLinkLineItemsAdjustableQuantity>,
+    pub adjustable_quantity: Option<AdjustableQuantityParams>,
     /// The ID of an existing line item on the payment link.
     pub id: &'a str,
     /// The quantity of the line item being purchased.
@@ -2956,27 +2391,6 @@ pub struct UpdatePaymentLinkLineItems<'a> {
 impl<'a> UpdatePaymentLinkLineItems<'a> {
     pub fn new(id: &'a str) -> Self {
         Self { adjustable_quantity: None, id, quantity: None }
-    }
-}
-/// When set, provides configuration for this item’s quantity to be adjusted by the customer during checkout.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdatePaymentLinkLineItemsAdjustableQuantity {
-    /// Set to true if the quantity can be adjusted to any non-negative Integer.
-    pub enabled: bool,
-    /// The maximum quantity the customer can purchase.
-    /// By default this value is 99.
-    /// You can specify a value up to 999.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub maximum: Option<i64>,
-    /// The minimum quantity the customer can purchase.
-    /// By default this value is 0.
-    /// If there is only one item in the cart then that item's quantity cannot go down to 0.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub minimum: Option<i64>,
-}
-impl UpdatePaymentLinkLineItemsAdjustableQuantity {
-    pub fn new(enabled: bool) -> Self {
-        Self { enabled, maximum: None, minimum: None }
     }
 }
 /// A subset of parameters to be passed to PaymentIntent creation for Checkout Sessions in `payment` mode.
@@ -3054,140 +2468,6 @@ impl std::fmt::Debug for UpdatePaymentLinkPaymentMethodCollection {
     }
 }
 impl serde::Serialize for UpdatePaymentLinkPaymentMethodCollection {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// The list of payment method types that customers can use.
-/// Pass an empty string to enable dynamic payment methods that use your [payment method settings](https://dashboard.stripe.com/settings/payment_methods).
-#[derive(Copy, Clone, Eq, PartialEq)]
-#[non_exhaustive]
-pub enum UpdatePaymentLinkPaymentMethodTypes {
-    Affirm,
-    AfterpayClearpay,
-    Alipay,
-    AuBecsDebit,
-    BacsDebit,
-    Bancontact,
-    Blik,
-    Boleto,
-    Card,
-    Cashapp,
-    Eps,
-    Fpx,
-    Giropay,
-    Grabpay,
-    Ideal,
-    Klarna,
-    Konbini,
-    Link,
-    Oxxo,
-    P24,
-    Paynow,
-    Paypal,
-    Pix,
-    Promptpay,
-    SepaDebit,
-    Sofort,
-    UsBankAccount,
-    WechatPay,
-    /// An unrecognized value from Stripe. Should not be used as a request parameter.
-    Unknown,
-}
-impl UpdatePaymentLinkPaymentMethodTypes {
-    pub fn as_str(self) -> &'static str {
-        use UpdatePaymentLinkPaymentMethodTypes::*;
-        match self {
-            Affirm => "affirm",
-            AfterpayClearpay => "afterpay_clearpay",
-            Alipay => "alipay",
-            AuBecsDebit => "au_becs_debit",
-            BacsDebit => "bacs_debit",
-            Bancontact => "bancontact",
-            Blik => "blik",
-            Boleto => "boleto",
-            Card => "card",
-            Cashapp => "cashapp",
-            Eps => "eps",
-            Fpx => "fpx",
-            Giropay => "giropay",
-            Grabpay => "grabpay",
-            Ideal => "ideal",
-            Klarna => "klarna",
-            Konbini => "konbini",
-            Link => "link",
-            Oxxo => "oxxo",
-            P24 => "p24",
-            Paynow => "paynow",
-            Paypal => "paypal",
-            Pix => "pix",
-            Promptpay => "promptpay",
-            SepaDebit => "sepa_debit",
-            Sofort => "sofort",
-            UsBankAccount => "us_bank_account",
-            WechatPay => "wechat_pay",
-            Unknown => "unknown",
-        }
-    }
-}
-
-impl std::str::FromStr for UpdatePaymentLinkPaymentMethodTypes {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use UpdatePaymentLinkPaymentMethodTypes::*;
-        match s {
-            "affirm" => Ok(Affirm),
-            "afterpay_clearpay" => Ok(AfterpayClearpay),
-            "alipay" => Ok(Alipay),
-            "au_becs_debit" => Ok(AuBecsDebit),
-            "bacs_debit" => Ok(BacsDebit),
-            "bancontact" => Ok(Bancontact),
-            "blik" => Ok(Blik),
-            "boleto" => Ok(Boleto),
-            "card" => Ok(Card),
-            "cashapp" => Ok(Cashapp),
-            "eps" => Ok(Eps),
-            "fpx" => Ok(Fpx),
-            "giropay" => Ok(Giropay),
-            "grabpay" => Ok(Grabpay),
-            "ideal" => Ok(Ideal),
-            "klarna" => Ok(Klarna),
-            "konbini" => Ok(Konbini),
-            "link" => Ok(Link),
-            "oxxo" => Ok(Oxxo),
-            "p24" => Ok(P24),
-            "paynow" => Ok(Paynow),
-            "paypal" => Ok(Paypal),
-            "pix" => Ok(Pix),
-            "promptpay" => Ok(Promptpay),
-            "sepa_debit" => Ok(SepaDebit),
-            "sofort" => Ok(Sofort),
-            "us_bank_account" => Ok(UsBankAccount),
-            "wechat_pay" => Ok(WechatPay),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for UpdatePaymentLinkPaymentMethodTypes {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for UpdatePaymentLinkPaymentMethodTypes {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for UpdatePaymentLinkPaymentMethodTypes {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for UpdatePaymentLinkPaymentMethodTypes {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -3995,5 +3275,119 @@ impl<'a> UpdatePaymentLink<'a> {
         payment_link: &stripe_shared::PaymentLinkId,
     ) -> stripe::Response<stripe_shared::PaymentLink> {
         client.send_form(&format!("/payment_links/{payment_link}"), self, http_types::Method::Post)
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct AfterCompletionConfirmationPageParams<'a> {
+    /// A custom message to display to the customer after the purchase is complete.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub custom_message: Option<&'a str>,
+}
+impl<'a> AfterCompletionConfirmationPageParams<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct AfterCompletionRedirectParams<'a> {
+    /// The URL the customer will be redirected to after the purchase is complete.
+    /// You can embed `{CHECKOUT_SESSION_ID}` into the URL to have the `id` of the completed [checkout session](https://stripe.com/docs/api/checkout/sessions/object#checkout_session_object-id) included.
+    pub url: &'a str,
+}
+impl<'a> AfterCompletionRedirectParams<'a> {
+    pub fn new(url: &'a str) -> Self {
+        Self { url }
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct AutomaticTaxParams {
+    /// If `true`, tax will be calculated automatically using the customer's location.
+    pub enabled: bool,
+}
+impl AutomaticTaxParams {
+    pub fn new(enabled: bool) -> Self {
+        Self { enabled }
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct CustomFieldOptionParam<'a> {
+    /// The label for the option, displayed to the customer. Up to 100 characters.
+    pub label: &'a str,
+    /// The value for this option, not displayed to the customer, used by your integration to reconcile the option selected by the customer.
+    /// Must be unique to this option, alphanumeric, and up to 100 characters.
+    pub value: &'a str,
+}
+impl<'a> CustomFieldOptionParam<'a> {
+    pub fn new(label: &'a str, value: &'a str) -> Self {
+        Self { label, value }
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct CustomTextPositionParam<'a> {
+    /// Text may be up to 1200 characters in length.
+    pub message: &'a str,
+}
+impl<'a> CustomTextPositionParam<'a> {
+    pub fn new(message: &'a str) -> Self {
+        Self { message }
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct CustomFieldParams<'a> {
+    /// The name of the custom field. This may be up to 30 characters.
+    pub name: &'a str,
+    /// The value of the custom field. This may be up to 30 characters.
+    pub value: &'a str,
+}
+impl<'a> CustomFieldParams<'a> {
+    pub fn new(name: &'a str, value: &'a str) -> Self {
+        Self { name, value }
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct AdjustableQuantityParams {
+    /// Set to true if the quantity can be adjusted to any non-negative Integer.
+    pub enabled: bool,
+    /// The maximum quantity the customer can purchase.
+    /// By default this value is 99.
+    /// You can specify a value up to 999.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub maximum: Option<i64>,
+    /// The minimum quantity the customer can purchase.
+    /// By default this value is 0.
+    /// If there is only one item in the cart then that item's quantity cannot go down to 0.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub minimum: Option<i64>,
+}
+impl AdjustableQuantityParams {
+    pub fn new(enabled: bool) -> Self {
+        Self { enabled, maximum: None, minimum: None }
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct CustomFieldDropdownParam<'a> {
+    /// The options available for the customer to select. Up to 200 options allowed.
+    pub options: &'a [CustomFieldOptionParam<'a>],
+}
+impl<'a> CustomFieldDropdownParam<'a> {
+    pub fn new(options: &'a [CustomFieldOptionParam<'a>]) -> Self {
+        Self { options }
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct CustomTextParam<'a> {
+    /// Custom text that should be displayed alongside shipping address collection.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub shipping_address: Option<CustomTextPositionParam<'a>>,
+    /// Custom text that should be displayed alongside the payment confirmation button.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub submit: Option<CustomTextPositionParam<'a>>,
+    /// Custom text that should be displayed in place of the default terms of service agreement text.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub terms_of_service_acceptance: Option<CustomTextPositionParam<'a>>,
+}
+impl<'a> CustomTextParam<'a> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }

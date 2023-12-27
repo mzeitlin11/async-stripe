@@ -92,7 +92,7 @@ impl<'a> ListCustomer<'a> {
 pub struct CreateCustomer<'a> {
     /// The customer's address.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub address: Option<CreateCustomerAddress<'a>>,
+    pub address: Option<OptionalFieldsAddress<'a>>,
     /// An integer amount in cents (or local equivalent) that represents the customer's current balance, which affect the customer's future invoices.
     /// A negative amount represents a credit that decreases the amount due on an invoice; a positive amount increases the amount due on an invoice.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -148,15 +148,15 @@ pub struct CreateCustomer<'a> {
     pub promotion_code: Option<&'a str>,
     /// The customer's shipping information. Appears on invoices emailed to this customer.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping: Option<CreateCustomerShipping<'a>>,
+    pub shipping: Option<CustomerShipping<'a>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source: Option<&'a str>,
     /// Tax details about the customer.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax: Option<CreateCustomerTax<'a>>,
+    pub tax: Option<TaxParam<'a>>,
     /// The customer's tax exemption. One of `none`, `exempt`, or `reverse`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_exempt: Option<CreateCustomerTaxExempt>,
+    pub tax_exempt: Option<stripe_shared::CustomerTaxExempt>,
     /// The customer's tax IDs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_id_data: Option<&'a [CreateCustomerTaxIdData<'a>]>,
@@ -167,33 +167,6 @@ pub struct CreateCustomer<'a> {
     pub validate: Option<bool>,
 }
 impl<'a> CreateCustomer<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// The customer's address.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateCustomerAddress<'a> {
-    /// City, district, suburb, town, or village.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub city: Option<&'a str>,
-    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub country: Option<&'a str>,
-    /// Address line 1 (e.g., street, PO Box, or company name).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line1: Option<&'a str>,
-    /// Address line 2 (e.g., apartment, suite, unit, or building).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line2: Option<&'a str>,
-    /// ZIP or postal code.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub postal_code: Option<&'a str>,
-    /// State, county, province, or region.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub state: Option<&'a str>,
-}
-impl<'a> CreateCustomerAddress<'a> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -288,7 +261,7 @@ pub struct CreateCustomerInvoiceSettings<'a> {
     /// Default custom fields to be displayed on invoices for this customer.
     /// When updating, pass an empty string to remove previously-defined fields.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub custom_fields: Option<&'a [CreateCustomerInvoiceSettingsCustomFields<'a>]>,
+    pub custom_fields: Option<&'a [CustomFieldParams<'a>]>,
     /// ID of a payment method that's attached to the customer, to be used as the customer's default payment method for subscriptions and invoices.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_payment_method: Option<&'a str>,
@@ -302,20 +275,6 @@ pub struct CreateCustomerInvoiceSettings<'a> {
 impl<'a> CreateCustomerInvoiceSettings<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Default custom fields to be displayed on invoices for this customer.
-/// When updating, pass an empty string to remove previously-defined fields.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateCustomerInvoiceSettingsCustomFields<'a> {
-    /// The name of the custom field. This may be up to 30 characters.
-    pub name: &'a str,
-    /// The value of the custom field. This may be up to 30 characters.
-    pub value: &'a str,
-}
-impl<'a> CreateCustomerInvoiceSettingsCustomFields<'a> {
-    pub fn new(name: &'a str, value: &'a str) -> Self {
-        Self { name, value }
     }
 }
 /// Default options for invoice PDF rendering for this customer.
@@ -380,117 +339,6 @@ impl std::fmt::Debug for CreateCustomerInvoiceSettingsRenderingOptionsAmountTaxD
     }
 }
 impl serde::Serialize for CreateCustomerInvoiceSettingsRenderingOptionsAmountTaxDisplay {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// The customer's shipping information. Appears on invoices emailed to this customer.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateCustomerShipping<'a> {
-    /// Customer shipping address.
-    pub address: CreateCustomerShippingAddress<'a>,
-    /// Customer name.
-    pub name: &'a str,
-    /// Customer phone (including extension).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub phone: Option<&'a str>,
-}
-impl<'a> CreateCustomerShipping<'a> {
-    pub fn new(address: CreateCustomerShippingAddress<'a>, name: &'a str) -> Self {
-        Self { address, name, phone: None }
-    }
-}
-/// Customer shipping address.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateCustomerShippingAddress<'a> {
-    /// City, district, suburb, town, or village.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub city: Option<&'a str>,
-    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub country: Option<&'a str>,
-    /// Address line 1 (e.g., street, PO Box, or company name).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line1: Option<&'a str>,
-    /// Address line 2 (e.g., apartment, suite, unit, or building).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line2: Option<&'a str>,
-    /// ZIP or postal code.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub postal_code: Option<&'a str>,
-    /// State, county, province, or region.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub state: Option<&'a str>,
-}
-impl<'a> CreateCustomerShippingAddress<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Tax details about the customer.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateCustomerTax<'a> {
-    /// A recent IP address of the customer used for tax reporting and tax location inference.
-    /// Stripe recommends updating the IP address when a new PaymentMethod is attached or the address field on the customer is updated.
-    /// We recommend against updating this field more frequently since it could result in unexpected tax location/reporting outcomes.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ip_address: Option<&'a str>,
-}
-impl<'a> CreateCustomerTax<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// The customer's tax exemption. One of `none`, `exempt`, or `reverse`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateCustomerTaxExempt {
-    Exempt,
-    None,
-    Reverse,
-}
-impl CreateCustomerTaxExempt {
-    pub fn as_str(self) -> &'static str {
-        use CreateCustomerTaxExempt::*;
-        match self {
-            Exempt => "exempt",
-            None => "none",
-            Reverse => "reverse",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateCustomerTaxExempt {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateCustomerTaxExempt::*;
-        match s {
-            "exempt" => Ok(Exempt),
-            "none" => Ok(None),
-            "reverse" => Ok(Reverse),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateCustomerTaxExempt {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateCustomerTaxExempt {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateCustomerTaxExempt {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateCustomerTaxExempt {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -796,7 +644,7 @@ pub enum RetrieveReturned {
 pub struct UpdateCustomer<'a> {
     /// The customer's address.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub address: Option<UpdateCustomerAddress<'a>>,
+    pub address: Option<OptionalFieldsAddress<'a>>,
     /// An integer amount in cents (or local equivalent) that represents the customer's current balance, which affect the customer's future invoices.
     /// A negative amount represents a credit that decreases the amount due on an invoice; a positive amount increases the amount due on an invoice.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -857,46 +705,19 @@ pub struct UpdateCustomer<'a> {
     pub promotion_code: Option<&'a str>,
     /// The customer's shipping information. Appears on invoices emailed to this customer.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping: Option<UpdateCustomerShipping<'a>>,
+    pub shipping: Option<CustomerShipping<'a>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub source: Option<&'a str>,
     /// Tax details about the customer.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax: Option<UpdateCustomerTax<'a>>,
+    pub tax: Option<TaxParam<'a>>,
     /// The customer's tax exemption. One of `none`, `exempt`, or `reverse`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_exempt: Option<UpdateCustomerTaxExempt>,
+    pub tax_exempt: Option<stripe_shared::CustomerTaxExempt>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub validate: Option<bool>,
 }
 impl<'a> UpdateCustomer<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// The customer's address.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateCustomerAddress<'a> {
-    /// City, district, suburb, town, or village.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub city: Option<&'a str>,
-    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub country: Option<&'a str>,
-    /// Address line 1 (e.g., street, PO Box, or company name).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line1: Option<&'a str>,
-    /// Address line 2 (e.g., apartment, suite, unit, or building).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line2: Option<&'a str>,
-    /// ZIP or postal code.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub postal_code: Option<&'a str>,
-    /// State, county, province, or region.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub state: Option<&'a str>,
-}
-impl<'a> UpdateCustomerAddress<'a> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -991,7 +812,7 @@ pub struct UpdateCustomerInvoiceSettings<'a> {
     /// Default custom fields to be displayed on invoices for this customer.
     /// When updating, pass an empty string to remove previously-defined fields.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub custom_fields: Option<&'a [UpdateCustomerInvoiceSettingsCustomFields<'a>]>,
+    pub custom_fields: Option<&'a [CustomFieldParams<'a>]>,
     /// ID of a payment method that's attached to the customer, to be used as the customer's default payment method for subscriptions and invoices.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default_payment_method: Option<&'a str>,
@@ -1005,20 +826,6 @@ pub struct UpdateCustomerInvoiceSettings<'a> {
 impl<'a> UpdateCustomerInvoiceSettings<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Default custom fields to be displayed on invoices for this customer.
-/// When updating, pass an empty string to remove previously-defined fields.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateCustomerInvoiceSettingsCustomFields<'a> {
-    /// The name of the custom field. This may be up to 30 characters.
-    pub name: &'a str,
-    /// The value of the custom field. This may be up to 30 characters.
-    pub value: &'a str,
-}
-impl<'a> UpdateCustomerInvoiceSettingsCustomFields<'a> {
-    pub fn new(name: &'a str, value: &'a str) -> Self {
-        Self { name, value }
     }
 }
 /// Default options for invoice PDF rendering for this customer.
@@ -1083,117 +890,6 @@ impl std::fmt::Debug for UpdateCustomerInvoiceSettingsRenderingOptionsAmountTaxD
     }
 }
 impl serde::Serialize for UpdateCustomerInvoiceSettingsRenderingOptionsAmountTaxDisplay {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// The customer's shipping information. Appears on invoices emailed to this customer.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateCustomerShipping<'a> {
-    /// Customer shipping address.
-    pub address: UpdateCustomerShippingAddress<'a>,
-    /// Customer name.
-    pub name: &'a str,
-    /// Customer phone (including extension).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub phone: Option<&'a str>,
-}
-impl<'a> UpdateCustomerShipping<'a> {
-    pub fn new(address: UpdateCustomerShippingAddress<'a>, name: &'a str) -> Self {
-        Self { address, name, phone: None }
-    }
-}
-/// Customer shipping address.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateCustomerShippingAddress<'a> {
-    /// City, district, suburb, town, or village.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub city: Option<&'a str>,
-    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub country: Option<&'a str>,
-    /// Address line 1 (e.g., street, PO Box, or company name).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line1: Option<&'a str>,
-    /// Address line 2 (e.g., apartment, suite, unit, or building).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line2: Option<&'a str>,
-    /// ZIP or postal code.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub postal_code: Option<&'a str>,
-    /// State, county, province, or region.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub state: Option<&'a str>,
-}
-impl<'a> UpdateCustomerShippingAddress<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Tax details about the customer.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateCustomerTax<'a> {
-    /// A recent IP address of the customer used for tax reporting and tax location inference.
-    /// Stripe recommends updating the IP address when a new PaymentMethod is attached or the address field on the customer is updated.
-    /// We recommend against updating this field more frequently since it could result in unexpected tax location/reporting outcomes.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ip_address: Option<&'a str>,
-}
-impl<'a> UpdateCustomerTax<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// The customer's tax exemption. One of `none`, `exempt`, or `reverse`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum UpdateCustomerTaxExempt {
-    Exempt,
-    None,
-    Reverse,
-}
-impl UpdateCustomerTaxExempt {
-    pub fn as_str(self) -> &'static str {
-        use UpdateCustomerTaxExempt::*;
-        match self {
-            Exempt => "exempt",
-            None => "none",
-            Reverse => "reverse",
-        }
-    }
-}
-
-impl std::str::FromStr for UpdateCustomerTaxExempt {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use UpdateCustomerTaxExempt::*;
-        match s {
-            "exempt" => Ok(Exempt),
-            "none" => Ok(None),
-            "reverse" => Ok(Reverse),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for UpdateCustomerTaxExempt {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for UpdateCustomerTaxExempt {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for UpdateCustomerTaxExempt {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for UpdateCustomerTaxExempt {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -1798,5 +1494,71 @@ impl DeleteDiscountCustomer {
             self,
             http_types::Method::Delete,
         )
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct OptionalFieldsAddress<'a> {
+    /// City, district, suburb, town, or village.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub city: Option<&'a str>,
+    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub country: Option<&'a str>,
+    /// Address line 1 (e.g., street, PO Box, or company name).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub line1: Option<&'a str>,
+    /// Address line 2 (e.g., apartment, suite, unit, or building).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub line2: Option<&'a str>,
+    /// ZIP or postal code.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub postal_code: Option<&'a str>,
+    /// State, county, province, or region.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub state: Option<&'a str>,
+}
+impl<'a> OptionalFieldsAddress<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct CustomFieldParams<'a> {
+    /// The name of the custom field. This may be up to 30 characters.
+    pub name: &'a str,
+    /// The value of the custom field. This may be up to 30 characters.
+    pub value: &'a str,
+}
+impl<'a> CustomFieldParams<'a> {
+    pub fn new(name: &'a str, value: &'a str) -> Self {
+        Self { name, value }
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct TaxParam<'a> {
+    /// A recent IP address of the customer used for tax reporting and tax location inference.
+    /// Stripe recommends updating the IP address when a new PaymentMethod is attached or the address field on the customer is updated.
+    /// We recommend against updating this field more frequently since it could result in unexpected tax location/reporting outcomes.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ip_address: Option<&'a str>,
+}
+impl<'a> TaxParam<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct CustomerShipping<'a> {
+    /// Customer shipping address.
+    pub address: OptionalFieldsAddress<'a>,
+    /// Customer name.
+    pub name: &'a str,
+    /// Customer phone (including extension).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub phone: Option<&'a str>,
+}
+impl<'a> CustomerShipping<'a> {
+    pub fn new(address: OptionalFieldsAddress<'a>, name: &'a str) -> Self {
+        Self { address, name, phone: None }
     }
 }

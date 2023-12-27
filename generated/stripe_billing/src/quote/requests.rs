@@ -32,13 +32,13 @@ pub struct CreateQuote<'a> {
     pub application_fee_percent: Option<f64>,
     /// Settings for automatic tax lookup for this quote and resulting invoices and subscriptions.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub automatic_tax: Option<CreateQuoteAutomaticTax>,
+    pub automatic_tax: Option<AutomaticTaxParam>,
     /// Either `charge_automatically`, or `send_invoice`.
     /// When charging automatically, Stripe will attempt to pay invoices at the end of the subscription cycle or at invoice finalization using the default payment method attached to the subscription or customer.
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
     /// Defaults to `charge_automatically`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub collection_method: Option<CreateQuoteCollectionMethod>,
+    pub collection_method: Option<stripe_shared::QuoteCollectionMethod>,
     /// The customer for which this quote belongs to.
     /// A customer is required before finalizing the quote.
     /// Once specified, it cannot be changed.
@@ -53,7 +53,7 @@ pub struct CreateQuote<'a> {
     pub description: Option<&'a str>,
     /// The discounts applied to the quote. You can only set up to one discount.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub discounts: Option<&'a [CreateQuoteDiscounts<'a>]>,
+    pub discounts: Option<&'a [DiscountsDataParam<'a>]>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
@@ -77,7 +77,7 @@ pub struct CreateQuote<'a> {
     pub header: Option<&'a str>,
     /// All invoices will be billed using the specified settings.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub invoice_settings: Option<CreateQuoteInvoiceSettings>,
+    pub invoice_settings: Option<QuoteParam>,
     /// A list of line items the customer is being quoted for.
     /// Each line item includes information about the product, the quantity, and the resulting cost.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -101,89 +101,9 @@ pub struct CreateQuote<'a> {
     pub test_clock: Option<&'a str>,
     /// The data with which to automatically create a Transfer for each of the invoices.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub transfer_data: Option<CreateQuoteTransferData<'a>>,
+    pub transfer_data: Option<TransferDataSpecs<'a>>,
 }
 impl<'a> CreateQuote<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Settings for automatic tax lookup for this quote and resulting invoices and subscriptions.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateQuoteAutomaticTax {
-    /// Controls whether Stripe will automatically compute tax on the resulting invoices or subscriptions as well as the quote itself.
-    pub enabled: bool,
-}
-impl CreateQuoteAutomaticTax {
-    pub fn new(enabled: bool) -> Self {
-        Self { enabled }
-    }
-}
-/// Either `charge_automatically`, or `send_invoice`.
-/// When charging automatically, Stripe will attempt to pay invoices at the end of the subscription cycle or at invoice finalization using the default payment method attached to the subscription or customer.
-/// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
-/// Defaults to `charge_automatically`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateQuoteCollectionMethod {
-    ChargeAutomatically,
-    SendInvoice,
-}
-impl CreateQuoteCollectionMethod {
-    pub fn as_str(self) -> &'static str {
-        use CreateQuoteCollectionMethod::*;
-        match self {
-            ChargeAutomatically => "charge_automatically",
-            SendInvoice => "send_invoice",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateQuoteCollectionMethod {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateQuoteCollectionMethod::*;
-        match s {
-            "charge_automatically" => Ok(ChargeAutomatically),
-            "send_invoice" => Ok(SendInvoice),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateQuoteCollectionMethod {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateQuoteCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateQuoteCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateQuoteCollectionMethod {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// The discounts applied to the quote. You can only set up to one discount.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateQuoteDiscounts<'a> {
-    /// ID of the coupon to create a new discount for.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub coupon: Option<&'a str>,
-    /// ID of an existing discount on the object (or one of its ancestors) to reuse.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub discount: Option<&'a str>,
-}
-impl<'a> CreateQuoteDiscounts<'a> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -202,19 +122,6 @@ pub struct CreateQuoteFromQuote<'a> {
 impl<'a> CreateQuoteFromQuote<'a> {
     pub fn new(quote: &'a str) -> Self {
         Self { is_revision: None, quote }
-    }
-}
-/// All invoices will be billed using the specified settings.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateQuoteInvoiceSettings {
-    /// Number of days within which a customer must pay the invoice generated by this quote.
-    /// This value will be `null` for quotes where `collection_method=charge_automatically`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub days_until_due: Option<u32>,
-}
-impl CreateQuoteInvoiceSettings {
-    pub fn new() -> Self {
-        Self::default()
     }
 }
 /// A list of line items the customer is being quoted for.
@@ -450,28 +357,6 @@ pub enum CreateQuoteSubscriptionDataEffectiveDate {
     CurrentPeriodEnd,
     Timestamp(stripe_types::Timestamp),
 }
-/// The data with which to automatically create a Transfer for each of the invoices.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateQuoteTransferData<'a> {
-    /// The amount that will be transferred automatically when the invoice is paid.
-    /// If no amount is set, the full amount is transferred.
-    /// There cannot be any line items with recurring prices when using this field.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount: Option<i64>,
-    /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
-    /// By default, the entire amount is transferred to the destination.
-    /// There must be at least 1 line item with a recurring price to use this field.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount_percent: Option<f64>,
-    /// ID of an existing, connected Stripe account.
-    pub destination: &'a str,
-}
-impl<'a> CreateQuoteTransferData<'a> {
-    pub fn new(destination: &'a str) -> Self {
-        Self { amount: None, amount_percent: None, destination }
-    }
-}
 impl<'a> CreateQuote<'a> {
     /// A quote models prices and services for a customer.
     /// Default options for `header`, `description`, `footer`, and `expires_at` can be set in the dashboard via the [quote template](https://dashboard.stripe.com/settings/billing/quote).
@@ -492,13 +377,13 @@ pub struct UpdateQuote<'a> {
     pub application_fee_percent: Option<f64>,
     /// Settings for automatic tax lookup for this quote and resulting invoices and subscriptions.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub automatic_tax: Option<UpdateQuoteAutomaticTax>,
+    pub automatic_tax: Option<AutomaticTaxParam>,
     /// Either `charge_automatically`, or `send_invoice`.
     /// When charging automatically, Stripe will attempt to pay invoices at the end of the subscription cycle or at invoice finalization using the default payment method attached to the subscription or customer.
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
     /// Defaults to `charge_automatically`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub collection_method: Option<UpdateQuoteCollectionMethod>,
+    pub collection_method: Option<stripe_shared::QuoteCollectionMethod>,
     /// The customer for which this quote belongs to.
     /// A customer is required before finalizing the quote.
     /// Once specified, it cannot be changed.
@@ -512,7 +397,7 @@ pub struct UpdateQuote<'a> {
     pub description: Option<&'a str>,
     /// The discounts applied to the quote. You can only set up to one discount.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub discounts: Option<&'a [UpdateQuoteDiscounts<'a>]>,
+    pub discounts: Option<&'a [DiscountsDataParam<'a>]>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
@@ -528,7 +413,7 @@ pub struct UpdateQuote<'a> {
     pub header: Option<&'a str>,
     /// All invoices will be billed using the specified settings.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub invoice_settings: Option<UpdateQuoteInvoiceSettings>,
+    pub invoice_settings: Option<QuoteParam>,
     /// A list of line items the customer is being quoted for.
     /// Each line item includes information about the product, the quantity, and the resulting cost.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -549,102 +434,9 @@ pub struct UpdateQuote<'a> {
     pub subscription_data: Option<UpdateQuoteSubscriptionData<'a>>,
     /// The data with which to automatically create a Transfer for each of the invoices.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub transfer_data: Option<UpdateQuoteTransferData<'a>>,
+    pub transfer_data: Option<TransferDataSpecs<'a>>,
 }
 impl<'a> UpdateQuote<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Settings for automatic tax lookup for this quote and resulting invoices and subscriptions.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateQuoteAutomaticTax {
-    /// Controls whether Stripe will automatically compute tax on the resulting invoices or subscriptions as well as the quote itself.
-    pub enabled: bool,
-}
-impl UpdateQuoteAutomaticTax {
-    pub fn new(enabled: bool) -> Self {
-        Self { enabled }
-    }
-}
-/// Either `charge_automatically`, or `send_invoice`.
-/// When charging automatically, Stripe will attempt to pay invoices at the end of the subscription cycle or at invoice finalization using the default payment method attached to the subscription or customer.
-/// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
-/// Defaults to `charge_automatically`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum UpdateQuoteCollectionMethod {
-    ChargeAutomatically,
-    SendInvoice,
-}
-impl UpdateQuoteCollectionMethod {
-    pub fn as_str(self) -> &'static str {
-        use UpdateQuoteCollectionMethod::*;
-        match self {
-            ChargeAutomatically => "charge_automatically",
-            SendInvoice => "send_invoice",
-        }
-    }
-}
-
-impl std::str::FromStr for UpdateQuoteCollectionMethod {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use UpdateQuoteCollectionMethod::*;
-        match s {
-            "charge_automatically" => Ok(ChargeAutomatically),
-            "send_invoice" => Ok(SendInvoice),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for UpdateQuoteCollectionMethod {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for UpdateQuoteCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for UpdateQuoteCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for UpdateQuoteCollectionMethod {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// The discounts applied to the quote. You can only set up to one discount.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateQuoteDiscounts<'a> {
-    /// ID of the coupon to create a new discount for.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub coupon: Option<&'a str>,
-    /// ID of an existing discount on the object (or one of its ancestors) to reuse.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub discount: Option<&'a str>,
-}
-impl<'a> UpdateQuoteDiscounts<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// All invoices will be billed using the specified settings.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateQuoteInvoiceSettings {
-    /// Number of days within which a customer must pay the invoice generated by this quote.
-    /// This value will be `null` for quotes where `collection_method=charge_automatically`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub days_until_due: Option<u32>,
-}
-impl UpdateQuoteInvoiceSettings {
     pub fn new() -> Self {
         Self::default()
     }
@@ -885,28 +677,6 @@ pub enum UpdateQuoteSubscriptionDataEffectiveDate {
     CurrentPeriodEnd,
     Timestamp(stripe_types::Timestamp),
 }
-/// The data with which to automatically create a Transfer for each of the invoices.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateQuoteTransferData<'a> {
-    /// The amount that will be transferred automatically when the invoice is paid.
-    /// If no amount is set, the full amount is transferred.
-    /// There cannot be any line items with recurring prices when using this field.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount: Option<i64>,
-    /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
-    /// By default, the entire amount is transferred to the destination.
-    /// There must be at least 1 line item with a recurring price to use this field.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount_percent: Option<f64>,
-    /// ID of an existing, connected Stripe account.
-    pub destination: &'a str,
-}
-impl<'a> UpdateQuoteTransferData<'a> {
-    pub fn new(destination: &'a str) -> Self {
-        Self { amount: None, amount_percent: None, destination }
-    }
-}
 impl<'a> UpdateQuote<'a> {
     /// A quote models prices and services for a customer.
     pub fn send(
@@ -1008,7 +778,7 @@ pub struct ListQuote<'a> {
     pub starting_after: Option<&'a str>,
     /// The status of the quote.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<ListQuoteStatus>,
+    pub status: Option<stripe_shared::QuoteStatus>,
     /// Provides a list of quotes that are associated with the specified test clock.
     /// The response will not include quotes with test clocks if this and the customer parameter is not set.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1017,63 +787,6 @@ pub struct ListQuote<'a> {
 impl<'a> ListQuote<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// The status of the quote.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListQuoteStatus {
-    Accepted,
-    Canceled,
-    Draft,
-    Open,
-}
-impl ListQuoteStatus {
-    pub fn as_str(self) -> &'static str {
-        use ListQuoteStatus::*;
-        match self {
-            Accepted => "accepted",
-            Canceled => "canceled",
-            Draft => "draft",
-            Open => "open",
-        }
-    }
-}
-
-impl std::str::FromStr for ListQuoteStatus {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListQuoteStatus::*;
-        match s {
-            "accepted" => Ok(Accepted),
-            "canceled" => Ok(Canceled),
-            "draft" => Ok(Draft),
-            "open" => Ok(Open),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListQuoteStatus {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListQuoteStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListQuoteStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListQuoteStatus {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> ListQuote<'a> {
@@ -1173,5 +886,62 @@ impl<'a> ListComputedUpfrontLineItemsQuote<'a> {
             &format!("/quotes/{quote}/computed_upfront_line_items"),
             self,
         )
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct AutomaticTaxParam {
+    /// Controls whether Stripe will automatically compute tax on the resulting invoices or subscriptions as well as the quote itself.
+    pub enabled: bool,
+}
+impl AutomaticTaxParam {
+    pub fn new(enabled: bool) -> Self {
+        Self { enabled }
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct DiscountsDataParam<'a> {
+    /// ID of the coupon to create a new discount for.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub coupon: Option<&'a str>,
+    /// ID of an existing discount on the object (or one of its ancestors) to reuse.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub discount: Option<&'a str>,
+}
+impl<'a> DiscountsDataParam<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct QuoteParam {
+    /// Number of days within which a customer must pay the invoice generated by this quote.
+    /// This value will be `null` for quotes where `collection_method=charge_automatically`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub days_until_due: Option<u32>,
+}
+impl QuoteParam {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct TransferDataSpecs<'a> {
+    /// The amount that will be transferred automatically when the invoice is paid.
+    /// If no amount is set, the full amount is transferred.
+    /// There cannot be any line items with recurring prices when using this field.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub amount: Option<i64>,
+    /// A non-negative decimal between 0 and 100, with at most two decimal places.
+    /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
+    /// By default, the entire amount is transferred to the destination.
+    /// There must be at least 1 line item with a recurring price to use this field.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub amount_percent: Option<f64>,
+    /// ID of an existing, connected Stripe account.
+    pub destination: &'a str,
+}
+impl<'a> TransferDataSpecs<'a> {
+    pub fn new(destination: &'a str) -> Self {
+        Self { amount: None, amount_percent: None, destination }
     }
 }

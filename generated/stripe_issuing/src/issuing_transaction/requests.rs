@@ -29,62 +29,11 @@ pub struct ListIssuingTransaction<'a> {
     /// Only return transactions that have the given type. One of `capture` or `refund`.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_: Option<ListIssuingTransactionType>,
+    pub type_: Option<stripe_shared::IssuingTransactionType>,
 }
 impl<'a> ListIssuingTransaction<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Only return transactions that have the given type. One of `capture` or `refund`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListIssuingTransactionType {
-    Capture,
-    Refund,
-}
-impl ListIssuingTransactionType {
-    pub fn as_str(self) -> &'static str {
-        use ListIssuingTransactionType::*;
-        match self {
-            Capture => "capture",
-            Refund => "refund",
-        }
-    }
-}
-
-impl std::str::FromStr for ListIssuingTransactionType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListIssuingTransactionType::*;
-        match s {
-            "capture" => Ok(Capture),
-            "refund" => Ok(Refund),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListIssuingTransactionType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListIssuingTransactionType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListIssuingTransactionType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListIssuingTransactionType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> ListIssuingTransaction<'a> {
@@ -1257,73 +1206,21 @@ impl serde::Serialize for CreateForceCaptureIssuingTransactionMerchantDataCatego
 pub struct CreateForceCaptureIssuingTransactionPurchaseDetails<'a> {
     /// Information about the flight that was purchased with this transaction.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub flight: Option<CreateForceCaptureIssuingTransactionPurchaseDetailsFlight<'a>>,
+    pub flight: Option<FlightSpecs<'a>>,
     /// Information about fuel that was purchased with this transaction.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fuel: Option<CreateForceCaptureIssuingTransactionPurchaseDetailsFuel<'a>>,
     /// Information about lodging that was purchased with this transaction.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub lodging: Option<CreateForceCaptureIssuingTransactionPurchaseDetailsLodging>,
+    pub lodging: Option<LodgingSpecs>,
     /// The line items in the purchase.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub receipt: Option<&'a [CreateForceCaptureIssuingTransactionPurchaseDetailsReceipt<'a>]>,
+    pub receipt: Option<&'a [ReceiptSpecs<'a>]>,
     /// A merchant-specific order number.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reference: Option<&'a str>,
 }
 impl<'a> CreateForceCaptureIssuingTransactionPurchaseDetails<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Information about the flight that was purchased with this transaction.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateForceCaptureIssuingTransactionPurchaseDetailsFlight<'a> {
-    /// The time that the flight departed.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub departure_at: Option<stripe_types::Timestamp>,
-    /// The name of the passenger.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub passenger_name: Option<&'a str>,
-    /// Whether the ticket is refundable.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub refundable: Option<bool>,
-    /// The legs of the trip.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub segments:
-        Option<&'a [CreateForceCaptureIssuingTransactionPurchaseDetailsFlightSegments<'a>]>,
-    /// The travel agency that issued the ticket.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub travel_agency: Option<&'a str>,
-}
-impl<'a> CreateForceCaptureIssuingTransactionPurchaseDetailsFlight<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// The legs of the trip.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateForceCaptureIssuingTransactionPurchaseDetailsFlightSegments<'a> {
-    /// The three-letter IATA airport code of the flight's destination.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub arrival_airport_code: Option<&'a str>,
-    /// The airline carrier code.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub carrier: Option<&'a str>,
-    /// The three-letter IATA airport code that the flight departed from.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub departure_airport_code: Option<&'a str>,
-    /// The flight number.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub flight_number: Option<&'a str>,
-    /// The flight's service class.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub service_class: Option<&'a str>,
-    /// Whether a stopover is allowed on this flight.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub stopover_allowed: Option<bool>,
-}
-impl<'a> CreateForceCaptureIssuingTransactionPurchaseDetailsFlightSegments<'a> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -1461,38 +1358,6 @@ impl serde::Serialize for CreateForceCaptureIssuingTransactionPurchaseDetailsFue
         S: serde::Serializer,
     {
         serializer.serialize_str(self.as_str())
-    }
-}
-/// Information about lodging that was purchased with this transaction.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateForceCaptureIssuingTransactionPurchaseDetailsLodging {
-    /// The time of checking into the lodging.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub check_in_at: Option<stripe_types::Timestamp>,
-    /// The number of nights stayed at the lodging.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub nights: Option<i64>,
-}
-impl CreateForceCaptureIssuingTransactionPurchaseDetailsLodging {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// The line items in the purchase.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateForceCaptureIssuingTransactionPurchaseDetailsReceipt<'a> {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<&'a str>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub quantity: Option<&'a str>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub total: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub unit_cost: Option<i64>,
-}
-impl<'a> CreateForceCaptureIssuingTransactionPurchaseDetailsReceipt<'a> {
-    pub fn new() -> Self {
-        Self::default()
     }
 }
 impl<'a> CreateForceCaptureIssuingTransaction<'a> {
@@ -2610,73 +2475,21 @@ impl serde::Serialize for CreateUnlinkedRefundIssuingTransactionMerchantDataCate
 pub struct CreateUnlinkedRefundIssuingTransactionPurchaseDetails<'a> {
     /// Information about the flight that was purchased with this transaction.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub flight: Option<CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFlight<'a>>,
+    pub flight: Option<FlightSpecs<'a>>,
     /// Information about fuel that was purchased with this transaction.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fuel: Option<CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFuel<'a>>,
     /// Information about lodging that was purchased with this transaction.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub lodging: Option<CreateUnlinkedRefundIssuingTransactionPurchaseDetailsLodging>,
+    pub lodging: Option<LodgingSpecs>,
     /// The line items in the purchase.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub receipt: Option<&'a [CreateUnlinkedRefundIssuingTransactionPurchaseDetailsReceipt<'a>]>,
+    pub receipt: Option<&'a [ReceiptSpecs<'a>]>,
     /// A merchant-specific order number.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reference: Option<&'a str>,
 }
 impl<'a> CreateUnlinkedRefundIssuingTransactionPurchaseDetails<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Information about the flight that was purchased with this transaction.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFlight<'a> {
-    /// The time that the flight departed.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub departure_at: Option<stripe_types::Timestamp>,
-    /// The name of the passenger.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub passenger_name: Option<&'a str>,
-    /// Whether the ticket is refundable.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub refundable: Option<bool>,
-    /// The legs of the trip.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub segments:
-        Option<&'a [CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFlightSegments<'a>]>,
-    /// The travel agency that issued the ticket.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub travel_agency: Option<&'a str>,
-}
-impl<'a> CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFlight<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// The legs of the trip.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFlightSegments<'a> {
-    /// The three-letter IATA airport code of the flight's destination.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub arrival_airport_code: Option<&'a str>,
-    /// The airline carrier code.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub carrier: Option<&'a str>,
-    /// The three-letter IATA airport code that the flight departed from.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub departure_airport_code: Option<&'a str>,
-    /// The flight number.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub flight_number: Option<&'a str>,
-    /// The flight's service class.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub service_class: Option<&'a str>,
-    /// Whether a stopover is allowed on this flight.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub stopover_allowed: Option<bool>,
-}
-impl<'a> CreateUnlinkedRefundIssuingTransactionPurchaseDetailsFlightSegments<'a> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -2816,38 +2629,6 @@ impl serde::Serialize for CreateUnlinkedRefundIssuingTransactionPurchaseDetailsF
         serializer.serialize_str(self.as_str())
     }
 }
-/// Information about lodging that was purchased with this transaction.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateUnlinkedRefundIssuingTransactionPurchaseDetailsLodging {
-    /// The time of checking into the lodging.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub check_in_at: Option<stripe_types::Timestamp>,
-    /// The number of nights stayed at the lodging.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub nights: Option<i64>,
-}
-impl CreateUnlinkedRefundIssuingTransactionPurchaseDetailsLodging {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// The line items in the purchase.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateUnlinkedRefundIssuingTransactionPurchaseDetailsReceipt<'a> {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<&'a str>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub quantity: Option<&'a str>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub total: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub unit_cost: Option<i64>,
-}
-impl<'a> CreateUnlinkedRefundIssuingTransactionPurchaseDetailsReceipt<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
 impl<'a> CreateUnlinkedRefundIssuingTransaction<'a> {
     /// Allows the user to refund an arbitrary amount, also known as a unlinked refund.
     pub fn send(
@@ -2888,5 +2669,84 @@ impl<'a> RefundIssuingTransaction<'a> {
             self,
             http_types::Method::Post,
         )
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct FlightSegmentSpecs<'a> {
+    /// The three-letter IATA airport code of the flight's destination.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub arrival_airport_code: Option<&'a str>,
+    /// The airline carrier code.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub carrier: Option<&'a str>,
+    /// The three-letter IATA airport code that the flight departed from.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub departure_airport_code: Option<&'a str>,
+    /// The flight number.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub flight_number: Option<&'a str>,
+    /// The flight's service class.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub service_class: Option<&'a str>,
+    /// Whether a stopover is allowed on this flight.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub stopover_allowed: Option<bool>,
+}
+impl<'a> FlightSegmentSpecs<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct LodgingSpecs {
+    /// The time of checking into the lodging.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub check_in_at: Option<stripe_types::Timestamp>,
+    /// The number of nights stayed at the lodging.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nights: Option<i64>,
+}
+impl LodgingSpecs {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct ReceiptSpecs<'a> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub quantity: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub total: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub unit_cost: Option<i64>,
+}
+impl<'a> ReceiptSpecs<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct FlightSpecs<'a> {
+    /// The time that the flight departed.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub departure_at: Option<stripe_types::Timestamp>,
+    /// The name of the passenger.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub passenger_name: Option<&'a str>,
+    /// Whether the ticket is refundable.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub refundable: Option<bool>,
+    /// The legs of the trip.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub segments: Option<&'a [FlightSegmentSpecs<'a>]>,
+    /// The travel agency that issued the ticket.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub travel_agency: Option<&'a str>,
+}
+impl<'a> FlightSpecs<'a> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }

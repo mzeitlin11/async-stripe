@@ -10,7 +10,7 @@ pub struct TerminalReader {
     /// The current software version of the reader.
     pub device_sw_version: Option<String>,
     /// Type of reader, one of `bbpos_wisepad3`, `stripe_m2`, `bbpos_chipper2x`, `bbpos_wisepos_e`, `verifone_P400`, or `simulated_wisepos_e`.
-    pub device_type: TerminalReaderDeviceType,
+    pub device_type: stripe_terminal::TerminalReaderDeviceType,
     /// Unique identifier for the object.
     pub id: stripe_terminal::TerminalReaderId,
     /// The local IP address of the reader.
@@ -29,7 +29,13 @@ pub struct TerminalReader {
     /// The networking status of the reader.
     pub status: Option<String>,
 }
-/// Type of reader, one of `bbpos_wisepad3`, `stripe_m2`, `bbpos_chipper2x`, `bbpos_wisepos_e`, `verifone_P400`, or `simulated_wisepos_e`.
+impl stripe_types::Object for TerminalReader {
+    type Id = stripe_terminal::TerminalReaderId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(TerminalReaderId, "tmr_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TerminalReaderDeviceType {
     BbposChipper2x,
@@ -100,10 +106,3 @@ impl<'de> serde::Deserialize<'de> for TerminalReaderDeviceType {
             .map_err(|_| serde::de::Error::custom("Unknown value for TerminalReaderDeviceType"))
     }
 }
-impl stripe_types::Object for TerminalReader {
-    type Id = stripe_terminal::TerminalReaderId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(TerminalReaderId, "tmr_");

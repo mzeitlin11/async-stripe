@@ -48,7 +48,7 @@ pub struct ListSubscription<'a> {
     /// The collection method of the subscriptions to retrieve.
     /// Either `charge_automatically` or `send_invoice`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub collection_method: Option<ListSubscriptionCollectionMethod>,
+    pub collection_method: Option<stripe_shared::SubscriptionCollectionMethod>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub created: Option<stripe_types::RangeQueryTs>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -107,58 +107,6 @@ pub struct ListSubscriptionAutomaticTax {
 impl ListSubscriptionAutomaticTax {
     pub fn new(enabled: bool) -> Self {
         Self { enabled }
-    }
-}
-/// The collection method of the subscriptions to retrieve.
-/// Either `charge_automatically` or `send_invoice`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListSubscriptionCollectionMethod {
-    ChargeAutomatically,
-    SendInvoice,
-}
-impl ListSubscriptionCollectionMethod {
-    pub fn as_str(self) -> &'static str {
-        use ListSubscriptionCollectionMethod::*;
-        match self {
-            ChargeAutomatically => "charge_automatically",
-            SendInvoice => "send_invoice",
-        }
-    }
-}
-
-impl std::str::FromStr for ListSubscriptionCollectionMethod {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListSubscriptionCollectionMethod::*;
-        match s {
-            "charge_automatically" => Ok(ChargeAutomatically),
-            "send_invoice" => Ok(SendInvoice),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListSubscriptionCollectionMethod {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListSubscriptionCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListSubscriptionCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListSubscriptionCollectionMethod {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 /// The status of the subscriptions to retrieve.
@@ -284,7 +232,7 @@ pub struct CreateSubscription<'a> {
     /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
     /// Pass an empty string to remove previously-defined thresholds.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_thresholds: Option<CreateSubscriptionBillingThresholds>,
+    pub billing_thresholds: Option<BillingThresholdsParam>,
     /// A timestamp at which the subscription should cancel.
     /// If set to a date before the current period ends, this will cause a proration if prorations have been enabled using `proration_behavior`.
     /// If set during a future period, this will always cause a proration for that period.
@@ -298,7 +246,7 @@ pub struct CreateSubscription<'a> {
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
     /// Defaults to `charge_automatically`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub collection_method: Option<CreateSubscriptionCollectionMethod>,
+    pub collection_method: Option<stripe_shared::SubscriptionCollectionMethod>,
     /// The ID of the coupon to apply to this subscription.
     /// A coupon applied to a subscription will only affect invoices created for that particular subscription.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -392,7 +340,7 @@ pub struct CreateSubscription<'a> {
     pub proration_behavior: Option<CreateSubscriptionProrationBehavior>,
     /// If specified, the funds from the subscription's invoices will be transferred to the destination and the ID of the resulting transfers will be found on the resulting charges.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub transfer_data: Option<CreateSubscriptionTransferData<'a>>,
+    pub transfer_data: Option<TransferDataSpecs<'a>>,
     /// Unix timestamp representing the end of the trial period the customer will get before being charged for the first time.
     /// If set, trial_end will override the default trial period of the plan the customer is being subscribed to.
     /// The special value `now` can be provided to end the customer's trial immediately.
@@ -571,84 +519,13 @@ impl CreateSubscriptionAutomaticTax {
         Self { enabled }
     }
 }
-/// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-/// Pass an empty string to remove previously-defined thresholds.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateSubscriptionBillingThresholds {
-    /// Monetary threshold that triggers the subscription to advance to a new billing period
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount_gte: Option<i64>,
-    /// Indicates if the `billing_cycle_anchor` should be reset when a threshold is reached.
-    /// If true, `billing_cycle_anchor` will be updated to the date/time the threshold was last reached; otherwise, the value will remain unchanged.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub reset_billing_cycle_anchor: Option<bool>,
-}
-impl CreateSubscriptionBillingThresholds {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Either `charge_automatically`, or `send_invoice`.
-/// When charging automatically, Stripe will attempt to pay this subscription at the end of the cycle using the default source attached to the customer.
-/// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
-/// Defaults to `charge_automatically`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateSubscriptionCollectionMethod {
-    ChargeAutomatically,
-    SendInvoice,
-}
-impl CreateSubscriptionCollectionMethod {
-    pub fn as_str(self) -> &'static str {
-        use CreateSubscriptionCollectionMethod::*;
-        match self {
-            ChargeAutomatically => "charge_automatically",
-            SendInvoice => "send_invoice",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateSubscriptionCollectionMethod {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateSubscriptionCollectionMethod::*;
-        match s {
-            "charge_automatically" => Ok(ChargeAutomatically),
-            "send_invoice" => Ok(SendInvoice),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateSubscriptionCollectionMethod {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateSubscriptionCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateSubscriptionCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateSubscriptionCollectionMethod {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 /// A list of up to 20 subscription items, each with an attached price.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateSubscriptionItems<'a> {
     /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
     /// When updating, pass an empty string to remove previously-defined thresholds.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_thresholds: Option<CreateSubscriptionItemsBillingThresholds>,
+    pub billing_thresholds: Option<ItemBillingThresholdsParam>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
@@ -676,18 +553,6 @@ pub struct CreateSubscriptionItems<'a> {
 impl<'a> CreateSubscriptionItems<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-/// When updating, pass an empty string to remove previously-defined thresholds.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateSubscriptionItemsBillingThresholds {
-    /// Number of units that meets the billing threshold to advance the subscription to a new billing period (e.g., it takes 10 $5 units to meet a $50 [monetary threshold](https://stripe.com/docs/api/subscriptions/update#update_subscription-billing_thresholds-amount_gte)).
-    pub usage_gte: i64,
-}
-impl CreateSubscriptionItemsBillingThresholds {
-    pub fn new(usage_gte: i64) -> Self {
-        Self { usage_gte }
     }
 }
 /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
@@ -974,8 +839,7 @@ pub struct CreateSubscriptionPaymentSettingsPaymentMethodOptions<'a> {
     pub card: Option<CreateSubscriptionPaymentSettingsPaymentMethodOptionsCard<'a>>,
     /// This sub-hash contains details about the Bank transfer payment method options to pass to the invoice’s PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub customer_balance:
-        Option<CreateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalance<'a>>,
+    pub customer_balance: Option<InvoicePaymentMethodOptionsParam<'a>>,
     /// This sub-hash contains details about the Konbini payment method options to pass to the invoice’s PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub konbini: Option<&'a serde_json::Value>,
@@ -1473,60 +1337,6 @@ impl serde::Serialize
         S: serde::Serializer,
     {
         serializer.serialize_str(self.as_str())
-    }
-}
-/// This sub-hash contains details about the Bank transfer payment method options to pass to the invoice’s PaymentIntent.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalance<'a> {
-    /// Configuration for the bank transfer funding type, if the `funding_type` is set to `bank_transfer`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub bank_transfer: Option<
-        CreateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransfer<'a>,
-    >,
-    /// The funding method type to be used when there are not enough funds in the customer balance.
-    /// Permitted values include: `bank_transfer`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub funding_type: Option<&'a str>,
-}
-impl<'a> CreateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalance<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Configuration for the bank transfer funding type, if the `funding_type` is set to `bank_transfer`.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransfer<'a> {
-    /// Configuration for eu_bank_transfer funding type.
-#[serde(skip_serializing_if = "Option::is_none")]
-pub eu_bank_transfer: Option<CreateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<'a>>,
-        /// The bank transfer type that can be used for funding.
-    /// Permitted values include: `eu_bank_transfer`, `gb_bank_transfer`, `jp_bank_transfer`, `mx_bank_transfer`, or `us_bank_transfer`.
-#[serde(rename = "type")]
-#[serde(skip_serializing_if = "Option::is_none")]
-pub type_: Option<&'a str>,
-
-}
-impl<'a> CreateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransfer<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Configuration for eu_bank_transfer funding type.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<
-    'a,
-> {
-    /// The desired country code of the bank account information.
-    /// Permitted values include: `BE`, `DE`, `ES`, `FR`, `IE`, or `NL`.
-    pub country: &'a str,
-}
-impl<'a>
-    CreateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<
-        'a,
-    >
-{
-    pub fn new(country: &'a str) -> Self {
-        Self { country }
     }
 }
 /// This sub-hash contains details about the ACH direct debit payment method options to pass to the invoice’s PaymentIntent.
@@ -2044,22 +1854,6 @@ impl serde::Serialize for CreateSubscriptionProrationBehavior {
         serializer.serialize_str(self.as_str())
     }
 }
-/// If specified, the funds from the subscription's invoices will be transferred to the destination and the ID of the resulting transfers will be found on the resulting charges.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateSubscriptionTransferData<'a> {
-    /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
-    /// By default, the entire amount is transferred to the destination.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount_percent: Option<f64>,
-    /// ID of an existing, connected Stripe account.
-    pub destination: &'a str,
-}
-impl<'a> CreateSubscriptionTransferData<'a> {
-    pub fn new(destination: &'a str) -> Self {
-        Self { amount_percent: None, destination }
-    }
-}
 /// Unix timestamp representing the end of the trial period the customer will get before being charged for the first time.
 /// If set, trial_end will override the default trial period of the plan the customer is being subscribed to.
 /// The special value `now` can be provided to end the customer's trial immediately.
@@ -2186,7 +1980,7 @@ pub struct UpdateSubscription<'a> {
     /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
     /// Pass an empty string to remove previously-defined thresholds.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_thresholds: Option<UpdateSubscriptionBillingThresholds>,
+    pub billing_thresholds: Option<BillingThresholdsParam>,
     /// A timestamp at which the subscription should cancel.
     /// If set to a date before the current period ends, this will cause a proration if prorations have been enabled using `proration_behavior`.
     /// If set during a future period, this will always cause a proration for that period.
@@ -2203,7 +1997,7 @@ pub struct UpdateSubscription<'a> {
     /// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
     /// Defaults to `charge_automatically`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub collection_method: Option<UpdateSubscriptionCollectionMethod>,
+    pub collection_method: Option<stripe_shared::SubscriptionCollectionMethod>,
     /// The ID of the coupon to apply to this subscription.
     /// A coupon applied to a subscription will only affect invoices created for that particular subscription.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2296,7 +2090,7 @@ pub struct UpdateSubscription<'a> {
     /// If specified, the funds from the subscription's invoices will be transferred to the destination and the ID of the resulting transfers will be found on the resulting charges.
     /// This will be unset if you POST an empty value.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub transfer_data: Option<UpdateSubscriptionTransferData<'a>>,
+    pub transfer_data: Option<TransferDataSpecs<'a>>,
     /// Unix timestamp representing the end of the trial period the customer will get before being charged for the first time.
     /// This will always overwrite any trials that might apply via a subscribed plan.
     /// If set, trial_end will override the default trial period of the plan the customer is being subscribed to.
@@ -2490,23 +2284,6 @@ impl serde::Serialize for UpdateSubscriptionBillingCycleAnchor {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-/// Pass an empty string to remove previously-defined thresholds.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateSubscriptionBillingThresholds {
-    /// Monetary threshold that triggers the subscription to advance to a new billing period
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount_gte: Option<i64>,
-    /// Indicates if the `billing_cycle_anchor` should be reset when a threshold is reached.
-    /// If true, `billing_cycle_anchor` will be updated to the date/time the threshold was last reached; otherwise, the value will remain unchanged.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub reset_billing_cycle_anchor: Option<bool>,
-}
-impl UpdateSubscriptionBillingThresholds {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
 /// Details about why this subscription was cancelled
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateSubscriptionCancellationDetails<'a> {
@@ -2591,67 +2368,13 @@ impl serde::Serialize for UpdateSubscriptionCancellationDetailsFeedback {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Either `charge_automatically`, or `send_invoice`.
-/// When charging automatically, Stripe will attempt to pay this subscription at the end of the cycle using the default source attached to the customer.
-/// When sending an invoice, Stripe will email your customer an invoice with payment instructions and mark the subscription as `active`.
-/// Defaults to `charge_automatically`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum UpdateSubscriptionCollectionMethod {
-    ChargeAutomatically,
-    SendInvoice,
-}
-impl UpdateSubscriptionCollectionMethod {
-    pub fn as_str(self) -> &'static str {
-        use UpdateSubscriptionCollectionMethod::*;
-        match self {
-            ChargeAutomatically => "charge_automatically",
-            SendInvoice => "send_invoice",
-        }
-    }
-}
-
-impl std::str::FromStr for UpdateSubscriptionCollectionMethod {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use UpdateSubscriptionCollectionMethod::*;
-        match s {
-            "charge_automatically" => Ok(ChargeAutomatically),
-            "send_invoice" => Ok(SendInvoice),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for UpdateSubscriptionCollectionMethod {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for UpdateSubscriptionCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for UpdateSubscriptionCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for UpdateSubscriptionCollectionMethod {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 /// A list of up to 20 subscription items, each with an attached price.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateSubscriptionItems<'a> {
     /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
     /// When updating, pass an empty string to remove previously-defined thresholds.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_thresholds: Option<UpdateSubscriptionItemsBillingThresholds>,
+    pub billing_thresholds: Option<ItemBillingThresholdsParam>,
     /// Delete all usage for a given subscription item.
     /// Allowed only when `deleted` is set to `true` and the current plan's `usage_type` is `metered`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2690,18 +2413,6 @@ pub struct UpdateSubscriptionItems<'a> {
 impl<'a> UpdateSubscriptionItems<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-/// When updating, pass an empty string to remove previously-defined thresholds.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateSubscriptionItemsBillingThresholds {
-    /// Number of units that meets the billing threshold to advance the subscription to a new billing period (e.g., it takes 10 $5 units to meet a $50 [monetary threshold](https://stripe.com/docs/api/subscriptions/update#update_subscription-billing_thresholds-amount_gte)).
-    pub usage_gte: i64,
-}
-impl UpdateSubscriptionItemsBillingThresholds {
-    pub fn new(usage_gte: i64) -> Self {
-        Self { usage_gte }
     }
 }
 /// Data used to generate a new [Price](https://stripe.com/docs/api/prices) object inline.
@@ -3053,8 +2764,7 @@ pub struct UpdateSubscriptionPaymentSettingsPaymentMethodOptions<'a> {
     pub card: Option<UpdateSubscriptionPaymentSettingsPaymentMethodOptionsCard<'a>>,
     /// This sub-hash contains details about the Bank transfer payment method options to pass to the invoice’s PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub customer_balance:
-        Option<UpdateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalance<'a>>,
+    pub customer_balance: Option<InvoicePaymentMethodOptionsParam<'a>>,
     /// This sub-hash contains details about the Konbini payment method options to pass to the invoice’s PaymentIntent.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub konbini: Option<&'a serde_json::Value>,
@@ -3552,60 +3262,6 @@ impl serde::Serialize
         S: serde::Serializer,
     {
         serializer.serialize_str(self.as_str())
-    }
-}
-/// This sub-hash contains details about the Bank transfer payment method options to pass to the invoice’s PaymentIntent.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalance<'a> {
-    /// Configuration for the bank transfer funding type, if the `funding_type` is set to `bank_transfer`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub bank_transfer: Option<
-        UpdateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransfer<'a>,
-    >,
-    /// The funding method type to be used when there are not enough funds in the customer balance.
-    /// Permitted values include: `bank_transfer`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub funding_type: Option<&'a str>,
-}
-impl<'a> UpdateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalance<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Configuration for the bank transfer funding type, if the `funding_type` is set to `bank_transfer`.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransfer<'a> {
-    /// Configuration for eu_bank_transfer funding type.
-#[serde(skip_serializing_if = "Option::is_none")]
-pub eu_bank_transfer: Option<UpdateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<'a>>,
-        /// The bank transfer type that can be used for funding.
-    /// Permitted values include: `eu_bank_transfer`, `gb_bank_transfer`, `jp_bank_transfer`, `mx_bank_transfer`, or `us_bank_transfer`.
-#[serde(rename = "type")]
-#[serde(skip_serializing_if = "Option::is_none")]
-pub type_: Option<&'a str>,
-
-}
-impl<'a> UpdateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransfer<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Configuration for eu_bank_transfer funding type.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<
-    'a,
-> {
-    /// The desired country code of the bank account information.
-    /// Permitted values include: `BE`, `DE`, `ES`, `FR`, `IE`, or `NL`.
-    pub country: &'a str,
-}
-impl<'a>
-    UpdateSubscriptionPaymentSettingsPaymentMethodOptionsCustomerBalanceBankTransferEuBankTransfer<
-        'a,
-    >
-{
-    pub fn new(country: &'a str) -> Self {
-        Self { country }
     }
 }
 /// This sub-hash contains details about the ACH direct debit payment method options to pass to the invoice’s PaymentIntent.
@@ -4123,23 +3779,6 @@ impl serde::Serialize for UpdateSubscriptionProrationBehavior {
         serializer.serialize_str(self.as_str())
     }
 }
-/// If specified, the funds from the subscription's invoices will be transferred to the destination and the ID of the resulting transfers will be found on the resulting charges.
-/// This will be unset if you POST an empty value.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateSubscriptionTransferData<'a> {
-    /// A non-negative decimal between 0 and 100, with at most two decimal places.
-    /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
-    /// By default, the entire amount is transferred to the destination.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount_percent: Option<f64>,
-    /// ID of an existing, connected Stripe account.
-    pub destination: &'a str,
-}
-impl<'a> UpdateSubscriptionTransferData<'a> {
-    pub fn new(destination: &'a str) -> Self {
-        Self { amount_percent: None, destination }
-    }
-}
 /// Unix timestamp representing the end of the trial period the customer will get before being charged for the first time.
 /// This will always overwrite any trials that might apply via a subscribed plan.
 /// If set, trial_end will override the default trial period of the plan the customer is being subscribed to.
@@ -4592,5 +4231,87 @@ impl DeleteDiscountSubscription {
             self,
             http_types::Method::Delete,
         )
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct BillingThresholdsParam {
+    /// Monetary threshold that triggers the subscription to advance to a new billing period
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub amount_gte: Option<i64>,
+    /// Indicates if the `billing_cycle_anchor` should be reset when a threshold is reached.
+    /// If true, `billing_cycle_anchor` will be updated to the date/time the threshold was last reached; otherwise, the value will remain unchanged.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reset_billing_cycle_anchor: Option<bool>,
+}
+impl BillingThresholdsParam {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct ItemBillingThresholdsParam {
+    /// Number of units that meets the billing threshold to advance the subscription to a new billing period (e.g., it takes 10 $5 units to meet a $50 [monetary threshold](https://stripe.com/docs/api/subscriptions/update#update_subscription-billing_thresholds-amount_gte)).
+    pub usage_gte: i64,
+}
+impl ItemBillingThresholdsParam {
+    pub fn new(usage_gte: i64) -> Self {
+        Self { usage_gte }
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct EuBankTransferParam<'a> {
+    /// The desired country code of the bank account information.
+    /// Permitted values include: `BE`, `DE`, `ES`, `FR`, `IE`, or `NL`.
+    pub country: &'a str,
+}
+impl<'a> EuBankTransferParam<'a> {
+    pub fn new(country: &'a str) -> Self {
+        Self { country }
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct TransferDataSpecs<'a> {
+    /// A non-negative decimal between 0 and 100, with at most two decimal places.
+    /// This represents the percentage of the subscription invoice total that will be transferred to the destination account.
+    /// By default, the entire amount is transferred to the destination.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub amount_percent: Option<f64>,
+    /// ID of an existing, connected Stripe account.
+    pub destination: &'a str,
+}
+impl<'a> TransferDataSpecs<'a> {
+    pub fn new(destination: &'a str) -> Self {
+        Self { amount_percent: None, destination }
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct BankTransferParam<'a> {
+    /// Configuration for eu_bank_transfer funding type.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub eu_bank_transfer: Option<EuBankTransferParam<'a>>,
+    /// The bank transfer type that can be used for funding.
+    /// Permitted values include: `eu_bank_transfer`, `gb_bank_transfer`, `jp_bank_transfer`, `mx_bank_transfer`, or `us_bank_transfer`.
+    #[serde(rename = "type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub type_: Option<&'a str>,
+}
+impl<'a> BankTransferParam<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct InvoicePaymentMethodOptionsParam<'a> {
+    /// Configuration for the bank transfer funding type, if the `funding_type` is set to `bank_transfer`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bank_transfer: Option<BankTransferParam<'a>>,
+    /// The funding method type to be used when there are not enough funds in the customer balance.
+    /// Permitted values include: `bank_transfer`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub funding_type: Option<&'a str>,
+}
+impl<'a> InvoicePaymentMethodOptionsParam<'a> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }

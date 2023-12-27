@@ -89,7 +89,7 @@ pub struct CreateSource<'a> {
     pub original_source: Option<&'a str>,
     /// Information about the owner of the payment instrument that may be used or required by particular source types.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub owner: Option<CreateSourceOwner<'a>>,
+    pub owner: Option<Owner<'a>>,
     /// Optional parameters for the receiver flow.
     /// Can be set only if the source is a receiver (`flow` is `receiver`).
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -220,11 +220,11 @@ pub struct CreateSourceMandateAcceptance<'a> {
     /// The parameters required to store a mandate accepted offline.
     /// Should only be set if `mandate[type]` is `offline`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub offline: Option<CreateSourceMandateAcceptanceOffline<'a>>,
+    pub offline: Option<MandateOfflineAcceptanceParams<'a>>,
     /// The parameters required to store a mandate accepted online.
     /// Should only be set if `mandate[type]` is `online`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub online: Option<CreateSourceMandateAcceptanceOnline<'a>>,
+    pub online: Option<MandateOnlineAcceptanceParams<'a>>,
     /// The status of the mandate acceptance.
     /// Either `accepted` (the mandate was accepted) or `refused` (the mandate was refused).
     pub status: CreateSourceMandateAcceptanceStatus,
@@ -247,37 +247,6 @@ impl<'a> CreateSourceMandateAcceptance<'a> {
             type_: None,
             user_agent: None,
         }
-    }
-}
-/// The parameters required to store a mandate accepted offline.
-/// Should only be set if `mandate[type]` is `offline`.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateSourceMandateAcceptanceOffline<'a> {
-    /// An email to contact you with if a copy of the mandate is requested, required if `type` is `offline`.
-    pub contact_email: &'a str,
-}
-impl<'a> CreateSourceMandateAcceptanceOffline<'a> {
-    pub fn new(contact_email: &'a str) -> Self {
-        Self { contact_email }
-    }
-}
-/// The parameters required to store a mandate accepted online.
-/// Should only be set if `mandate[type]` is `online`.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateSourceMandateAcceptanceOnline<'a> {
-    /// The Unix timestamp (in seconds) when the mandate was accepted or refused by the customer.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub date: Option<stripe_types::Timestamp>,
-    /// The IP address from which the mandate was accepted or refused by the customer.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ip: Option<&'a str>,
-    /// The user agent of the browser from which the mandate was accepted or refused by the customer.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub user_agent: Option<&'a str>,
-}
-impl<'a> CreateSourceMandateAcceptanceOnline<'a> {
-    pub fn new() -> Self {
-        Self::default()
     }
 }
 /// The status of the mandate acceptance.
@@ -505,54 +474,6 @@ impl serde::Serialize for CreateSourceMandateNotificationMethod {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Information about the owner of the payment instrument that may be used or required by particular source types.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateSourceOwner<'a> {
-    /// Owner's address.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub address: Option<CreateSourceOwnerAddress<'a>>,
-    /// Owner's email address.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub email: Option<&'a str>,
-    /// Owner's full name.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<&'a str>,
-    /// Owner's phone number.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub phone: Option<&'a str>,
-}
-impl<'a> CreateSourceOwner<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Owner's address.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateSourceOwnerAddress<'a> {
-    /// City, district, suburb, town, or village.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub city: Option<&'a str>,
-    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub country: Option<&'a str>,
-    /// Address line 1 (e.g., street, PO Box, or company name).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line1: Option<&'a str>,
-    /// Address line 2 (e.g., apartment, suite, unit, or building).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line2: Option<&'a str>,
-    /// ZIP or postal code.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub postal_code: Option<&'a str>,
-    /// State, county, province, or region.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub state: Option<&'a str>,
-}
-impl<'a> CreateSourceOwnerAddress<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
 /// Optional parameters for the receiver flow.
 /// Can be set only if the source is a receiver (`flow` is `receiver`).
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -647,7 +568,7 @@ pub struct CreateSourceSourceOrder<'a> {
     /// Shipping address for the order.
     /// Required if any of the SKUs are for products that have `shippable` set to true.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping: Option<CreateSourceSourceOrderShipping<'a>>,
+    pub shipping: Option<OrderShipping<'a>>,
 }
 impl<'a> CreateSourceSourceOrder<'a> {
     pub fn new() -> Self {
@@ -735,57 +656,6 @@ impl serde::Serialize for CreateSourceSourceOrderItemsType {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Shipping address for the order.
-/// Required if any of the SKUs are for products that have `shippable` set to true.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateSourceSourceOrderShipping<'a> {
-    /// Shipping address.
-    pub address: CreateSourceSourceOrderShippingAddress<'a>,
-    /// The delivery service that shipped a physical product, such as Fedex, UPS, USPS, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub carrier: Option<&'a str>,
-    /// Recipient name.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<&'a str>,
-    /// Recipient phone (including extension).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub phone: Option<&'a str>,
-    /// The tracking number for a physical product, obtained from the delivery service.
-    /// If multiple tracking numbers were generated for this purchase, please separate them with commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tracking_number: Option<&'a str>,
-}
-impl<'a> CreateSourceSourceOrderShipping<'a> {
-    pub fn new(address: CreateSourceSourceOrderShippingAddress<'a>) -> Self {
-        Self { address, carrier: None, name: None, phone: None, tracking_number: None }
-    }
-}
-/// Shipping address.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateSourceSourceOrderShippingAddress<'a> {
-    /// City, district, suburb, town, or village.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub city: Option<&'a str>,
-    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub country: Option<&'a str>,
-    /// Address line 1 (e.g., street, PO Box, or company name).
-    pub line1: &'a str,
-    /// Address line 2 (e.g., apartment, suite, unit, or building).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line2: Option<&'a str>,
-    /// ZIP or postal code.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub postal_code: Option<&'a str>,
-    /// State, county, province, or region.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub state: Option<&'a str>,
-}
-impl<'a> CreateSourceSourceOrderShippingAddress<'a> {
-    pub fn new(line1: &'a str) -> Self {
-        Self { city: None, country: None, line1, line2: None, postal_code: None, state: None }
-    }
-}
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CreateSourceUsage {
     Reusable,
@@ -861,7 +731,7 @@ pub struct UpdateSource<'a> {
     pub metadata: Option<&'a std::collections::HashMap<String, String>>,
     /// Information about the owner of the payment instrument that may be used or required by particular source types.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub owner: Option<UpdateSourceOwner<'a>>,
+    pub owner: Option<Owner<'a>>,
     /// Information about the items and shipping associated with the source.
     /// Required for transactional credit (for example Klarna) sources before you can charge it.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -910,11 +780,11 @@ pub struct UpdateSourceMandateAcceptance<'a> {
     /// The parameters required to store a mandate accepted offline.
     /// Should only be set if `mandate[type]` is `offline`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub offline: Option<UpdateSourceMandateAcceptanceOffline<'a>>,
+    pub offline: Option<MandateOfflineAcceptanceParams<'a>>,
     /// The parameters required to store a mandate accepted online.
     /// Should only be set if `mandate[type]` is `online`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub online: Option<UpdateSourceMandateAcceptanceOnline<'a>>,
+    pub online: Option<MandateOnlineAcceptanceParams<'a>>,
     /// The status of the mandate acceptance.
     /// Either `accepted` (the mandate was accepted) or `refused` (the mandate was refused).
     pub status: UpdateSourceMandateAcceptanceStatus,
@@ -937,37 +807,6 @@ impl<'a> UpdateSourceMandateAcceptance<'a> {
             type_: None,
             user_agent: None,
         }
-    }
-}
-/// The parameters required to store a mandate accepted offline.
-/// Should only be set if `mandate[type]` is `offline`.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateSourceMandateAcceptanceOffline<'a> {
-    /// An email to contact you with if a copy of the mandate is requested, required if `type` is `offline`.
-    pub contact_email: &'a str,
-}
-impl<'a> UpdateSourceMandateAcceptanceOffline<'a> {
-    pub fn new(contact_email: &'a str) -> Self {
-        Self { contact_email }
-    }
-}
-/// The parameters required to store a mandate accepted online.
-/// Should only be set if `mandate[type]` is `online`.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateSourceMandateAcceptanceOnline<'a> {
-    /// The Unix timestamp (in seconds) when the mandate was accepted or refused by the customer.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub date: Option<stripe_types::Timestamp>,
-    /// The IP address from which the mandate was accepted or refused by the customer.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub ip: Option<&'a str>,
-    /// The user agent of the browser from which the mandate was accepted or refused by the customer.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub user_agent: Option<&'a str>,
-}
-impl<'a> UpdateSourceMandateAcceptanceOnline<'a> {
-    pub fn new() -> Self {
-        Self::default()
     }
 }
 /// The status of the mandate acceptance.
@@ -1195,54 +1034,6 @@ impl serde::Serialize for UpdateSourceMandateNotificationMethod {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Information about the owner of the payment instrument that may be used or required by particular source types.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateSourceOwner<'a> {
-    /// Owner's address.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub address: Option<UpdateSourceOwnerAddress<'a>>,
-    /// Owner's email address.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub email: Option<&'a str>,
-    /// Owner's full name.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<&'a str>,
-    /// Owner's phone number.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub phone: Option<&'a str>,
-}
-impl<'a> UpdateSourceOwner<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Owner's address.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdateSourceOwnerAddress<'a> {
-    /// City, district, suburb, town, or village.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub city: Option<&'a str>,
-    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub country: Option<&'a str>,
-    /// Address line 1 (e.g., street, PO Box, or company name).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line1: Option<&'a str>,
-    /// Address line 2 (e.g., apartment, suite, unit, or building).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line2: Option<&'a str>,
-    /// ZIP or postal code.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub postal_code: Option<&'a str>,
-    /// State, county, province, or region.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub state: Option<&'a str>,
-}
-impl<'a> UpdateSourceOwnerAddress<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
 /// Information about the items and shipping associated with the source.
 /// Required for transactional credit (for example Klarna) sources before you can charge it.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1253,7 +1044,7 @@ pub struct UpdateSourceSourceOrder<'a> {
     /// Shipping address for the order.
     /// Required if any of the SKUs are for products that have `shippable` set to true.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping: Option<UpdateSourceSourceOrderShipping<'a>>,
+    pub shipping: Option<OrderShipping<'a>>,
 }
 impl<'a> UpdateSourceSourceOrder<'a> {
     pub fn new() -> Self {
@@ -1341,57 +1132,6 @@ impl serde::Serialize for UpdateSourceSourceOrderItemsType {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Shipping address for the order.
-/// Required if any of the SKUs are for products that have `shippable` set to true.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateSourceSourceOrderShipping<'a> {
-    /// Shipping address.
-    pub address: UpdateSourceSourceOrderShippingAddress<'a>,
-    /// The delivery service that shipped a physical product, such as Fedex, UPS, USPS, etc.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub carrier: Option<&'a str>,
-    /// Recipient name.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<&'a str>,
-    /// Recipient phone (including extension).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub phone: Option<&'a str>,
-    /// The tracking number for a physical product, obtained from the delivery service.
-    /// If multiple tracking numbers were generated for this purchase, please separate them with commas.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tracking_number: Option<&'a str>,
-}
-impl<'a> UpdateSourceSourceOrderShipping<'a> {
-    pub fn new(address: UpdateSourceSourceOrderShippingAddress<'a>) -> Self {
-        Self { address, carrier: None, name: None, phone: None, tracking_number: None }
-    }
-}
-/// Shipping address.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateSourceSourceOrderShippingAddress<'a> {
-    /// City, district, suburb, town, or village.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub city: Option<&'a str>,
-    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub country: Option<&'a str>,
-    /// Address line 1 (e.g., street, PO Box, or company name).
-    pub line1: &'a str,
-    /// Address line 2 (e.g., apartment, suite, unit, or building).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line2: Option<&'a str>,
-    /// ZIP or postal code.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub postal_code: Option<&'a str>,
-    /// State, county, province, or region.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub state: Option<&'a str>,
-}
-impl<'a> UpdateSourceSourceOrderShippingAddress<'a> {
-    pub fn new(line1: &'a str) -> Self {
-        Self { city: None, country: None, line1, line2: None, postal_code: None, state: None }
-    }
-}
 impl<'a> UpdateSource<'a> {
     /// Updates the specified source by setting the values of the parameters passed.
     /// Any parameters not provided will be left unchanged.
@@ -1472,5 +1212,126 @@ impl<'a> SourceTransactionsSource<'a> {
             &format!("/sources/{source}/source_transactions"),
             self,
         )
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct MandateOfflineAcceptanceParams<'a> {
+    /// An email to contact you with if a copy of the mandate is requested, required if `type` is `offline`.
+    pub contact_email: &'a str,
+}
+impl<'a> MandateOfflineAcceptanceParams<'a> {
+    pub fn new(contact_email: &'a str) -> Self {
+        Self { contact_email }
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct MandateOnlineAcceptanceParams<'a> {
+    /// The Unix timestamp (in seconds) when the mandate was accepted or refused by the customer.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub date: Option<stripe_types::Timestamp>,
+    /// The IP address from which the mandate was accepted or refused by the customer.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ip: Option<&'a str>,
+    /// The user agent of the browser from which the mandate was accepted or refused by the customer.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub user_agent: Option<&'a str>,
+}
+impl<'a> MandateOnlineAcceptanceParams<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct SourceAddress<'a> {
+    /// City, district, suburb, town, or village.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub city: Option<&'a str>,
+    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub country: Option<&'a str>,
+    /// Address line 1 (e.g., street, PO Box, or company name).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub line1: Option<&'a str>,
+    /// Address line 2 (e.g., apartment, suite, unit, or building).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub line2: Option<&'a str>,
+    /// ZIP or postal code.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub postal_code: Option<&'a str>,
+    /// State, county, province, or region.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub state: Option<&'a str>,
+}
+impl<'a> SourceAddress<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct Address<'a> {
+    /// City, district, suburb, town, or village.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub city: Option<&'a str>,
+    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub country: Option<&'a str>,
+    /// Address line 1 (e.g., street, PO Box, or company name).
+    pub line1: &'a str,
+    /// Address line 2 (e.g., apartment, suite, unit, or building).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub line2: Option<&'a str>,
+    /// ZIP or postal code.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub postal_code: Option<&'a str>,
+    /// State, county, province, or region.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub state: Option<&'a str>,
+}
+impl<'a> Address<'a> {
+    pub fn new(line1: &'a str) -> Self {
+        Self { city: None, country: None, line1, line2: None, postal_code: None, state: None }
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct Owner<'a> {
+    /// Owner's address.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub address: Option<SourceAddress<'a>>,
+    /// Owner's email address.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email: Option<&'a str>,
+    /// Owner's full name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<&'a str>,
+    /// Owner's phone number.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub phone: Option<&'a str>,
+}
+impl<'a> Owner<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct OrderShipping<'a> {
+    /// Shipping address.
+    pub address: Address<'a>,
+    /// The delivery service that shipped a physical product, such as Fedex, UPS, USPS, etc.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub carrier: Option<&'a str>,
+    /// Recipient name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<&'a str>,
+    /// Recipient phone (including extension).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub phone: Option<&'a str>,
+    /// The tracking number for a physical product, obtained from the delivery service.
+    /// If multiple tracking numbers were generated for this purchase, please separate them with commas.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tracking_number: Option<&'a str>,
+}
+impl<'a> OrderShipping<'a> {
+    pub fn new(address: Address<'a>) -> Self {
+        Self { address, carrier: None, name: None, phone: None, tracking_number: None }
     }
 }

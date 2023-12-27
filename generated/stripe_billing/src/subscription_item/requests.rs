@@ -65,7 +65,7 @@ pub struct CreateSubscriptionItem<'a> {
     /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
     /// When updating, pass an empty string to remove previously-defined thresholds.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_thresholds: Option<CreateSubscriptionItemBillingThresholds>,
+    pub billing_thresholds: Option<ItemBillingThresholdsParam>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
@@ -138,18 +138,6 @@ impl<'a> CreateSubscriptionItem<'a> {
             subscription,
             tax_rates: None,
         }
-    }
-}
-/// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-/// When updating, pass an empty string to remove previously-defined thresholds.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateSubscriptionItemBillingThresholds {
-    /// Number of units that meets the billing threshold to advance the subscription to a new billing period (e.g., it takes 10 $5 units to meet a $50 [monetary threshold](https://stripe.com/docs/api/subscriptions/update#update_subscription-billing_thresholds-amount_gte)).
-    pub usage_gte: i64,
-}
-impl CreateSubscriptionItemBillingThresholds {
-    pub fn new(usage_gte: i64) -> Self {
-        Self { usage_gte }
     }
 }
 /// Use `allow_incomplete` to transition the subscription to `status=past_due` if a payment is required but cannot be paid.
@@ -464,7 +452,7 @@ pub struct UpdateSubscriptionItem<'a> {
     /// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
     /// When updating, pass an empty string to remove previously-defined thresholds.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_thresholds: Option<UpdateSubscriptionItemBillingThresholds>,
+    pub billing_thresholds: Option<ItemBillingThresholdsParam>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
@@ -526,18 +514,6 @@ pub struct UpdateSubscriptionItem<'a> {
 impl<'a> UpdateSubscriptionItem<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Define thresholds at which an invoice will be sent, and the subscription advanced to a new billing period.
-/// When updating, pass an empty string to remove previously-defined thresholds.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdateSubscriptionItemBillingThresholds {
-    /// Number of units that meets the billing threshold to advance the subscription to a new billing period (e.g., it takes 10 $5 units to meet a $50 [monetary threshold](https://stripe.com/docs/api/subscriptions/update#update_subscription-billing_thresholds-amount_gte)).
-    pub usage_gte: i64,
-}
-impl UpdateSubscriptionItemBillingThresholds {
-    pub fn new(usage_gte: i64) -> Self {
-        Self { usage_gte }
     }
 }
 /// Use `allow_incomplete` to transition the subscription to `status=past_due` if a payment is required but cannot be paid.
@@ -984,5 +960,15 @@ impl<'a> UsageRecordSummariesSubscriptionItem<'a> {
             &format!("/subscription_items/{subscription_item}/usage_record_summaries"),
             self,
         )
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct ItemBillingThresholdsParam {
+    /// Number of units that meets the billing threshold to advance the subscription to a new billing period (e.g., it takes 10 $5 units to meet a $50 [monetary threshold](https://stripe.com/docs/api/subscriptions/update#update_subscription-billing_thresholds-amount_gte)).
+    pub usage_gte: i64,
+}
+impl ItemBillingThresholdsParam {
+    pub fn new(usage_gte: i64) -> Self {
+        Self { usage_gte }
     }
 }

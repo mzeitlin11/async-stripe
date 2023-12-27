@@ -16,15 +16,21 @@ pub struct FinancialConnectionsSession {
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// Permissions requested for accounts collected during this session.
-    pub permissions: Vec<FinancialConnectionsSessionPermissions>,
+    pub permissions: Vec<stripe_misc::FinancialConnectionsSessionPermissions>,
     /// Data features requested to be retrieved upon account creation.
-    pub prefetch: Option<Vec<FinancialConnectionsSessionPrefetch>>,
+    pub prefetch: Option<Vec<stripe_misc::FinancialConnectionsSessionPrefetch>>,
     /// For webview integrations only.
     /// Upon completing OAuth login in the native browser, the user will be redirected to this URL to return to your app.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_url: Option<String>,
 }
-/// Permissions requested for accounts collected during this session.
+impl stripe_types::Object for FinancialConnectionsSession {
+    type Id = stripe_misc::FinancialConnectionsSessionId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(FinancialConnectionsSessionId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum FinancialConnectionsSessionPermissions {
     Balances,
@@ -90,7 +96,6 @@ impl<'de> serde::Deserialize<'de> for FinancialConnectionsSessionPermissions {
         })
     }
 }
-/// Data features requested to be retrieved upon account creation.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum FinancialConnectionsSessionPrefetch {
     Balances,
@@ -150,10 +155,3 @@ impl<'de> serde::Deserialize<'de> for FinancialConnectionsSessionPrefetch {
         })
     }
 }
-impl stripe_types::Object for FinancialConnectionsSession {
-    type Id = stripe_misc::FinancialConnectionsSessionId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(FinancialConnectionsSessionId);

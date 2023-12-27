@@ -23,7 +23,7 @@ pub struct Coupon {
     >,
     /// One of `forever`, `once`, and `repeating`.
     /// Describes how long a customer who applies this coupon will get the discount.
-    pub duration: CouponDuration,
+    pub duration: stripe_shared::CouponDuration,
     /// If `duration` is `repeating`, the number of months the coupon applies.
     /// Null if coupon `duration` is `forever` or `once`.
     pub duration_in_months: Option<i64>,
@@ -48,8 +48,13 @@ pub struct Coupon {
     /// Taking account of the above properties, whether this coupon can still be applied to a customer.
     pub valid: bool,
 }
-/// One of `forever`, `once`, and `repeating`.
-/// Describes how long a customer who applies this coupon will get the discount.
+impl stripe_types::Object for Coupon {
+    type Id = stripe_shared::CouponId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(CouponId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CouponDuration {
     Forever,
@@ -110,10 +115,3 @@ impl<'de> serde::Deserialize<'de> for CouponDuration {
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for CouponDuration"))
     }
 }
-impl stripe_types::Object for Coupon {
-    type Id = stripe_shared::CouponId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(CouponId);

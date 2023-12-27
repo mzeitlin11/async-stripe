@@ -30,11 +30,12 @@ pub struct ObjectMetadata {
     /// The name of the field in the OpenAPI schema
     pub field_name: Option<String>,
     pub kind: ObjectKind,
+    pub parent: Option<RustIdent>,
 }
 
 impl ObjectMetadata {
     pub fn new(ident: RustIdent, kind: ObjectKind) -> Self {
-        Self { ident, doc: None, title: None, field_name: None, kind }
+        Self { ident, doc: None, title: None, field_name: None, kind, parent: None }
     }
 
     /// Attach a doc comment.
@@ -59,37 +60,37 @@ impl RustObject {
 
     pub fn visit<'a, T: Visit<'a>>(&'a self, visitor: &mut T) {
         match self {
-            RustObject::Struct(fields) => {
+            Self::Struct(fields) => {
                 for field in fields {
                     visitor.visit_typ(&field.rust_type);
                 }
             }
-            RustObject::Enum(variants) => {
+            Self::Enum(variants) => {
                 for variant in variants {
                     if let Some(typ) = &variant.rust_type {
                         visitor.visit_typ(typ);
                     }
                 }
             }
-            RustObject::FieldlessEnum(_) => {}
+            Self::FieldlessEnum(_) => {}
         }
     }
 
     pub fn visit_mut<T: VisitMut>(&mut self, visitor: &mut T) {
         match self {
-            RustObject::Struct(fields) => {
+            Self::Struct(fields) => {
                 for field in fields {
                     visitor.visit_typ_mut(&mut field.rust_type);
                 }
             }
-            RustObject::Enum(variants) => {
+            Self::Enum(variants) => {
                 for variant in variants {
                     if let Some(typ) = &mut variant.rust_type {
                         visitor.visit_typ_mut(typ);
                     }
                 }
             }
-            RustObject::FieldlessEnum(_) => {}
+            Self::FieldlessEnum(_) => {}
         }
     }
 

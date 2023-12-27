@@ -43,7 +43,7 @@ pub struct ListIdentityVerificationReport<'a> {
     /// Only return VerificationReports of this type
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_: Option<ListIdentityVerificationReportType>,
+    pub type_: Option<stripe_misc::IdentityVerificationReportType>,
     /// Only return VerificationReports created by this VerificationSession ID.
     /// It is allowed to provide a VerificationIntent ID.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -52,57 +52,6 @@ pub struct ListIdentityVerificationReport<'a> {
 impl<'a> ListIdentityVerificationReport<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Only return VerificationReports of this type
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListIdentityVerificationReportType {
-    Document,
-    IdNumber,
-}
-impl ListIdentityVerificationReportType {
-    pub fn as_str(self) -> &'static str {
-        use ListIdentityVerificationReportType::*;
-        match self {
-            Document => "document",
-            IdNumber => "id_number",
-        }
-    }
-}
-
-impl std::str::FromStr for ListIdentityVerificationReportType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListIdentityVerificationReportType::*;
-        match s {
-            "document" => Ok(Document),
-            "id_number" => Ok(IdNumber),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListIdentityVerificationReportType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListIdentityVerificationReportType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListIdentityVerificationReportType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListIdentityVerificationReportType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> ListIdentityVerificationReport<'a> {

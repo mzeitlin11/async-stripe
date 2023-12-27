@@ -29,7 +29,7 @@ pub struct BillingPortalSession {
     pub livemode: bool,
     /// The IETF language tag of the locale Customer Portal is displayed in.
     /// If blank or auto, the customer’s `preferred_locales` or browser’s locale is used.
-    pub locale: Option<BillingPortalSessionLocale>,
+    pub locale: Option<stripe_billing::BillingPortalSessionLocale>,
     /// The account for which the session was created on behalf of.
     /// When specified, only subscriptions and invoices with this `on_behalf_of` account appear in the portal.
     /// For more information, see the [docs](https://stripe.com/docs/connect/separate-charges-and-transfers#on-behalf-of).
@@ -40,8 +40,13 @@ pub struct BillingPortalSession {
     /// The short-lived URL of the session that gives customers access to the customer portal.
     pub url: String,
 }
-/// The IETF language tag of the locale Customer Portal is displayed in.
-/// If blank or auto, the customer’s `preferred_locales` or browser’s locale is used.
+impl stripe_types::Object for BillingPortalSession {
+    type Id = stripe_billing::BillingPortalSessionId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(BillingPortalSessionId, "bps_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum BillingPortalSessionLocale {
@@ -238,10 +243,3 @@ impl<'de> serde::Deserialize<'de> for BillingPortalSessionLocale {
         Ok(Self::from_str(&s).unwrap_or(BillingPortalSessionLocale::Unknown))
     }
 }
-impl stripe_types::Object for BillingPortalSession {
-    type Id = stripe_billing::BillingPortalSessionId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(BillingPortalSessionId, "bps_");

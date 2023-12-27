@@ -34,120 +34,15 @@ pub struct ListIssuingCard<'a> {
     pub starting_after: Option<&'a str>,
     /// Only return cards that have the given status. One of `active`, `inactive`, or `canceled`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<ListIssuingCardStatus>,
+    pub status: Option<stripe_shared::IssuingCardStatus>,
     /// Only return cards that have the given type. One of `virtual` or `physical`.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_: Option<ListIssuingCardType>,
+    pub type_: Option<stripe_shared::IssuingCardType>,
 }
 impl<'a> ListIssuingCard<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Only return cards that have the given status. One of `active`, `inactive`, or `canceled`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListIssuingCardStatus {
-    Active,
-    Canceled,
-    Inactive,
-}
-impl ListIssuingCardStatus {
-    pub fn as_str(self) -> &'static str {
-        use ListIssuingCardStatus::*;
-        match self {
-            Active => "active",
-            Canceled => "canceled",
-            Inactive => "inactive",
-        }
-    }
-}
-
-impl std::str::FromStr for ListIssuingCardStatus {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListIssuingCardStatus::*;
-        match s {
-            "active" => Ok(Active),
-            "canceled" => Ok(Canceled),
-            "inactive" => Ok(Inactive),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListIssuingCardStatus {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListIssuingCardStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListIssuingCardStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListIssuingCardStatus {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// Only return cards that have the given type. One of `virtual` or `physical`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListIssuingCardType {
-    Physical,
-    Virtual,
-}
-impl ListIssuingCardType {
-    pub fn as_str(self) -> &'static str {
-        use ListIssuingCardType::*;
-        match self {
-            Physical => "physical",
-            Virtual => "virtual",
-        }
-    }
-}
-
-impl std::str::FromStr for ListIssuingCardType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListIssuingCardType::*;
-        match s {
-            "physical" => Ok(Physical),
-            "virtual" => Ok(Virtual),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListIssuingCardType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListIssuingCardType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListIssuingCardType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListIssuingCardType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> ListIssuingCard<'a> {
@@ -186,7 +81,7 @@ pub struct CreateIssuingCard<'a> {
     pub replacement_for: Option<&'a str>,
     /// If `replacement_for` is specified, this should indicate why that card is being replaced.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub replacement_reason: Option<CreateIssuingCardReplacementReason>,
+    pub replacement_reason: Option<stripe_shared::IssuingCardReplacementReason>,
     /// The address where the card will be shipped.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping: Option<CreateIssuingCardShipping<'a>>,
@@ -201,10 +96,10 @@ pub struct CreateIssuingCard<'a> {
     pub status: Option<CreateIssuingCardStatus>,
     /// The type of card to issue. Possible values are `physical` or `virtual`.
     #[serde(rename = "type")]
-    pub type_: CreateIssuingCardType,
+    pub type_: stripe_shared::IssuingCardType,
 }
 impl<'a> CreateIssuingCard<'a> {
-    pub fn new(currency: stripe_types::Currency, type_: CreateIssuingCardType) -> Self {
+    pub fn new(currency: stripe_types::Currency, type_: stripe_shared::IssuingCardType) -> Self {
         Self {
             cardholder: None,
             currency,
@@ -218,63 +113,6 @@ impl<'a> CreateIssuingCard<'a> {
             status: None,
             type_,
         }
-    }
-}
-/// If `replacement_for` is specified, this should indicate why that card is being replaced.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateIssuingCardReplacementReason {
-    Damaged,
-    Expired,
-    Lost,
-    Stolen,
-}
-impl CreateIssuingCardReplacementReason {
-    pub fn as_str(self) -> &'static str {
-        use CreateIssuingCardReplacementReason::*;
-        match self {
-            Damaged => "damaged",
-            Expired => "expired",
-            Lost => "lost",
-            Stolen => "stolen",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateIssuingCardReplacementReason {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateIssuingCardReplacementReason::*;
-        match s {
-            "damaged" => Ok(Damaged),
-            "expired" => Ok(Expired),
-            "lost" => Ok(Lost),
-            "stolen" => Ok(Stolen),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateIssuingCardReplacementReason {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateIssuingCardReplacementReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateIssuingCardReplacementReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateIssuingCardReplacementReason {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 /// The address where the card will be shipped.
@@ -3697,57 +3535,6 @@ impl serde::Serialize for CreateIssuingCardStatus {
         serializer.serialize_str(self.as_str())
     }
 }
-/// The type of card to issue. Possible values are `physical` or `virtual`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateIssuingCardType {
-    Physical,
-    Virtual,
-}
-impl CreateIssuingCardType {
-    pub fn as_str(self) -> &'static str {
-        use CreateIssuingCardType::*;
-        match self {
-            Physical => "physical",
-            Virtual => "virtual",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateIssuingCardType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateIssuingCardType::*;
-        match s {
-            "physical" => Ok(Physical),
-            "virtual" => Ok(Virtual),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateIssuingCardType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateIssuingCardType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateIssuingCardType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateIssuingCardType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 impl<'a> CreateIssuingCard<'a> {
     /// Creates an Issuing `Card` object.
     pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::IssuingCard> {
@@ -3801,7 +3588,7 @@ pub struct UpdateIssuingCard<'a> {
     /// Defaults to `inactive`.
     /// If this card is being canceled because it was lost or stolen, this information should be provided as `cancellation_reason`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<UpdateIssuingCardStatus>,
+    pub status: Option<stripe_shared::IssuingCardStatus>,
 }
 impl<'a> UpdateIssuingCard<'a> {
     pub fn new() -> Self {
@@ -7053,63 +6840,6 @@ impl std::fmt::Debug for UpdateIssuingCardSpendingControlsSpendingLimitsInterval
     }
 }
 impl serde::Serialize for UpdateIssuingCardSpendingControlsSpendingLimitsInterval {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// Dictates whether authorizations can be approved on this card.
-/// May be blocked from activating cards depending on past-due Cardholder requirements.
-/// Defaults to `inactive`.
-/// If this card is being canceled because it was lost or stolen, this information should be provided as `cancellation_reason`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum UpdateIssuingCardStatus {
-    Active,
-    Canceled,
-    Inactive,
-}
-impl UpdateIssuingCardStatus {
-    pub fn as_str(self) -> &'static str {
-        use UpdateIssuingCardStatus::*;
-        match self {
-            Active => "active",
-            Canceled => "canceled",
-            Inactive => "inactive",
-        }
-    }
-}
-
-impl std::str::FromStr for UpdateIssuingCardStatus {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use UpdateIssuingCardStatus::*;
-        match s {
-            "active" => Ok(Active),
-            "canceled" => Ok(Canceled),
-            "inactive" => Ok(Inactive),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for UpdateIssuingCardStatus {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for UpdateIssuingCardStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for UpdateIssuingCardStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for UpdateIssuingCardStatus {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

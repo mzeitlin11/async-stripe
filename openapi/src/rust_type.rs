@@ -5,12 +5,6 @@ use crate::rust_object::{ObjectMetadata, RustObject};
 use crate::types::{ComponentPath, RustIdent};
 use crate::visitor::{Visit, VisitMut};
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum DeduppedLocation {
-    Request,
-    Types,
-}
-
 /// A path to a type defined elsewhere.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum PathToType {
@@ -18,9 +12,8 @@ pub enum PathToType {
     Component(ComponentPath),
     /// The id for a top-level component.
     ObjectId(ComponentPath),
-    /// A type defined in `stripe_shared`
     Shared(RustIdent),
-    Dedupped {
+    Deduplicated {
         path: ComponentPath,
         ident: RustIdent,
     },
@@ -33,32 +26,26 @@ impl PathToType {
             // directly, e.g. `components.get(path).rust_obj().has_reference(components)`,
             // but this leads to infinite recursion because of the cyclical type definitions
             // in the spec. For now, `false` is always accurate, so is an easy workaround
-            PathToType::Component(_) => false,
+            Self::Component(_) => false,
 
             // Always either backed by `String` or `smol_str::SmolStr`
-            PathToType::ObjectId(_) => false,
-            PathToType::Shared(ident) => {
-                components.get_extra_type(ident).obj.has_reference(components)
-            }
-            PathToType::Dedupped { .. } => {
-                todo!()
+            Self::ObjectId(_) => false,
+            Self::Shared(ident) => components.get_extra_type(ident).obj.has_reference(components),
+            Self::Deduplicated { path, ident } => {
+                components.get_dedupped_type(ident, path).object.has_reference(components)
             }
         }
     }
 
     pub fn is_copy(&self, components: &Components) -> bool {
         match self {
-            // NB: see cyclical type issues below. This is likely overly
-            // conservative, but _most_ components type are far from `copy`, only
-            // wrong in a small number of cases that don't affect correctness,
-            // just not deriving `Copy` in all possible cases
-            PathToType::Component(_) => false,
+            Self::Component(comp) => components.get(comp).rust_obj().is_copy(components),
 
             // Always either backed by `String` or `smol_str::SmolStr`
-            PathToType::ObjectId(_) => false,
-            PathToType::Shared(ident) => components.get_extra_type(ident).obj.is_copy(components),
-            PathToType::Dedupped { .. } => {
-                todo!()
+            Self::ObjectId(_) => false,
+            Self::Shared(ident) => components.get_extra_type(ident).obj.is_copy(components),
+            Self::Deduplicated { path, ident } => {
+                components.get_dedupped_type(ident, path).object.is_copy(components)
             }
         }
     }

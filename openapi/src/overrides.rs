@@ -28,7 +28,7 @@ impl Overrides {
             })?;
             overrides.insert(obj, meta);
         }
-        Ok(Overrides { overrides })
+        Ok(Self { overrides })
     }
 }
 
@@ -60,19 +60,10 @@ fn get_override_object(
         .context("Could not extract field")?
         .extract_object()
         .context("Not an object")?;
-    Ok((
-        obj.clone(),
-        OverrideMetadata {
-            metadata: ObjectMetadata {
-                ident: RustIdent::unchanged(data.ident),
-                doc: Some(data.doc.to_string()),
-                title: None,
-                field_name: None,
-                kind: ObjectKind::Type,
-            },
-            mod_path: data.mod_path.to_string(),
-        },
-    ))
+    let metadata = ObjectMetadata::new(RustIdent::unchanged(data.ident), ObjectKind::Type)
+        .doc(data.doc.to_string());
+
+    Ok((obj.clone(), OverrideMetadata { metadata, mod_path: data.mod_path.to_string() }))
 }
 
 impl VisitMut for Overrides {

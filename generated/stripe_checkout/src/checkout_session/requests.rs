@@ -31,7 +31,7 @@ pub struct ListCheckoutSession<'a> {
     pub starting_after: Option<&'a str>,
     /// Only return the Checkout Sessions matching the given status.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<ListCheckoutSessionStatus>,
+    pub status: Option<stripe_checkout::CheckoutSessionStatus>,
     /// Only return the Checkout Session for the subscription specified.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subscription: Option<&'a str>,
@@ -50,60 +50,6 @@ pub struct ListCheckoutSessionCustomerDetails<'a> {
 impl<'a> ListCheckoutSessionCustomerDetails<'a> {
     pub fn new(email: &'a str) -> Self {
         Self { email }
-    }
-}
-/// Only return the Checkout Sessions matching the given status.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListCheckoutSessionStatus {
-    Complete,
-    Expired,
-    Open,
-}
-impl ListCheckoutSessionStatus {
-    pub fn as_str(self) -> &'static str {
-        use ListCheckoutSessionStatus::*;
-        match self {
-            Complete => "complete",
-            Expired => "expired",
-            Open => "open",
-        }
-    }
-}
-
-impl std::str::FromStr for ListCheckoutSessionStatus {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListCheckoutSessionStatus::*;
-        match s {
-            "complete" => Ok(Complete),
-            "expired" => Ok(Expired),
-            "open" => Ok(Open),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListCheckoutSessionStatus {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListCheckoutSessionStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListCheckoutSessionStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListCheckoutSessionStatus {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> ListCheckoutSession<'a> {
@@ -154,7 +100,8 @@ pub struct CreateCheckoutSession<'a> {
     pub automatic_tax: Option<CreateCheckoutSessionAutomaticTax>,
     /// Specify whether Checkout should collect the customer's billing address.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_address_collection: Option<CreateCheckoutSessionBillingAddressCollection>,
+    pub billing_address_collection:
+        Option<stripe_checkout::CheckoutSessionBillingAddressCollection>,
     /// If set, Checkout displays a back button and customers will be directed to this URL if they decide to cancel payment and return to your website.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cancel_url: Option<&'a str>,
@@ -243,7 +190,7 @@ pub struct CreateCheckoutSession<'a> {
     /// The IETF language tag of the locale Checkout is displayed in.
     /// If blank or `auto`, the browser's locale is used.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub locale: Option<CreateCheckoutSessionLocale>,
+    pub locale: Option<stripe_checkout::CheckoutSessionLocale>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
     /// This can be useful for storing additional information about the object in a structured format.
     /// Individual keys can be unset by posting an empty value to them.
@@ -253,7 +200,7 @@ pub struct CreateCheckoutSession<'a> {
     /// The mode of the Checkout Session.
     /// Pass `subscription` if the Checkout Session includes at least one recurring item.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub mode: Option<CreateCheckoutSessionMode>,
+    pub mode: Option<stripe_checkout::CheckoutSessionMode>,
     /// A subset of parameters to be passed to PaymentIntent creation for Checkout Sessions in `payment` mode.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_intent_data: Option<CreateCheckoutSessionPaymentIntentData<'a>>,
@@ -296,7 +243,7 @@ pub struct CreateCheckoutSession<'a> {
     /// By default, Stripe will always redirect to your return_url after a successful confirmation.
     /// If you set `redirect_on_completion: 'if_required'`, then we will only redirect if your user chooses a redirect-based payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub redirect_on_completion: Option<CreateCheckoutSessionRedirectOnCompletion>,
+    pub redirect_on_completion: Option<stripe_checkout::CheckoutSessionRedirectOnCompletion>,
     /// The URL to redirect your customer back to after they authenticate or cancel their payment on the
     /// payment method's app or site. This parameter is required if ui_mode is `embedded`
     /// and redirect-based payment methods are enabled on the session.
@@ -316,7 +263,7 @@ pub struct CreateCheckoutSession<'a> {
     /// specified on Checkout Sessions in `payment` mode, but not Checkout Sessions
     /// in `subscription` or `setup` mode.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub submit_type: Option<CreateCheckoutSessionSubmitType>,
+    pub submit_type: Option<stripe_checkout::CheckoutSessionSubmitType>,
     /// A subset of parameters to be passed to subscription creation for Checkout Sessions in `subscription` mode.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub subscription_data: Option<CreateCheckoutSessionSubscriptionData<'a>>,
@@ -332,7 +279,7 @@ pub struct CreateCheckoutSession<'a> {
     pub tax_id_collection: Option<CreateCheckoutSessionTaxIdCollection>,
     /// `ui_mode` can be `hosted` or `embedded`. The default is `hosted`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub ui_mode: Option<CreateCheckoutSessionUiMode>,
+    pub ui_mode: Option<stripe_checkout::CheckoutSessionUiMode>,
 }
 impl<'a> CreateCheckoutSession<'a> {
     pub fn new() -> Self {
@@ -376,57 +323,6 @@ pub struct CreateCheckoutSessionAutomaticTax {
 impl CreateCheckoutSessionAutomaticTax {
     pub fn new(enabled: bool) -> Self {
         Self { enabled }
-    }
-}
-/// Specify whether Checkout should collect the customer's billing address.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateCheckoutSessionBillingAddressCollection {
-    Auto,
-    Required,
-}
-impl CreateCheckoutSessionBillingAddressCollection {
-    pub fn as_str(self) -> &'static str {
-        use CreateCheckoutSessionBillingAddressCollection::*;
-        match self {
-            Auto => "auto",
-            Required => "required",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateCheckoutSessionBillingAddressCollection {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateCheckoutSessionBillingAddressCollection::*;
-        match s {
-            "auto" => Ok(Auto),
-            "required" => Ok(Required),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateCheckoutSessionBillingAddressCollection {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateCheckoutSessionBillingAddressCollection {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateCheckoutSessionBillingAddressCollection {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateCheckoutSessionBillingAddressCollection {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 /// Configure fields for the Checkout Session to gather active consent from customers.
@@ -765,51 +661,17 @@ impl serde::Serialize for CreateCheckoutSessionCustomFieldsType {
 pub struct CreateCheckoutSessionCustomText<'a> {
     /// Custom text that should be displayed alongside shipping address collection.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping_address: Option<CreateCheckoutSessionCustomTextShippingAddress<'a>>,
+    pub shipping_address: Option<CustomTextPositionParam<'a>>,
     /// Custom text that should be displayed alongside the payment confirmation button.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub submit: Option<CreateCheckoutSessionCustomTextSubmit<'a>>,
+    pub submit: Option<CustomTextPositionParam<'a>>,
     /// Custom text that should be displayed in place of the default terms of service agreement text.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub terms_of_service_acceptance:
-        Option<CreateCheckoutSessionCustomTextTermsOfServiceAcceptance<'a>>,
+    pub terms_of_service_acceptance: Option<CustomTextPositionParam<'a>>,
 }
 impl<'a> CreateCheckoutSessionCustomText<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Custom text that should be displayed alongside shipping address collection.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateCheckoutSessionCustomTextShippingAddress<'a> {
-    /// Text may be up to 1200 characters in length.
-    pub message: &'a str,
-}
-impl<'a> CreateCheckoutSessionCustomTextShippingAddress<'a> {
-    pub fn new(message: &'a str) -> Self {
-        Self { message }
-    }
-}
-/// Custom text that should be displayed alongside the payment confirmation button.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateCheckoutSessionCustomTextSubmit<'a> {
-    /// Text may be up to 1200 characters in length.
-    pub message: &'a str,
-}
-impl<'a> CreateCheckoutSessionCustomTextSubmit<'a> {
-    pub fn new(message: &'a str) -> Self {
-        Self { message }
-    }
-}
-/// Custom text that should be displayed in place of the default terms of service agreement text.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateCheckoutSessionCustomTextTermsOfServiceAcceptance<'a> {
-    /// Text may be up to 1200 characters in length.
-    pub message: &'a str,
-}
-impl<'a> CreateCheckoutSessionCustomTextTermsOfServiceAcceptance<'a> {
-    pub fn new(message: &'a str) -> Self {
-        Self { message }
     }
 }
 /// Configure whether a Checkout Session creates a [Customer](https://stripe.com/docs/api/customers) during Session confirmation.
@@ -1454,234 +1316,6 @@ impl std::fmt::Debug for CreateCheckoutSessionLineItemsPriceDataTaxBehavior {
     }
 }
 impl serde::Serialize for CreateCheckoutSessionLineItemsPriceDataTaxBehavior {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// The IETF language tag of the locale Checkout is displayed in.
-/// If blank or `auto`, the browser's locale is used.
-#[derive(Copy, Clone, Eq, PartialEq)]
-#[non_exhaustive]
-pub enum CreateCheckoutSessionLocale {
-    Auto,
-    Bg,
-    Cs,
-    Da,
-    De,
-    El,
-    En,
-    EnMinusGb,
-    Es,
-    EsMinus419,
-    Et,
-    Fi,
-    Fil,
-    Fr,
-    FrMinusCa,
-    Hr,
-    Hu,
-    Id,
-    It,
-    Ja,
-    Ko,
-    Lt,
-    Lv,
-    Ms,
-    Mt,
-    Nb,
-    Nl,
-    Pl,
-    Pt,
-    PtMinusBr,
-    Ro,
-    Ru,
-    Sk,
-    Sl,
-    Sv,
-    Th,
-    Tr,
-    Vi,
-    Zh,
-    ZhMinusHk,
-    ZhMinusTw,
-    /// An unrecognized value from Stripe. Should not be used as a request parameter.
-    Unknown,
-}
-impl CreateCheckoutSessionLocale {
-    pub fn as_str(self) -> &'static str {
-        use CreateCheckoutSessionLocale::*;
-        match self {
-            Auto => "auto",
-            Bg => "bg",
-            Cs => "cs",
-            Da => "da",
-            De => "de",
-            El => "el",
-            En => "en",
-            EnMinusGb => "en-GB",
-            Es => "es",
-            EsMinus419 => "es-419",
-            Et => "et",
-            Fi => "fi",
-            Fil => "fil",
-            Fr => "fr",
-            FrMinusCa => "fr-CA",
-            Hr => "hr",
-            Hu => "hu",
-            Id => "id",
-            It => "it",
-            Ja => "ja",
-            Ko => "ko",
-            Lt => "lt",
-            Lv => "lv",
-            Ms => "ms",
-            Mt => "mt",
-            Nb => "nb",
-            Nl => "nl",
-            Pl => "pl",
-            Pt => "pt",
-            PtMinusBr => "pt-BR",
-            Ro => "ro",
-            Ru => "ru",
-            Sk => "sk",
-            Sl => "sl",
-            Sv => "sv",
-            Th => "th",
-            Tr => "tr",
-            Vi => "vi",
-            Zh => "zh",
-            ZhMinusHk => "zh-HK",
-            ZhMinusTw => "zh-TW",
-            Unknown => "unknown",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateCheckoutSessionLocale {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateCheckoutSessionLocale::*;
-        match s {
-            "auto" => Ok(Auto),
-            "bg" => Ok(Bg),
-            "cs" => Ok(Cs),
-            "da" => Ok(Da),
-            "de" => Ok(De),
-            "el" => Ok(El),
-            "en" => Ok(En),
-            "en-GB" => Ok(EnMinusGb),
-            "es" => Ok(Es),
-            "es-419" => Ok(EsMinus419),
-            "et" => Ok(Et),
-            "fi" => Ok(Fi),
-            "fil" => Ok(Fil),
-            "fr" => Ok(Fr),
-            "fr-CA" => Ok(FrMinusCa),
-            "hr" => Ok(Hr),
-            "hu" => Ok(Hu),
-            "id" => Ok(Id),
-            "it" => Ok(It),
-            "ja" => Ok(Ja),
-            "ko" => Ok(Ko),
-            "lt" => Ok(Lt),
-            "lv" => Ok(Lv),
-            "ms" => Ok(Ms),
-            "mt" => Ok(Mt),
-            "nb" => Ok(Nb),
-            "nl" => Ok(Nl),
-            "pl" => Ok(Pl),
-            "pt" => Ok(Pt),
-            "pt-BR" => Ok(PtMinusBr),
-            "ro" => Ok(Ro),
-            "ru" => Ok(Ru),
-            "sk" => Ok(Sk),
-            "sl" => Ok(Sl),
-            "sv" => Ok(Sv),
-            "th" => Ok(Th),
-            "tr" => Ok(Tr),
-            "vi" => Ok(Vi),
-            "zh" => Ok(Zh),
-            "zh-HK" => Ok(ZhMinusHk),
-            "zh-TW" => Ok(ZhMinusTw),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateCheckoutSessionLocale {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateCheckoutSessionLocale {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateCheckoutSessionLocale {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateCheckoutSessionLocale {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// The mode of the Checkout Session.
-/// Pass `subscription` if the Checkout Session includes at least one recurring item.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateCheckoutSessionMode {
-    Payment,
-    Setup,
-    Subscription,
-}
-impl CreateCheckoutSessionMode {
-    pub fn as_str(self) -> &'static str {
-        use CreateCheckoutSessionMode::*;
-        match self {
-            Payment => "payment",
-            Setup => "setup",
-            Subscription => "subscription",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateCheckoutSessionMode {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateCheckoutSessionMode::*;
-        match s {
-            "payment" => Ok(Payment),
-            "setup" => Ok(Setup),
-            "subscription" => Ok(Subscription),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateCheckoutSessionMode {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateCheckoutSessionMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateCheckoutSessionMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateCheckoutSessionMode {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -5388,62 +5022,6 @@ impl CreateCheckoutSessionPhoneNumberCollection {
         Self { enabled }
     }
 }
-/// This parameter applies to `ui_mode: embedded`.
-/// By default, Stripe will always redirect to your return_url after a successful confirmation.
-/// If you set `redirect_on_completion: 'if_required'`, then we will only redirect if your user chooses a redirect-based payment method.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateCheckoutSessionRedirectOnCompletion {
-    Always,
-    IfRequired,
-    Never,
-}
-impl CreateCheckoutSessionRedirectOnCompletion {
-    pub fn as_str(self) -> &'static str {
-        use CreateCheckoutSessionRedirectOnCompletion::*;
-        match self {
-            Always => "always",
-            IfRequired => "if_required",
-            Never => "never",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateCheckoutSessionRedirectOnCompletion {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateCheckoutSessionRedirectOnCompletion::*;
-        match s {
-            "always" => Ok(Always),
-            "if_required" => Ok(IfRequired),
-            "never" => Ok(Never),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateCheckoutSessionRedirectOnCompletion {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateCheckoutSessionRedirectOnCompletion {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateCheckoutSessionRedirectOnCompletion {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateCheckoutSessionRedirectOnCompletion {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 /// A subset of parameters to be passed to SetupIntent creation for Checkout Sessions in `setup` mode.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionSetupIntentData<'a> {
@@ -6702,66 +6280,6 @@ impl serde::Serialize for CreateCheckoutSessionShippingOptionsShippingRateDataTy
         serializer.serialize_str(self.as_str())
     }
 }
-/// Describes the type of transaction being performed by Checkout in order to customize
-/// relevant text on the page, such as the submit button. `submit_type` can only be
-/// specified on Checkout Sessions in `payment` mode, but not Checkout Sessions
-/// in `subscription` or `setup` mode.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateCheckoutSessionSubmitType {
-    Auto,
-    Book,
-    Donate,
-    Pay,
-}
-impl CreateCheckoutSessionSubmitType {
-    pub fn as_str(self) -> &'static str {
-        use CreateCheckoutSessionSubmitType::*;
-        match self {
-            Auto => "auto",
-            Book => "book",
-            Donate => "donate",
-            Pay => "pay",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateCheckoutSessionSubmitType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateCheckoutSessionSubmitType::*;
-        match s {
-            "auto" => Ok(Auto),
-            "book" => Ok(Book),
-            "donate" => Ok(Donate),
-            "pay" => Ok(Pay),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateCheckoutSessionSubmitType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateCheckoutSessionSubmitType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateCheckoutSessionSubmitType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateCheckoutSessionSubmitType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 /// A subset of parameters to be passed to subscription creation for Checkout Sessions in `subscription` mode.
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateCheckoutSessionSubscriptionData<'a> {
@@ -6988,57 +6506,6 @@ impl CreateCheckoutSessionTaxIdCollection {
         Self { enabled }
     }
 }
-/// `ui_mode` can be `hosted` or `embedded`. The default is `hosted`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateCheckoutSessionUiMode {
-    Embedded,
-    Hosted,
-}
-impl CreateCheckoutSessionUiMode {
-    pub fn as_str(self) -> &'static str {
-        use CreateCheckoutSessionUiMode::*;
-        match self {
-            Embedded => "embedded",
-            Hosted => "hosted",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateCheckoutSessionUiMode {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateCheckoutSessionUiMode::*;
-        match s {
-            "embedded" => Ok(Embedded),
-            "hosted" => Ok(Hosted),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateCheckoutSessionUiMode {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateCheckoutSessionUiMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateCheckoutSessionUiMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateCheckoutSessionUiMode {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 impl<'a> CreateCheckoutSession<'a> {
     /// Creates a Session object.
     pub fn send(
@@ -7118,5 +6585,15 @@ impl<'a> ExpireCheckoutSession<'a> {
             self,
             http_types::Method::Post,
         )
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct CustomTextPositionParam<'a> {
+    /// Text may be up to 1200 characters in length.
+    pub message: &'a str,
+}
+impl<'a> CustomTextPositionParam<'a> {
+    pub fn new(message: &'a str) -> Self {
+        Self { message }
     }
 }

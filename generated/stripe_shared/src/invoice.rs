@@ -83,7 +83,7 @@ pub struct Invoice {
     /// Either `charge_automatically`, or `send_invoice`.
     /// When charging automatically, Stripe will attempt to pay this invoice using the default source attached to the customer.
     /// When sending an invoice, Stripe will email this invoice to the customer with payment instructions.
-    pub collection_method: InvoiceCollectionMethod,
+    pub collection_method: stripe_shared::InvoiceCollectionMethod,
     /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
@@ -236,7 +236,7 @@ pub struct Invoice {
     pub statement_descriptor: Option<String>,
     /// The status of the invoice, one of `draft`, `open`, `paid`, `uncollectible`, or `void`.
     /// [Learn more](https://stripe.com/docs/billing/invoices/workflow#workflow-overview).
-    pub status: Option<InvoiceStatus>,
+    pub status: Option<stripe_shared::InvoiceStatus>,
     pub status_transitions: stripe_shared::InvoicesStatusTransitions,
     /// The subscription that this invoice was prepared for, if any.
     pub subscription: Option<stripe_types::Expandable<stripe_shared::Subscription>>,
@@ -361,67 +361,6 @@ impl<'de> serde::Deserialize<'de> for InvoiceBillingReason {
             .map_err(|_| serde::de::Error::custom("Unknown value for InvoiceBillingReason"))
     }
 }
-/// Either `charge_automatically`, or `send_invoice`.
-/// When charging automatically, Stripe will attempt to pay this invoice using the default source attached to the customer.
-/// When sending an invoice, Stripe will email this invoice to the customer with payment instructions.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum InvoiceCollectionMethod {
-    ChargeAutomatically,
-    SendInvoice,
-}
-impl InvoiceCollectionMethod {
-    pub fn as_str(self) -> &'static str {
-        use InvoiceCollectionMethod::*;
-        match self {
-            ChargeAutomatically => "charge_automatically",
-            SendInvoice => "send_invoice",
-        }
-    }
-}
-
-impl std::str::FromStr for InvoiceCollectionMethod {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use InvoiceCollectionMethod::*;
-        match s {
-            "charge_automatically" => Ok(ChargeAutomatically),
-            "send_invoice" => Ok(SendInvoice),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for InvoiceCollectionMethod {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for InvoiceCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for InvoiceCollectionMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for InvoiceCollectionMethod {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for InvoiceCollectionMethod {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for InvoiceCollectionMethod"))
-    }
-}
 /// The customer's tax exempt status.
 /// Until the invoice is finalized, this field will equal `customer.tax_exempt`.
 /// Once the invoice is finalized, this field will no longer be updated.
@@ -486,8 +425,71 @@ impl<'de> serde::Deserialize<'de> for InvoiceCustomerTaxExempt {
             .map_err(|_| serde::de::Error::custom("Unknown value for InvoiceCustomerTaxExempt"))
     }
 }
-/// The status of the invoice, one of `draft`, `open`, `paid`, `uncollectible`, or `void`.
-/// [Learn more](https://stripe.com/docs/billing/invoices/workflow#workflow-overview).
+impl stripe_types::Object for Invoice {
+    type Id = Option<stripe_shared::InvoiceId>;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(InvoiceId, "in_");
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum InvoiceCollectionMethod {
+    ChargeAutomatically,
+    SendInvoice,
+}
+impl InvoiceCollectionMethod {
+    pub fn as_str(self) -> &'static str {
+        use InvoiceCollectionMethod::*;
+        match self {
+            ChargeAutomatically => "charge_automatically",
+            SendInvoice => "send_invoice",
+        }
+    }
+}
+
+impl std::str::FromStr for InvoiceCollectionMethod {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use InvoiceCollectionMethod::*;
+        match s {
+            "charge_automatically" => Ok(ChargeAutomatically),
+            "send_invoice" => Ok(SendInvoice),
+            _ => Err(()),
+        }
+    }
+}
+impl AsRef<str> for InvoiceCollectionMethod {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+impl std::fmt::Display for InvoiceCollectionMethod {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::fmt::Debug for InvoiceCollectionMethod {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl serde::Serialize for InvoiceCollectionMethod {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> serde::Deserialize<'de> for InvoiceCollectionMethod {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use std::str::FromStr;
+        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
+        Self::from_str(&s)
+            .map_err(|_| serde::de::Error::custom("Unknown value for InvoiceCollectionMethod"))
+    }
+}
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum InvoiceStatus {
     Draft,
@@ -554,10 +556,3 @@ impl<'de> serde::Deserialize<'de> for InvoiceStatus {
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for InvoiceStatus"))
     }
 }
-impl stripe_types::Object for Invoice {
-    type Id = Option<stripe_shared::InvoiceId>;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(InvoiceId, "in_");

@@ -24,7 +24,7 @@ pub struct ListIssuingToken<'a> {
     pub starting_after: Option<&'a str>,
     /// Select Issuing tokens with the given status.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<ListIssuingTokenStatus>,
+    pub status: Option<stripe_shared::IssuingTokenStatus>,
 }
 impl<'a> ListIssuingToken<'a> {
     pub fn new(card: &'a str) -> Self {
@@ -37,63 +37,6 @@ impl<'a> ListIssuingToken<'a> {
             starting_after: None,
             status: None,
         }
-    }
-}
-/// Select Issuing tokens with the given status.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListIssuingTokenStatus {
-    Active,
-    Deleted,
-    Requested,
-    Suspended,
-}
-impl ListIssuingTokenStatus {
-    pub fn as_str(self) -> &'static str {
-        use ListIssuingTokenStatus::*;
-        match self {
-            Active => "active",
-            Deleted => "deleted",
-            Requested => "requested",
-            Suspended => "suspended",
-        }
-    }
-}
-
-impl std::str::FromStr for ListIssuingTokenStatus {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListIssuingTokenStatus::*;
-        match s {
-            "active" => Ok(Active),
-            "deleted" => Ok(Deleted),
-            "requested" => Ok(Requested),
-            "suspended" => Ok(Suspended),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListIssuingTokenStatus {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListIssuingTokenStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListIssuingTokenStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListIssuingTokenStatus {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> ListIssuingToken<'a> {

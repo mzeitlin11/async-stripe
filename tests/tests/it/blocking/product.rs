@@ -1,4 +1,4 @@
-use stripe_product::product::{CreateProduct, CreateProductFeatures};
+use stripe_product::product::{CreateProduct, Features};
 
 use crate::mock;
 
@@ -9,7 +9,7 @@ use crate::mock;
 fn create_product() {
     mock::with_client(|client| {
         let mut create = CreateProduct::new("my product");
-        let features = vec![CreateProductFeatures::new("great feature")];
+        let features = vec![Features::new("great feature")];
         create.features = Some(&features);
 
         let product = create.send(client).unwrap();

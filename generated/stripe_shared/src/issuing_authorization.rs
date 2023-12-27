@@ -18,7 +18,7 @@ pub struct IssuingAuthorization {
     /// Whether the authorization has been approved.
     pub approved: bool,
     /// How the card details were provided.
-    pub authorization_method: IssuingAuthorizationAuthorizationMethod,
+    pub authorization_method: stripe_shared::IssuingAuthorizationAuthorizationMethod,
     /// List of balance transactions associated with this authorization.
     pub balance_transactions: Vec<stripe_shared::BalanceTransaction>,
     pub card: stripe_shared::IssuingCard,
@@ -59,7 +59,7 @@ pub struct IssuingAuthorization {
     /// This field can be helpful in determining why a given authorization was approved/declined.
     pub request_history: Vec<stripe_shared::IssuingAuthorizationRequest>,
     /// The current status of the authorization in its lifecycle.
-    pub status: IssuingAuthorizationStatus,
+    pub status: stripe_shared::IssuingAuthorizationStatus,
     /// [Token](https://stripe.com/docs/api/issuing/tokens/object) object used for this authorization.
     /// If a network token was not used for this authorization, this field will be null.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -75,7 +75,13 @@ pub struct IssuingAuthorization {
     /// Will populate as `null` when no digital wallet was utilized.
     pub wallet: Option<String>,
 }
-/// How the card details were provided.
+impl stripe_types::Object for IssuingAuthorization {
+    type Id = stripe_shared::IssuingAuthorizationId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(IssuingAuthorizationId, "iauth_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingAuthorizationAuthorizationMethod {
     Chip,
@@ -144,7 +150,6 @@ impl<'de> serde::Deserialize<'de> for IssuingAuthorizationAuthorizationMethod {
         })
     }
 }
-/// The current status of the authorization in its lifecycle.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingAuthorizationStatus {
     Closed,
@@ -206,10 +211,3 @@ impl<'de> serde::Deserialize<'de> for IssuingAuthorizationStatus {
             .map_err(|_| serde::de::Error::custom("Unknown value for IssuingAuthorizationStatus"))
     }
 }
-impl stripe_types::Object for IssuingAuthorization {
-    type Id = stripe_shared::IssuingAuthorizationId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(IssuingAuthorizationId, "iauth_");

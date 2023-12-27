@@ -18,7 +18,7 @@ pub struct Plan {
     /// Specifies a usage aggregation strategy for plans of `usage_type=metered`.
     /// Allowed values are `sum` for summing up all usage during a period, `last_during_period` for using the last usage record reported within a period, `last_ever` for using the last usage record ever (across period bounds) or `max` which uses the usage record with the maximum reported usage during a period.
     /// Defaults to `sum`.
-    pub aggregate_usage: Option<PlanAggregateUsage>,
+    pub aggregate_usage: Option<stripe_shared::PlanAggregateUsage>,
     /// The unit amount in cents (or local equivalent) to be charged, represented as a whole integer if possible.
     /// Only set if `billing_scheme=per_unit`.
     pub amount: Option<i64>,
@@ -29,7 +29,7 @@ pub struct Plan {
     /// Either `per_unit` or `tiered`.
     /// `per_unit` indicates that the fixed amount (specified in `amount`) will be charged per unit in `quantity` (for plans with `usage_type=licensed`), or per unit of total usage (for plans with `usage_type=metered`).
     /// `tiered` indicates that the unit pricing will be computed using a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
-    pub billing_scheme: PlanBillingScheme,
+    pub billing_scheme: stripe_shared::PlanBillingScheme,
     /// Time at which the object was created. Measured in seconds since the Unix epoch.
     pub created: stripe_types::Timestamp,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
@@ -38,7 +38,7 @@ pub struct Plan {
     /// Unique identifier for the object.
     pub id: stripe_shared::PlanId,
     /// The frequency at which a subscription is billed. One of `day`, `week`, `month` or `year`.
-    pub interval: PlanInterval,
+    pub interval: stripe_shared::PlanInterval,
     /// The number of intervals (specified in the `interval` attribute) between subscription billings.
     /// For example, `interval=month` and `interval_count=3` bills every 3 months.
     pub interval_count: u64,
@@ -59,7 +59,7 @@ pub struct Plan {
     /// Defines if the tiering price should be `graduated` or `volume` based.
     /// In `volume`-based tiering, the maximum quantity within a period determines the per unit price.
     /// In `graduated` tiering, pricing can change as the quantity grows.
-    pub tiers_mode: Option<PlanTiersMode>,
+    pub tiers_mode: Option<stripe_shared::PlanTiersMode>,
     /// Apply a transformation to the reported usage or set quantity before computing the amount billed.
     /// Cannot be combined with `tiers`.
     pub transform_usage: Option<stripe_shared::TransformUsage>,
@@ -70,11 +70,15 @@ pub struct Plan {
     /// `licensed` automatically bills the `quantity` set when adding it to a subscription.
     /// `metered` aggregates the total usage based on usage records.
     /// Defaults to `licensed`.
-    pub usage_type: PlanUsageType,
+    pub usage_type: stripe_shared::PlanUsageType,
 }
-/// Specifies a usage aggregation strategy for plans of `usage_type=metered`.
-/// Allowed values are `sum` for summing up all usage during a period, `last_during_period` for using the last usage record reported within a period, `last_ever` for using the last usage record ever (across period bounds) or `max` which uses the usage record with the maximum reported usage during a period.
-/// Defaults to `sum`.
+impl stripe_types::Object for Plan {
+    type Id = stripe_shared::PlanId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(PlanId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PlanAggregateUsage {
     LastDuringPeriod,
@@ -139,10 +143,6 @@ impl<'de> serde::Deserialize<'de> for PlanAggregateUsage {
             .map_err(|_| serde::de::Error::custom("Unknown value for PlanAggregateUsage"))
     }
 }
-/// Describes how to compute the price per period.
-/// Either `per_unit` or `tiered`.
-/// `per_unit` indicates that the fixed amount (specified in `amount`) will be charged per unit in `quantity` (for plans with `usage_type=licensed`), or per unit of total usage (for plans with `usage_type=metered`).
-/// `tiered` indicates that the unit pricing will be computed using a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PlanBillingScheme {
     PerUnit,
@@ -201,7 +201,6 @@ impl<'de> serde::Deserialize<'de> for PlanBillingScheme {
             .map_err(|_| serde::de::Error::custom("Unknown value for PlanBillingScheme"))
     }
 }
-/// The frequency at which a subscription is billed. One of `day`, `week`, `month` or `year`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PlanInterval {
     Day,
@@ -265,9 +264,6 @@ impl<'de> serde::Deserialize<'de> for PlanInterval {
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PlanInterval"))
     }
 }
-/// Defines if the tiering price should be `graduated` or `volume` based.
-/// In `volume`-based tiering, the maximum quantity within a period determines the per unit price.
-/// In `graduated` tiering, pricing can change as the quantity grows.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PlanTiersMode {
     Graduated,
@@ -325,11 +321,6 @@ impl<'de> serde::Deserialize<'de> for PlanTiersMode {
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PlanTiersMode"))
     }
 }
-/// Configures how the quantity per period should be determined.
-/// Can be either `metered` or `licensed`.
-/// `licensed` automatically bills the `quantity` set when adding it to a subscription.
-/// `metered` aggregates the total usage based on usage records.
-/// Defaults to `licensed`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PlanUsageType {
     Licensed,
@@ -387,10 +378,3 @@ impl<'de> serde::Deserialize<'de> for PlanUsageType {
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PlanUsageType"))
     }
 }
-impl stripe_types::Object for Plan {
-    type Id = stripe_shared::PlanId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(PlanId);

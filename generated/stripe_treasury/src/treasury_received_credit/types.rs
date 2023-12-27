@@ -31,7 +31,7 @@ pub reversal_details: Option<stripe_treasury::TreasuryReceivedCreditsResourceRev
         /// Status of the ReceivedCredit.
     /// ReceivedCredits are created either `succeeded` (approved) or `failed` (declined).
     /// If a ReceivedCredit is declined, the failure reason can be found in the `failure_code` field.
-pub status: TreasuryReceivedCreditStatus,
+pub status: stripe_treasury::TreasuryReceivedCreditStatus,
     /// The Transaction associated with this object.
 pub transaction: Option<stripe_types::Expandable<stripe_treasury::TreasuryTransaction>>,
 
@@ -166,9 +166,13 @@ impl<'de> serde::Deserialize<'de> for TreasuryReceivedCreditNetwork {
         })
     }
 }
-/// Status of the ReceivedCredit.
-/// ReceivedCredits are created either `succeeded` (approved) or `failed` (declined).
-/// If a ReceivedCredit is declined, the failure reason can be found in the `failure_code` field.
+impl stripe_types::Object for TreasuryReceivedCredit {
+    type Id = stripe_treasury::TreasuryReceivedCreditId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(TreasuryReceivedCreditId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryReceivedCreditStatus {
     Failed,
@@ -227,10 +231,3 @@ impl<'de> serde::Deserialize<'de> for TreasuryReceivedCreditStatus {
             .map_err(|_| serde::de::Error::custom("Unknown value for TreasuryReceivedCreditStatus"))
     }
 }
-impl stripe_types::Object for TreasuryReceivedCredit {
-    type Id = stripe_treasury::TreasuryReceivedCreditId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(TreasuryReceivedCreditId);

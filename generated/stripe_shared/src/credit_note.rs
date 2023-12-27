@@ -47,7 +47,7 @@ pub struct CreditNote {
     /// The link to download the PDF of the credit note.
     pub pdf: String,
     /// Reason for issuing this credit note, one of `duplicate`, `fraudulent`, `order_change`, or `product_unsatisfactory`.
-    pub reason: Option<CreditNoteReason>,
+    pub reason: Option<stripe_shared::CreditNoteReason>,
     /// Refund related to this credit note.
     pub refund: Option<stripe_types::Expandable<stripe_shared::Refund>>,
     /// The details of the cost of shipping, including the ShippingRate applied to the invoice.
@@ -72,71 +72,6 @@ pub struct CreditNote {
     pub type_: CreditNoteType,
     /// The time that the credit note was voided.
     pub voided_at: Option<stripe_types::Timestamp>,
-}
-/// Reason for issuing this credit note, one of `duplicate`, `fraudulent`, `order_change`, or `product_unsatisfactory`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreditNoteReason {
-    Duplicate,
-    Fraudulent,
-    OrderChange,
-    ProductUnsatisfactory,
-}
-impl CreditNoteReason {
-    pub fn as_str(self) -> &'static str {
-        use CreditNoteReason::*;
-        match self {
-            Duplicate => "duplicate",
-            Fraudulent => "fraudulent",
-            OrderChange => "order_change",
-            ProductUnsatisfactory => "product_unsatisfactory",
-        }
-    }
-}
-
-impl std::str::FromStr for CreditNoteReason {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreditNoteReason::*;
-        match s {
-            "duplicate" => Ok(Duplicate),
-            "fraudulent" => Ok(Fraudulent),
-            "order_change" => Ok(OrderChange),
-            "product_unsatisfactory" => Ok(ProductUnsatisfactory),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreditNoteReason {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreditNoteReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreditNoteReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreditNoteReason {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for CreditNoteReason {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for CreditNoteReason"))
-    }
 }
 /// Status of this credit note, one of `issued` or `void`.
 /// Learn more about [voiding credit notes](https://stripe.com/docs/billing/invoices/credit-notes#voiding).
@@ -265,3 +200,67 @@ impl stripe_types::Object for CreditNote {
     }
 }
 stripe_types::def_id!(CreditNoteId, "cn_");
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum CreditNoteReason {
+    Duplicate,
+    Fraudulent,
+    OrderChange,
+    ProductUnsatisfactory,
+}
+impl CreditNoteReason {
+    pub fn as_str(self) -> &'static str {
+        use CreditNoteReason::*;
+        match self {
+            Duplicate => "duplicate",
+            Fraudulent => "fraudulent",
+            OrderChange => "order_change",
+            ProductUnsatisfactory => "product_unsatisfactory",
+        }
+    }
+}
+
+impl std::str::FromStr for CreditNoteReason {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use CreditNoteReason::*;
+        match s {
+            "duplicate" => Ok(Duplicate),
+            "fraudulent" => Ok(Fraudulent),
+            "order_change" => Ok(OrderChange),
+            "product_unsatisfactory" => Ok(ProductUnsatisfactory),
+            _ => Err(()),
+        }
+    }
+}
+impl AsRef<str> for CreditNoteReason {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+impl std::fmt::Display for CreditNoteReason {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::fmt::Debug for CreditNoteReason {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl serde::Serialize for CreditNoteReason {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> serde::Deserialize<'de> for CreditNoteReason {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use std::str::FromStr;
+        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
+        Self::from_str(&s)
+            .map_err(|_| serde::de::Error::custom("Unknown value for CreditNoteReason"))
+    }
+}

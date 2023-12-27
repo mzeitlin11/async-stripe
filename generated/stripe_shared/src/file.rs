@@ -21,7 +21,7 @@ pub struct File {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<stripe_types::List<stripe_shared::FileLink>>,
     /// The [purpose](https://stripe.com/docs/file-upload#uploading-a-file) of the uploaded file.
-    pub purpose: FilePurpose,
+    pub purpose: stripe_shared::FilePurpose,
     /// The size of the file object in bytes.
     pub size: u64,
     /// A suitable title for the document.
@@ -32,7 +32,13 @@ pub struct File {
     /// Use your live secret API key to download the file from this URL.
     pub url: Option<String>,
 }
-/// The [purpose](https://stripe.com/docs/file-upload#uploading-a-file) of the uploaded file.
+impl stripe_types::Object for File {
+    type Id = stripe_shared::FileId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(FileId, "file_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum FilePurpose {
@@ -133,10 +139,3 @@ impl<'de> serde::Deserialize<'de> for FilePurpose {
         Ok(Self::from_str(&s).unwrap_or(FilePurpose::Unknown))
     }
 }
-impl stripe_types::Object for File {
-    type Id = stripe_shared::FileId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(FileId, "file_");

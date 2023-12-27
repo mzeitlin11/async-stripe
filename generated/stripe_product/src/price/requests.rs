@@ -79,7 +79,7 @@ pub struct ListPrice<'a> {
     /// Only return prices of type `recurring` or `one_time`.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_: Option<ListPriceType>,
+    pub type_: Option<stripe_shared::PriceType>,
 }
 impl<'a> ListPrice<'a> {
     pub fn new() -> Self {
@@ -209,57 +209,6 @@ impl serde::Serialize for ListPriceRecurringUsageType {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Only return prices of type `recurring` or `one_time`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListPriceType {
-    OneTime,
-    Recurring,
-}
-impl ListPriceType {
-    pub fn as_str(self) -> &'static str {
-        use ListPriceType::*;
-        match self {
-            OneTime => "one_time",
-            Recurring => "recurring",
-        }
-    }
-}
-
-impl std::str::FromStr for ListPriceType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListPriceType::*;
-        match s {
-            "one_time" => Ok(OneTime),
-            "recurring" => Ok(Recurring),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListPriceType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListPriceType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListPriceType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListPriceType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 impl<'a> ListPrice<'a> {
     /// Returns a list of your active prices, excluding [inline prices](https://stripe.com/docs/products-prices/pricing-models#inline-pricing).
     /// For the list of inactive prices, set `active` to false.
@@ -283,7 +232,7 @@ pub struct CreatePrice<'a> {
     /// `per_unit` indicates that the fixed amount (specified in `unit_amount` or `unit_amount_decimal`) will be charged per unit in `quantity` (for prices with `usage_type=licensed`), or per unit of total usage (for prices with `usage_type=metered`).
     /// `tiered` indicates that the unit pricing will be computed using a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_scheme: Option<CreatePriceBillingScheme>,
+    pub billing_scheme: Option<stripe_shared::PriceBillingScheme>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
@@ -294,7 +243,7 @@ pub struct CreatePrice<'a> {
         Option<&'a std::collections::HashMap<stripe_types::Currency, CreatePriceCurrencyOptions>>,
     /// When set, provides configuration for the amount to be adjusted by the customer during Checkout Sessions and Payment Links.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub custom_unit_amount: Option<CreatePriceCustomUnitAmount>,
+    pub custom_unit_amount: Option<CustomUnitAmount>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
@@ -325,7 +274,7 @@ pub struct CreatePrice<'a> {
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_behavior: Option<CreatePriceTaxBehavior>,
+    pub tax_behavior: Option<stripe_shared::PriceTaxBehavior>,
     /// Each element represents a pricing tier.
     /// This parameter requires `billing_scheme` to be set to `tiered`.
     /// See also the documentation for `billing_scheme`.
@@ -334,7 +283,7 @@ pub struct CreatePrice<'a> {
     /// Defines if the tiering price should be `graduated` or `volume` based.
     /// In `volume`-based tiering, the maximum quantity within a period determines the per unit price, in `graduated` tiering pricing can successively change as the quantity grows.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tiers_mode: Option<CreatePriceTiersMode>,
+    pub tiers_mode: Option<stripe_shared::PriceTiersMode>,
     /// If set to true, will atomically remove the lookup key from the existing price, and assign it to this price.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transfer_lookup_key: Option<bool>,
@@ -376,73 +325,19 @@ impl<'a> CreatePrice<'a> {
         }
     }
 }
-/// Describes how to compute the price per period.
-/// Either `per_unit` or `tiered`.
-/// `per_unit` indicates that the fixed amount (specified in `unit_amount` or `unit_amount_decimal`) will be charged per unit in `quantity` (for prices with `usage_type=licensed`), or per unit of total usage (for prices with `usage_type=metered`).
-/// `tiered` indicates that the unit pricing will be computed using a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreatePriceBillingScheme {
-    PerUnit,
-    Tiered,
-}
-impl CreatePriceBillingScheme {
-    pub fn as_str(self) -> &'static str {
-        use CreatePriceBillingScheme::*;
-        match self {
-            PerUnit => "per_unit",
-            Tiered => "tiered",
-        }
-    }
-}
-
-impl std::str::FromStr for CreatePriceBillingScheme {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreatePriceBillingScheme::*;
-        match s {
-            "per_unit" => Ok(PerUnit),
-            "tiered" => Ok(Tiered),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreatePriceBillingScheme {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreatePriceBillingScheme {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreatePriceBillingScheme {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreatePriceBillingScheme {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 /// Prices defined in each available currency option.
 /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
 #[derive(Clone, Debug, Default, serde::Serialize)]
 pub struct CreatePriceCurrencyOptions {
     /// When set, provides configuration for the amount to be adjusted by the customer during Checkout Sessions and Payment Links.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub custom_unit_amount: Option<CreatePriceCurrencyOptionsCustomUnitAmount>,
+    pub custom_unit_amount: Option<CustomUnitAmount>,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_behavior: Option<CreatePriceCurrencyOptionsTaxBehavior>,
+    pub tax_behavior: Option<stripe_shared::PriceTaxBehavior>,
     /// Each element represents a pricing tier.
     /// This parameter requires `billing_scheme` to be set to `tiered`.
     /// See also the documentation for `billing_scheme`.
@@ -459,84 +354,6 @@ pub struct CreatePriceCurrencyOptions {
 impl CreatePriceCurrencyOptions {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// When set, provides configuration for the amount to be adjusted by the customer during Checkout Sessions and Payment Links.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreatePriceCurrencyOptionsCustomUnitAmount {
-    /// Pass in `true` to enable `custom_unit_amount`, otherwise omit `custom_unit_amount`.
-    pub enabled: bool,
-    /// The maximum unit amount the customer can specify for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub maximum: Option<i64>,
-    /// The minimum unit amount the customer can specify for this item.
-    /// Must be at least the minimum charge amount.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub minimum: Option<i64>,
-    /// The starting unit amount which can be updated by the customer.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub preset: Option<i64>,
-}
-impl CreatePriceCurrencyOptionsCustomUnitAmount {
-    pub fn new(enabled: bool) -> Self {
-        Self { enabled, maximum: None, minimum: None, preset: None }
-    }
-}
-/// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-/// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
-/// One of `inclusive`, `exclusive`, or `unspecified`.
-/// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreatePriceCurrencyOptionsTaxBehavior {
-    Exclusive,
-    Inclusive,
-    Unspecified,
-}
-impl CreatePriceCurrencyOptionsTaxBehavior {
-    pub fn as_str(self) -> &'static str {
-        use CreatePriceCurrencyOptionsTaxBehavior::*;
-        match self {
-            Exclusive => "exclusive",
-            Inclusive => "inclusive",
-            Unspecified => "unspecified",
-        }
-    }
-}
-
-impl std::str::FromStr for CreatePriceCurrencyOptionsTaxBehavior {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreatePriceCurrencyOptionsTaxBehavior::*;
-        match s {
-            "exclusive" => Ok(Exclusive),
-            "inclusive" => Ok(Inclusive),
-            "unspecified" => Ok(Unspecified),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreatePriceCurrencyOptionsTaxBehavior {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreatePriceCurrencyOptionsTaxBehavior {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreatePriceCurrencyOptionsTaxBehavior {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreatePriceCurrencyOptionsTaxBehavior {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 /// Each element represents a pricing tier.
@@ -582,27 +399,6 @@ impl CreatePriceCurrencyOptionsTiers {
 pub enum CreatePriceCurrencyOptionsTiersUpTo {
     Inf,
     I64(i64),
-}
-/// When set, provides configuration for the amount to be adjusted by the customer during Checkout Sessions and Payment Links.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreatePriceCustomUnitAmount {
-    /// Pass in `true` to enable `custom_unit_amount`, otherwise omit `custom_unit_amount`.
-    pub enabled: bool,
-    /// The maximum unit amount the customer can specify for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub maximum: Option<i64>,
-    /// The minimum unit amount the customer can specify for this item.
-    /// Must be at least the minimum charge amount.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub minimum: Option<i64>,
-    /// The starting unit amount which can be updated by the customer.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub preset: Option<i64>,
-}
-impl CreatePriceCustomUnitAmount {
-    pub fn new(enabled: bool) -> Self {
-        Self { enabled, maximum: None, minimum: None, preset: None }
-    }
 }
 /// These fields can be used to create a new product that this price will belong to.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -860,63 +656,6 @@ impl serde::Serialize for CreatePriceRecurringUsageType {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-/// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
-/// One of `inclusive`, `exclusive`, or `unspecified`.
-/// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreatePriceTaxBehavior {
-    Exclusive,
-    Inclusive,
-    Unspecified,
-}
-impl CreatePriceTaxBehavior {
-    pub fn as_str(self) -> &'static str {
-        use CreatePriceTaxBehavior::*;
-        match self {
-            Exclusive => "exclusive",
-            Inclusive => "inclusive",
-            Unspecified => "unspecified",
-        }
-    }
-}
-
-impl std::str::FromStr for CreatePriceTaxBehavior {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreatePriceTaxBehavior::*;
-        match s {
-            "exclusive" => Ok(Exclusive),
-            "inclusive" => Ok(Inclusive),
-            "unspecified" => Ok(Unspecified),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreatePriceTaxBehavior {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreatePriceTaxBehavior {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreatePriceTaxBehavior {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreatePriceTaxBehavior {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 /// Each element represents a pricing tier.
 /// This parameter requires `billing_scheme` to be set to `tiered`.
 /// See also the documentation for `billing_scheme`.
@@ -960,58 +699,6 @@ impl<'a> CreatePriceTiers<'a> {
 pub enum CreatePriceTiersUpTo {
     Inf,
     I64(i64),
-}
-/// Defines if the tiering price should be `graduated` or `volume` based.
-/// In `volume`-based tiering, the maximum quantity within a period determines the per unit price, in `graduated` tiering pricing can successively change as the quantity grows.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreatePriceTiersMode {
-    Graduated,
-    Volume,
-}
-impl CreatePriceTiersMode {
-    pub fn as_str(self) -> &'static str {
-        use CreatePriceTiersMode::*;
-        match self {
-            Graduated => "graduated",
-            Volume => "volume",
-        }
-    }
-}
-
-impl std::str::FromStr for CreatePriceTiersMode {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreatePriceTiersMode::*;
-        match s {
-            "graduated" => Ok(Graduated),
-            "volume" => Ok(Volume),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreatePriceTiersMode {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreatePriceTiersMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreatePriceTiersMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreatePriceTiersMode {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
 }
 /// Apply a transformation to the reported usage or set quantity before computing the billed price.
 /// Cannot be combined with `tiers`.
@@ -1136,7 +823,7 @@ pub struct UpdatePrice<'a> {
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_behavior: Option<UpdatePriceTaxBehavior>,
+    pub tax_behavior: Option<stripe_shared::PriceTaxBehavior>,
     /// If set to true, will atomically remove the lookup key from the existing price, and assign it to this price.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transfer_lookup_key: Option<bool>,
@@ -1152,13 +839,13 @@ impl<'a> UpdatePrice<'a> {
 pub struct UpdatePriceCurrencyOptions {
     /// When set, provides configuration for the amount to be adjusted by the customer during Checkout Sessions and Payment Links.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub custom_unit_amount: Option<UpdatePriceCurrencyOptionsCustomUnitAmount>,
+    pub custom_unit_amount: Option<CustomUnitAmount>,
     /// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
     /// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     /// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_behavior: Option<UpdatePriceCurrencyOptionsTaxBehavior>,
+    pub tax_behavior: Option<stripe_shared::PriceTaxBehavior>,
     /// Each element represents a pricing tier.
     /// This parameter requires `billing_scheme` to be set to `tiered`.
     /// See also the documentation for `billing_scheme`.
@@ -1175,84 +862,6 @@ pub struct UpdatePriceCurrencyOptions {
 impl UpdatePriceCurrencyOptions {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// When set, provides configuration for the amount to be adjusted by the customer during Checkout Sessions and Payment Links.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct UpdatePriceCurrencyOptionsCustomUnitAmount {
-    /// Pass in `true` to enable `custom_unit_amount`, otherwise omit `custom_unit_amount`.
-    pub enabled: bool,
-    /// The maximum unit amount the customer can specify for this item.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub maximum: Option<i64>,
-    /// The minimum unit amount the customer can specify for this item.
-    /// Must be at least the minimum charge amount.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub minimum: Option<i64>,
-    /// The starting unit amount which can be updated by the customer.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub preset: Option<i64>,
-}
-impl UpdatePriceCurrencyOptionsCustomUnitAmount {
-    pub fn new(enabled: bool) -> Self {
-        Self { enabled, maximum: None, minimum: None, preset: None }
-    }
-}
-/// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-/// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
-/// One of `inclusive`, `exclusive`, or `unspecified`.
-/// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum UpdatePriceCurrencyOptionsTaxBehavior {
-    Exclusive,
-    Inclusive,
-    Unspecified,
-}
-impl UpdatePriceCurrencyOptionsTaxBehavior {
-    pub fn as_str(self) -> &'static str {
-        use UpdatePriceCurrencyOptionsTaxBehavior::*;
-        match self {
-            Exclusive => "exclusive",
-            Inclusive => "inclusive",
-            Unspecified => "unspecified",
-        }
-    }
-}
-
-impl std::str::FromStr for UpdatePriceCurrencyOptionsTaxBehavior {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use UpdatePriceCurrencyOptionsTaxBehavior::*;
-        match s {
-            "exclusive" => Ok(Exclusive),
-            "inclusive" => Ok(Inclusive),
-            "unspecified" => Ok(Unspecified),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for UpdatePriceCurrencyOptionsTaxBehavior {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for UpdatePriceCurrencyOptionsTaxBehavior {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for UpdatePriceCurrencyOptionsTaxBehavior {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for UpdatePriceCurrencyOptionsTaxBehavior {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 /// Each element represents a pricing tier.
@@ -1299,63 +908,6 @@ pub enum UpdatePriceCurrencyOptionsTiersUpTo {
     Inf,
     I64(i64),
 }
-/// Only required if a [default tax behavior](https://stripe.com/docs/tax/products-prices-tax-categories-tax-behavior#setting-a-default-tax-behavior-(recommended)) was not provided in the Stripe Tax settings.
-/// Specifies whether the price is considered inclusive of taxes or exclusive of taxes.
-/// One of `inclusive`, `exclusive`, or `unspecified`.
-/// Once specified as either `inclusive` or `exclusive`, it cannot be changed.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum UpdatePriceTaxBehavior {
-    Exclusive,
-    Inclusive,
-    Unspecified,
-}
-impl UpdatePriceTaxBehavior {
-    pub fn as_str(self) -> &'static str {
-        use UpdatePriceTaxBehavior::*;
-        match self {
-            Exclusive => "exclusive",
-            Inclusive => "inclusive",
-            Unspecified => "unspecified",
-        }
-    }
-}
-
-impl std::str::FromStr for UpdatePriceTaxBehavior {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use UpdatePriceTaxBehavior::*;
-        match s {
-            "exclusive" => Ok(Exclusive),
-            "inclusive" => Ok(Inclusive),
-            "unspecified" => Ok(Unspecified),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for UpdatePriceTaxBehavior {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for UpdatePriceTaxBehavior {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for UpdatePriceTaxBehavior {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for UpdatePriceTaxBehavior {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 impl<'a> UpdatePrice<'a> {
     /// Updates the specified price by setting the values of the parameters passed.
     /// Any parameters not provided are left unchanged.
@@ -1365,5 +917,25 @@ impl<'a> UpdatePrice<'a> {
         price: &stripe_shared::PriceId,
     ) -> stripe::Response<stripe_shared::Price> {
         client.send_form(&format!("/prices/{price}"), self, http_types::Method::Post)
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct CustomUnitAmount {
+    /// Pass in `true` to enable `custom_unit_amount`, otherwise omit `custom_unit_amount`.
+    pub enabled: bool,
+    /// The maximum unit amount the customer can specify for this item.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub maximum: Option<i64>,
+    /// The minimum unit amount the customer can specify for this item.
+    /// Must be at least the minimum charge amount.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub minimum: Option<i64>,
+    /// The starting unit amount which can be updated by the customer.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub preset: Option<i64>,
+}
+impl CustomUnitAmount {
+    pub fn new(enabled: bool) -> Self {
+        Self { enabled, maximum: None, minimum: None, preset: None }
     }
 }

@@ -101,7 +101,7 @@ impl<'a> CreateTerminalReader<'a> {
 pub struct ListTerminalReader<'a> {
     /// Filters readers by device type
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub device_type: Option<ListTerminalReaderDeviceType>,
+    pub device_type: Option<stripe_terminal::TerminalReaderDeviceType>,
     /// A cursor for use in pagination.
     /// `ending_before` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, starting with `obj_bar`, your subsequent call can include `ending_before=obj_bar` in order to fetch the previous page of the list.
@@ -132,69 +132,6 @@ pub struct ListTerminalReader<'a> {
 impl<'a> ListTerminalReader<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Filters readers by device type
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListTerminalReaderDeviceType {
-    BbposChipper2x,
-    BbposWisepad3,
-    BbposWiseposE,
-    SimulatedWiseposE,
-    StripeM2,
-    VerifoneP400,
-}
-impl ListTerminalReaderDeviceType {
-    pub fn as_str(self) -> &'static str {
-        use ListTerminalReaderDeviceType::*;
-        match self {
-            BbposChipper2x => "bbpos_chipper2x",
-            BbposWisepad3 => "bbpos_wisepad3",
-            BbposWiseposE => "bbpos_wisepos_e",
-            SimulatedWiseposE => "simulated_wisepos_e",
-            StripeM2 => "stripe_m2",
-            VerifoneP400 => "verifone_P400",
-        }
-    }
-}
-
-impl std::str::FromStr for ListTerminalReaderDeviceType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListTerminalReaderDeviceType::*;
-        match s {
-            "bbpos_chipper2x" => Ok(BbposChipper2x),
-            "bbpos_wisepad3" => Ok(BbposWisepad3),
-            "bbpos_wisepos_e" => Ok(BbposWiseposE),
-            "simulated_wisepos_e" => Ok(SimulatedWiseposE),
-            "stripe_m2" => Ok(StripeM2),
-            "verifone_P400" => Ok(VerifoneP400),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListTerminalReaderDeviceType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListTerminalReaderDeviceType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListTerminalReaderDeviceType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListTerminalReaderDeviceType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 /// A status filter to filter readers to only offline or online readers

@@ -25,7 +25,7 @@ pub struct IssuingToken {
     /// Measured in seconds since the Unix epoch.
     pub network_updated_at: stripe_types::Timestamp,
     /// The usage state of the token.
-    pub status: IssuingTokenStatus,
+    pub status: stripe_shared::IssuingTokenStatus,
     /// The digital wallet for this token, if one was used.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub wallet_provider: Option<IssuingTokenWalletProvider>,
@@ -87,71 +87,6 @@ impl<'de> serde::Deserialize<'de> for IssuingTokenNetwork {
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
         Self::from_str(&s)
             .map_err(|_| serde::de::Error::custom("Unknown value for IssuingTokenNetwork"))
-    }
-}
-/// The usage state of the token.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum IssuingTokenStatus {
-    Active,
-    Deleted,
-    Requested,
-    Suspended,
-}
-impl IssuingTokenStatus {
-    pub fn as_str(self) -> &'static str {
-        use IssuingTokenStatus::*;
-        match self {
-            Active => "active",
-            Deleted => "deleted",
-            Requested => "requested",
-            Suspended => "suspended",
-        }
-    }
-}
-
-impl std::str::FromStr for IssuingTokenStatus {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use IssuingTokenStatus::*;
-        match s {
-            "active" => Ok(Active),
-            "deleted" => Ok(Deleted),
-            "requested" => Ok(Requested),
-            "suspended" => Ok(Suspended),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for IssuingTokenStatus {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for IssuingTokenStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for IssuingTokenStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for IssuingTokenStatus {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for IssuingTokenStatus {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for IssuingTokenStatus"))
     }
 }
 /// The digital wallet for this token, if one was used.
@@ -223,3 +158,67 @@ impl stripe_types::Object for IssuingToken {
     }
 }
 stripe_types::def_id!(IssuingTokenId);
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum IssuingTokenStatus {
+    Active,
+    Deleted,
+    Requested,
+    Suspended,
+}
+impl IssuingTokenStatus {
+    pub fn as_str(self) -> &'static str {
+        use IssuingTokenStatus::*;
+        match self {
+            Active => "active",
+            Deleted => "deleted",
+            Requested => "requested",
+            Suspended => "suspended",
+        }
+    }
+}
+
+impl std::str::FromStr for IssuingTokenStatus {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use IssuingTokenStatus::*;
+        match s {
+            "active" => Ok(Active),
+            "deleted" => Ok(Deleted),
+            "requested" => Ok(Requested),
+            "suspended" => Ok(Suspended),
+            _ => Err(()),
+        }
+    }
+}
+impl AsRef<str> for IssuingTokenStatus {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+impl std::fmt::Display for IssuingTokenStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::fmt::Debug for IssuingTokenStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl serde::Serialize for IssuingTokenStatus {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> serde::Deserialize<'de> for IssuingTokenStatus {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use std::str::FromStr;
+        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
+        Self::from_str(&s)
+            .map_err(|_| serde::de::Error::custom("Unknown value for IssuingTokenStatus"))
+    }
+}

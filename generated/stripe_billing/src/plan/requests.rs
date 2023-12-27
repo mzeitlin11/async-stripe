@@ -54,7 +54,7 @@ pub struct CreatePlan<'a> {
     /// Allowed values are `sum` for summing up all usage during a period, `last_during_period` for using the last usage record reported within a period, `last_ever` for using the last usage record ever (across period bounds) or `max` which uses the usage record with the maximum reported usage during a period.
     /// Defaults to `sum`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub aggregate_usage: Option<CreatePlanAggregateUsage>,
+    pub aggregate_usage: Option<stripe_shared::PlanAggregateUsage>,
     /// A positive integer in cents (or local equivalent) (or 0 for a free plan) representing how much to charge on a recurring basis.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub amount: Option<i64>,
@@ -67,7 +67,7 @@ pub struct CreatePlan<'a> {
     /// `per_unit` indicates that the fixed amount (specified in `amount`) will be charged per unit in `quantity` (for plans with `usage_type=licensed`), or per unit of total usage (for plans with `usage_type=metered`).
     /// `tiered` indicates that the unit pricing will be computed using a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_scheme: Option<CreatePlanBillingScheme>,
+    pub billing_scheme: Option<stripe_shared::PlanBillingScheme>,
     /// Three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html), in lowercase.
     /// Must be a [supported currency](https://stripe.com/docs/currencies).
     pub currency: stripe_types::Currency,
@@ -81,7 +81,7 @@ pub struct CreatePlan<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<&'a str>,
     /// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
-    pub interval: CreatePlanInterval,
+    pub interval: stripe_shared::PlanInterval,
     /// The number of intervals between subscription billings.
     /// For example, `interval=month` and `interval_count=3` bills every 3 months.
     /// Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).
@@ -106,7 +106,7 @@ pub struct CreatePlan<'a> {
     /// Defines if the tiering price should be `graduated` or `volume` based.
     /// In `volume`-based tiering, the maximum quantity within a period determines the per unit price, in `graduated` tiering pricing can successively change as the quantity grows.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tiers_mode: Option<CreatePlanTiersMode>,
+    pub tiers_mode: Option<stripe_shared::PlanTiersMode>,
     /// Apply a transformation to the reported usage or set quantity before computing the billed price.
     /// Cannot be combined with `tiers`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -120,10 +120,10 @@ pub struct CreatePlan<'a> {
     /// `metered` aggregates the total usage based on usage records.
     /// Defaults to `licensed`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub usage_type: Option<CreatePlanUsageType>,
+    pub usage_type: Option<stripe_shared::PlanUsageType>,
 }
 impl<'a> CreatePlan<'a> {
-    pub fn new(currency: stripe_types::Currency, interval: CreatePlanInterval) -> Self {
+    pub fn new(currency: stripe_types::Currency, interval: stripe_shared::PlanInterval) -> Self {
         Self {
             active: None,
             aggregate_usage: None,
@@ -144,176 +144,6 @@ impl<'a> CreatePlan<'a> {
             trial_period_days: None,
             usage_type: None,
         }
-    }
-}
-/// Specifies a usage aggregation strategy for plans of `usage_type=metered`.
-/// Allowed values are `sum` for summing up all usage during a period, `last_during_period` for using the last usage record reported within a period, `last_ever` for using the last usage record ever (across period bounds) or `max` which uses the usage record with the maximum reported usage during a period.
-/// Defaults to `sum`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreatePlanAggregateUsage {
-    LastDuringPeriod,
-    LastEver,
-    Max,
-    Sum,
-}
-impl CreatePlanAggregateUsage {
-    pub fn as_str(self) -> &'static str {
-        use CreatePlanAggregateUsage::*;
-        match self {
-            LastDuringPeriod => "last_during_period",
-            LastEver => "last_ever",
-            Max => "max",
-            Sum => "sum",
-        }
-    }
-}
-
-impl std::str::FromStr for CreatePlanAggregateUsage {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreatePlanAggregateUsage::*;
-        match s {
-            "last_during_period" => Ok(LastDuringPeriod),
-            "last_ever" => Ok(LastEver),
-            "max" => Ok(Max),
-            "sum" => Ok(Sum),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreatePlanAggregateUsage {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreatePlanAggregateUsage {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreatePlanAggregateUsage {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreatePlanAggregateUsage {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// Describes how to compute the price per period.
-/// Either `per_unit` or `tiered`.
-/// `per_unit` indicates that the fixed amount (specified in `amount`) will be charged per unit in `quantity` (for plans with `usage_type=licensed`), or per unit of total usage (for plans with `usage_type=metered`).
-/// `tiered` indicates that the unit pricing will be computed using a tiering strategy as defined using the `tiers` and `tiers_mode` attributes.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreatePlanBillingScheme {
-    PerUnit,
-    Tiered,
-}
-impl CreatePlanBillingScheme {
-    pub fn as_str(self) -> &'static str {
-        use CreatePlanBillingScheme::*;
-        match self {
-            PerUnit => "per_unit",
-            Tiered => "tiered",
-        }
-    }
-}
-
-impl std::str::FromStr for CreatePlanBillingScheme {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreatePlanBillingScheme::*;
-        match s {
-            "per_unit" => Ok(PerUnit),
-            "tiered" => Ok(Tiered),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreatePlanBillingScheme {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreatePlanBillingScheme {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreatePlanBillingScheme {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreatePlanBillingScheme {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// Specifies billing frequency. Either `day`, `week`, `month` or `year`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreatePlanInterval {
-    Day,
-    Month,
-    Week,
-    Year,
-}
-impl CreatePlanInterval {
-    pub fn as_str(self) -> &'static str {
-        use CreatePlanInterval::*;
-        match self {
-            Day => "day",
-            Month => "month",
-            Week => "week",
-            Year => "year",
-        }
-    }
-}
-
-impl std::str::FromStr for CreatePlanInterval {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreatePlanInterval::*;
-        match s {
-            "day" => Ok(Day),
-            "month" => Ok(Month),
-            "week" => Ok(Week),
-            "year" => Ok(Year),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreatePlanInterval {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreatePlanInterval {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreatePlanInterval {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreatePlanInterval {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -413,58 +243,6 @@ pub enum CreatePlanTiersUpTo {
     Inf,
     I64(i64),
 }
-/// Defines if the tiering price should be `graduated` or `volume` based.
-/// In `volume`-based tiering, the maximum quantity within a period determines the per unit price, in `graduated` tiering pricing can successively change as the quantity grows.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreatePlanTiersMode {
-    Graduated,
-    Volume,
-}
-impl CreatePlanTiersMode {
-    pub fn as_str(self) -> &'static str {
-        use CreatePlanTiersMode::*;
-        match self {
-            Graduated => "graduated",
-            Volume => "volume",
-        }
-    }
-}
-
-impl std::str::FromStr for CreatePlanTiersMode {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreatePlanTiersMode::*;
-        match s {
-            "graduated" => Ok(Graduated),
-            "volume" => Ok(Volume),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreatePlanTiersMode {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreatePlanTiersMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreatePlanTiersMode {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreatePlanTiersMode {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 /// Apply a transformation to the reported usage or set quantity before computing the billed price.
 /// Cannot be combined with `tiers`.
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -523,61 +301,6 @@ impl std::fmt::Debug for CreatePlanTransformUsageRound {
     }
 }
 impl serde::Serialize for CreatePlanTransformUsageRound {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// Configures how the quantity per period should be determined.
-/// Can be either `metered` or `licensed`.
-/// `licensed` automatically bills the `quantity` set when adding it to a subscription.
-/// `metered` aggregates the total usage based on usage records.
-/// Defaults to `licensed`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreatePlanUsageType {
-    Licensed,
-    Metered,
-}
-impl CreatePlanUsageType {
-    pub fn as_str(self) -> &'static str {
-        use CreatePlanUsageType::*;
-        match self {
-            Licensed => "licensed",
-            Metered => "metered",
-        }
-    }
-}
-
-impl std::str::FromStr for CreatePlanUsageType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreatePlanUsageType::*;
-        match s {
-            "licensed" => Ok(Licensed),
-            "metered" => Ok(Metered),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreatePlanUsageType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreatePlanUsageType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreatePlanUsageType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreatePlanUsageType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

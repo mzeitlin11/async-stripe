@@ -3,7 +3,7 @@ mod components;
 mod crate_inference;
 mod crate_table;
 pub mod crates;
-// mod deduplication;
+mod deduplication;
 mod graph;
 mod ids;
 mod object_writing;

@@ -187,7 +187,7 @@ pub struct ListTreasuryOutboundTransfer<'a> {
     pub starting_after: Option<&'a str>,
     /// Only return OutboundTransfers that have the given status: `processing`, `canceled`, `failed`, `posted`, or `returned`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<ListTreasuryOutboundTransferStatus>,
+    pub status: Option<stripe_treasury::TreasuryOutboundTransferStatus>,
 }
 impl<'a> ListTreasuryOutboundTransfer<'a> {
     pub fn new(financial_account: &'a str) -> Self {
@@ -199,66 +199,6 @@ impl<'a> ListTreasuryOutboundTransfer<'a> {
             starting_after: None,
             status: None,
         }
-    }
-}
-/// Only return OutboundTransfers that have the given status: `processing`, `canceled`, `failed`, `posted`, or `returned`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListTreasuryOutboundTransferStatus {
-    Canceled,
-    Failed,
-    Posted,
-    Processing,
-    Returned,
-}
-impl ListTreasuryOutboundTransferStatus {
-    pub fn as_str(self) -> &'static str {
-        use ListTreasuryOutboundTransferStatus::*;
-        match self {
-            Canceled => "canceled",
-            Failed => "failed",
-            Posted => "posted",
-            Processing => "processing",
-            Returned => "returned",
-        }
-    }
-}
-
-impl std::str::FromStr for ListTreasuryOutboundTransferStatus {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListTreasuryOutboundTransferStatus::*;
-        match s {
-            "canceled" => Ok(Canceled),
-            "failed" => Ok(Failed),
-            "posted" => Ok(Posted),
-            "processing" => Ok(Processing),
-            "returned" => Ok(Returned),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListTreasuryOutboundTransferStatus {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListTreasuryOutboundTransferStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListTreasuryOutboundTransferStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListTreasuryOutboundTransferStatus {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> ListTreasuryOutboundTransfer<'a> {

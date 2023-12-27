@@ -1,5 +1,5 @@
 /// Represents a per-transaction override of a reader configuration
-#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 pub struct TerminalReaderReaderResourceProcessConfig {
     /// Override showing a tipping selection screen on this transaction.
     #[serde(skip_serializing_if = "Option::is_none")]

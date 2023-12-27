@@ -17,10 +17,10 @@ pub struct CreateIdentityVerificationSession<'a> {
     pub return_url: Option<&'a str>,
     /// The type of [verification check](https://stripe.com/docs/identity/verification-checks) to be performed.
     #[serde(rename = "type")]
-    pub type_: CreateIdentityVerificationSessionType,
+    pub type_: stripe_misc::IdentityVerificationSessionType,
 }
 impl<'a> CreateIdentityVerificationSession<'a> {
-    pub fn new(type_: CreateIdentityVerificationSessionType) -> Self {
+    pub fn new(type_: stripe_misc::IdentityVerificationSessionType) -> Self {
         Self { expand: None, metadata: None, options: None, return_url: None, type_ }
     }
 }
@@ -114,57 +114,6 @@ impl serde::Serialize for CreateIdentityVerificationSessionOptionsDocumentAllowe
         serializer.serialize_str(self.as_str())
     }
 }
-/// The type of [verification check](https://stripe.com/docs/identity/verification-checks) to be performed.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateIdentityVerificationSessionType {
-    Document,
-    IdNumber,
-}
-impl CreateIdentityVerificationSessionType {
-    pub fn as_str(self) -> &'static str {
-        use CreateIdentityVerificationSessionType::*;
-        match self {
-            Document => "document",
-            IdNumber => "id_number",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateIdentityVerificationSessionType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateIdentityVerificationSessionType::*;
-        match s {
-            "document" => Ok(Document),
-            "id_number" => Ok(IdNumber),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateIdentityVerificationSessionType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateIdentityVerificationSessionType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateIdentityVerificationSessionType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateIdentityVerificationSessionType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
 impl<'a> CreateIdentityVerificationSession<'a> {
     /// Creates a VerificationSession object.
     ///
@@ -228,69 +177,11 @@ pub struct ListIdentityVerificationSession<'a> {
     /// Only return VerificationSessions with this status.
     /// [Learn more about the lifecycle of sessions](https://stripe.com/docs/identity/how-sessions-work).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<ListIdentityVerificationSessionStatus>,
+    pub status: Option<stripe_misc::IdentityVerificationSessionStatus>,
 }
 impl<'a> ListIdentityVerificationSession<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Only return VerificationSessions with this status.
-/// [Learn more about the lifecycle of sessions](https://stripe.com/docs/identity/how-sessions-work).
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListIdentityVerificationSessionStatus {
-    Canceled,
-    Processing,
-    RequiresInput,
-    Verified,
-}
-impl ListIdentityVerificationSessionStatus {
-    pub fn as_str(self) -> &'static str {
-        use ListIdentityVerificationSessionStatus::*;
-        match self {
-            Canceled => "canceled",
-            Processing => "processing",
-            RequiresInput => "requires_input",
-            Verified => "verified",
-        }
-    }
-}
-
-impl std::str::FromStr for ListIdentityVerificationSessionStatus {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListIdentityVerificationSessionStatus::*;
-        match s {
-            "canceled" => Ok(Canceled),
-            "processing" => Ok(Processing),
-            "requires_input" => Ok(RequiresInput),
-            "verified" => Ok(Verified),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListIdentityVerificationSessionStatus {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListIdentityVerificationSessionStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListIdentityVerificationSessionStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListIdentityVerificationSessionStatus {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> ListIdentityVerificationSession<'a> {
@@ -397,7 +288,7 @@ pub struct UpdateIdentityVerificationSession<'a> {
     /// The type of [verification check](https://stripe.com/docs/identity/verification-checks) to be performed.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_: Option<UpdateIdentityVerificationSessionType>,
+    pub type_: Option<stripe_misc::IdentityVerificationSessionType>,
 }
 impl<'a> UpdateIdentityVerificationSession<'a> {
     pub fn new() -> Self {
@@ -487,57 +378,6 @@ impl std::fmt::Debug for UpdateIdentityVerificationSessionOptionsDocumentAllowed
     }
 }
 impl serde::Serialize for UpdateIdentityVerificationSessionOptionsDocumentAllowedTypes {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// The type of [verification check](https://stripe.com/docs/identity/verification-checks) to be performed.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum UpdateIdentityVerificationSessionType {
-    Document,
-    IdNumber,
-}
-impl UpdateIdentityVerificationSessionType {
-    pub fn as_str(self) -> &'static str {
-        use UpdateIdentityVerificationSessionType::*;
-        match self {
-            Document => "document",
-            IdNumber => "id_number",
-        }
-    }
-}
-
-impl std::str::FromStr for UpdateIdentityVerificationSessionType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use UpdateIdentityVerificationSessionType::*;
-        match s {
-            "document" => Ok(Document),
-            "id_number" => Ok(IdNumber),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for UpdateIdentityVerificationSessionType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for UpdateIdentityVerificationSessionType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for UpdateIdentityVerificationSessionType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for UpdateIdentityVerificationSessionType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,

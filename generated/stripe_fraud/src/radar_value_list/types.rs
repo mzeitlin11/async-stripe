@@ -15,7 +15,7 @@ pub struct RadarValueList {
     pub id: stripe_fraud::RadarValueListId,
     /// The type of items in the value list.
     /// One of `card_fingerprint`, `us_bank_account_fingerprint`, `sepa_debit_fingerprint`, `card_bin`, `email`, `ip_address`, `country`, `string`, `case_sensitive_string`, or `customer_id`.
-    pub item_type: RadarValueListItemType,
+    pub item_type: stripe_fraud::RadarValueListItemType,
     /// List of items contained within this value list.
     pub list_items: stripe_types::List<stripe_fraud::RadarValueListItem>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
@@ -26,8 +26,13 @@ pub struct RadarValueList {
     /// The name of the value list.
     pub name: String,
 }
-/// The type of items in the value list.
-/// One of `card_fingerprint`, `us_bank_account_fingerprint`, `sepa_debit_fingerprint`, `card_bin`, `email`, `ip_address`, `country`, `string`, `case_sensitive_string`, or `customer_id`.
+impl stripe_types::Object for RadarValueList {
+    type Id = stripe_fraud::RadarValueListId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(RadarValueListId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum RadarValueListItemType {
     CardBin,
@@ -110,10 +115,3 @@ impl<'de> serde::Deserialize<'de> for RadarValueListItemType {
             .map_err(|_| serde::de::Error::custom("Unknown value for RadarValueListItemType"))
     }
 }
-impl stripe_types::Object for RadarValueList {
-    type Id = stripe_fraud::RadarValueListId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(RadarValueListId);

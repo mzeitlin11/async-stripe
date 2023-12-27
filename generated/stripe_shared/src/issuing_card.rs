@@ -44,17 +44,17 @@ pub struct IssuingCard {
     /// The card this card replaces, if any.
     pub replacement_for: Option<stripe_types::Expandable<stripe_shared::IssuingCard>>,
     /// The reason why the previous card needed to be replaced.
-    pub replacement_reason: Option<IssuingCardReplacementReason>,
+    pub replacement_reason: Option<stripe_shared::IssuingCardReplacementReason>,
     /// Where and how the card will be shipped.
     pub shipping: Option<stripe_shared::IssuingCardShipping>,
     pub spending_controls: stripe_shared::IssuingCardAuthorizationControls,
     /// Whether authorizations can be approved on this card.
     /// May be blocked from activating cards depending on past-due Cardholder requirements.
     /// Defaults to `inactive`.
-    pub status: IssuingCardStatus,
+    pub status: stripe_shared::IssuingCardStatus,
     /// The type of the card.
     #[serde(rename = "type")]
-    pub type_: IssuingCardType,
+    pub type_: stripe_shared::IssuingCardType,
     /// Information relating to digital wallets (like Apple Pay and Google Pay).
     pub wallets: Option<stripe_shared::IssuingCardWallets>,
 }
@@ -121,7 +121,13 @@ impl<'de> serde::Deserialize<'de> for IssuingCardCancellationReason {
         })
     }
 }
-/// The reason why the previous card needed to be replaced.
+impl stripe_types::Object for IssuingCard {
+    type Id = stripe_shared::IssuingCardId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(IssuingCardId, "ic_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingCardReplacementReason {
     Damaged,
@@ -186,9 +192,6 @@ impl<'de> serde::Deserialize<'de> for IssuingCardReplacementReason {
             .map_err(|_| serde::de::Error::custom("Unknown value for IssuingCardReplacementReason"))
     }
 }
-/// Whether authorizations can be approved on this card.
-/// May be blocked from activating cards depending on past-due Cardholder requirements.
-/// Defaults to `inactive`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingCardStatus {
     Active,
@@ -250,7 +253,6 @@ impl<'de> serde::Deserialize<'de> for IssuingCardStatus {
             .map_err(|_| serde::de::Error::custom("Unknown value for IssuingCardStatus"))
     }
 }
-/// The type of the card.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingCardType {
     Physical,
@@ -309,10 +311,3 @@ impl<'de> serde::Deserialize<'de> for IssuingCardType {
             .map_err(|_| serde::de::Error::custom("Unknown value for IssuingCardType"))
     }
 }
-impl stripe_types::Object for IssuingCard {
-    type Id = stripe_shared::IssuingCardId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(IssuingCardId, "ic_");

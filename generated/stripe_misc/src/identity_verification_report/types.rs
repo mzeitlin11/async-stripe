@@ -30,11 +30,17 @@ pub struct IdentityVerificationReport {
     /// Type of report.
     #[serde(rename = "type")]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_: Option<IdentityVerificationReportType>,
+    pub type_: Option<stripe_misc::IdentityVerificationReportType>,
     /// ID of the VerificationSession that created this report.
     pub verification_session: Option<String>,
 }
-/// Type of report.
+impl stripe_types::Object for IdentityVerificationReport {
+    type Id = stripe_misc::IdentityVerificationReportId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(IdentityVerificationReportId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IdentityVerificationReportType {
     Document,
@@ -94,10 +100,3 @@ impl<'de> serde::Deserialize<'de> for IdentityVerificationReportType {
         })
     }
 }
-impl stripe_types::Object for IdentityVerificationReport {
-    type Id = stripe_misc::IdentityVerificationReportId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(IdentityVerificationReportId);

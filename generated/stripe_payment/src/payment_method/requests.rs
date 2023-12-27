@@ -23,7 +23,7 @@ pub struct CreatePaymentMethod<'a> {
     pub bancontact: Option<&'a serde_json::Value>,
     /// Billing information associated with the PaymentMethod that may be used or required by particular types of payment methods.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_details: Option<CreatePaymentMethodBillingDetails<'a>>,
+    pub billing_details: Option<BillingDetailsInnerParams<'a>>,
     /// If this is a `blik` PaymentMethod, this hash contains details about the BLIK payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub blik: Option<&'a serde_json::Value>,
@@ -179,54 +179,6 @@ pub struct CreatePaymentMethodBacsDebit<'a> {
     pub sort_code: Option<&'a str>,
 }
 impl<'a> CreatePaymentMethodBacsDebit<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Billing information associated with the PaymentMethod that may be used or required by particular types of payment methods.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreatePaymentMethodBillingDetails<'a> {
-    /// Billing address.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub address: Option<CreatePaymentMethodBillingDetailsAddress<'a>>,
-    /// Email address.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub email: Option<&'a str>,
-    /// Full name.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<&'a str>,
-    /// Billing phone number (including extension).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub phone: Option<&'a str>,
-}
-impl<'a> CreatePaymentMethodBillingDetails<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Billing address.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreatePaymentMethodBillingDetailsAddress<'a> {
-    /// City, district, suburb, town, or village.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub city: Option<&'a str>,
-    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub country: Option<&'a str>,
-    /// Address line 1 (e.g., street, PO Box, or company name).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line1: Option<&'a str>,
-    /// Address line 2 (e.g., apartment, suite, unit, or building).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line2: Option<&'a str>,
-    /// ZIP or postal code.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub postal_code: Option<&'a str>,
-    /// State, county, province, or region.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub state: Option<&'a str>,
-}
-impl<'a> CreatePaymentMethodBillingDetailsAddress<'a> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -1287,7 +1239,7 @@ impl<'a> RetrievePaymentMethod<'a> {
 pub struct UpdatePaymentMethod<'a> {
     /// Billing information associated with the PaymentMethod that may be used or required by particular types of payment methods.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_details: Option<UpdatePaymentMethodBillingDetails<'a>>,
+    pub billing_details: Option<BillingDetailsInnerParams<'a>>,
     /// If this is a `card` PaymentMethod, this hash contains the user's card details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub card: Option<UpdatePaymentMethodCard>,
@@ -1308,54 +1260,6 @@ pub struct UpdatePaymentMethod<'a> {
     pub us_bank_account: Option<UpdatePaymentMethodUsBankAccount>,
 }
 impl<'a> UpdatePaymentMethod<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Billing information associated with the PaymentMethod that may be used or required by particular types of payment methods.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdatePaymentMethodBillingDetails<'a> {
-    /// Billing address.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub address: Option<UpdatePaymentMethodBillingDetailsAddress<'a>>,
-    /// Email address.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub email: Option<&'a str>,
-    /// Full name.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<&'a str>,
-    /// Billing phone number (including extension).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub phone: Option<&'a str>,
-}
-impl<'a> UpdatePaymentMethodBillingDetails<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-/// Billing address.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct UpdatePaymentMethodBillingDetailsAddress<'a> {
-    /// City, district, suburb, town, or village.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub city: Option<&'a str>,
-    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub country: Option<&'a str>,
-    /// Address line 1 (e.g., street, PO Box, or company name).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line1: Option<&'a str>,
-    /// Address line 2 (e.g., apartment, suite, unit, or building).
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line2: Option<&'a str>,
-    /// ZIP or postal code.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub postal_code: Option<&'a str>,
-    /// State, county, province, or region.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub state: Option<&'a str>,
-}
-impl<'a> UpdatePaymentMethodBillingDetailsAddress<'a> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -1712,5 +1616,51 @@ impl<'a> DetachPaymentMethod<'a> {
             self,
             http_types::Method::Post,
         )
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct BillingDetailsAddress<'a> {
+    /// City, district, suburb, town, or village.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub city: Option<&'a str>,
+    /// Two-letter country code ([ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub country: Option<&'a str>,
+    /// Address line 1 (e.g., street, PO Box, or company name).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub line1: Option<&'a str>,
+    /// Address line 2 (e.g., apartment, suite, unit, or building).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub line2: Option<&'a str>,
+    /// ZIP or postal code.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub postal_code: Option<&'a str>,
+    /// State, county, province, or region.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub state: Option<&'a str>,
+}
+impl<'a> BillingDetailsAddress<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct BillingDetailsInnerParams<'a> {
+    /// Billing address.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub address: Option<BillingDetailsAddress<'a>>,
+    /// Email address.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub email: Option<&'a str>,
+    /// Full name.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<&'a str>,
+    /// Billing phone number (including extension).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub phone: Option<&'a str>,
+}
+impl<'a> BillingDetailsInnerParams<'a> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }

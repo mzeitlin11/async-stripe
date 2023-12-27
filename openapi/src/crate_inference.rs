@@ -126,8 +126,8 @@ impl Components {
         // used for webhooks
         const PATHS_IN_TYPES: &[&str] = &["event"];
 
-        let mut required = vec![];
         loop {
+            let mut required = vec![];
             let graph = self.gen_component_dep_graph();
             for (path, component) in &self.components {
                 if component.krate_unwrapped().are_type_defs_shared() {
@@ -156,7 +156,7 @@ impl Components {
             if done {
                 break;
             }
-            for req in required.drain(..) {
+            for req in required {
                 self.get_mut(&req).krate_unwrapped_mut().set_share_type_defs();
             }
         }
@@ -203,8 +203,8 @@ fn infer_crates_using_deps(
     components: &mut Components,
     infer_test: fn(&Components, &ComponentPath, &ComponentGraph) -> Option<Crate>,
 ) {
-    let mut new_assignments: IndexMap<ComponentPath, Crate> = IndexMap::new();
     loop {
+        let mut new_assignments: IndexMap<ComponentPath, Crate> = IndexMap::new();
         let graph = components.gen_component_dep_graph();
         for (path, component) in &components.components {
             if component.krate().is_some() {
@@ -217,7 +217,7 @@ fn infer_crates_using_deps(
         let no_new_assignments = new_assignments.is_empty();
 
         trace!("Inferred {new_assignments:#?}");
-        for (mod_name, krate) in new_assignments.drain(..) {
+        for (mod_name, krate) in new_assignments {
             components.get_mut(&mod_name).assign_crate(krate);
         }
         if no_new_assignments {

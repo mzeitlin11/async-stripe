@@ -41,15 +41,18 @@ pub struct TreasuryOutboundTransfer {
     /// An OutboundTransfer is `processing` if it has been created and is pending.
     /// The status changes to `posted` once the OutboundTransfer has been "confirmed" and funds have left the account, or to `failed` or `canceled`.
     /// If an OutboundTransfer fails to arrive at its destination, its status will change to `returned`.
-    pub status: TreasuryOutboundTransferStatus,
+    pub status: stripe_treasury::TreasuryOutboundTransferStatus,
     pub status_transitions: stripe_treasury::TreasuryOutboundTransfersResourceStatusTransitions,
     /// The Transaction associated with this object.
     pub transaction: stripe_types::Expandable<stripe_treasury::TreasuryTransaction>,
 }
-/// Current status of the OutboundTransfer: `processing`, `failed`, `canceled`, `posted`, `returned`.
-/// An OutboundTransfer is `processing` if it has been created and is pending.
-/// The status changes to `posted` once the OutboundTransfer has been "confirmed" and funds have left the account, or to `failed` or `canceled`.
-/// If an OutboundTransfer fails to arrive at its destination, its status will change to `returned`.
+impl stripe_types::Object for TreasuryOutboundTransfer {
+    type Id = stripe_treasury::TreasuryOutboundTransferId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(TreasuryOutboundTransferId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryOutboundTransferStatus {
     Canceled,
@@ -118,10 +121,3 @@ impl<'de> serde::Deserialize<'de> for TreasuryOutboundTransferStatus {
         })
     }
 }
-impl stripe_types::Object for TreasuryOutboundTransfer {
-    type Id = stripe_treasury::TreasuryOutboundTransferId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(TreasuryOutboundTransferId);

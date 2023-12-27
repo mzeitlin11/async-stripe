@@ -24,7 +24,7 @@ pub struct ListTreasuryCreditReversal<'a> {
     pub starting_after: Option<&'a str>,
     /// Only return CreditReversals for a given status.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<ListTreasuryCreditReversalStatus>,
+    pub status: Option<stripe_treasury::TreasuryCreditReversalStatus>,
 }
 impl<'a> ListTreasuryCreditReversal<'a> {
     pub fn new(financial_account: &'a str) -> Self {
@@ -37,60 +37,6 @@ impl<'a> ListTreasuryCreditReversal<'a> {
             starting_after: None,
             status: None,
         }
-    }
-}
-/// Only return CreditReversals for a given status.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListTreasuryCreditReversalStatus {
-    Canceled,
-    Posted,
-    Processing,
-}
-impl ListTreasuryCreditReversalStatus {
-    pub fn as_str(self) -> &'static str {
-        use ListTreasuryCreditReversalStatus::*;
-        match self {
-            Canceled => "canceled",
-            Posted => "posted",
-            Processing => "processing",
-        }
-    }
-}
-
-impl std::str::FromStr for ListTreasuryCreditReversalStatus {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListTreasuryCreditReversalStatus::*;
-        match s {
-            "canceled" => Ok(Canceled),
-            "posted" => Ok(Posted),
-            "processing" => Ok(Processing),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListTreasuryCreditReversalStatus {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListTreasuryCreditReversalStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListTreasuryCreditReversalStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListTreasuryCreditReversalStatus {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> ListTreasuryCreditReversal<'a> {

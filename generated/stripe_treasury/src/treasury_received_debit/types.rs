@@ -32,7 +32,7 @@ pub reversal_details: Option<stripe_treasury::TreasuryReceivedDebitsResourceReve
         /// Status of the ReceivedDebit.
     /// ReceivedDebits are created with a status of either `succeeded` (approved) or `failed` (declined).
     /// The failure reason can be found under the `failure_code`.
-pub status: TreasuryReceivedDebitStatus,
+pub status: stripe_treasury::TreasuryReceivedDebitStatus,
     /// The Transaction associated with this object.
 pub transaction: Option<stripe_types::Expandable<stripe_treasury::TreasuryTransaction>>,
 
@@ -166,9 +166,13 @@ impl<'de> serde::Deserialize<'de> for TreasuryReceivedDebitNetwork {
             .map_err(|_| serde::de::Error::custom("Unknown value for TreasuryReceivedDebitNetwork"))
     }
 }
-/// Status of the ReceivedDebit.
-/// ReceivedDebits are created with a status of either `succeeded` (approved) or `failed` (declined).
-/// The failure reason can be found under the `failure_code`.
+impl stripe_types::Object for TreasuryReceivedDebit {
+    type Id = stripe_treasury::TreasuryReceivedDebitId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(TreasuryReceivedDebitId);
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryReceivedDebitStatus {
     Failed,
@@ -227,10 +231,3 @@ impl<'de> serde::Deserialize<'de> for TreasuryReceivedDebitStatus {
             .map_err(|_| serde::de::Error::custom("Unknown value for TreasuryReceivedDebitStatus"))
     }
 }
-impl stripe_types::Object for TreasuryReceivedDebit {
-    type Id = stripe_treasury::TreasuryReceivedDebitId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(TreasuryReceivedDebitId);

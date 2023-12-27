@@ -26,7 +26,8 @@ pub struct CheckoutSession {
     pub amount_total: Option<i64>,
     pub automatic_tax: stripe_checkout::PaymentPagesCheckoutSessionAutomaticTax,
     /// Describes whether Checkout should collect the customer's billing address.
-    pub billing_address_collection: Option<CheckoutSessionBillingAddressCollection>,
+    pub billing_address_collection:
+        Option<stripe_checkout::CheckoutSessionBillingAddressCollection>,
     /// If set, Checkout displays a back button and customers will be directed to this URL if they decide to cancel payment and return to your website.
     pub cancel_url: Option<String>,
     /// A unique string to reference the Checkout Session. This can be a
@@ -82,12 +83,12 @@ pub struct CheckoutSession {
     pub livemode: bool,
     /// The IETF language tag of the locale Checkout is displayed in.
     /// If blank or `auto`, the browser's locale is used.
-    pub locale: Option<CheckoutSessionLocale>,
+    pub locale: Option<stripe_checkout::CheckoutSessionLocale>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: Option<std::collections::HashMap<String, String>>,
     /// The mode of the Checkout Session.
-    pub mode: CheckoutSessionMode,
+    pub mode: stripe_checkout::CheckoutSessionMode,
     /// The ID of the PaymentIntent for Checkout Sessions in `payment` mode.
     pub payment_intent: Option<stripe_types::Expandable<stripe_shared::PaymentIntent>>,
     /// The ID of the Payment Link that created this Session.
@@ -114,7 +115,7 @@ pub struct CheckoutSession {
     /// By default, Stripe will always redirect to your return_url after a successful confirmation.
     /// If you set `redirect_on_completion: 'if_required'`, then we will only redirect if your user chooses a redirect-based payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub redirect_on_completion: Option<CheckoutSessionRedirectOnCompletion>,
+    pub redirect_on_completion: Option<stripe_checkout::CheckoutSessionRedirectOnCompletion>,
     /// Applies to Checkout Sessions with `ui_mode: embedded`.
     /// The URL to redirect your customer back to after they authenticate or cancel their payment on the payment method's app or site.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -131,12 +132,12 @@ pub struct CheckoutSession {
     /// The shipping rate options applied to this Session.
     pub shipping_options: Vec<stripe_checkout::PaymentPagesCheckoutSessionShippingOption>,
     /// The status of the Checkout Session, one of `open`, `complete`, or `expired`.
-    pub status: Option<CheckoutSessionStatus>,
+    pub status: Option<stripe_checkout::CheckoutSessionStatus>,
     /// Describes the type of transaction being performed by Checkout in order to customize
     /// relevant text on the page, such as the submit button. `submit_type` can only be
     /// specified on Checkout Sessions in `payment` mode, but not Checkout Sessions
     /// in `subscription` or `setup` mode.
-    pub submit_type: Option<CheckoutSessionSubmitType>,
+    pub submit_type: Option<stripe_checkout::CheckoutSessionSubmitType>,
     /// The ID of the subscription for Checkout Sessions in `subscription` mode.
     pub subscription: Option<stripe_types::Expandable<stripe_shared::Subscription>>,
     /// The URL the customer will be directed to after the payment or
@@ -147,73 +148,13 @@ pub struct CheckoutSession {
     /// Tax and discount details for the computed total amount.
     pub total_details: Option<stripe_checkout::PaymentPagesCheckoutSessionTotalDetails>,
     /// The UI mode of the Session. Can be `hosted` (default) or `embedded`.
-    pub ui_mode: Option<CheckoutSessionUiMode>,
+    pub ui_mode: Option<stripe_checkout::CheckoutSessionUiMode>,
     /// The URL to the Checkout Session.
     /// Redirect customers to this URL to take them to Checkout.
     /// If you’re using [Custom Domains](https://stripe.com/docs/payments/checkout/custom-domains), the URL will use your subdomain.
     /// Otherwise, it’ll use `checkout.stripe.com.`.
     /// This value is only present when the session is active.
     pub url: Option<String>,
-}
-/// Describes whether Checkout should collect the customer's billing address.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CheckoutSessionBillingAddressCollection {
-    Auto,
-    Required,
-}
-impl CheckoutSessionBillingAddressCollection {
-    pub fn as_str(self) -> &'static str {
-        use CheckoutSessionBillingAddressCollection::*;
-        match self {
-            Auto => "auto",
-            Required => "required",
-        }
-    }
-}
-
-impl std::str::FromStr for CheckoutSessionBillingAddressCollection {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CheckoutSessionBillingAddressCollection::*;
-        match s {
-            "auto" => Ok(Auto),
-            "required" => Ok(Required),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CheckoutSessionBillingAddressCollection {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CheckoutSessionBillingAddressCollection {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CheckoutSessionBillingAddressCollection {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CheckoutSessionBillingAddressCollection {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for CheckoutSessionBillingAddressCollection {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for CheckoutSessionBillingAddressCollection")
-        })
-    }
 }
 /// Configure whether a Checkout Session creates a Customer when the Checkout Session completes.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -275,8 +216,195 @@ impl<'de> serde::Deserialize<'de> for CheckoutSessionCustomerCreation {
         })
     }
 }
-/// The IETF language tag of the locale Checkout is displayed in.
-/// If blank or `auto`, the browser's locale is used.
+/// Configure whether a Checkout Session should collect a payment method.
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum CheckoutSessionPaymentMethodCollection {
+    Always,
+    IfRequired,
+}
+impl CheckoutSessionPaymentMethodCollection {
+    pub fn as_str(self) -> &'static str {
+        use CheckoutSessionPaymentMethodCollection::*;
+        match self {
+            Always => "always",
+            IfRequired => "if_required",
+        }
+    }
+}
+
+impl std::str::FromStr for CheckoutSessionPaymentMethodCollection {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use CheckoutSessionPaymentMethodCollection::*;
+        match s {
+            "always" => Ok(Always),
+            "if_required" => Ok(IfRequired),
+            _ => Err(()),
+        }
+    }
+}
+impl AsRef<str> for CheckoutSessionPaymentMethodCollection {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+impl std::fmt::Display for CheckoutSessionPaymentMethodCollection {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::fmt::Debug for CheckoutSessionPaymentMethodCollection {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl serde::Serialize for CheckoutSessionPaymentMethodCollection {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> serde::Deserialize<'de> for CheckoutSessionPaymentMethodCollection {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use std::str::FromStr;
+        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for CheckoutSessionPaymentMethodCollection")
+        })
+    }
+}
+/// The payment status of the Checkout Session, one of `paid`, `unpaid`, or `no_payment_required`.
+/// You can use this value to decide when to fulfill your customer's order.
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum CheckoutSessionPaymentStatus {
+    NoPaymentRequired,
+    Paid,
+    Unpaid,
+}
+impl CheckoutSessionPaymentStatus {
+    pub fn as_str(self) -> &'static str {
+        use CheckoutSessionPaymentStatus::*;
+        match self {
+            NoPaymentRequired => "no_payment_required",
+            Paid => "paid",
+            Unpaid => "unpaid",
+        }
+    }
+}
+
+impl std::str::FromStr for CheckoutSessionPaymentStatus {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use CheckoutSessionPaymentStatus::*;
+        match s {
+            "no_payment_required" => Ok(NoPaymentRequired),
+            "paid" => Ok(Paid),
+            "unpaid" => Ok(Unpaid),
+            _ => Err(()),
+        }
+    }
+}
+impl AsRef<str> for CheckoutSessionPaymentStatus {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+impl std::fmt::Display for CheckoutSessionPaymentStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::fmt::Debug for CheckoutSessionPaymentStatus {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl serde::Serialize for CheckoutSessionPaymentStatus {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> serde::Deserialize<'de> for CheckoutSessionPaymentStatus {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use std::str::FromStr;
+        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
+        Self::from_str(&s)
+            .map_err(|_| serde::de::Error::custom("Unknown value for CheckoutSessionPaymentStatus"))
+    }
+}
+impl stripe_types::Object for CheckoutSession {
+    type Id = stripe_checkout::CheckoutSessionId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(CheckoutSessionId, "cs_");
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum CheckoutSessionBillingAddressCollection {
+    Auto,
+    Required,
+}
+impl CheckoutSessionBillingAddressCollection {
+    pub fn as_str(self) -> &'static str {
+        use CheckoutSessionBillingAddressCollection::*;
+        match self {
+            Auto => "auto",
+            Required => "required",
+        }
+    }
+}
+
+impl std::str::FromStr for CheckoutSessionBillingAddressCollection {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use CheckoutSessionBillingAddressCollection::*;
+        match s {
+            "auto" => Ok(Auto),
+            "required" => Ok(Required),
+            _ => Err(()),
+        }
+    }
+}
+impl AsRef<str> for CheckoutSessionBillingAddressCollection {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+impl std::fmt::Display for CheckoutSessionBillingAddressCollection {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::fmt::Debug for CheckoutSessionBillingAddressCollection {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl serde::Serialize for CheckoutSessionBillingAddressCollection {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> serde::Deserialize<'de> for CheckoutSessionBillingAddressCollection {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use std::str::FromStr;
+        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
+        Self::from_str(&s).map_err(|_| {
+            serde::de::Error::custom("Unknown value for CheckoutSessionBillingAddressCollection")
+        })
+    }
+}
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum CheckoutSessionLocale {
@@ -455,7 +583,6 @@ impl<'de> serde::Deserialize<'de> for CheckoutSessionLocale {
         Ok(Self::from_str(&s).unwrap_or(CheckoutSessionLocale::Unknown))
     }
 }
-/// The mode of the Checkout Session.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CheckoutSessionMode {
     Payment,
@@ -517,132 +644,6 @@ impl<'de> serde::Deserialize<'de> for CheckoutSessionMode {
             .map_err(|_| serde::de::Error::custom("Unknown value for CheckoutSessionMode"))
     }
 }
-/// Configure whether a Checkout Session should collect a payment method.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CheckoutSessionPaymentMethodCollection {
-    Always,
-    IfRequired,
-}
-impl CheckoutSessionPaymentMethodCollection {
-    pub fn as_str(self) -> &'static str {
-        use CheckoutSessionPaymentMethodCollection::*;
-        match self {
-            Always => "always",
-            IfRequired => "if_required",
-        }
-    }
-}
-
-impl std::str::FromStr for CheckoutSessionPaymentMethodCollection {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CheckoutSessionPaymentMethodCollection::*;
-        match s {
-            "always" => Ok(Always),
-            "if_required" => Ok(IfRequired),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CheckoutSessionPaymentMethodCollection {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CheckoutSessionPaymentMethodCollection {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CheckoutSessionPaymentMethodCollection {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CheckoutSessionPaymentMethodCollection {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for CheckoutSessionPaymentMethodCollection {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for CheckoutSessionPaymentMethodCollection")
-        })
-    }
-}
-/// The payment status of the Checkout Session, one of `paid`, `unpaid`, or `no_payment_required`.
-/// You can use this value to decide when to fulfill your customer's order.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CheckoutSessionPaymentStatus {
-    NoPaymentRequired,
-    Paid,
-    Unpaid,
-}
-impl CheckoutSessionPaymentStatus {
-    pub fn as_str(self) -> &'static str {
-        use CheckoutSessionPaymentStatus::*;
-        match self {
-            NoPaymentRequired => "no_payment_required",
-            Paid => "paid",
-            Unpaid => "unpaid",
-        }
-    }
-}
-
-impl std::str::FromStr for CheckoutSessionPaymentStatus {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CheckoutSessionPaymentStatus::*;
-        match s {
-            "no_payment_required" => Ok(NoPaymentRequired),
-            "paid" => Ok(Paid),
-            "unpaid" => Ok(Unpaid),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CheckoutSessionPaymentStatus {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CheckoutSessionPaymentStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CheckoutSessionPaymentStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CheckoutSessionPaymentStatus {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for CheckoutSessionPaymentStatus {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for CheckoutSessionPaymentStatus"))
-    }
-}
-/// Applies to Checkout Sessions with `ui_mode: embedded`.
-/// By default, Stripe will always redirect to your return_url after a successful confirmation.
-/// If you set `redirect_on_completion: 'if_required'`, then we will only redirect if your user chooses a redirect-based payment method.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CheckoutSessionRedirectOnCompletion {
     Always,
@@ -705,7 +706,6 @@ impl<'de> serde::Deserialize<'de> for CheckoutSessionRedirectOnCompletion {
         })
     }
 }
-/// The status of the Checkout Session, one of `open`, `complete`, or `expired`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CheckoutSessionStatus {
     Complete,
@@ -767,10 +767,6 @@ impl<'de> serde::Deserialize<'de> for CheckoutSessionStatus {
             .map_err(|_| serde::de::Error::custom("Unknown value for CheckoutSessionStatus"))
     }
 }
-/// Describes the type of transaction being performed by Checkout in order to customize
-/// relevant text on the page, such as the submit button. `submit_type` can only be
-/// specified on Checkout Sessions in `payment` mode, but not Checkout Sessions
-/// in `subscription` or `setup` mode.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CheckoutSessionSubmitType {
     Auto,
@@ -835,7 +831,6 @@ impl<'de> serde::Deserialize<'de> for CheckoutSessionSubmitType {
             .map_err(|_| serde::de::Error::custom("Unknown value for CheckoutSessionSubmitType"))
     }
 }
-/// The UI mode of the Session. Can be `hosted` (default) or `embedded`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum CheckoutSessionUiMode {
     Embedded,
@@ -894,10 +889,3 @@ impl<'de> serde::Deserialize<'de> for CheckoutSessionUiMode {
             .map_err(|_| serde::de::Error::custom("Unknown value for CheckoutSessionUiMode"))
     }
 }
-impl stripe_types::Object for CheckoutSession {
-    type Id = stripe_checkout::CheckoutSessionId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(CheckoutSessionId, "cs_");

@@ -42,9 +42,15 @@ pub struct TaxRate {
     /// For example, "NY" for New York, United States.
     pub state: Option<String>,
     /// The high-level tax type, such as `vat` or `sales_tax`.
-    pub tax_type: Option<TaxRateTaxType>,
+    pub tax_type: Option<stripe_shared::TaxRateTaxType>,
 }
-/// The high-level tax type, such as `vat` or `sales_tax`.
+impl stripe_types::Object for TaxRate {
+    type Id = stripe_shared::TaxRateId;
+    fn id(&self) -> &Self::Id {
+        &self.id
+    }
+}
+stripe_types::def_id!(TaxRateId, "txr_");
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum TaxRateTaxType {
@@ -139,10 +145,3 @@ impl<'de> serde::Deserialize<'de> for TaxRateTaxType {
         Ok(Self::from_str(&s).unwrap_or(TaxRateTaxType::Unknown))
     }
 }
-impl stripe_types::Object for TaxRate {
-    type Id = stripe_shared::TaxRateId;
-    fn id(&self) -> &Self::Id {
-        &self.id
-    }
-}
-stripe_types::def_id!(TaxRateId, "txr_");

@@ -54,68 +54,9 @@ pub struct IssuingTransaction {
     pub treasury: Option<stripe_shared::IssuingTransactionTreasury>,
     /// The nature of the transaction.
     #[serde(rename = "type")]
-    pub type_: IssuingTransactionType,
+    pub type_: stripe_shared::IssuingTransactionType,
     /// The digital wallet used for this transaction. One of `apple_pay`, `google_pay`, or `samsung_pay`.
     pub wallet: Option<IssuingTransactionWallet>,
-}
-/// The nature of the transaction.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum IssuingTransactionType {
-    Capture,
-    Refund,
-}
-impl IssuingTransactionType {
-    pub fn as_str(self) -> &'static str {
-        use IssuingTransactionType::*;
-        match self {
-            Capture => "capture",
-            Refund => "refund",
-        }
-    }
-}
-
-impl std::str::FromStr for IssuingTransactionType {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use IssuingTransactionType::*;
-        match s {
-            "capture" => Ok(Capture),
-            "refund" => Ok(Refund),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for IssuingTransactionType {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for IssuingTransactionType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for IssuingTransactionType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for IssuingTransactionType {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-impl<'de> serde::Deserialize<'de> for IssuingTransactionType {
-    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use std::str::FromStr;
-        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for IssuingTransactionType"))
-    }
 }
 /// The digital wallet used for this transaction. One of `apple_pay`, `google_pay`, or `samsung_pay`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -186,3 +127,61 @@ impl stripe_types::Object for IssuingTransaction {
     }
 }
 stripe_types::def_id!(IssuingTransactionId, "ipi_");
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum IssuingTransactionType {
+    Capture,
+    Refund,
+}
+impl IssuingTransactionType {
+    pub fn as_str(self) -> &'static str {
+        use IssuingTransactionType::*;
+        match self {
+            Capture => "capture",
+            Refund => "refund",
+        }
+    }
+}
+
+impl std::str::FromStr for IssuingTransactionType {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use IssuingTransactionType::*;
+        match s {
+            "capture" => Ok(Capture),
+            "refund" => Ok(Refund),
+            _ => Err(()),
+        }
+    }
+}
+impl AsRef<str> for IssuingTransactionType {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+impl std::fmt::Display for IssuingTransactionType {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::fmt::Debug for IssuingTransactionType {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+impl serde::Serialize for IssuingTransactionType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(self.as_str())
+    }
+}
+impl<'de> serde::Deserialize<'de> for IssuingTransactionType {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use std::str::FromStr;
+        let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
+        Self::from_str(&s)
+            .map_err(|_| serde::de::Error::custom("Unknown value for IssuingTransactionType"))
+    }
+}

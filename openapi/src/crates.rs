@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 use std::fs::read_to_string;
+use std::path::PathBuf;
 
 use lazy_static::lazy_static;
 use serde::Deserialize;
@@ -10,17 +11,25 @@ pub struct Crate(&'static str);
 impl Crate {
     pub const SHARED: Self = Self("stripe_shared");
 
-    pub fn generate_to(self) -> String {
-        let out_path = self.generated_out_path();
-        format!("{out_path}/src")
-    }
-
     pub fn generated_out_path(self) -> String {
         format!("crates/{}", self.name())
     }
 
     pub fn name(self) -> &'static str {
-        &self.0
+        self.0
+    }
+
+    fn generate_to(self) -> String {
+        let out_path = self.generated_out_path();
+        format!("{out_path}/src")
+    }
+
+    pub fn get_path(self) -> PathBuf {
+        PathBuf::from(self.generate_to())
+    }
+
+    pub fn get_path_to_mod(self) -> PathBuf {
+        self.get_path().join("mod.rs")
     }
 }
 

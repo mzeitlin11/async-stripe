@@ -28,7 +28,7 @@ impl Components {
 
         // If the object contains any references, we'll need to print with a lifetime
         let has_ref = obj.has_reference(self);
-        let lifetime = if has_ref { Some(Lifetime::new()) } else { None };
+        let lifetime = if has_ref { Some(Lifetime) } else { None };
         let ident = &metadata.ident;
 
         let mut writer = ObjectWriter::new(self, ident, metadata.kind);

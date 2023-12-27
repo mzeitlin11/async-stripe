@@ -33,7 +33,7 @@ pub struct CreateCreditNote<'a> {
     pub out_of_band_amount: Option<i64>,
     /// Reason for issuing this credit note, one of `duplicate`, `fraudulent`, `order_change`, or `product_unsatisfactory`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub reason: Option<CreateCreditNoteReason>,
+    pub reason: Option<stripe_shared::CreditNoteReason>,
     /// ID of an existing refund to link this credit note to.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refund: Option<&'a str>,
@@ -43,7 +43,7 @@ pub struct CreateCreditNote<'a> {
     pub refund_amount: Option<i64>,
     /// When shipping_cost contains the shipping_rate from the invoice, the shipping_cost is included in the credit note.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping_cost: Option<CreateCreditNoteShippingCost<'a>>,
+    pub shipping_cost: Option<CreditNoteShippingCost<'a>>,
 }
 impl<'a> CreateCreditNote<'a> {
     pub fn new(invoice: &'a str) -> Self {
@@ -81,7 +81,7 @@ pub struct CreateCreditNoteLines<'a> {
     pub quantity: Option<u64>,
     /// A list of up to 10 tax amounts for the credit note line item. Cannot be mixed with `tax_rates`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_amounts: Option<&'a [CreateCreditNoteLinesTaxAmounts<'a>]>,
+    pub tax_amounts: Option<&'a [TaxAmountWithTaxRateParam<'a>]>,
     /// The tax rates which apply to the credit note line item.
     /// Only valid when the `type` is `custom_line_item` and cannot be mixed with `tax_amounts`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -112,22 +112,6 @@ impl<'a> CreateCreditNoteLines<'a> {
             unit_amount: None,
             unit_amount_decimal: None,
         }
-    }
-}
-/// A list of up to 10 tax amounts for the credit note line item. Cannot be mixed with `tax_rates`.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct CreateCreditNoteLinesTaxAmounts<'a> {
-    /// The amount, in cents (or local equivalent), of the tax.
-    pub amount: i64,
-    /// The id of the tax rate for this tax amount.
-    /// The tax rate must have been automatically created by Stripe.
-    pub tax_rate: &'a str,
-    /// The amount on which tax is calculated, in cents (or local equivalent).
-    pub taxable_amount: i64,
-}
-impl<'a> CreateCreditNoteLinesTaxAmounts<'a> {
-    pub fn new(amount: i64, tax_rate: &'a str, taxable_amount: i64) -> Self {
-        Self { amount, tax_rate, taxable_amount }
     }
 }
 /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
@@ -179,75 +163,6 @@ impl serde::Serialize for CreateCreditNoteLinesType {
         S: serde::Serializer,
     {
         serializer.serialize_str(self.as_str())
-    }
-}
-/// Reason for issuing this credit note, one of `duplicate`, `fraudulent`, `order_change`, or `product_unsatisfactory`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateCreditNoteReason {
-    Duplicate,
-    Fraudulent,
-    OrderChange,
-    ProductUnsatisfactory,
-}
-impl CreateCreditNoteReason {
-    pub fn as_str(self) -> &'static str {
-        use CreateCreditNoteReason::*;
-        match self {
-            Duplicate => "duplicate",
-            Fraudulent => "fraudulent",
-            OrderChange => "order_change",
-            ProductUnsatisfactory => "product_unsatisfactory",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateCreditNoteReason {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateCreditNoteReason::*;
-        match s {
-            "duplicate" => Ok(Duplicate),
-            "fraudulent" => Ok(Fraudulent),
-            "order_change" => Ok(OrderChange),
-            "product_unsatisfactory" => Ok(ProductUnsatisfactory),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateCreditNoteReason {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateCreditNoteReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateCreditNoteReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateCreditNoteReason {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// When shipping_cost contains the shipping_rate from the invoice, the shipping_cost is included in the credit note.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct CreateCreditNoteShippingCost<'a> {
-    /// The ID of the shipping rate to use for this order.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping_rate: Option<&'a str>,
-}
-impl<'a> CreateCreditNoteShippingCost<'a> {
-    pub fn new() -> Self {
-        Self::default()
     }
 }
 impl<'a> CreateCreditNote<'a> {
@@ -308,7 +223,7 @@ pub struct PreviewCreditNote<'a> {
     pub out_of_band_amount: Option<i64>,
     /// Reason for issuing this credit note, one of `duplicate`, `fraudulent`, `order_change`, or `product_unsatisfactory`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub reason: Option<PreviewCreditNoteReason>,
+    pub reason: Option<stripe_shared::CreditNoteReason>,
     /// ID of an existing refund to link this credit note to.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refund: Option<&'a str>,
@@ -318,7 +233,7 @@ pub struct PreviewCreditNote<'a> {
     pub refund_amount: Option<i64>,
     /// When shipping_cost contains the shipping_rate from the invoice, the shipping_cost is included in the credit note.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping_cost: Option<PreviewCreditNoteShippingCost<'a>>,
+    pub shipping_cost: Option<CreditNoteShippingCost<'a>>,
 }
 impl<'a> PreviewCreditNote<'a> {
     pub fn new(invoice: &'a str) -> Self {
@@ -356,7 +271,7 @@ pub struct PreviewCreditNoteLines<'a> {
     pub quantity: Option<u64>,
     /// A list of up to 10 tax amounts for the credit note line item. Cannot be mixed with `tax_rates`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_amounts: Option<&'a [PreviewCreditNoteLinesTaxAmounts<'a>]>,
+    pub tax_amounts: Option<&'a [TaxAmountWithTaxRateParam<'a>]>,
     /// The tax rates which apply to the credit note line item.
     /// Only valid when the `type` is `custom_line_item` and cannot be mixed with `tax_amounts`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -387,22 +302,6 @@ impl<'a> PreviewCreditNoteLines<'a> {
             unit_amount: None,
             unit_amount_decimal: None,
         }
-    }
-}
-/// A list of up to 10 tax amounts for the credit note line item. Cannot be mixed with `tax_rates`.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct PreviewCreditNoteLinesTaxAmounts<'a> {
-    /// The amount, in cents (or local equivalent), of the tax.
-    pub amount: i64,
-    /// The id of the tax rate for this tax amount.
-    /// The tax rate must have been automatically created by Stripe.
-    pub tax_rate: &'a str,
-    /// The amount on which tax is calculated, in cents (or local equivalent).
-    pub taxable_amount: i64,
-}
-impl<'a> PreviewCreditNoteLinesTaxAmounts<'a> {
-    pub fn new(amount: i64, tax_rate: &'a str, taxable_amount: i64) -> Self {
-        Self { amount, tax_rate, taxable_amount }
     }
 }
 /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
@@ -454,75 +353,6 @@ impl serde::Serialize for PreviewCreditNoteLinesType {
         S: serde::Serializer,
     {
         serializer.serialize_str(self.as_str())
-    }
-}
-/// Reason for issuing this credit note, one of `duplicate`, `fraudulent`, `order_change`, or `product_unsatisfactory`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum PreviewCreditNoteReason {
-    Duplicate,
-    Fraudulent,
-    OrderChange,
-    ProductUnsatisfactory,
-}
-impl PreviewCreditNoteReason {
-    pub fn as_str(self) -> &'static str {
-        use PreviewCreditNoteReason::*;
-        match self {
-            Duplicate => "duplicate",
-            Fraudulent => "fraudulent",
-            OrderChange => "order_change",
-            ProductUnsatisfactory => "product_unsatisfactory",
-        }
-    }
-}
-
-impl std::str::FromStr for PreviewCreditNoteReason {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use PreviewCreditNoteReason::*;
-        match s {
-            "duplicate" => Ok(Duplicate),
-            "fraudulent" => Ok(Fraudulent),
-            "order_change" => Ok(OrderChange),
-            "product_unsatisfactory" => Ok(ProductUnsatisfactory),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for PreviewCreditNoteReason {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for PreviewCreditNoteReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for PreviewCreditNoteReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for PreviewCreditNoteReason {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// When shipping_cost contains the shipping_rate from the invoice, the shipping_cost is included in the credit note.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct PreviewCreditNoteShippingCost<'a> {
-    /// The ID of the shipping rate to use for this order.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping_rate: Option<&'a str>,
-}
-impl<'a> PreviewCreditNoteShippingCost<'a> {
-    pub fn new() -> Self {
-        Self::default()
     }
 }
 impl<'a> PreviewCreditNote<'a> {
@@ -691,7 +521,7 @@ pub struct PreviewLinesCreditNote<'a> {
     pub out_of_band_amount: Option<i64>,
     /// Reason for issuing this credit note, one of `duplicate`, `fraudulent`, `order_change`, or `product_unsatisfactory`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub reason: Option<PreviewLinesCreditNoteReason>,
+    pub reason: Option<stripe_shared::CreditNoteReason>,
     /// ID of an existing refund to link this credit note to.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refund: Option<&'a str>,
@@ -701,7 +531,7 @@ pub struct PreviewLinesCreditNote<'a> {
     pub refund_amount: Option<i64>,
     /// When shipping_cost contains the shipping_rate from the invoice, the shipping_cost is included in the credit note.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping_cost: Option<PreviewLinesCreditNoteShippingCost<'a>>,
+    pub shipping_cost: Option<CreditNoteShippingCost<'a>>,
     /// A cursor for use in pagination.
     /// `starting_after` is an object ID that defines your place in the list.
     /// For instance, if you make a list request and receive 100 objects, ending with `obj_foo`, your subsequent call can include `starting_after=obj_foo` in order to fetch the next page of the list.
@@ -747,7 +577,7 @@ pub struct PreviewLinesCreditNoteLines<'a> {
     pub quantity: Option<u64>,
     /// A list of up to 10 tax amounts for the credit note line item. Cannot be mixed with `tax_rates`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_amounts: Option<&'a [PreviewLinesCreditNoteLinesTaxAmounts<'a>]>,
+    pub tax_amounts: Option<&'a [TaxAmountWithTaxRateParam<'a>]>,
     /// The tax rates which apply to the credit note line item.
     /// Only valid when the `type` is `custom_line_item` and cannot be mixed with `tax_amounts`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -778,22 +608,6 @@ impl<'a> PreviewLinesCreditNoteLines<'a> {
             unit_amount: None,
             unit_amount_decimal: None,
         }
-    }
-}
-/// A list of up to 10 tax amounts for the credit note line item. Cannot be mixed with `tax_rates`.
-#[derive(Copy, Clone, Debug, serde::Serialize)]
-pub struct PreviewLinesCreditNoteLinesTaxAmounts<'a> {
-    /// The amount, in cents (or local equivalent), of the tax.
-    pub amount: i64,
-    /// The id of the tax rate for this tax amount.
-    /// The tax rate must have been automatically created by Stripe.
-    pub tax_rate: &'a str,
-    /// The amount on which tax is calculated, in cents (or local equivalent).
-    pub taxable_amount: i64,
-}
-impl<'a> PreviewLinesCreditNoteLinesTaxAmounts<'a> {
-    pub fn new(amount: i64, tax_rate: &'a str, taxable_amount: i64) -> Self {
-        Self { amount, tax_rate, taxable_amount }
     }
 }
 /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
@@ -847,75 +661,6 @@ impl serde::Serialize for PreviewLinesCreditNoteLinesType {
         serializer.serialize_str(self.as_str())
     }
 }
-/// Reason for issuing this credit note, one of `duplicate`, `fraudulent`, `order_change`, or `product_unsatisfactory`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum PreviewLinesCreditNoteReason {
-    Duplicate,
-    Fraudulent,
-    OrderChange,
-    ProductUnsatisfactory,
-}
-impl PreviewLinesCreditNoteReason {
-    pub fn as_str(self) -> &'static str {
-        use PreviewLinesCreditNoteReason::*;
-        match self {
-            Duplicate => "duplicate",
-            Fraudulent => "fraudulent",
-            OrderChange => "order_change",
-            ProductUnsatisfactory => "product_unsatisfactory",
-        }
-    }
-}
-
-impl std::str::FromStr for PreviewLinesCreditNoteReason {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use PreviewLinesCreditNoteReason::*;
-        match s {
-            "duplicate" => Ok(Duplicate),
-            "fraudulent" => Ok(Fraudulent),
-            "order_change" => Ok(OrderChange),
-            "product_unsatisfactory" => Ok(ProductUnsatisfactory),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for PreviewLinesCreditNoteReason {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for PreviewLinesCreditNoteReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for PreviewLinesCreditNoteReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for PreviewLinesCreditNoteReason {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
-    }
-}
-/// When shipping_cost contains the shipping_rate from the invoice, the shipping_cost is included in the credit note.
-#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
-pub struct PreviewLinesCreditNoteShippingCost<'a> {
-    /// The ID of the shipping rate to use for this order.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub shipping_rate: Option<&'a str>,
-}
-impl<'a> PreviewLinesCreditNoteShippingCost<'a> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
 impl<'a> PreviewLinesCreditNote<'a> {
     /// When retrieving a credit note preview, you’ll get a **lines** property containing the first handful of those items.
     /// This URL you can retrieve the full (paginated) list of line items.
@@ -929,5 +674,31 @@ impl<'a> PreviewLinesCreditNote<'a> {
         self,
     ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CreditNoteLineItem>> {
         stripe::ListPaginator::from_list_params("/credit_notes/preview/lines", self)
+    }
+}
+#[derive(Copy, Clone, Debug, serde::Serialize)]
+pub struct TaxAmountWithTaxRateParam<'a> {
+    /// The amount, in cents (or local equivalent), of the tax.
+    pub amount: i64,
+    /// The id of the tax rate for this tax amount.
+    /// The tax rate must have been automatically created by Stripe.
+    pub tax_rate: &'a str,
+    /// The amount on which tax is calculated, in cents (or local equivalent).
+    pub taxable_amount: i64,
+}
+impl<'a> TaxAmountWithTaxRateParam<'a> {
+    pub fn new(amount: i64, tax_rate: &'a str, taxable_amount: i64) -> Self {
+        Self { amount, tax_rate, taxable_amount }
+    }
+}
+#[derive(Copy, Clone, Debug, Default, serde::Serialize)]
+pub struct CreditNoteShippingCost<'a> {
+    /// The ID of the shipping rate to use for this order.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub shipping_rate: Option<&'a str>,
+}
+impl<'a> CreditNoteShippingCost<'a> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }

@@ -86,15 +86,17 @@ impl<'a> Inference<'a> {
         }
     }
 
-    fn build_object_type(self, data: RustObject, ident: RustIdent) -> RustType {
+    fn build_object_type(self, data: RustObject) -> RustType {
+        let next_ident = self.next_ident();
         RustType::Object(
             data,
             ObjectMetadata {
-                ident,
+                ident: next_ident,
                 doc: self.description.map(|d| d.to_string()),
                 title: self.title.map(|t| t.to_string()),
                 field_name: self.field_name.map(|t| t.to_string()),
                 kind: self.kind,
+                parent: Some(self.curr_ident.clone()),
             },
         )
     }
@@ -171,7 +173,7 @@ impl<'a> Inference<'a> {
         let variants = build_enum_variants(&typ.enumeration);
 
         if !variants.is_empty() {
-            return self.build_object_type(RustObject::FieldlessEnum(variants), self.next_ident());
+            return self.build_object_type(RustObject::FieldlessEnum(variants));
         }
         if let Some(f_name) = self.field_name {
             if f_name == "currency" || f_name.ends_with("_currency") {
@@ -241,7 +243,7 @@ impl<'a> Inference<'a> {
                     .build_struct_field(prop_field_name, field_spec),
             );
         }
-        self.build_object_type(RustObject::Struct(fields), next_ident)
+        self.build_object_type(RustObject::Struct(fields))
     }
 
     fn infer_any_or_one_of(&self, fields: &[ReferenceOr<Schema>], field: &Schema) -> RustType {
@@ -259,7 +261,7 @@ impl<'a> Inference<'a> {
             RustType::ext(ExtType::RangeQueryTs)
         } else {
             let enum_ = self.build_enum_variants(fields).expect("Could not build enum with fields");
-            self.build_object_type(RustObject::Enum(enum_), self.next_ident())
+            self.build_object_type(RustObject::Enum(enum_))
         }
     }
 

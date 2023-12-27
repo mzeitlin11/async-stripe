@@ -53,7 +53,7 @@ impl<'a> ObjectWriter<'a> {
         self.components.construct_printable_type(typ)
     }
 
-    pub fn lifetime_param(&self) -> String {
+    pub fn lifetime_param(&self) -> &'static str {
         self.lifetime.map(|l| l.as_param()).unwrap_or_default()
     }
 

@@ -28,65 +28,11 @@ pub struct ListIssuingAuthorization<'a> {
     pub starting_after: Option<&'a str>,
     /// Only return authorizations with the given status. One of `pending`, `closed`, or `reversed`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub status: Option<ListIssuingAuthorizationStatus>,
+    pub status: Option<stripe_shared::IssuingAuthorizationStatus>,
 }
 impl<'a> ListIssuingAuthorization<'a> {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// Only return authorizations with the given status. One of `pending`, `closed`, or `reversed`.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum ListIssuingAuthorizationStatus {
-    Closed,
-    Pending,
-    Reversed,
-}
-impl ListIssuingAuthorizationStatus {
-    pub fn as_str(self) -> &'static str {
-        use ListIssuingAuthorizationStatus::*;
-        match self {
-            Closed => "closed",
-            Pending => "pending",
-            Reversed => "reversed",
-        }
-    }
-}
-
-impl std::str::FromStr for ListIssuingAuthorizationStatus {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use ListIssuingAuthorizationStatus::*;
-        match s {
-            "closed" => Ok(Closed),
-            "pending" => Ok(Pending),
-            "reversed" => Ok(Reversed),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for ListIssuingAuthorizationStatus {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for ListIssuingAuthorizationStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for ListIssuingAuthorizationStatus {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for ListIssuingAuthorizationStatus {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 impl<'a> ListIssuingAuthorization<'a> {
@@ -241,7 +187,7 @@ pub struct CreateIssuingAuthorization<'a> {
     pub amount_details: Option<CreateIssuingAuthorizationAmountDetails>,
     /// How the card details were provided. Defaults to online.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub authorization_method: Option<CreateIssuingAuthorizationAuthorizationMethod>,
+    pub authorization_method: Option<stripe_shared::IssuingAuthorizationAuthorizationMethod>,
     /// Card associated with this authorization.
     pub card: &'a str,
     /// The currency of the authorization.
@@ -302,66 +248,6 @@ pub struct CreateIssuingAuthorizationAmountDetails {
 impl CreateIssuingAuthorizationAmountDetails {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-/// How the card details were provided. Defaults to online.
-#[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateIssuingAuthorizationAuthorizationMethod {
-    Chip,
-    Contactless,
-    KeyedIn,
-    Online,
-    Swipe,
-}
-impl CreateIssuingAuthorizationAuthorizationMethod {
-    pub fn as_str(self) -> &'static str {
-        use CreateIssuingAuthorizationAuthorizationMethod::*;
-        match self {
-            Chip => "chip",
-            Contactless => "contactless",
-            KeyedIn => "keyed_in",
-            Online => "online",
-            Swipe => "swipe",
-        }
-    }
-}
-
-impl std::str::FromStr for CreateIssuingAuthorizationAuthorizationMethod {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use CreateIssuingAuthorizationAuthorizationMethod::*;
-        match s {
-            "chip" => Ok(Chip),
-            "contactless" => Ok(Contactless),
-            "keyed_in" => Ok(KeyedIn),
-            "online" => Ok(Online),
-            "swipe" => Ok(Swipe),
-            _ => Err(()),
-        }
-    }
-}
-impl AsRef<str> for CreateIssuingAuthorizationAuthorizationMethod {
-    fn as_ref(&self) -> &str {
-        self.as_str()
-    }
-}
-impl std::fmt::Display for CreateIssuingAuthorizationAuthorizationMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-
-impl std::fmt::Debug for CreateIssuingAuthorizationAuthorizationMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
-impl serde::Serialize for CreateIssuingAuthorizationAuthorizationMethod {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(self.as_str())
     }
 }
 /// Details about the seller (grocery store, e-commerce website, etc.) where the card authorization happened.

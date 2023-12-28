@@ -1,4 +1,6 @@
-use stripe_core::customer::{CreateCustomer, DeleteCustomer};
+use stripe_core::customer::{
+    CreateCustomer, DeleteCustomer, RetrieveCustomer, RetrieveCustomerReturned,
+};
 
 use crate::mock;
 
@@ -25,4 +27,20 @@ fn customer_create_and_delete_with_account() {
             .with_stripe_account("acct_123".parse().unwrap());
         customer_create_and_delete(&client);
     });
+}
+
+#[test]
+fn retrieve_customer() {
+    mock::with_client(|client| {
+        let id = "cus_123".parse().unwrap();
+        let ret = RetrieveCustomer::new().send(client, &id).unwrap();
+        match ret {
+            RetrieveCustomerReturned::Customer(cust) => {
+                assert_eq!(cust.id, id);
+                assert_eq!(cust.invoice_prefix, Some("D331735".into()));
+                assert_eq!(cust.created, 1234567890);
+            }
+            RetrieveCustomerReturned::DeletedCustomer(_) => panic!("expected non-deleted response"),
+        }
+    })
 }

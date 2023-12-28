@@ -155,7 +155,7 @@ impl<'a> UpdateCustomerCard<'a> {
         client: &stripe::Client,
         customer: &stripe_shared::CustomerId,
         id: &str,
-    ) -> stripe::Response<UpdateCustomerReturned> {
+    ) -> stripe::Response<UpdateCustomerCardReturned> {
         client.send_form(
             &format!("/customers/{customer}/sources/{id}"),
             self,
@@ -165,7 +165,7 @@ impl<'a> UpdateCustomerCard<'a> {
 }
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "object")]
-pub enum UpdateCustomerReturned {
+pub enum UpdateCustomerCardReturned {
     #[serde(rename = "card")]
     Card(stripe_shared::Card),
     #[serde(rename = "bank_account")]
@@ -191,7 +191,7 @@ impl<'a> DeleteCustomerCard<'a> {
         client: &stripe::Client,
         customer: &stripe_shared::CustomerId,
         id: &str,
-    ) -> stripe::Response<DeleteCustomerReturned> {
+    ) -> stripe::Response<DeleteCustomerCardReturned> {
         client.send_form(
             &format!("/customers/{customer}/sources/{id}"),
             self,
@@ -201,7 +201,7 @@ impl<'a> DeleteCustomerCard<'a> {
 }
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
-pub enum DeleteCustomerReturned {
+pub enum DeleteCustomerCardReturned {
     PaymentSource(stripe_shared::PaymentSource),
     DeletedPaymentSource(stripe_shared::DeletedPaymentSource),
 }

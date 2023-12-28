@@ -235,7 +235,11 @@ pub fn as_enum_of_objects<'a>(
         let path = variant.rust_type.as_ref().and_then(|t| t.as_component_path())?;
         let obj = components.get(path);
         let name = obj.data.object_name.as_deref()?;
-        object_map.insert(name, ObjectRef { path: path.clone(), feature_gate: None });
+
+        // If we have duplicate object names, we cannot distinguish by the object tag, so give up here
+        if object_map.insert(name, ObjectRef { path: path.clone(), feature_gate: None }).is_some() {
+            return None;
+        }
     }
     Some(object_map)
 }

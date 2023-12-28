@@ -630,14 +630,14 @@ impl<'a> RetrieveCustomer<'a> {
         &self,
         client: &stripe::Client,
         customer: &stripe_shared::CustomerId,
-    ) -> stripe::Response<RetrieveReturned> {
+    ) -> stripe::Response<RetrieveCustomerReturned> {
         client.get_query(&format!("/customers/{customer}"), self)
     }
 }
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "object")]
-pub enum RetrieveReturned {
-    #[serde(rename = "customer")]
+#[serde(untagged)]
+pub enum RetrieveCustomerReturned {
+    Customer(stripe_shared::Customer),
     DeletedCustomer(stripe_shared::DeletedCustomer),
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]

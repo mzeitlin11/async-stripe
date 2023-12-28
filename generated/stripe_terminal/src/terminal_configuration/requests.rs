@@ -113,14 +113,14 @@ impl<'a> RetrieveTerminalConfiguration<'a> {
         &self,
         client: &stripe::Client,
         configuration: &stripe_terminal::TerminalConfigurationId,
-    ) -> stripe::Response<RetrieveReturned> {
+    ) -> stripe::Response<RetrieveTerminalConfigurationReturned> {
         client.get_query(&format!("/terminal/configurations/{configuration}"), self)
     }
 }
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "object")]
-pub enum RetrieveReturned {
-    #[serde(rename = "terminal.configuration")]
+#[serde(untagged)]
+pub enum RetrieveTerminalConfigurationReturned {
+    TerminalConfiguration(stripe_terminal::TerminalConfiguration),
     DeletedTerminalConfiguration(stripe_terminal::DeletedTerminalConfiguration),
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -176,7 +176,7 @@ impl<'a> UpdateTerminalConfiguration<'a> {
         &self,
         client: &stripe::Client,
         configuration: &stripe_terminal::TerminalConfigurationId,
-    ) -> stripe::Response<UpdateReturned> {
+    ) -> stripe::Response<UpdateTerminalConfigurationReturned> {
         client.send_form(
             &format!("/terminal/configurations/{configuration}"),
             self,
@@ -185,9 +185,9 @@ impl<'a> UpdateTerminalConfiguration<'a> {
     }
 }
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "object")]
-pub enum UpdateReturned {
-    #[serde(rename = "terminal.configuration")]
+#[serde(untagged)]
+pub enum UpdateTerminalConfigurationReturned {
+    TerminalConfiguration(stripe_terminal::TerminalConfiguration),
     DeletedTerminalConfiguration(stripe_terminal::DeletedTerminalConfiguration),
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]

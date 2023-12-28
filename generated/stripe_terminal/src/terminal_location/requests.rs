@@ -15,14 +15,14 @@ impl<'a> RetrieveTerminalLocation<'a> {
         &self,
         client: &stripe::Client,
         location: &stripe_terminal::TerminalLocationId,
-    ) -> stripe::Response<RetrieveReturned> {
+    ) -> stripe::Response<RetrieveTerminalLocationReturned> {
         client.get_query(&format!("/terminal/locations/{location}"), self)
     }
 }
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "object")]
-pub enum RetrieveReturned {
-    #[serde(rename = "terminal.location")]
+#[serde(untagged)]
+pub enum RetrieveTerminalLocationReturned {
+    TerminalLocation(stripe_terminal::TerminalLocation),
     DeletedTerminalLocation(stripe_terminal::DeletedTerminalLocation),
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -145,14 +145,14 @@ impl<'a> UpdateTerminalLocation<'a> {
         &self,
         client: &stripe::Client,
         location: &stripe_terminal::TerminalLocationId,
-    ) -> stripe::Response<UpdateReturned> {
+    ) -> stripe::Response<UpdateTerminalLocationReturned> {
         client.send_form(&format!("/terminal/locations/{location}"), self, http_types::Method::Post)
     }
 }
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "object")]
-pub enum UpdateReturned {
-    #[serde(rename = "terminal.location")]
+#[serde(untagged)]
+pub enum UpdateTerminalLocationReturned {
+    TerminalLocation(stripe_terminal::TerminalLocation),
     DeletedTerminalLocation(stripe_terminal::DeletedTerminalLocation),
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]

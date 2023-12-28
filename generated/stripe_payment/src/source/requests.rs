@@ -16,7 +16,7 @@ impl<'a> DetachSource<'a> {
         client: &stripe::Client,
         customer: &stripe_shared::CustomerId,
         id: &str,
-    ) -> stripe::Response<DetachReturned> {
+    ) -> stripe::Response<DetachSourceReturned> {
         client.send_form(
             &format!("/customers/{customer}/sources/{id}"),
             self,
@@ -26,7 +26,7 @@ impl<'a> DetachSource<'a> {
 }
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 #[serde(untagged)]
-pub enum DetachReturned {
+pub enum DetachSourceReturned {
     PaymentSource(stripe_shared::PaymentSource),
     DeletedPaymentSource(stripe_shared::DeletedPaymentSource),
 }

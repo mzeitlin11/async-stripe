@@ -25,14 +25,14 @@ impl<'a> UpdateTerminalReader<'a> {
         &self,
         client: &stripe::Client,
         reader: &stripe_terminal::TerminalReaderId,
-    ) -> stripe::Response<UpdateReturned> {
+    ) -> stripe::Response<UpdateTerminalReaderReturned> {
         client.send_form(&format!("/terminal/readers/{reader}"), self, http_types::Method::Post)
     }
 }
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "object")]
-pub enum UpdateReturned {
-    #[serde(rename = "terminal.reader")]
+#[serde(untagged)]
+pub enum UpdateTerminalReaderReturned {
+    TerminalReader(stripe_terminal::TerminalReader),
     DeletedTerminalReader(stripe_terminal::DeletedTerminalReader),
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -52,14 +52,14 @@ impl<'a> RetrieveTerminalReader<'a> {
         &self,
         client: &stripe::Client,
         reader: &stripe_terminal::TerminalReaderId,
-    ) -> stripe::Response<RetrieveReturned> {
+    ) -> stripe::Response<RetrieveTerminalReaderReturned> {
         client.get_query(&format!("/terminal/readers/{reader}"), self)
     }
 }
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "object")]
-pub enum RetrieveReturned {
-    #[serde(rename = "terminal.reader")]
+#[serde(untagged)]
+pub enum RetrieveTerminalReaderReturned {
+    TerminalReader(stripe_terminal::TerminalReader),
     DeletedTerminalReader(stripe_terminal::DeletedTerminalReader),
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]

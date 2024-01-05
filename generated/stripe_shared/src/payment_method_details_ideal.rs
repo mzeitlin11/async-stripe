@@ -1,4 +1,6 @@
-#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct PaymentMethodDetailsIdeal {
     /// The customer's bank.
     /// Can be one of `abn_amro`, `asn_bank`, `bunq`, `handelsbanken`, `ing`, `knab`, `moneyou`, `n26`, `rabobank`, `regiobank`, `revolut`, `sns_bank`, `triodos_bank`, `van_lanschot`, or `yoursafe`.
@@ -15,6 +17,94 @@ pub struct PaymentMethodDetailsIdeal {
     /// (if supported) at the time of authorization or settlement. They cannot be set or mutated.
     pub verified_name: Option<String>,
 }
+#[cfg(feature = "min-ser")]
+pub struct PaymentMethodDetailsIdealBuilder {
+    bank: Option<Option<PaymentMethodDetailsIdealBank>>,
+    bic: Option<Option<PaymentMethodDetailsIdealBic>>,
+    generated_sepa_debit: Option<Option<stripe_types::Expandable<stripe_shared::PaymentMethod>>>,
+    generated_sepa_debit_mandate: Option<Option<stripe_types::Expandable<stripe_shared::Mandate>>>,
+    iban_last4: Option<Option<String>>,
+    verified_name: Option<Option<String>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for PaymentMethodDetailsIdeal {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<PaymentMethodDetailsIdeal>,
+        builder: PaymentMethodDetailsIdealBuilder,
+    }
+
+    impl Visitor for Place<PaymentMethodDetailsIdeal> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: PaymentMethodDetailsIdealBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for PaymentMethodDetailsIdealBuilder {
+        type Out = PaymentMethodDetailsIdeal;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "bank" => Ok(Deserialize::begin(&mut self.bank)),
+                "bic" => Ok(Deserialize::begin(&mut self.bic)),
+                "generated_sepa_debit" => Ok(Deserialize::begin(&mut self.generated_sepa_debit)),
+                "generated_sepa_debit_mandate" => Ok(Deserialize::begin(&mut self.generated_sepa_debit_mandate)),
+                "iban_last4" => Ok(Deserialize::begin(&mut self.iban_last4)),
+                "verified_name" => Ok(Deserialize::begin(&mut self.verified_name)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                bank: Deserialize::default(),
+                bic: Deserialize::default(),
+                generated_sepa_debit: Deserialize::default(),
+                generated_sepa_debit_mandate: Deserialize::default(),
+                iban_last4: Deserialize::default(),
+                verified_name: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let bank = self.bank.take()?;
+            let bic = self.bic.take()?;
+            let generated_sepa_debit = self.generated_sepa_debit.take()?;
+            let generated_sepa_debit_mandate = self.generated_sepa_debit_mandate.take()?;
+            let iban_last4 = self.iban_last4.take()?;
+            let verified_name = self.verified_name.take()?;
+
+            Some(Self::Out { bank, bic, generated_sepa_debit, generated_sepa_debit_mandate, iban_last4, verified_name })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for PaymentMethodDetailsIdeal {
+        type Builder = PaymentMethodDetailsIdealBuilder;
+    }
+};
 /// The customer's bank.
 /// Can be one of `abn_amro`, `asn_bank`, `bunq`, `handelsbanken`, `ing`, `knab`, `moneyou`, `n26`, `rabobank`, `regiobank`, `revolut`, `sns_bank`, `triodos_bank`, `van_lanschot`, or `yoursafe`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -114,7 +204,22 @@ impl<'de> serde::Deserialize<'de> for PaymentMethodDetailsIdealBank {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Ok(Self::from_str(&s).unwrap_or(PaymentMethodDetailsIdealBank::Unknown))
+        Ok(Self::from_str(&s).unwrap_or(Self::Unknown))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentMethodDetailsIdealBank {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentMethodDetailsIdealBank> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentMethodDetailsIdealBank::from_str(s).unwrap_or(PaymentMethodDetailsIdealBank::Unknown));
+        Ok(())
     }
 }
 /// The Bank Identifier Code of the customer's bank.
@@ -218,6 +323,21 @@ impl<'de> serde::Deserialize<'de> for PaymentMethodDetailsIdealBic {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Ok(Self::from_str(&s).unwrap_or(PaymentMethodDetailsIdealBic::Unknown))
+        Ok(Self::from_str(&s).unwrap_or(Self::Unknown))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentMethodDetailsIdealBic {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentMethodDetailsIdealBic> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentMethodDetailsIdealBic::from_str(s).unwrap_or(PaymentMethodDetailsIdealBic::Unknown));
+        Ok(())
     }
 }

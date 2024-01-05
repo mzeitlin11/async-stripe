@@ -28,15 +28,10 @@ impl<'a> SearchCustomer<'a> {
     /// conditions, data is searchable in less than a minute.
     /// Occasionally, propagation of new or updated data can be up.
     /// to an hour behind during outages. Search functionality is not available to merchants in India.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::SearchList<stripe_shared::Customer>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::SearchList<stripe_shared::Customer>> {
         client.get_query("/customers/search", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Customer>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Customer>> {
         stripe::ListPaginator::from_search_params("/customers/search", self)
     }
 }
@@ -78,10 +73,7 @@ impl<'a> ListCustomer<'a> {
 impl<'a> ListCustomer<'a> {
     /// Returns a list of your customers.
     /// The customers are returned sorted by creation date, with the most recent customers appearing first.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::Customer>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::Customer>> {
         client.get_query("/customers", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Customer>> {
@@ -350,7 +342,7 @@ impl serde::Serialize for CreateCustomerInvoiceSettingsRenderingOptionsAmountTax
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateCustomerTaxIdData<'a> {
     /// Type of the tax ID, one of `ad_nrt`, `ae_trn`, `ar_cuit`, `au_abn`, `au_arn`, `bg_uic`, `bo_tin`, `br_cnpj`, `br_cpf`, `ca_bn`, `ca_gst_hst`, `ca_pst_bc`, `ca_pst_mb`, `ca_pst_sk`, `ca_qst`, `ch_vat`, `cl_tin`, `cn_tin`, `co_nit`, `cr_tin`, `do_rcn`, `ec_ruc`, `eg_tin`, `es_cif`, `eu_oss_vat`, `eu_vat`, `gb_vat`, `ge_vat`, `hk_br`, `hu_tin`, `id_npwp`, `il_vat`, `in_gst`, `is_vat`, `jp_cn`, `jp_rn`, `jp_trn`, `ke_pin`, `kr_brn`, `li_uid`, `mx_rfc`, `my_frp`, `my_itn`, `my_sst`, `no_vat`, `nz_gst`, `pe_ruc`, `ph_tin`, `ro_tin`, `rs_pib`, `ru_inn`, `ru_kpp`, `sa_vat`, `sg_gst`, `sg_uen`, `si_tin`, `sv_nit`, `th_vat`, `tr_tin`, `tw_vat`, `ua_vat`, `us_ein`, `uy_ruc`, `ve_rif`, `vn_tin`, or `za_vat`.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: CreateCustomerTaxIdDataType,
     /// Value of the tax ID.
     pub value: &'a str,
@@ -626,19 +618,23 @@ impl<'a> RetrieveCustomer<'a> {
 }
 impl<'a> RetrieveCustomer<'a> {
     /// Retrieves a Customer object.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-    ) -> stripe::Response<RetrieveCustomerReturned> {
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId) -> stripe::Response<RetrieveCustomerReturned> {
         client.get_query(&format!("/customers/{customer}"), self)
     }
 }
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
+#[cfg_attr(not(feature = "min-ser"), serde(untagged))]
 pub enum RetrieveCustomerReturned {
     Customer(stripe_shared::Customer),
     DeletedCustomer(stripe_shared::DeletedCustomer),
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for RetrieveCustomerReturned {
+    fn begin(_out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        todo!()
+    }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateCustomer<'a> {
@@ -906,11 +902,7 @@ impl<'a> UpdateCustomer<'a> {
     /// Changing the **default_source** for a customer will not trigger this behavior.
     ///
     /// This request accepts mostly the same arguments as the customer creation call.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-    ) -> stripe::Response<stripe_shared::Customer> {
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId) -> stripe::Response<stripe_shared::Customer> {
         client.send_form(&format!("/customers/{customer}"), self, http_types::Method::Post)
     }
 }
@@ -925,11 +917,7 @@ impl DeleteCustomer {
     /// Permanently deletes a customer.
     /// It cannot be undone.
     /// Also immediately cancels any active subscriptions on the customer.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-    ) -> stripe::Response<stripe_shared::DeletedCustomer> {
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId) -> stripe::Response<stripe_shared::DeletedCustomer> {
         client.send_form(&format!("/customers/{customer}"), self, http_types::Method::Delete)
     }
 }
@@ -955,7 +943,7 @@ pub struct ListPaymentMethodsCustomer<'a> {
     /// An optional filter on the list, based on the object `type` field.
     /// Without the filter, the list includes all current and future payment method types.
     /// If your integration expects only one type of payment method in the response, make sure to provide a type value in the request.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<ListPaymentMethodsCustomerType>,
 }
@@ -1113,21 +1101,11 @@ impl serde::Serialize for ListPaymentMethodsCustomerType {
 }
 impl<'a> ListPaymentMethodsCustomer<'a> {
     /// Returns a list of PaymentMethods for a given Customer
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::PaymentMethod>> {
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId) -> stripe::Response<stripe_types::List<stripe_shared::PaymentMethod>> {
         client.get_query(&format!("/customers/{customer}/payment_methods"), self)
     }
-    pub fn paginate(
-        self,
-        customer: &stripe_shared::CustomerId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PaymentMethod>> {
-        stripe::ListPaginator::from_list_params(
-            &format!("/customers/{customer}/payment_methods"),
-            self,
-        )
+    pub fn paginate(self, customer: &stripe_shared::CustomerId) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PaymentMethod>> {
+        stripe::ListPaginator::from_list_params(&format!("/customers/{customer}/payment_methods"), self)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1143,12 +1121,7 @@ impl<'a> RetrievePaymentMethodCustomer<'a> {
 }
 impl<'a> RetrievePaymentMethodCustomer<'a> {
     /// Retrieves a PaymentMethod object for a given Customer.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-        payment_method: &str,
-    ) -> stripe::Response<stripe_shared::PaymentMethod> {
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId, payment_method: &str) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.get_query(&format!("/customers/{customer}/payment_methods/{payment_method}"), self)
     }
 }
@@ -1179,21 +1152,11 @@ impl<'a> BalanceTransactionsCustomer<'a> {
 }
 impl<'a> BalanceTransactionsCustomer<'a> {
     /// Returns a list of transactions that updated the customer’s [balances](https://stripe.com/docs/billing/customer/balance).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::CustomerBalanceTransaction>> {
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId) -> stripe::Response<stripe_types::List<stripe_shared::CustomerBalanceTransaction>> {
         client.get_query(&format!("/customers/{customer}/balance_transactions"), self)
     }
-    pub fn paginate(
-        self,
-        customer: &stripe_shared::CustomerId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CustomerBalanceTransaction>> {
-        stripe::ListPaginator::from_list_params(
-            &format!("/customers/{customer}/balance_transactions"),
-            self,
-        )
+    pub fn paginate(self, customer: &stripe_shared::CustomerId) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CustomerBalanceTransaction>> {
+        stripe::ListPaginator::from_list_params(&format!("/customers/{customer}/balance_transactions"), self)
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -1220,16 +1183,8 @@ impl<'a> FundCashBalanceCustomer<'a> {
 }
 impl<'a> FundCashBalanceCustomer<'a> {
     /// Create an incoming testmode bank transfer
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &str,
-    ) -> stripe::Response<stripe_shared::CustomerCashBalanceTransaction> {
-        client.send_form(
-            &format!("/test_helpers/customers/{customer}/fund_cash_balance"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, customer: &str) -> stripe::Response<stripe_shared::CustomerCashBalanceTransaction> {
+        client.send_form(&format!("/test_helpers/customers/{customer}/fund_cash_balance"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -1246,11 +1201,7 @@ pub struct CreateFundingInstructionsCustomer<'a> {
     pub funding_type: CreateFundingInstructionsCustomerFundingType,
 }
 impl<'a> CreateFundingInstructionsCustomer<'a> {
-    pub fn new(
-        bank_transfer: CreateFundingInstructionsCustomerBankTransfer<'a>,
-        currency: stripe_types::Currency,
-        funding_type: CreateFundingInstructionsCustomerFundingType,
-    ) -> Self {
+    pub fn new(bank_transfer: CreateFundingInstructionsCustomerBankTransfer<'a>, currency: stripe_types::Currency, funding_type: CreateFundingInstructionsCustomerFundingType) -> Self {
         Self { bank_transfer, currency, expand: None, funding_type }
     }
 }
@@ -1265,10 +1216,9 @@ pub struct CreateFundingInstructionsCustomerBankTransfer<'a> {
     ///
     /// Permitted values include: `sort_code`, `zengin`, `iban`, or `spei`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub requested_address_types:
-        Option<&'a [CreateFundingInstructionsCustomerBankTransferRequestedAddressTypes]>,
+    pub requested_address_types: Option<&'a [CreateFundingInstructionsCustomerBankTransferRequestedAddressTypes]>,
     /// The type of the `bank_transfer`
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: CreateFundingInstructionsCustomerBankTransferType,
 }
 impl<'a> CreateFundingInstructionsCustomerBankTransfer<'a> {
@@ -1463,16 +1413,8 @@ impl<'a> CreateFundingInstructionsCustomer<'a> {
     /// If funding instructions have already been created for a given customer, the same.
     /// funding instructions will be retrieved.
     /// In other words, we will return the same funding instructions each time.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-    ) -> stripe::Response<stripe_shared::FundingInstructions> {
-        client.send_form(
-            &format!("/customers/{customer}/funding_instructions"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId) -> stripe::Response<stripe_shared::FundingInstructions> {
+        client.send_form(&format!("/customers/{customer}/funding_instructions"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1484,16 +1426,8 @@ impl DeleteDiscountCustomer {
 }
 impl DeleteDiscountCustomer {
     /// Removes the currently applied discount on a customer.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-    ) -> stripe::Response<stripe_shared::DeletedDiscount> {
-        client.send_form(
-            &format!("/customers/{customer}/discount"),
-            self,
-            http_types::Method::Delete,
-        )
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId) -> stripe::Response<stripe_shared::DeletedDiscount> {
+        client.send_form(&format!("/customers/{customer}/discount"), self, http_types::Method::Delete)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]

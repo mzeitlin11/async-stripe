@@ -31,15 +31,10 @@ impl<'a> ListRadarEarlyFraudWarning<'a> {
 }
 impl<'a> ListRadarEarlyFraudWarning<'a> {
     /// Returns a list of early fraud warnings.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_fraud::RadarEarlyFraudWarning>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_fraud::RadarEarlyFraudWarning>> {
         client.get_query("/radar/early_fraud_warnings", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_fraud::RadarEarlyFraudWarning>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_fraud::RadarEarlyFraudWarning>> {
         stripe::ListPaginator::from_list_params("/radar/early_fraud_warnings", self)
     }
 }
@@ -58,11 +53,7 @@ impl<'a> RetrieveRadarEarlyFraudWarning<'a> {
     /// Retrieves the details of an early fraud warning that has previously been created.
     ///
     /// Please refer to the [early fraud warning](https://stripe.com/docs/api#early_fraud_warning_object) object reference for more details.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        early_fraud_warning: &stripe_fraud::RadarEarlyFraudWarningId,
-    ) -> stripe::Response<stripe_fraud::RadarEarlyFraudWarning> {
+    pub fn send(&self, client: &stripe::Client, early_fraud_warning: &stripe_fraud::RadarEarlyFraudWarningId) -> stripe::Response<stripe_fraud::RadarEarlyFraudWarning> {
         client.get_query(&format!("/radar/early_fraud_warnings/{early_fraud_warning}"), self)
     }
 }

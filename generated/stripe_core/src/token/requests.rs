@@ -11,11 +11,7 @@ impl<'a> RetrieveToken<'a> {
 }
 impl<'a> RetrieveToken<'a> {
     /// Retrieves the token with the given ID.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        token: &stripe_core::TokenId,
-    ) -> stripe::Response<stripe_core::Token> {
+    pub fn send(&self, client: &stripe::Client, token: &stripe_core::TokenId) -> stripe::Response<stripe_core::Token> {
         client.get_query(&format!("/tokens/{token}"), self)
     }
 }
@@ -658,15 +654,7 @@ pub struct CreateTokenBankAccount<'a> {
 }
 impl<'a> CreateTokenBankAccount<'a> {
     pub fn new(account_number: &'a str, country: &'a str) -> Self {
-        Self {
-            account_holder_name: None,
-            account_holder_type: None,
-            account_number,
-            account_type: None,
-            country,
-            currency: None,
-            routing_number: None,
-        }
+        Self { account_holder_name: None, account_holder_type: None, account_number, account_type: None, country, currency: None, routing_number: None }
     }
 }
 /// The type of entity that holds the account.

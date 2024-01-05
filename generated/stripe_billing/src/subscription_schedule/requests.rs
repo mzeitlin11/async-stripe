@@ -43,15 +43,10 @@ impl<'a> ListSubscriptionSchedule<'a> {
 }
 impl<'a> ListSubscriptionSchedule<'a> {
     /// Retrieves the list of your subscription schedules.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::SubscriptionSchedule>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::SubscriptionSchedule>> {
         client.get_query("/subscription_schedules", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::SubscriptionSchedule>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::SubscriptionSchedule>> {
         stripe::ListPaginator::from_list_params("/subscription_schedules", self)
     }
 }
@@ -652,19 +647,8 @@ pub struct CreateSubscriptionSchedulePhasesItemsPriceData<'a> {
     pub unit_amount_decimal: Option<&'a str>,
 }
 impl<'a> CreateSubscriptionSchedulePhasesItemsPriceData<'a> {
-    pub fn new(
-        currency: stripe_types::Currency,
-        product: &'a str,
-        recurring: CreateSubscriptionSchedulePhasesItemsPriceDataRecurring,
-    ) -> Self {
-        Self {
-            currency,
-            product,
-            recurring,
-            tax_behavior: None,
-            unit_amount: None,
-            unit_amount_decimal: None,
-        }
+    pub fn new(currency: stripe_types::Currency, product: &'a str, recurring: CreateSubscriptionSchedulePhasesItemsPriceDataRecurring) -> Self {
+        Self { currency, product, recurring, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// The recurring components of a price such as `interval` and `interval_count`.
@@ -866,10 +850,7 @@ pub enum CreateSubscriptionScheduleStartDate {
 impl<'a> CreateSubscriptionSchedule<'a> {
     /// Creates a new subscription schedule object.
     /// Each customer can have up to 500 active or scheduled subscriptions.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
         client.send_form("/subscription_schedules", self, http_types::Method::Post)
     }
 }
@@ -887,11 +868,7 @@ impl<'a> RetrieveSubscriptionSchedule<'a> {
 impl<'a> RetrieveSubscriptionSchedule<'a> {
     /// Retrieves the details of an existing subscription schedule.
     /// You only need to supply the unique subscription schedule identifier that was returned upon subscription schedule creation.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        schedule: &stripe_shared::SubscriptionScheduleId,
-    ) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
+    pub fn send(&self, client: &stripe::Client, schedule: &stripe_shared::SubscriptionScheduleId) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
         client.get_query(&format!("/subscription_schedules/{schedule}"), self)
     }
 }
@@ -1497,19 +1474,8 @@ pub struct UpdateSubscriptionSchedulePhasesItemsPriceData<'a> {
     pub unit_amount_decimal: Option<&'a str>,
 }
 impl<'a> UpdateSubscriptionSchedulePhasesItemsPriceData<'a> {
-    pub fn new(
-        currency: stripe_types::Currency,
-        product: &'a str,
-        recurring: UpdateSubscriptionSchedulePhasesItemsPriceDataRecurring,
-    ) -> Self {
-        Self {
-            currency,
-            product,
-            recurring,
-            tax_behavior: None,
-            unit_amount: None,
-            unit_amount_decimal: None,
-        }
+    pub fn new(currency: stripe_types::Currency, product: &'a str, recurring: UpdateSubscriptionSchedulePhasesItemsPriceDataRecurring) -> Self {
+        Self { currency, product, recurring, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// The recurring components of a price such as `interval` and `interval_count`.
@@ -1772,16 +1738,8 @@ impl serde::Serialize for UpdateSubscriptionScheduleProrationBehavior {
 }
 impl<'a> UpdateSubscriptionSchedule<'a> {
     /// Updates an existing subscription schedule.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        schedule: &stripe_shared::SubscriptionScheduleId,
-    ) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
-        client.send_form(
-            &format!("/subscription_schedules/{schedule}"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, schedule: &stripe_shared::SubscriptionScheduleId) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
+        client.send_form(&format!("/subscription_schedules/{schedule}"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1806,16 +1764,8 @@ impl<'a> CancelSubscriptionSchedule<'a> {
 impl<'a> CancelSubscriptionSchedule<'a> {
     /// Cancels a subscription schedule and its associated subscription immediately (if the subscription schedule has an active subscription).
     /// A subscription schedule can only be canceled if its status is `not_started` or `active`.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        schedule: &stripe_shared::SubscriptionScheduleId,
-    ) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
-        client.send_form(
-            &format!("/subscription_schedules/{schedule}/cancel"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, schedule: &stripe_shared::SubscriptionScheduleId) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
+        client.send_form(&format!("/subscription_schedules/{schedule}/cancel"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1836,16 +1786,8 @@ impl<'a> ReleaseSubscriptionSchedule<'a> {
     /// Releases the subscription schedule immediately, which will stop scheduling of its phases, but leave any existing subscription in place.
     /// A schedule can only be released if its status is `not_started` or `active`.
     /// If the subscription schedule is currently associated with a subscription, releasing it will remove its `subscription` property and set the subscription’s ID to the `released_subscription` property.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        schedule: &stripe_shared::SubscriptionScheduleId,
-    ) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
-        client.send_form(
-            &format!("/subscription_schedules/{schedule}/release"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, schedule: &stripe_shared::SubscriptionScheduleId) -> stripe::Response<stripe_shared::SubscriptionSchedule> {
+        client.send_form(&format!("/subscription_schedules/{schedule}/release"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]

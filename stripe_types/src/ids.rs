@@ -1,3 +1,4 @@
+#[allow(clippy::crate_in_macro_def)]
 #[doc(hidden)]
 #[macro_export]
 macro_rules! def_id_serde_impls {
@@ -18,6 +19,21 @@ macro_rules! def_id_serde_impls {
             {
                 let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
                 s.parse::<Self>().map_err(::serde::de::Error::custom)
+            }
+        }
+
+        #[cfg(feature = "min-ser")]
+        impl miniserde::Deserialize for $struct_name {
+            fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+                crate::Place::new(out)
+            }
+        }
+
+        #[cfg(feature = "min-ser")]
+        impl miniserde::de::Visitor for crate::Place<$struct_name> {
+            fn string(&mut self, s: &str) -> miniserde::Result<()> {
+                self.out = Some(s.parse::<$struct_name>().map_err(|_| miniserde::Error)?);
+                Ok(())
             }
         }
     };
@@ -47,6 +63,13 @@ macro_rules! def_id {
         impl stripe_types::AsCursor for $struct_name {
             fn as_cursor(&self) -> &str {
                 self.0.as_str()
+            }
+        }
+
+        impl stripe_types::FromCursor for $struct_name {
+            fn from_cursor(val: &str) -> Option<Self> {
+                use std::str::FromStr;
+                Self::from_str(val).ok()
             }
         }
 
@@ -146,6 +169,13 @@ macro_rules! def_id {
         impl stripe_types::AsCursor for $struct_name {
             fn as_cursor(&self) -> &str {
                 self.0.as_str()
+            }
+        }
+
+        impl stripe_types::FromCursor for $struct_name {
+            fn from_cursor(val: &str) -> Option<Self> {
+                use std::str::FromStr;
+                Self::from_str(val).ok()
             }
         }
 

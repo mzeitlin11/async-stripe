@@ -1,10 +1,78 @@
-#[derive(Copy, Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, Default)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct InvoiceRenderingPdf {
     /// Page size of invoice pdf.
     /// Options include a4, letter, and auto.
     /// If set to auto, page size will be switched to a4 or letter based on customer locale.
     pub page_size: Option<InvoiceRenderingPdfPageSize>,
 }
+#[cfg(feature = "min-ser")]
+pub struct InvoiceRenderingPdfBuilder {
+    page_size: Option<Option<InvoiceRenderingPdfPageSize>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for InvoiceRenderingPdf {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<InvoiceRenderingPdf>,
+        builder: InvoiceRenderingPdfBuilder,
+    }
+
+    impl Visitor for Place<InvoiceRenderingPdf> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: InvoiceRenderingPdfBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for InvoiceRenderingPdfBuilder {
+        type Out = InvoiceRenderingPdf;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "page_size" => Ok(Deserialize::begin(&mut self.page_size)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self { page_size: Deserialize::default() }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let page_size = self.page_size.take()?;
+
+            Some(Self::Out { page_size })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for InvoiceRenderingPdf {
+        type Builder = InvoiceRenderingPdfBuilder;
+    }
+};
 /// Page size of invoice pdf.
 /// Options include a4, letter, and auto.
 /// If set to auto, page size will be switched to a4 or letter based on customer locale.
@@ -65,7 +133,21 @@ impl<'de> serde::Deserialize<'de> for InvoiceRenderingPdfPageSize {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for InvoiceRenderingPdfPageSize"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for InvoiceRenderingPdfPageSize"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for InvoiceRenderingPdfPageSize {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<InvoiceRenderingPdfPageSize> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(InvoiceRenderingPdfPageSize::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

@@ -27,15 +27,10 @@ impl<'a> ListSubscriptionItem<'a> {
 }
 impl<'a> ListSubscriptionItem<'a> {
     /// Returns a list of your subscription items for a given subscription.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::SubscriptionItem>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::SubscriptionItem>> {
         client.get_query("/subscription_items", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::SubscriptionItem>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::SubscriptionItem>> {
         stripe::ListPaginator::from_list_params("/subscription_items", self)
     }
 }
@@ -52,11 +47,7 @@ impl<'a> RetrieveSubscriptionItem<'a> {
 }
 impl<'a> RetrieveSubscriptionItem<'a> {
     /// Retrieves the subscription item with the given ID.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        item: &stripe_shared::SubscriptionItemId,
-    ) -> stripe::Response<stripe_shared::SubscriptionItem> {
+    pub fn send(&self, client: &stripe::Client, item: &stripe_shared::SubscriptionItemId) -> stripe::Response<stripe_shared::SubscriptionItem> {
         client.get_query(&format!("/subscription_items/{item}"), self)
     }
 }
@@ -238,19 +229,8 @@ pub struct CreateSubscriptionItemPriceData<'a> {
     pub unit_amount_decimal: Option<&'a str>,
 }
 impl<'a> CreateSubscriptionItemPriceData<'a> {
-    pub fn new(
-        currency: stripe_types::Currency,
-        product: &'a str,
-        recurring: CreateSubscriptionItemPriceDataRecurring,
-    ) -> Self {
-        Self {
-            currency,
-            product,
-            recurring,
-            tax_behavior: None,
-            unit_amount: None,
-            unit_amount_decimal: None,
-        }
+    pub fn new(currency: stripe_types::Currency, product: &'a str, recurring: CreateSubscriptionItemPriceDataRecurring) -> Self {
+        Self { currency, product, recurring, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// The recurring components of a price such as `interval` and `interval_count`.
@@ -440,10 +420,7 @@ impl serde::Serialize for CreateSubscriptionItemProrationBehavior {
 }
 impl<'a> CreateSubscriptionItem<'a> {
     /// Adds a new item to an existing subscription. No existing items will be changed or replaced.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_shared::SubscriptionItem> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::SubscriptionItem> {
         client.send_form("/subscription_items", self, http_types::Method::Post)
     }
 }
@@ -614,19 +591,8 @@ pub struct UpdateSubscriptionItemPriceData<'a> {
     pub unit_amount_decimal: Option<&'a str>,
 }
 impl<'a> UpdateSubscriptionItemPriceData<'a> {
-    pub fn new(
-        currency: stripe_types::Currency,
-        product: &'a str,
-        recurring: UpdateSubscriptionItemPriceDataRecurring,
-    ) -> Self {
-        Self {
-            currency,
-            product,
-            recurring,
-            tax_behavior: None,
-            unit_amount: None,
-            unit_amount_decimal: None,
-        }
+    pub fn new(currency: stripe_types::Currency, product: &'a str, recurring: UpdateSubscriptionItemPriceDataRecurring) -> Self {
+        Self { currency, product, recurring, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// The recurring components of a price such as `interval` and `interval_count`.
@@ -816,11 +782,7 @@ impl serde::Serialize for UpdateSubscriptionItemProrationBehavior {
 }
 impl<'a> UpdateSubscriptionItem<'a> {
     /// Updates the plan or quantity of an item on a current subscription.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        item: &stripe_shared::SubscriptionItemId,
-    ) -> stripe::Response<stripe_shared::SubscriptionItem> {
+    pub fn send(&self, client: &stripe::Client, item: &stripe_shared::SubscriptionItemId) -> stripe::Response<stripe_shared::SubscriptionItem> {
         client.send_form(&format!("/subscription_items/{item}"), self, http_types::Method::Post)
     }
 }
@@ -902,11 +864,7 @@ impl serde::Serialize for DeleteSubscriptionItemProrationBehavior {
 impl DeleteSubscriptionItem {
     /// Deletes an item from the subscription.
     /// Removing a subscription item from a subscription will not cancel the subscription.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        item: &stripe_shared::SubscriptionItemId,
-    ) -> stripe::Response<stripe_shared::DeletedSubscriptionItem> {
+    pub fn send(&self, client: &stripe::Client, item: &stripe_shared::SubscriptionItemId) -> stripe::Response<stripe_shared::DeletedSubscriptionItem> {
         client.send_form(&format!("/subscription_items/{item}"), self, http_types::Method::Delete)
     }
 }
@@ -942,24 +900,11 @@ impl<'a> UsageRecordSummariesSubscriptionItem<'a> {
     /// The list is sorted in reverse-chronological order (newest first).
     /// The first list item represents the most current usage period that hasn’t ended yet.
     /// Since new usage records can still be added, the returned summary information for the subscription item’s ID should be seen as unstable until the subscription billing period ends.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        subscription_item: &stripe_shared::SubscriptionItemId,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::UsageRecordSummary>> {
-        client.get_query(
-            &format!("/subscription_items/{subscription_item}/usage_record_summaries"),
-            self,
-        )
+    pub fn send(&self, client: &stripe::Client, subscription_item: &stripe_shared::SubscriptionItemId) -> stripe::Response<stripe_types::List<stripe_shared::UsageRecordSummary>> {
+        client.get_query(&format!("/subscription_items/{subscription_item}/usage_record_summaries"), self)
     }
-    pub fn paginate(
-        self,
-        subscription_item: &stripe_shared::SubscriptionItemId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::UsageRecordSummary>> {
-        stripe::ListPaginator::from_list_params(
-            &format!("/subscription_items/{subscription_item}/usage_record_summaries"),
-            self,
-        )
+    pub fn paginate(self, subscription_item: &stripe_shared::SubscriptionItemId) -> stripe::ListPaginator<stripe_types::List<stripe_shared::UsageRecordSummary>> {
+        stripe::ListPaginator::from_list_params(&format!("/subscription_items/{subscription_item}/usage_record_summaries"), self)
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]

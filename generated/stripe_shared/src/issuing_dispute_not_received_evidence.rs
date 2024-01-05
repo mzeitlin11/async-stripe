@@ -1,4 +1,6 @@
-#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct IssuingDisputeNotReceivedEvidence {
     /// (ID of a [file upload](https://stripe.com/docs/guides/file-upload)) Additional documentation supporting the dispute.
     pub additional_documentation: Option<stripe_types::Expandable<stripe_shared::File>>,
@@ -11,6 +13,90 @@ pub struct IssuingDisputeNotReceivedEvidence {
     /// Whether the product was a merchandise or service.
     pub product_type: Option<IssuingDisputeNotReceivedEvidenceProductType>,
 }
+#[cfg(feature = "min-ser")]
+pub struct IssuingDisputeNotReceivedEvidenceBuilder {
+    additional_documentation: Option<Option<stripe_types::Expandable<stripe_shared::File>>>,
+    expected_at: Option<Option<stripe_types::Timestamp>>,
+    explanation: Option<Option<String>>,
+    product_description: Option<Option<String>>,
+    product_type: Option<Option<IssuingDisputeNotReceivedEvidenceProductType>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for IssuingDisputeNotReceivedEvidence {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<IssuingDisputeNotReceivedEvidence>,
+        builder: IssuingDisputeNotReceivedEvidenceBuilder,
+    }
+
+    impl Visitor for Place<IssuingDisputeNotReceivedEvidence> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: IssuingDisputeNotReceivedEvidenceBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for IssuingDisputeNotReceivedEvidenceBuilder {
+        type Out = IssuingDisputeNotReceivedEvidence;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "additional_documentation" => Ok(Deserialize::begin(&mut self.additional_documentation)),
+                "expected_at" => Ok(Deserialize::begin(&mut self.expected_at)),
+                "explanation" => Ok(Deserialize::begin(&mut self.explanation)),
+                "product_description" => Ok(Deserialize::begin(&mut self.product_description)),
+                "product_type" => Ok(Deserialize::begin(&mut self.product_type)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                additional_documentation: Deserialize::default(),
+                expected_at: Deserialize::default(),
+                explanation: Deserialize::default(),
+                product_description: Deserialize::default(),
+                product_type: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let additional_documentation = self.additional_documentation.take()?;
+            let expected_at = self.expected_at.take()?;
+            let explanation = self.explanation.take()?;
+            let product_description = self.product_description.take()?;
+            let product_type = self.product_type.take()?;
+
+            Some(Self::Out { additional_documentation, expected_at, explanation, product_description, product_type })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for IssuingDisputeNotReceivedEvidence {
+        type Builder = IssuingDisputeNotReceivedEvidenceBuilder;
+    }
+};
 /// Whether the product was a merchandise or service.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingDisputeNotReceivedEvidenceProductType {
@@ -66,10 +152,21 @@ impl<'de> serde::Deserialize<'de> for IssuingDisputeNotReceivedEvidenceProductTy
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for IssuingDisputeNotReceivedEvidenceProductType",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for IssuingDisputeNotReceivedEvidenceProductType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for IssuingDisputeNotReceivedEvidenceProductType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<IssuingDisputeNotReceivedEvidenceProductType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(IssuingDisputeNotReceivedEvidenceProductType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

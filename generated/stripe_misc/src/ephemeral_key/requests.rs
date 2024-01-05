@@ -40,11 +40,7 @@ impl<'a> DeleteEphemeralKey<'a> {
 }
 impl<'a> DeleteEphemeralKey<'a> {
     /// Invalidates a short-lived API key for a given resource.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        key: &stripe_misc::EphemeralKeyId,
-    ) -> stripe::Response<stripe_misc::EphemeralKey> {
+    pub fn send(&self, client: &stripe::Client, key: &stripe_misc::EphemeralKeyId) -> stripe::Response<stripe_misc::EphemeralKey> {
         client.send_form(&format!("/ephemeral_keys/{key}"), self, http_types::Method::Delete)
     }
 }

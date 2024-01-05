@@ -27,15 +27,10 @@ impl<'a> ListApplePayDomain<'a> {
 }
 impl<'a> ListApplePayDomain<'a> {
     /// List apple pay domains.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_misc::ApplePayDomain>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_misc::ApplePayDomain>> {
         client.get_query("/apple_pay/domains", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::ApplePayDomain>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_misc::ApplePayDomain>> {
         stripe::ListPaginator::from_list_params("/apple_pay/domains", self)
     }
 }
@@ -70,11 +65,7 @@ impl<'a> RetrieveApplePayDomain<'a> {
 }
 impl<'a> RetrieveApplePayDomain<'a> {
     /// Retrieve an apple pay domain.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        domain: &str,
-    ) -> stripe::Response<stripe_misc::ApplePayDomain> {
+    pub fn send(&self, client: &stripe::Client, domain: &str) -> stripe::Response<stripe_misc::ApplePayDomain> {
         client.get_query(&format!("/apple_pay/domains/{domain}"), self)
     }
 }
@@ -87,11 +78,7 @@ impl DeleteApplePayDomain {
 }
 impl DeleteApplePayDomain {
     /// Delete an apple pay domain.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        domain: &str,
-    ) -> stripe::Response<stripe_misc::DeletedApplePayDomain> {
+    pub fn send(&self, client: &stripe::Client, domain: &str) -> stripe::Response<stripe_misc::DeletedApplePayDomain> {
         client.send_form(&format!("/apple_pay/domains/{domain}"), self, http_types::Method::Delete)
     }
 }

@@ -11,11 +11,7 @@ impl<'a> RetrieveReportingReportRun<'a> {
 }
 impl<'a> RetrieveReportingReportRun<'a> {
     /// Retrieves the details of an existing Report Run.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        report_run: &stripe_misc::ReportingReportRunId,
-    ) -> stripe::Response<stripe_misc::ReportingReportRun> {
+    pub fn send(&self, client: &stripe::Client, report_run: &stripe_misc::ReportingReportRunId) -> stripe::Response<stripe_misc::ReportingReportRun> {
         client.get_query(&format!("/reporting/report_runs/{report_run}"), self)
     }
 }
@@ -2080,10 +2076,7 @@ impl serde::Serialize for CreateReportingReportRunParametersTimezone {
 impl<'a> CreateReportingReportRun<'a> {
     /// Creates a new object and begin running the report.
     /// (Certain report types require a [live-mode API key](https://stripe.com/docs/keys#test-live-modes).).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_misc::ReportingReportRun> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_misc::ReportingReportRun> {
         client.send_form("/reporting/report_runs", self, http_types::Method::Post)
     }
 }
@@ -2116,15 +2109,10 @@ impl<'a> ListReportingReportRun<'a> {
 }
 impl<'a> ListReportingReportRun<'a> {
     /// Returns a list of Report Runs, with the most recent appearing first.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_misc::ReportingReportRun>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_misc::ReportingReportRun>> {
         client.get_query("/reporting/report_runs", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::ReportingReportRun>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_misc::ReportingReportRun>> {
         stripe::ListPaginator::from_list_params("/reporting/report_runs", self)
     }
 }

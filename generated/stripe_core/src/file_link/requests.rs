@@ -11,11 +11,7 @@ impl<'a> RetrieveFileLink<'a> {
 }
 impl<'a> RetrieveFileLink<'a> {
     /// Retrieves the file link with the given ID.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        link: &stripe_shared::FileLinkId,
-    ) -> stripe::Response<stripe_shared::FileLink> {
+    pub fn send(&self, client: &stripe::Client, link: &stripe_shared::FileLinkId) -> stripe::Response<stripe_shared::FileLink> {
         client.get_query(&format!("/file_links/{link}"), self)
     }
 }
@@ -77,11 +73,7 @@ pub enum UpdateFileLinkExpiresAt {
 }
 impl<'a> UpdateFileLink<'a> {
     /// Updates an existing file link object. Expired links can no longer be updated.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        link: &stripe_shared::FileLinkId,
-    ) -> stripe::Response<stripe_shared::FileLink> {
+    pub fn send(&self, client: &stripe::Client, link: &stripe_shared::FileLinkId) -> stripe::Response<stripe_shared::FileLink> {
         client.send_form(&format!("/file_links/{link}"), self, http_types::Method::Post)
     }
 }
@@ -120,10 +112,7 @@ impl<'a> ListFileLink<'a> {
 }
 impl<'a> ListFileLink<'a> {
     /// Returns a list of file links.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::FileLink>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::FileLink>> {
         client.get_query("/file_links", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::FileLink>> {

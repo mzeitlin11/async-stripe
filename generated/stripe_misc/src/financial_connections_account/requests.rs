@@ -48,15 +48,10 @@ impl<'a> ListFinancialConnectionsAccountAccountHolder<'a> {
 }
 impl<'a> ListFinancialConnectionsAccount<'a> {
     /// Returns a list of Financial Connections `Account` objects.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_misc::FinancialConnectionsAccount>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_misc::FinancialConnectionsAccount>> {
         client.get_query("/financial_connections/accounts", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::FinancialConnectionsAccount>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_misc::FinancialConnectionsAccount>> {
         stripe::ListPaginator::from_list_params("/financial_connections/accounts", self)
     }
 }
@@ -73,11 +68,7 @@ impl<'a> RetrieveFinancialConnectionsAccount<'a> {
 }
 impl<'a> RetrieveFinancialConnectionsAccount<'a> {
     /// Retrieves the details of an Financial Connections `Account`.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_misc::FinancialConnectionsAccountId,
-    ) -> stripe::Response<stripe_misc::FinancialConnectionsAccount> {
+    pub fn send(&self, client: &stripe::Client, account: &stripe_misc::FinancialConnectionsAccountId) -> stripe::Response<stripe_misc::FinancialConnectionsAccount> {
         client.get_query(&format!("/financial_connections/accounts/{account}"), self)
     }
 }
@@ -110,22 +101,11 @@ impl<'a> ListOwnersFinancialConnectionsAccount<'a> {
 }
 impl<'a> ListOwnersFinancialConnectionsAccount<'a> {
     /// Lists all owners for a given `Account`
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_misc::FinancialConnectionsAccountId,
-    ) -> stripe::Response<stripe_types::List<stripe_misc::FinancialConnectionsAccountOwner>> {
+    pub fn send(&self, client: &stripe::Client, account: &stripe_misc::FinancialConnectionsAccountId) -> stripe::Response<stripe_types::List<stripe_misc::FinancialConnectionsAccountOwner>> {
         client.get_query(&format!("/financial_connections/accounts/{account}/owners"), self)
     }
-    pub fn paginate(
-        self,
-        account: &stripe_misc::FinancialConnectionsAccountId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::FinancialConnectionsAccountOwner>>
-    {
-        stripe::ListPaginator::from_list_params(
-            &format!("/financial_connections/accounts/{account}/owners"),
-            self,
-        )
+    pub fn paginate(self, account: &stripe_misc::FinancialConnectionsAccountId) -> stripe::ListPaginator<stripe_types::List<stripe_misc::FinancialConnectionsAccountOwner>> {
+        stripe::ListPaginator::from_list_params(&format!("/financial_connections/accounts/{account}/owners"), self)
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -194,16 +174,8 @@ impl serde::Serialize for RefreshFinancialConnectionsAccountFeatures {
 }
 impl<'a> RefreshFinancialConnectionsAccount<'a> {
     /// Refreshes the data associated with a Financial Connections `Account`.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_misc::FinancialConnectionsAccountId,
-    ) -> stripe::Response<stripe_misc::FinancialConnectionsAccount> {
-        client.send_form(
-            &format!("/financial_connections/accounts/{account}/refresh"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, account: &stripe_misc::FinancialConnectionsAccountId) -> stripe::Response<stripe_misc::FinancialConnectionsAccount> {
+        client.send_form(&format!("/financial_connections/accounts/{account}/refresh"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -221,15 +193,7 @@ impl<'a> DisconnectFinancialConnectionsAccount<'a> {
     /// Disables your access to a Financial Connections `Account`.
     /// You will no longer be able to access data associated with the account (e.g.
     /// balances, transactions).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_misc::FinancialConnectionsAccountId,
-    ) -> stripe::Response<stripe_misc::FinancialConnectionsAccount> {
-        client.send_form(
-            &format!("/financial_connections/accounts/{account}/disconnect"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, account: &stripe_misc::FinancialConnectionsAccountId) -> stripe::Response<stripe_misc::FinancialConnectionsAccount> {
+        client.send_form(&format!("/financial_connections/accounts/{account}/disconnect"), self, http_types::Method::Post)
     }
 }

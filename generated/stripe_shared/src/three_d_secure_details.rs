@@ -1,4 +1,6 @@
-#[derive(Copy, Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, Default)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct ThreeDSecureDetails {
     /// For authenticated transactions: how the customer was authenticated by
     /// the issuing bank.
@@ -11,6 +13,81 @@ pub struct ThreeDSecureDetails {
     /// The version of 3D Secure that was used.
     pub version: Option<ThreeDSecureDetailsVersion>,
 }
+#[cfg(feature = "min-ser")]
+pub struct ThreeDSecureDetailsBuilder {
+    authentication_flow: Option<Option<ThreeDSecureDetailsAuthenticationFlow>>,
+    result: Option<Option<ThreeDSecureDetailsResult>>,
+    result_reason: Option<Option<ThreeDSecureDetailsResultReason>>,
+    version: Option<Option<ThreeDSecureDetailsVersion>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for ThreeDSecureDetails {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<ThreeDSecureDetails>,
+        builder: ThreeDSecureDetailsBuilder,
+    }
+
+    impl Visitor for Place<ThreeDSecureDetails> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: ThreeDSecureDetailsBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for ThreeDSecureDetailsBuilder {
+        type Out = ThreeDSecureDetails;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "authentication_flow" => Ok(Deserialize::begin(&mut self.authentication_flow)),
+                "result" => Ok(Deserialize::begin(&mut self.result)),
+                "result_reason" => Ok(Deserialize::begin(&mut self.result_reason)),
+                "version" => Ok(Deserialize::begin(&mut self.version)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self { authentication_flow: Deserialize::default(), result: Deserialize::default(), result_reason: Deserialize::default(), version: Deserialize::default() }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let authentication_flow = self.authentication_flow.take()?;
+            let result = self.result.take()?;
+            let result_reason = self.result_reason.take()?;
+            let version = self.version.take()?;
+
+            Some(Self::Out { authentication_flow, result, result_reason, version })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for ThreeDSecureDetails {
+        type Builder = ThreeDSecureDetailsBuilder;
+    }
+};
 /// For authenticated transactions: how the customer was authenticated by
 /// the issuing bank.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -67,9 +144,22 @@ impl<'de> serde::Deserialize<'de> for ThreeDSecureDetailsAuthenticationFlow {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for ThreeDSecureDetailsAuthenticationFlow")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for ThreeDSecureDetailsAuthenticationFlow"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for ThreeDSecureDetailsAuthenticationFlow {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<ThreeDSecureDetailsAuthenticationFlow> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(ThreeDSecureDetailsAuthenticationFlow::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// Indicates the outcome of 3D Secure authentication.
@@ -139,8 +229,22 @@ impl<'de> serde::Deserialize<'de> for ThreeDSecureDetailsResult {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for ThreeDSecureDetailsResult"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for ThreeDSecureDetailsResult"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for ThreeDSecureDetailsResult {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<ThreeDSecureDetailsResult> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(ThreeDSecureDetailsResult::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// Additional information about why 3D Secure succeeded or failed based
@@ -214,9 +318,22 @@ impl<'de> serde::Deserialize<'de> for ThreeDSecureDetailsResultReason {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for ThreeDSecureDetailsResultReason")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for ThreeDSecureDetailsResultReason"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for ThreeDSecureDetailsResultReason {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<ThreeDSecureDetailsResultReason> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(ThreeDSecureDetailsResultReason::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// The version of 3D Secure that was used.
@@ -277,7 +394,21 @@ impl<'de> serde::Deserialize<'de> for ThreeDSecureDetailsVersion {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for ThreeDSecureDetailsVersion"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for ThreeDSecureDetailsVersion"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for ThreeDSecureDetailsVersion {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<ThreeDSecureDetailsVersion> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(ThreeDSecureDetailsVersion::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

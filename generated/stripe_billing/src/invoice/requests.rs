@@ -28,15 +28,10 @@ impl<'a> SearchInvoice<'a> {
     /// conditions, data is searchable in less than a minute.
     /// Occasionally, propagation of new or updated data can be up.
     /// to an hour behind during outages. Search functionality is not available to merchants in India.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::SearchList<stripe_shared::Invoice>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::SearchList<stripe_shared::Invoice>> {
         client.get_query("/invoices/search", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Invoice>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Invoice>> {
         stripe::ListPaginator::from_search_params("/invoices/search", self)
     }
 }
@@ -222,7 +217,7 @@ impl serde::Serialize for UpcomingInvoiceCustomerDetailsTaxExempt {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpcomingInvoiceCustomerDetailsTaxIds<'a> {
     /// Type of the tax ID, one of `ad_nrt`, `ae_trn`, `ar_cuit`, `au_abn`, `au_arn`, `bg_uic`, `bo_tin`, `br_cnpj`, `br_cpf`, `ca_bn`, `ca_gst_hst`, `ca_pst_bc`, `ca_pst_mb`, `ca_pst_sk`, `ca_qst`, `ch_vat`, `cl_tin`, `cn_tin`, `co_nit`, `cr_tin`, `do_rcn`, `ec_ruc`, `eg_tin`, `es_cif`, `eu_oss_vat`, `eu_vat`, `gb_vat`, `ge_vat`, `hk_br`, `hu_tin`, `id_npwp`, `il_vat`, `in_gst`, `is_vat`, `jp_cn`, `jp_rn`, `jp_trn`, `ke_pin`, `kr_brn`, `li_uid`, `mx_rfc`, `my_frp`, `my_itn`, `my_sst`, `no_vat`, `nz_gst`, `pe_ruc`, `ph_tin`, `ro_tin`, `rs_pib`, `ru_inn`, `ru_kpp`, `sa_vat`, `sg_gst`, `sg_uen`, `si_tin`, `sv_nit`, `th_vat`, `tr_tin`, `tw_vat`, `ua_vat`, `us_ein`, `uy_ruc`, `ve_rif`, `vn_tin`, or `za_vat`.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: UpcomingInvoiceCustomerDetailsTaxIdsType,
     /// Value of the tax ID.
     pub value: &'a str,
@@ -776,19 +771,8 @@ pub struct UpcomingInvoiceSubscriptionItemsPriceData<'a> {
     pub unit_amount_decimal: Option<&'a str>,
 }
 impl<'a> UpcomingInvoiceSubscriptionItemsPriceData<'a> {
-    pub fn new(
-        currency: stripe_types::Currency,
-        product: &'a str,
-        recurring: UpcomingInvoiceSubscriptionItemsPriceDataRecurring,
-    ) -> Self {
-        Self {
-            currency,
-            product,
-            recurring,
-            tax_behavior: None,
-            unit_amount: None,
-            unit_amount_decimal: None,
-        }
+    pub fn new(currency: stripe_types::Currency, product: &'a str, recurring: UpcomingInvoiceSubscriptionItemsPriceDataRecurring) -> Self {
+        Self { currency, product, recurring, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// The recurring components of a price such as `interval` and `interval_count`.
@@ -1215,12 +1199,10 @@ impl<'a> UpdateInvoicePaymentSettingsPaymentMethodOptions<'a> {
 pub struct UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebit {
     /// Additional fields for Mandate creation
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub mandate_options:
-        Option<UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptions>,
+    pub mandate_options: Option<UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptions>,
     /// Verification method for the intent
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub verification_method:
-        Option<UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod>,
+    pub verification_method: Option<UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod>,
 }
 impl UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebit {
     pub fn new() -> Self {
@@ -1232,9 +1214,7 @@ impl UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebit {
 pub struct UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptions {
     /// Transaction type of the mandate.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub transaction_type: Option<
-        UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType,
-    >,
+    pub transaction_type: Option<UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType>,
 }
 impl UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptions {
     pub fn new() -> Self {
@@ -1257,9 +1237,7 @@ impl UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTran
     }
 }
 
-impl std::str::FromStr
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType
-{
+impl std::str::FromStr for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType::*;
@@ -1270,31 +1248,23 @@ impl std::str::FromStr
         }
     }
 }
-impl AsRef<str>
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType
-{
+impl AsRef<str> for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType
-{
+impl std::fmt::Display for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType
-{
+impl std::fmt::Debug for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType
-{
+impl serde::Serialize for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -1320,9 +1290,7 @@ impl UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod
     }
 }
 
-impl std::str::FromStr
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod
-{
+impl std::str::FromStr for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod::*;
@@ -1339,24 +1307,18 @@ impl AsRef<str> for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVer
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod
-{
+impl std::fmt::Display for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod
-{
+impl std::fmt::Debug for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod
-{
+impl serde::Serialize for UpdateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -1369,8 +1331,7 @@ impl serde::Serialize
 pub struct UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontact {
     /// Preferred language of the Bancontact authorization page that the customer is redirected to.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub preferred_language:
-        Option<UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage>,
+    pub preferred_language: Option<UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage>,
 }
 impl UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontact {
     pub fn new() -> Self {
@@ -1397,9 +1358,7 @@ impl UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage
     }
 }
 
-impl std::str::FromStr
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage
-{
+impl std::str::FromStr for UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage::*;
@@ -1417,24 +1376,18 @@ impl AsRef<str> for UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPr
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage
-{
+impl std::fmt::Display for UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage
-{
+impl std::fmt::Debug for UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage
-{
+impl serde::Serialize for UpdateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -1454,8 +1407,7 @@ pub struct UpdateInvoicePaymentSettingsPaymentMethodOptionsCard {
     /// However, if you wish to request 3D Secure based on logic from your own fraud engine, provide this option.
     /// Read our guide on [manually requesting 3D Secure](https://stripe.com/docs/payments/3d-secure#manual-three-ds) for more information on how this configuration interacts with Radar and our SCA Engine.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub request_three_d_secure:
-        Option<UpdateInvoicePaymentSettingsPaymentMethodOptionsCardRequestThreeDSecure>,
+    pub request_three_d_secure: Option<UpdateInvoicePaymentSettingsPaymentMethodOptionsCardRequestThreeDSecure>,
 }
 impl UpdateInvoicePaymentSettingsPaymentMethodOptionsCard {
     pub fn new() -> Self {
@@ -1489,7 +1441,7 @@ pub struct UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlan 
     /// One of `month`.
     pub interval: UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval,
     /// Type of installment plan, one of `fixed_count`.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType,
 }
 impl UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlan {
@@ -1516,9 +1468,7 @@ impl UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterva
     }
 }
 
-impl std::str::FromStr
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval
-{
+impl std::str::FromStr for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval::*;
@@ -1533,24 +1483,18 @@ impl AsRef<str> for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallm
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval
-{
+impl std::fmt::Display for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval
-{
+impl std::fmt::Debug for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval
-{
+impl serde::Serialize for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -1572,9 +1516,7 @@ impl UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType {
     }
 }
 
-impl std::str::FromStr
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType
-{
+impl std::str::FromStr for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType::*;
@@ -1589,9 +1531,7 @@ impl AsRef<str> for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallm
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType
-{
+impl std::fmt::Display for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
@@ -1668,13 +1608,10 @@ impl serde::Serialize for UpdateInvoicePaymentSettingsPaymentMethodOptionsCardRe
 pub struct UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccount<'a> {
     /// Additional fields for Financial Connections Session creation
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub financial_connections: Option<
-        UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnections<'a>,
-    >,
+    pub financial_connections: Option<UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnections<'a>>,
     /// Verification method for the intent
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub verification_method:
-        Option<UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod>,
+    pub verification_method: Option<UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod>,
 }
 impl<'a> UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccount<'a> {
     pub fn new() -> Self {
@@ -1684,15 +1621,14 @@ impl<'a> UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccount<'a> {
 /// Additional fields for Financial Connections Session creation
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnections<'a> {
-        /// The list of permissions to request.
+    /// The list of permissions to request.
     /// If this parameter is passed, the `payment_method` permission must be included.
     /// Valid permissions include: `balances`, `ownership`, `payment_method`, and `transactions`.
-#[serde(skip_serializing_if = "Option::is_none")]
-pub permissions: Option<&'a [UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub permissions: Option<&'a [UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions]>,
     /// List of data features that you would like to retrieve upon account creation.
-#[serde(skip_serializing_if = "Option::is_none")]
-pub prefetch: Option<&'a [UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch]>,
-
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prefetch: Option<&'a [UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch]>,
 }
 impl<'a> UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnections<'a> {
     pub fn new() -> Self {
@@ -1703,8 +1639,7 @@ impl<'a> UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialC
 /// If this parameter is passed, the `payment_method` permission must be included.
 /// Valid permissions include: `balances`, `ownership`, `payment_method`, and `transactions`.
 #[derive(Copy, Clone, Eq, PartialEq)]
-pub enum UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions
-{
+pub enum UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions {
     Balances,
     Ownership,
     PaymentMethod,
@@ -1722,9 +1657,7 @@ impl UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConne
     }
 }
 
-impl std::str::FromStr
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions
-{
+impl std::str::FromStr for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions::*;
@@ -1737,31 +1670,23 @@ impl std::str::FromStr
         }
     }
 }
-impl AsRef<str>
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions
-{
+impl AsRef<str> for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions
-{
+impl std::fmt::Display for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions
-{
+impl std::fmt::Debug for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions
-{
+impl serde::Serialize for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -1783,9 +1708,7 @@ impl UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConne
     }
 }
 
-impl std::str::FromStr
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch
-{
+impl std::str::FromStr for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch::*;
@@ -1795,31 +1718,23 @@ impl std::str::FromStr
         }
     }
 }
-impl AsRef<str>
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch
-{
+impl AsRef<str> for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch
-{
+impl std::fmt::Display for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch
-{
+impl std::fmt::Debug for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch
-{
+impl serde::Serialize for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -1845,9 +1760,7 @@ impl UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMe
     }
 }
 
-impl std::str::FromStr
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod
-{
+impl std::str::FromStr for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod::*;
@@ -1859,31 +1772,23 @@ impl std::str::FromStr
         }
     }
 }
-impl AsRef<str>
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod
-{
+impl AsRef<str> for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod
-{
+impl std::fmt::Display for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod
-{
+impl std::fmt::Debug for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod
-{
+impl serde::Serialize for UpdateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -2270,21 +2175,13 @@ pub struct UpdateInvoiceShippingCostShippingRateData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_code: Option<&'a str>,
     /// The type of calculation to use on the shipping rate. Can only be `fixed_amount` for now.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<UpdateInvoiceShippingCostShippingRateDataType>,
 }
 impl<'a> UpdateInvoiceShippingCostShippingRateData<'a> {
     pub fn new(display_name: &'a str) -> Self {
-        Self {
-            delivery_estimate: None,
-            display_name,
-            fixed_amount: None,
-            metadata: None,
-            tax_behavior: None,
-            tax_code: None,
-            type_: None,
-        }
+        Self { delivery_estimate: None, display_name, fixed_amount: None, metadata: None, tax_behavior: None, tax_code: None, type_: None }
     }
 }
 /// The estimated range for how long shipping will take, meant to be displayable to the customer.
@@ -2312,10 +2209,7 @@ pub struct UpdateInvoiceShippingCostShippingRateDataDeliveryEstimateMaximum {
     pub value: i64,
 }
 impl UpdateInvoiceShippingCostShippingRateDataDeliveryEstimateMaximum {
-    pub fn new(
-        unit: UpdateInvoiceShippingCostShippingRateDataDeliveryEstimateMaximumUnit,
-        value: i64,
-    ) -> Self {
+    pub fn new(unit: UpdateInvoiceShippingCostShippingRateDataDeliveryEstimateMaximumUnit, value: i64) -> Self {
         Self { unit, value }
     }
 }
@@ -2388,10 +2282,7 @@ pub struct UpdateInvoiceShippingCostShippingRateDataDeliveryEstimateMinimum {
     pub value: i64,
 }
 impl UpdateInvoiceShippingCostShippingRateDataDeliveryEstimateMinimum {
-    pub fn new(
-        unit: UpdateInvoiceShippingCostShippingRateDataDeliveryEstimateMinimumUnit,
-        value: i64,
-    ) -> Self {
+    pub fn new(unit: UpdateInvoiceShippingCostShippingRateDataDeliveryEstimateMinimumUnit, value: i64) -> Self {
         Self { unit, value }
     }
 }
@@ -2466,12 +2357,7 @@ pub struct UpdateInvoiceShippingCostShippingRateDataFixedAmount<'a> {
     /// Shipping rates defined in each available currency option.
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub currency_options: Option<
-        &'a std::collections::HashMap<
-            stripe_types::Currency,
-            UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptions,
-        >,
-    >,
+    pub currency_options: Option<&'a std::collections::HashMap<stripe_types::Currency, UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptions>>,
 }
 impl<'a> UpdateInvoiceShippingCostShippingRateDataFixedAmount<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency) -> Self {
@@ -2487,8 +2373,7 @@ pub struct UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptions {
     /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_behavior:
-        Option<UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior>,
+    pub tax_behavior: Option<UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior>,
 }
 impl UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptions {
     pub fn new(amount: i64) -> Self {
@@ -2514,9 +2399,7 @@ impl UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehav
     }
 }
 
-impl std::str::FromStr
-    for UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior
-{
+impl std::str::FromStr for UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior::*;
@@ -2533,24 +2416,18 @@ impl AsRef<str> for UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrency
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior
-{
+impl std::fmt::Display for UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior
-{
+impl std::fmt::Debug for UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior
-{
+impl serde::Serialize for UpdateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -2669,11 +2546,7 @@ impl<'a> UpdateInvoice<'a> {
     /// If you would like to stop the Stripe Billing engine from automatically finalizing, reattempting payments on,.
     /// sending reminders for, or [automatically reconciling](https://stripe.com/docs/billing/invoices/reconciliation) invoices, pass.
     /// `auto_advance=false`.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        invoice: &stripe_shared::InvoiceId,
-    ) -> stripe::Response<stripe_shared::Invoice> {
+    pub fn send(&self, client: &stripe::Client, invoice: &stripe_shared::InvoiceId) -> stripe::Response<stripe_shared::Invoice> {
         client.send_form(&format!("/invoices/{invoice}"), self, http_types::Method::Post)
     }
 }
@@ -2721,11 +2594,7 @@ impl<'a> PayInvoice<'a> {
 impl<'a> PayInvoice<'a> {
     /// Stripe automatically creates and then attempts to collect payment on invoices for customers on subscriptions according to your [subscriptions settings](https://dashboard.stripe.com/account/billing/automatic).
     /// However, if you’d like to attempt payment on an invoice out of the normal collection schedule or for some other reason, you can do so.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        invoice: &stripe_shared::InvoiceId,
-    ) -> stripe::Response<stripe_shared::Invoice> {
+    pub fn send(&self, client: &stripe::Client, invoice: &stripe_shared::InvoiceId) -> stripe::Response<stripe_shared::Invoice> {
         client.send_form(&format!("/invoices/{invoice}/pay"), self, http_types::Method::Post)
     }
 }
@@ -2792,8 +2661,7 @@ pub struct UpcomingLinesInvoice<'a> {
     /// This is used to determine the date of the first full invoice, and, for plans with `month` or `year` intervals, the day of the month for subsequent invoices.
     /// For existing subscriptions, the value can only be set to `now` or `unchanged`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub subscription_billing_cycle_anchor:
-        Option<UpcomingLinesInvoiceSubscriptionBillingCycleAnchor>,
+    pub subscription_billing_cycle_anchor: Option<UpcomingLinesInvoiceSubscriptionBillingCycleAnchor>,
     /// Timestamp indicating when the subscription should be scheduled to cancel.
     /// Will prorate if within the current period and prorations have been enabled using `proration_behavior`.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -2926,7 +2794,7 @@ impl serde::Serialize for UpcomingLinesInvoiceCustomerDetailsTaxExempt {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct UpcomingLinesInvoiceCustomerDetailsTaxIds<'a> {
     /// Type of the tax ID, one of `ad_nrt`, `ae_trn`, `ar_cuit`, `au_abn`, `au_arn`, `bg_uic`, `bo_tin`, `br_cnpj`, `br_cpf`, `ca_bn`, `ca_gst_hst`, `ca_pst_bc`, `ca_pst_mb`, `ca_pst_sk`, `ca_qst`, `ch_vat`, `cl_tin`, `cn_tin`, `co_nit`, `cr_tin`, `do_rcn`, `ec_ruc`, `eg_tin`, `es_cif`, `eu_oss_vat`, `eu_vat`, `gb_vat`, `ge_vat`, `hk_br`, `hu_tin`, `id_npwp`, `il_vat`, `in_gst`, `is_vat`, `jp_cn`, `jp_rn`, `jp_trn`, `ke_pin`, `kr_brn`, `li_uid`, `mx_rfc`, `my_frp`, `my_itn`, `my_sst`, `no_vat`, `nz_gst`, `pe_ruc`, `ph_tin`, `ro_tin`, `rs_pib`, `ru_inn`, `ru_kpp`, `sa_vat`, `sg_gst`, `sg_uen`, `si_tin`, `sv_nit`, `th_vat`, `tr_tin`, `tw_vat`, `ua_vat`, `us_ein`, `uy_ruc`, `ve_rif`, `vn_tin`, or `za_vat`.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: UpcomingLinesInvoiceCustomerDetailsTaxIdsType,
     /// Value of the tax ID.
     pub value: &'a str,
@@ -3480,19 +3348,8 @@ pub struct UpcomingLinesInvoiceSubscriptionItemsPriceData<'a> {
     pub unit_amount_decimal: Option<&'a str>,
 }
 impl<'a> UpcomingLinesInvoiceSubscriptionItemsPriceData<'a> {
-    pub fn new(
-        currency: stripe_types::Currency,
-        product: &'a str,
-        recurring: UpcomingLinesInvoiceSubscriptionItemsPriceDataRecurring,
-    ) -> Self {
-        Self {
-            currency,
-            product,
-            recurring,
-            tax_behavior: None,
-            unit_amount: None,
-            unit_amount_decimal: None,
-        }
+    pub fn new(currency: stripe_types::Currency, product: &'a str, recurring: UpcomingLinesInvoiceSubscriptionItemsPriceDataRecurring) -> Self {
+        Self { currency, product, recurring, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// The recurring components of a price such as `interval` and `interval_count`.
@@ -3739,15 +3596,10 @@ pub enum UpcomingLinesInvoiceSubscriptionTrialEnd {
 impl<'a> UpcomingLinesInvoice<'a> {
     /// When retrieving an upcoming invoice, you’ll get a **lines** property containing the total count of line items and the first handful of those items.
     /// There is also a URL where you can retrieve the full (paginated) list of line items.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::InvoiceLineItem>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::InvoiceLineItem>> {
         client.get_query("/invoices/upcoming/lines", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::InvoiceLineItem>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::InvoiceLineItem>> {
         stripe::ListPaginator::from_list_params("/invoices/upcoming/lines", self)
     }
 }
@@ -4003,12 +3855,10 @@ impl<'a> CreateInvoicePaymentSettingsPaymentMethodOptions<'a> {
 pub struct CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebit {
     /// Additional fields for Mandate creation
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub mandate_options:
-        Option<CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptions>,
+    pub mandate_options: Option<CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptions>,
     /// Verification method for the intent
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub verification_method:
-        Option<CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod>,
+    pub verification_method: Option<CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod>,
 }
 impl CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebit {
     pub fn new() -> Self {
@@ -4020,9 +3870,7 @@ impl CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebit {
 pub struct CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptions {
     /// Transaction type of the mandate.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub transaction_type: Option<
-        CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType,
-    >,
+    pub transaction_type: Option<CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType>,
 }
 impl CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptions {
     pub fn new() -> Self {
@@ -4045,9 +3893,7 @@ impl CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTran
     }
 }
 
-impl std::str::FromStr
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType
-{
+impl std::str::FromStr for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType::*;
@@ -4058,31 +3904,23 @@ impl std::str::FromStr
         }
     }
 }
-impl AsRef<str>
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType
-{
+impl AsRef<str> for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType
-{
+impl std::fmt::Display for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType
-{
+impl std::fmt::Debug for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType
-{
+impl serde::Serialize for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitMandateOptionsTransactionType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -4108,9 +3946,7 @@ impl CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod
     }
 }
 
-impl std::str::FromStr
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod
-{
+impl std::str::FromStr for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod::*;
@@ -4127,24 +3963,18 @@ impl AsRef<str> for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVer
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod
-{
+impl std::fmt::Display for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod
-{
+impl std::fmt::Debug for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod
-{
+impl serde::Serialize for CreateInvoicePaymentSettingsPaymentMethodOptionsAcssDebitVerificationMethod {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -4157,8 +3987,7 @@ impl serde::Serialize
 pub struct CreateInvoicePaymentSettingsPaymentMethodOptionsBancontact {
     /// Preferred language of the Bancontact authorization page that the customer is redirected to.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub preferred_language:
-        Option<CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage>,
+    pub preferred_language: Option<CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage>,
 }
 impl CreateInvoicePaymentSettingsPaymentMethodOptionsBancontact {
     pub fn new() -> Self {
@@ -4185,9 +4014,7 @@ impl CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage
     }
 }
 
-impl std::str::FromStr
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage
-{
+impl std::str::FromStr for CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage::*;
@@ -4205,24 +4032,18 @@ impl AsRef<str> for CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPr
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage
-{
+impl std::fmt::Display for CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage
-{
+impl std::fmt::Debug for CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage
-{
+impl serde::Serialize for CreateInvoicePaymentSettingsPaymentMethodOptionsBancontactPreferredLanguage {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -4242,8 +4063,7 @@ pub struct CreateInvoicePaymentSettingsPaymentMethodOptionsCard {
     /// However, if you wish to request 3D Secure based on logic from your own fraud engine, provide this option.
     /// Read our guide on [manually requesting 3D Secure](https://stripe.com/docs/payments/3d-secure#manual-three-ds) for more information on how this configuration interacts with Radar and our SCA Engine.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub request_three_d_secure:
-        Option<CreateInvoicePaymentSettingsPaymentMethodOptionsCardRequestThreeDSecure>,
+    pub request_three_d_secure: Option<CreateInvoicePaymentSettingsPaymentMethodOptionsCardRequestThreeDSecure>,
 }
 impl CreateInvoicePaymentSettingsPaymentMethodOptionsCard {
     pub fn new() -> Self {
@@ -4277,7 +4097,7 @@ pub struct CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlan 
     /// One of `month`.
     pub interval: CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval,
     /// Type of installment plan, one of `fixed_count`.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType,
 }
 impl CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlan {
@@ -4304,9 +4124,7 @@ impl CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterva
     }
 }
 
-impl std::str::FromStr
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval
-{
+impl std::str::FromStr for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval::*;
@@ -4321,24 +4139,18 @@ impl AsRef<str> for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallm
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval
-{
+impl std::fmt::Display for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval
-{
+impl std::fmt::Debug for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval
-{
+impl serde::Serialize for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanInterval {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -4360,9 +4172,7 @@ impl CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType {
     }
 }
 
-impl std::str::FromStr
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType
-{
+impl std::str::FromStr for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType::*;
@@ -4377,9 +4187,7 @@ impl AsRef<str> for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallm
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType
-{
+impl std::fmt::Display for CreateInvoicePaymentSettingsPaymentMethodOptionsCardInstallmentsPlanType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
@@ -4456,13 +4264,10 @@ impl serde::Serialize for CreateInvoicePaymentSettingsPaymentMethodOptionsCardRe
 pub struct CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccount<'a> {
     /// Additional fields for Financial Connections Session creation
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub financial_connections: Option<
-        CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnections<'a>,
-    >,
+    pub financial_connections: Option<CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnections<'a>>,
     /// Verification method for the intent
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub verification_method:
-        Option<CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod>,
+    pub verification_method: Option<CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod>,
 }
 impl<'a> CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccount<'a> {
     pub fn new() -> Self {
@@ -4472,15 +4277,14 @@ impl<'a> CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccount<'a> {
 /// Additional fields for Financial Connections Session creation
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnections<'a> {
-        /// The list of permissions to request.
+    /// The list of permissions to request.
     /// If this parameter is passed, the `payment_method` permission must be included.
     /// Valid permissions include: `balances`, `ownership`, `payment_method`, and `transactions`.
-#[serde(skip_serializing_if = "Option::is_none")]
-pub permissions: Option<&'a [CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub permissions: Option<&'a [CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions]>,
     /// List of data features that you would like to retrieve upon account creation.
-#[serde(skip_serializing_if = "Option::is_none")]
-pub prefetch: Option<&'a [CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch]>,
-
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub prefetch: Option<&'a [CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch]>,
 }
 impl<'a> CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnections<'a> {
     pub fn new() -> Self {
@@ -4491,8 +4295,7 @@ impl<'a> CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialC
 /// If this parameter is passed, the `payment_method` permission must be included.
 /// Valid permissions include: `balances`, `ownership`, `payment_method`, and `transactions`.
 #[derive(Copy, Clone, Eq, PartialEq)]
-pub enum CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions
-{
+pub enum CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions {
     Balances,
     Ownership,
     PaymentMethod,
@@ -4510,9 +4313,7 @@ impl CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConne
     }
 }
 
-impl std::str::FromStr
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions
-{
+impl std::str::FromStr for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions::*;
@@ -4525,31 +4326,23 @@ impl std::str::FromStr
         }
     }
 }
-impl AsRef<str>
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions
-{
+impl AsRef<str> for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions
-{
+impl std::fmt::Display for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions
-{
+impl std::fmt::Debug for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions
-{
+impl serde::Serialize for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPermissions {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -4571,9 +4364,7 @@ impl CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConne
     }
 }
 
-impl std::str::FromStr
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch
-{
+impl std::str::FromStr for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch::*;
@@ -4583,31 +4374,23 @@ impl std::str::FromStr
         }
     }
 }
-impl AsRef<str>
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch
-{
+impl AsRef<str> for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch
-{
+impl std::fmt::Display for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch
-{
+impl std::fmt::Debug for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch
-{
+impl serde::Serialize for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountFinancialConnectionsPrefetch {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -4633,9 +4416,7 @@ impl CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMe
     }
 }
 
-impl std::str::FromStr
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod
-{
+impl std::str::FromStr for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod::*;
@@ -4647,31 +4428,23 @@ impl std::str::FromStr
         }
     }
 }
-impl AsRef<str>
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod
-{
+impl AsRef<str> for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod
-{
+impl std::fmt::Display for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod
-{
+impl std::fmt::Debug for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod
-{
+impl serde::Serialize for CreateInvoicePaymentSettingsPaymentMethodOptionsUsBankAccountVerificationMethod {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -5116,21 +4889,13 @@ pub struct CreateInvoiceShippingCostShippingRateData<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_code: Option<&'a str>,
     /// The type of calculation to use on the shipping rate. Can only be `fixed_amount` for now.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<CreateInvoiceShippingCostShippingRateDataType>,
 }
 impl<'a> CreateInvoiceShippingCostShippingRateData<'a> {
     pub fn new(display_name: &'a str) -> Self {
-        Self {
-            delivery_estimate: None,
-            display_name,
-            fixed_amount: None,
-            metadata: None,
-            tax_behavior: None,
-            tax_code: None,
-            type_: None,
-        }
+        Self { delivery_estimate: None, display_name, fixed_amount: None, metadata: None, tax_behavior: None, tax_code: None, type_: None }
     }
 }
 /// The estimated range for how long shipping will take, meant to be displayable to the customer.
@@ -5158,10 +4923,7 @@ pub struct CreateInvoiceShippingCostShippingRateDataDeliveryEstimateMaximum {
     pub value: i64,
 }
 impl CreateInvoiceShippingCostShippingRateDataDeliveryEstimateMaximum {
-    pub fn new(
-        unit: CreateInvoiceShippingCostShippingRateDataDeliveryEstimateMaximumUnit,
-        value: i64,
-    ) -> Self {
+    pub fn new(unit: CreateInvoiceShippingCostShippingRateDataDeliveryEstimateMaximumUnit, value: i64) -> Self {
         Self { unit, value }
     }
 }
@@ -5234,10 +4996,7 @@ pub struct CreateInvoiceShippingCostShippingRateDataDeliveryEstimateMinimum {
     pub value: i64,
 }
 impl CreateInvoiceShippingCostShippingRateDataDeliveryEstimateMinimum {
-    pub fn new(
-        unit: CreateInvoiceShippingCostShippingRateDataDeliveryEstimateMinimumUnit,
-        value: i64,
-    ) -> Self {
+    pub fn new(unit: CreateInvoiceShippingCostShippingRateDataDeliveryEstimateMinimumUnit, value: i64) -> Self {
         Self { unit, value }
     }
 }
@@ -5312,12 +5071,7 @@ pub struct CreateInvoiceShippingCostShippingRateDataFixedAmount<'a> {
     /// Shipping rates defined in each available currency option.
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub currency_options: Option<
-        &'a std::collections::HashMap<
-            stripe_types::Currency,
-            CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptions,
-        >,
-    >,
+    pub currency_options: Option<&'a std::collections::HashMap<stripe_types::Currency, CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptions>>,
 }
 impl<'a> CreateInvoiceShippingCostShippingRateDataFixedAmount<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency) -> Self {
@@ -5333,8 +5087,7 @@ pub struct CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptions {
     /// Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.
     /// One of `inclusive`, `exclusive`, or `unspecified`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tax_behavior:
-        Option<CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior>,
+    pub tax_behavior: Option<CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior>,
 }
 impl CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptions {
     pub fn new(amount: i64) -> Self {
@@ -5360,9 +5113,7 @@ impl CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehav
     }
 }
 
-impl std::str::FromStr
-    for CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior
-{
+impl std::str::FromStr for CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior::*;
@@ -5379,24 +5130,18 @@ impl AsRef<str> for CreateInvoiceShippingCostShippingRateDataFixedAmountCurrency
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior
-{
+impl std::fmt::Display for CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior
-{
+impl std::fmt::Debug for CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior
-{
+impl serde::Serialize for CreateInvoiceShippingCostShippingRateDataFixedAmountCurrencyOptionsTaxBehavior {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -5559,10 +5304,7 @@ impl<'a> ListInvoice<'a> {
 impl<'a> ListInvoice<'a> {
     /// You can list all invoices, or list the invoices for a specific customer.
     /// The invoices are returned sorted by creation date, with the most recently created invoices appearing first.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::Invoice>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::Invoice>> {
         client.get_query("/invoices", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Invoice>> {
@@ -5582,11 +5324,7 @@ impl<'a> RetrieveInvoice<'a> {
 }
 impl<'a> RetrieveInvoice<'a> {
     /// Retrieves the invoice with the given ID.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        invoice: &stripe_shared::InvoiceId,
-    ) -> stripe::Response<stripe_shared::Invoice> {
+    pub fn send(&self, client: &stripe::Client, invoice: &stripe_shared::InvoiceId) -> stripe::Response<stripe_shared::Invoice> {
         client.get_query(&format!("/invoices/{invoice}"), self)
     }
 }
@@ -5601,11 +5339,7 @@ impl DeleteInvoice {
     /// Permanently deletes a one-off invoice draft.
     /// This cannot be undone.
     /// Attempts to delete invoices that are no longer in a draft state will fail; once an invoice has been finalized or if an invoice is for a subscription, it must be [voided](https://stripe.com/docs/api#void_invoice).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        invoice: &stripe_shared::InvoiceId,
-    ) -> stripe::Response<stripe_shared::DeletedInvoice> {
+    pub fn send(&self, client: &stripe::Client, invoice: &stripe_shared::InvoiceId) -> stripe::Response<stripe_shared::DeletedInvoice> {
         client.send_form(&format!("/invoices/{invoice}"), self, http_types::Method::Delete)
     }
 }
@@ -5627,11 +5361,7 @@ impl<'a> FinalizeInvoiceInvoice<'a> {
 impl<'a> FinalizeInvoiceInvoice<'a> {
     /// Stripe automatically finalizes drafts before sending and attempting payment on invoices.
     /// However, if you’d like to finalize a draft invoice manually, you can do so using this method.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        invoice: &stripe_shared::InvoiceId,
-    ) -> stripe::Response<stripe_shared::Invoice> {
+    pub fn send(&self, client: &stripe::Client, invoice: &stripe_shared::InvoiceId) -> stripe::Response<stripe_shared::Invoice> {
         client.send_form(&format!("/invoices/{invoice}/finalize"), self, http_types::Method::Post)
     }
 }
@@ -5652,11 +5382,7 @@ impl<'a> SendInvoiceInvoice<'a> {
     /// When sending invoices that have already been paid, there will be no reference to the payment in the email.
     ///
     /// Requests made in test-mode result in no emails being sent, despite sending an `invoice.sent` event.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        invoice: &stripe_shared::InvoiceId,
-    ) -> stripe::Response<stripe_shared::Invoice> {
+    pub fn send(&self, client: &stripe::Client, invoice: &stripe_shared::InvoiceId) -> stripe::Response<stripe_shared::Invoice> {
         client.send_form(&format!("/invoices/{invoice}/send"), self, http_types::Method::Post)
     }
 }
@@ -5673,16 +5399,8 @@ impl<'a> MarkUncollectibleInvoice<'a> {
 }
 impl<'a> MarkUncollectibleInvoice<'a> {
     /// Marking an invoice as uncollectible is useful for keeping track of bad debts that can be written off for accounting purposes.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        invoice: &stripe_shared::InvoiceId,
-    ) -> stripe::Response<stripe_shared::Invoice> {
-        client.send_form(
-            &format!("/invoices/{invoice}/mark_uncollectible"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, invoice: &stripe_shared::InvoiceId) -> stripe::Response<stripe_shared::Invoice> {
+        client.send_form(&format!("/invoices/{invoice}/mark_uncollectible"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -5700,11 +5418,7 @@ impl<'a> VoidInvoiceInvoice<'a> {
     /// Mark a finalized invoice as void.
     /// This cannot be undone.
     /// Voiding an invoice is similar to [deletion](https://stripe.com/docs/api#delete_invoice), however it only applies to finalized invoices and maintains a papertrail where the invoice can still be found.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        invoice: &stripe_shared::InvoiceId,
-    ) -> stripe::Response<stripe_shared::Invoice> {
+    pub fn send(&self, client: &stripe::Client, invoice: &stripe_shared::InvoiceId) -> stripe::Response<stripe_shared::Invoice> {
         client.send_form(&format!("/invoices/{invoice}/void"), self, http_types::Method::Post)
     }
 }
@@ -5853,7 +5567,7 @@ pub struct BankTransferParam<'a> {
     pub eu_bank_transfer: Option<EuBankTransferParam<'a>>,
     /// The bank transfer type that can be used for funding.
     /// Permitted values include: `eu_bank_transfer`, `gb_bank_transfer`, `jp_bank_transfer`, `mx_bank_transfer`, or `us_bank_transfer`.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<&'a str>,
 }

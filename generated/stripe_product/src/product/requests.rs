@@ -28,15 +28,10 @@ impl<'a> SearchProduct<'a> {
     /// conditions, data is searchable in less than a minute.
     /// Occasionally, propagation of new or updated data can be up.
     /// to an hour behind during outages. Search functionality is not available to merchants in India.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::SearchList<stripe_shared::Product>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::SearchList<stripe_shared::Product>> {
         client.get_query("/products/search", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Product>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Product>> {
         stripe::ListPaginator::from_search_params("/products/search", self)
     }
 }
@@ -97,7 +92,7 @@ pub struct CreateProduct<'a> {
     /// Defaults to `service` if not explicitly specified, enabling use of this product with Subscriptions and Plans.
     /// Set this parameter to `good` to use this product with Orders and SKUs.
     /// On API versions before `2018-02-05`, this field defaults to `good` for compatibility reasons.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<stripe_shared::ProductType>,
     /// A label that represents units of this product.
@@ -140,12 +135,7 @@ pub struct CreateProductDefaultPriceData<'a> {
     /// Prices defined in each available currency option.
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub currency_options: Option<
-        &'a std::collections::HashMap<
-            stripe_types::Currency,
-            CreateProductDefaultPriceDataCurrencyOptions,
-        >,
-    >,
+    pub currency_options: Option<&'a std::collections::HashMap<stripe_types::Currency, CreateProductDefaultPriceDataCurrencyOptions>>,
     /// The recurring components of a price such as `interval` and `interval_count`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub recurring: Option<CreateProductDefaultPriceDataRecurring>,
@@ -166,14 +156,7 @@ pub struct CreateProductDefaultPriceData<'a> {
 }
 impl<'a> CreateProductDefaultPriceData<'a> {
     pub fn new(currency: stripe_types::Currency) -> Self {
-        Self {
-            currency,
-            currency_options: None,
-            recurring: None,
-            tax_behavior: None,
-            unit_amount: None,
-            unit_amount_decimal: None,
-        }
+        Self { currency, currency_options: None, recurring: None, tax_behavior: None, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// Prices defined in each available currency option.
@@ -311,13 +294,7 @@ pub struct CreateProductDefaultPriceDataCurrencyOptionsTiers {
 }
 impl CreateProductDefaultPriceDataCurrencyOptionsTiers {
     pub fn new(up_to: CreateProductDefaultPriceDataCurrencyOptionsTiersUpTo) -> Self {
-        Self {
-            flat_amount: None,
-            flat_amount_decimal: None,
-            unit_amount: None,
-            unit_amount_decimal: None,
-            up_to,
-        }
+        Self { flat_amount: None, flat_amount_decimal: None, unit_amount: None, unit_amount_decimal: None, up_to }
     }
 }
 /// Specifies the upper bound of this tier.
@@ -479,11 +456,7 @@ impl<'a> RetrieveProduct<'a> {
 impl<'a> RetrieveProduct<'a> {
     /// Retrieves the details of an existing product.
     /// Supply the unique product ID from either a product creation request or the product list, and Stripe will return the corresponding product information.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &stripe_shared::ProductId,
-    ) -> stripe::Response<stripe_shared::Product> {
+    pub fn send(&self, client: &stripe::Client, id: &stripe_shared::ProductId) -> stripe::Response<stripe_shared::Product> {
         client.get_query(&format!("/products/{id}"), self)
     }
 }
@@ -553,11 +526,7 @@ impl<'a> UpdateProduct<'a> {
 impl<'a> UpdateProduct<'a> {
     /// Updates the specific product by setting the values of the parameters passed.
     /// Any parameters not provided will be left unchanged.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &stripe_shared::ProductId,
-    ) -> stripe::Response<stripe_shared::Product> {
+    pub fn send(&self, client: &stripe::Client, id: &stripe_shared::ProductId) -> stripe::Response<stripe_shared::Product> {
         client.send_form(&format!("/products/{id}"), self, http_types::Method::Post)
     }
 }
@@ -594,7 +563,7 @@ pub struct ListProduct<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub starting_after: Option<&'a str>,
     /// Only return products of this type.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<stripe_shared::ProductType>,
     /// Only return products with the given url.
@@ -609,10 +578,7 @@ impl<'a> ListProduct<'a> {
 impl<'a> ListProduct<'a> {
     /// Returns a list of your products.
     /// The products are returned sorted by creation date, with the most recently created products appearing first.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::Product>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::Product>> {
         client.get_query("/products", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Product>> {
@@ -630,11 +596,7 @@ impl DeleteProduct {
     /// Delete a product.
     /// Deleting a product is only possible if it has no prices associated with it.
     /// Additionally, deleting a product with `type=good` is only possible if it has no SKUs associated with it.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &stripe_shared::ProductId,
-    ) -> stripe::Response<stripe_shared::DeletedProduct> {
+    pub fn send(&self, client: &stripe::Client, id: &stripe_shared::ProductId) -> stripe::Response<stripe_shared::DeletedProduct> {
         client.send_form(&format!("/products/{id}"), self, http_types::Method::Delete)
     }
 }

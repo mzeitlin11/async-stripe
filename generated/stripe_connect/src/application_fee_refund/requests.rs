@@ -29,11 +29,7 @@ impl<'a> CreateApplicationFeeRefund<'a> {
     /// Once entirely refunded, an application fee can’t be refunded again.
     /// This method will raise an error when called on an already-refunded application fee,
     /// or when trying to refund more money than is left on an application fee.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &stripe_shared::ApplicationFeeId,
-    ) -> stripe::Response<stripe_shared::ApplicationFeeRefund> {
+    pub fn send(&self, client: &stripe::Client, id: &stripe_shared::ApplicationFeeId) -> stripe::Response<stripe_shared::ApplicationFeeRefund> {
         client.send_form(&format!("/application_fees/{id}/refunds"), self, http_types::Method::Post)
     }
 }
@@ -66,17 +62,10 @@ impl<'a> ListApplicationFeeRefund<'a> {
     /// You can see a list of the refunds belonging to a specific application fee.
     /// Note that the 10 most recent refunds are always available by default on the application fee object.
     /// If you need more than those 10, you can use this API method and the `limit` and `starting_after` parameters to page through additional refunds.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &stripe_shared::ApplicationFeeId,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::ApplicationFeeRefund>> {
+    pub fn send(&self, client: &stripe::Client, id: &stripe_shared::ApplicationFeeId) -> stripe::Response<stripe_types::List<stripe_shared::ApplicationFeeRefund>> {
         client.get_query(&format!("/application_fees/{id}/refunds"), self)
     }
-    pub fn paginate(
-        self,
-        id: &stripe_shared::ApplicationFeeId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::ApplicationFeeRefund>> {
+    pub fn paginate(self, id: &stripe_shared::ApplicationFeeId) -> stripe::ListPaginator<stripe_types::List<stripe_shared::ApplicationFeeRefund>> {
         stripe::ListPaginator::from_list_params(&format!("/application_fees/{id}/refunds"), self)
     }
 }
@@ -93,12 +82,7 @@ impl<'a> RetrieveApplicationFeeRefund<'a> {
 }
 impl<'a> RetrieveApplicationFeeRefund<'a> {
     /// By default, you can see the 10 most recent refunds stored directly on the application fee object, but you can also retrieve details about a specific refund stored on the application fee.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        fee: &stripe_shared::ApplicationFeeId,
-        id: &str,
-    ) -> stripe::Response<stripe_shared::ApplicationFeeRefund> {
+    pub fn send(&self, client: &stripe::Client, fee: &stripe_shared::ApplicationFeeId, id: &str) -> stripe::Response<stripe_shared::ApplicationFeeRefund> {
         client.get_query(&format!("/application_fees/{fee}/refunds/{id}"), self)
     }
 }
@@ -124,16 +108,7 @@ impl<'a> UpdateApplicationFeeRefund<'a> {
     /// Any parameters not provided will be left unchanged.
     ///
     /// This request only accepts metadata as an argument.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        fee: &stripe_shared::ApplicationFeeId,
-        id: &str,
-    ) -> stripe::Response<stripe_shared::ApplicationFeeRefund> {
-        client.send_form(
-            &format!("/application_fees/{fee}/refunds/{id}"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, fee: &stripe_shared::ApplicationFeeId, id: &str) -> stripe::Response<stripe_shared::ApplicationFeeRefund> {
+        client.send_form(&format!("/application_fees/{fee}/refunds/{id}"), self, http_types::Method::Post)
     }
 }

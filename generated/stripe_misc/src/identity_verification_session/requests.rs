@@ -16,7 +16,7 @@ pub struct CreateIdentityVerificationSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub return_url: Option<&'a str>,
     /// The type of [verification check](https://stripe.com/docs/identity/verification-checks) to be performed.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: stripe_misc::IdentityVerificationSessionType,
 }
 impl<'a> CreateIdentityVerificationSession<'a> {
@@ -122,10 +122,7 @@ impl<'a> CreateIdentityVerificationSession<'a> {
     /// If your API key is in test mode, verification checks won’t actually process, though everything else will occur as if in live mode.
     ///
     /// Related guide: [Verify your users’ identity documents](https://stripe.com/docs/identity/verify-identity-documents).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
         client.send_form("/identity/verification_sessions", self, http_types::Method::Post)
     }
 }
@@ -145,11 +142,7 @@ impl<'a> RetrieveIdentityVerificationSession<'a> {
     ///
     /// When the session status is `requires_input`, you can use this method to retrieve a valid
     /// `client_secret` or `url` to allow re-submission.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        session: &stripe_misc::IdentityVerificationSessionId,
-    ) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
+    pub fn send(&self, client: &stripe::Client, session: &stripe_misc::IdentityVerificationSessionId) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
         client.get_query(&format!("/identity/verification_sessions/{session}"), self)
     }
 }
@@ -186,15 +179,10 @@ impl<'a> ListIdentityVerificationSession<'a> {
 }
 impl<'a> ListIdentityVerificationSession<'a> {
     /// Returns a list of VerificationSessions
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_misc::IdentityVerificationSession>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_misc::IdentityVerificationSession>> {
         client.get_query("/identity/verification_sessions", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::IdentityVerificationSession>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_misc::IdentityVerificationSession>> {
         stripe::ListPaginator::from_list_params("/identity/verification_sessions", self)
     }
 }
@@ -215,16 +203,8 @@ impl<'a> CancelIdentityVerificationSession<'a> {
     /// Once canceled, future submission attempts are disabled.
     /// This cannot be undone.
     /// [Learn more](https://stripe.com/docs/identity/verification-sessions#cancel).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        session: &stripe_misc::IdentityVerificationSessionId,
-    ) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
-        client.send_form(
-            &format!("/identity/verification_sessions/{session}/cancel"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, session: &stripe_misc::IdentityVerificationSessionId) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
+        client.send_form(&format!("/identity/verification_sessions/{session}/cancel"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -259,16 +239,8 @@ impl<'a> RedactIdentityVerificationSession<'a> {
     /// used for any purpose.
     ///
     /// [Learn more](https://stripe.com/docs/identity/verification-sessions#redact).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        session: &stripe_misc::IdentityVerificationSessionId,
-    ) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
-        client.send_form(
-            &format!("/identity/verification_sessions/{session}/redact"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, session: &stripe_misc::IdentityVerificationSessionId) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
+        client.send_form(&format!("/identity/verification_sessions/{session}/redact"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -286,7 +258,7 @@ pub struct UpdateIdentityVerificationSession<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<UpdateIdentityVerificationSessionOptions<'a>>,
     /// The type of [verification check](https://stripe.com/docs/identity/verification-checks) to be performed.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<stripe_misc::IdentityVerificationSessionType>,
 }
@@ -390,15 +362,7 @@ impl<'a> UpdateIdentityVerificationSession<'a> {
     ///
     /// When the session status is `requires_input`, you can use this method to update the
     /// verification check and options.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        session: &stripe_misc::IdentityVerificationSessionId,
-    ) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
-        client.send_form(
-            &format!("/identity/verification_sessions/{session}"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, session: &stripe_misc::IdentityVerificationSessionId) -> stripe::Response<stripe_misc::IdentityVerificationSession> {
+        client.send_form(&format!("/identity/verification_sessions/{session}"), self, http_types::Method::Post)
     }
 }

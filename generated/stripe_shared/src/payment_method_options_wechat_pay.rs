@@ -1,4 +1,6 @@
-#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct PaymentMethodOptionsWechatPay {
     /// The app ID registered with WeChat Pay. Only required when client is ios or android.
     pub app_id: Option<String>,
@@ -10,9 +12,80 @@ pub struct PaymentMethodOptionsWechatPay {
     /// If no Customer was provided, the payment method can still be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer after the transaction completes.
     ///
     /// When processing card payments, Stripe also uses `setup_future_usage` to dynamically optimize your payment flow and comply with regional legislation and network rules, such as [SCA](https://stripe.com/docs/strong-customer-authentication).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_future_usage: Option<PaymentMethodOptionsWechatPaySetupFutureUsage>,
 }
+#[cfg(feature = "min-ser")]
+pub struct PaymentMethodOptionsWechatPayBuilder {
+    app_id: Option<Option<String>>,
+    client: Option<Option<PaymentMethodOptionsWechatPayClient>>,
+    setup_future_usage: Option<Option<PaymentMethodOptionsWechatPaySetupFutureUsage>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for PaymentMethodOptionsWechatPay {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<PaymentMethodOptionsWechatPay>,
+        builder: PaymentMethodOptionsWechatPayBuilder,
+    }
+
+    impl Visitor for Place<PaymentMethodOptionsWechatPay> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: PaymentMethodOptionsWechatPayBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for PaymentMethodOptionsWechatPayBuilder {
+        type Out = PaymentMethodOptionsWechatPay;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "app_id" => Ok(Deserialize::begin(&mut self.app_id)),
+                "client" => Ok(Deserialize::begin(&mut self.client)),
+                "setup_future_usage" => Ok(Deserialize::begin(&mut self.setup_future_usage)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self { app_id: Deserialize::default(), client: Deserialize::default(), setup_future_usage: Deserialize::default() }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let app_id = self.app_id.take()?;
+            let client = self.client.take()?;
+            let setup_future_usage = self.setup_future_usage.take()?;
+
+            Some(Self::Out { app_id, client, setup_future_usage })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for PaymentMethodOptionsWechatPay {
+        type Builder = PaymentMethodOptionsWechatPayBuilder;
+    }
+};
 /// The client type that the end customer will pay from
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PaymentMethodOptionsWechatPayClient {
@@ -71,9 +144,22 @@ impl<'de> serde::Deserialize<'de> for PaymentMethodOptionsWechatPayClient {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for PaymentMethodOptionsWechatPayClient")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PaymentMethodOptionsWechatPayClient"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentMethodOptionsWechatPayClient {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentMethodOptionsWechatPayClient> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentMethodOptionsWechatPayClient::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// Indicates that you intend to make future payments with this PaymentIntent's payment method.
@@ -133,10 +219,21 @@ impl<'de> serde::Deserialize<'de> for PaymentMethodOptionsWechatPaySetupFutureUs
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for PaymentMethodOptionsWechatPaySetupFutureUsage",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PaymentMethodOptionsWechatPaySetupFutureUsage"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentMethodOptionsWechatPaySetupFutureUsage {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentMethodOptionsWechatPaySetupFutureUsage> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentMethodOptionsWechatPaySetupFutureUsage::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

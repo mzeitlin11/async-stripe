@@ -4,7 +4,9 @@
 /// Related guide: [Applying discounts to subscriptions](https://stripe.com/docs/billing/subscriptions/discounts).
 ///
 /// For more details see <<https://stripe.com/docs/api/discounts/object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct Discount {
     /// The Checkout session that this coupon is applied to, if it is applied to a particular session in payment mode.
     /// Will not be present for subscription mode.
@@ -30,6 +32,110 @@ pub struct Discount {
     /// The subscription that this coupon is applied to, if it is applied to a particular subscription.
     pub subscription: Option<String>,
 }
+#[cfg(feature = "min-ser")]
+pub struct DiscountBuilder {
+    checkout_session: Option<Option<String>>,
+    coupon: Option<stripe_shared::Coupon>,
+    customer: Option<Option<stripe_types::Expandable<stripe_shared::Customer>>>,
+    end: Option<Option<stripe_types::Timestamp>>,
+    id: Option<stripe_shared::DiscountId>,
+    invoice: Option<Option<String>>,
+    invoice_item: Option<Option<String>>,
+    promotion_code: Option<Option<stripe_types::Expandable<stripe_shared::PromotionCode>>>,
+    start: Option<stripe_types::Timestamp>,
+    subscription: Option<Option<String>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for Discount {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<Discount>,
+        builder: DiscountBuilder,
+    }
+
+    impl Visitor for Place<Discount> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: DiscountBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for DiscountBuilder {
+        type Out = Discount;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "checkout_session" => Ok(Deserialize::begin(&mut self.checkout_session)),
+                "coupon" => Ok(Deserialize::begin(&mut self.coupon)),
+                "customer" => Ok(Deserialize::begin(&mut self.customer)),
+                "end" => Ok(Deserialize::begin(&mut self.end)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "invoice" => Ok(Deserialize::begin(&mut self.invoice)),
+                "invoice_item" => Ok(Deserialize::begin(&mut self.invoice_item)),
+                "promotion_code" => Ok(Deserialize::begin(&mut self.promotion_code)),
+                "start" => Ok(Deserialize::begin(&mut self.start)),
+                "subscription" => Ok(Deserialize::begin(&mut self.subscription)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                checkout_session: Deserialize::default(),
+                coupon: Deserialize::default(),
+                customer: Deserialize::default(),
+                end: Deserialize::default(),
+                id: Deserialize::default(),
+                invoice: Deserialize::default(),
+                invoice_item: Deserialize::default(),
+                promotion_code: Deserialize::default(),
+                start: Deserialize::default(),
+                subscription: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let checkout_session = self.checkout_session.take()?;
+            let coupon = self.coupon.take()?;
+            let customer = self.customer.take()?;
+            let end = self.end.take()?;
+            let id = self.id.take()?;
+            let invoice = self.invoice.take()?;
+            let invoice_item = self.invoice_item.take()?;
+            let promotion_code = self.promotion_code.take()?;
+            let start = self.start.take()?;
+            let subscription = self.subscription.take()?;
+
+            Some(Self::Out { checkout_session, coupon, customer, end, id, invoice, invoice_item, promotion_code, start, subscription })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for Discount {
+        type Builder = DiscountBuilder;
+    }
+};
 impl stripe_types::Object for Discount {
     type Id = stripe_shared::DiscountId;
     fn id(&self) -> &Self::Id {

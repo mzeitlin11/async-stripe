@@ -35,10 +35,7 @@ impl<'a> ListPlan<'a> {
 }
 impl<'a> ListPlan<'a> {
     /// Returns a list of your plans.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::Plan>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::Plan>> {
         client.get_query("/plans", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Plan>> {
@@ -188,15 +185,7 @@ pub struct CreatePlanInlineProductParams<'a> {
 }
 impl<'a> CreatePlanInlineProductParams<'a> {
     pub fn new(name: &'a str) -> Self {
-        Self {
-            active: None,
-            id: None,
-            metadata: None,
-            name,
-            statement_descriptor: None,
-            tax_code: None,
-            unit_label: None,
-        }
+        Self { active: None, id: None, metadata: None, name, statement_descriptor: None, tax_code: None, unit_label: None }
     }
 }
 /// Each element represents a pricing tier.
@@ -225,13 +214,7 @@ pub struct CreatePlanTiers<'a> {
 }
 impl<'a> CreatePlanTiers<'a> {
     pub fn new(up_to: CreatePlanTiersUpTo) -> Self {
-        Self {
-            flat_amount: None,
-            flat_amount_decimal: None,
-            unit_amount: None,
-            unit_amount_decimal: None,
-            up_to,
-        }
+        Self { flat_amount: None, flat_amount_decimal: None, unit_amount: None, unit_amount_decimal: None, up_to }
     }
 }
 /// Specifies the upper bound of this tier.
@@ -328,11 +311,7 @@ impl<'a> RetrievePlan<'a> {
 }
 impl<'a> RetrievePlan<'a> {
     /// Retrieves the plan with the given ID.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        plan: &stripe_shared::PlanId,
-    ) -> stripe::Response<stripe_shared::Plan> {
+    pub fn send(&self, client: &stripe::Client, plan: &stripe_shared::PlanId) -> stripe::Response<stripe_shared::Plan> {
         client.get_query(&format!("/plans/{plan}"), self)
     }
 }
@@ -370,11 +349,7 @@ impl<'a> UpdatePlan<'a> {
     /// Updates the specified plan by setting the values of the parameters passed.
     /// Any parameters not provided are left unchanged.
     /// By design, you cannot change a plan’s ID, amount, currency, or billing cycle.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        plan: &stripe_shared::PlanId,
-    ) -> stripe::Response<stripe_shared::Plan> {
+    pub fn send(&self, client: &stripe::Client, plan: &stripe_shared::PlanId) -> stripe::Response<stripe_shared::Plan> {
         client.send_form(&format!("/plans/{plan}"), self, http_types::Method::Post)
     }
 }
@@ -387,11 +362,7 @@ impl DeletePlan {
 }
 impl DeletePlan {
     /// Deleting plans means new subscribers can’t be added. Existing subscribers aren’t affected.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        plan: &stripe_shared::PlanId,
-    ) -> stripe::Response<stripe_shared::DeletedPlan> {
+    pub fn send(&self, client: &stripe::Client, plan: &stripe_shared::PlanId) -> stripe::Response<stripe_shared::DeletedPlan> {
         client.send_form(&format!("/plans/{plan}"), self, http_types::Method::Delete)
     }
 }

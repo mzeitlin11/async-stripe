@@ -4,7 +4,9 @@
 /// Related guide: [Balance transaction types](https://stripe.com/docs/reports/balance-transaction-types).
 ///
 /// For more details see <<https://stripe.com/docs/api/balance_transactions/object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct BalanceTransaction {
     /// Gross amount of this transaction (in cents (or local equivalent)).
     /// A positive value represents funds charged to another party, and a negative value represents funds sent to another party.
@@ -43,9 +45,129 @@ pub struct BalanceTransaction {
     /// Transaction type: `adjustment`, `advance`, `advance_funding`, `anticipation_repayment`, `application_fee`, `application_fee_refund`, `charge`, `connect_collection_transfer`, `contribution`, `issuing_authorization_hold`, `issuing_authorization_release`, `issuing_dispute`, `issuing_transaction`, `obligation_inbound`, `obligation_outbound`, `obligation_reversal_inbound`, `obligation_reversal_outbound`, `obligation_payout`, `obligation_payout_failure`, `payment`, `payment_failure_refund`, `payment_refund`, `payment_reversal`, `payment_unreconciled`, `payout`, `payout_cancel`, `payout_failure`, `refund`, `refund_failure`, `reserve_transaction`, `reserved_funds`, `stripe_fee`, `stripe_fx_fee`, `tax_fee`, `topup`, `topup_reversal`, `transfer`, `transfer_cancel`, `transfer_failure`, or `transfer_refund`.
     /// Learn more about [balance transaction types and what they represent](https://stripe.com/docs/reports/balance-transaction-types).
     /// To classify transactions for accounting purposes, consider `reporting_category` instead.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: BalanceTransactionType,
 }
+#[cfg(feature = "min-ser")]
+pub struct BalanceTransactionBuilder {
+    amount: Option<i64>,
+    available_on: Option<stripe_types::Timestamp>,
+    created: Option<stripe_types::Timestamp>,
+    currency: Option<stripe_types::Currency>,
+    description: Option<Option<String>>,
+    exchange_rate: Option<Option<f64>>,
+    fee: Option<i64>,
+    fee_details: Option<Vec<stripe_shared::Fee>>,
+    id: Option<stripe_shared::BalanceTransactionId>,
+    net: Option<i64>,
+    reporting_category: Option<String>,
+    source: Option<Option<stripe_types::Expandable<stripe_shared::BalanceTransactionSource>>>,
+    status: Option<String>,
+    type_: Option<BalanceTransactionType>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for BalanceTransaction {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<BalanceTransaction>,
+        builder: BalanceTransactionBuilder,
+    }
+
+    impl Visitor for Place<BalanceTransaction> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: BalanceTransactionBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for BalanceTransactionBuilder {
+        type Out = BalanceTransaction;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "amount" => Ok(Deserialize::begin(&mut self.amount)),
+                "available_on" => Ok(Deserialize::begin(&mut self.available_on)),
+                "created" => Ok(Deserialize::begin(&mut self.created)),
+                "currency" => Ok(Deserialize::begin(&mut self.currency)),
+                "description" => Ok(Deserialize::begin(&mut self.description)),
+                "exchange_rate" => Ok(Deserialize::begin(&mut self.exchange_rate)),
+                "fee" => Ok(Deserialize::begin(&mut self.fee)),
+                "fee_details" => Ok(Deserialize::begin(&mut self.fee_details)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "net" => Ok(Deserialize::begin(&mut self.net)),
+                "reporting_category" => Ok(Deserialize::begin(&mut self.reporting_category)),
+                "source" => Ok(Deserialize::begin(&mut self.source)),
+                "status" => Ok(Deserialize::begin(&mut self.status)),
+                "type" => Ok(Deserialize::begin(&mut self.type_)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                amount: Deserialize::default(),
+                available_on: Deserialize::default(),
+                created: Deserialize::default(),
+                currency: Deserialize::default(),
+                description: Deserialize::default(),
+                exchange_rate: Deserialize::default(),
+                fee: Deserialize::default(),
+                fee_details: Deserialize::default(),
+                id: Deserialize::default(),
+                net: Deserialize::default(),
+                reporting_category: Deserialize::default(),
+                source: Deserialize::default(),
+                status: Deserialize::default(),
+                type_: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let amount = self.amount.take()?;
+            let available_on = self.available_on.take()?;
+            let created = self.created.take()?;
+            let currency = self.currency.take()?;
+            let description = self.description.take()?;
+            let exchange_rate = self.exchange_rate.take()?;
+            let fee = self.fee.take()?;
+            let fee_details = self.fee_details.take()?;
+            let id = self.id.take()?;
+            let net = self.net.take()?;
+            let reporting_category = self.reporting_category.take()?;
+            let source = self.source.take()?;
+            let status = self.status.take()?;
+            let type_ = self.type_.take()?;
+
+            Some(Self::Out { amount, available_on, created, currency, description, exchange_rate, fee, fee_details, id, net, reporting_category, source, status, type_ })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for BalanceTransaction {
+        type Builder = BalanceTransactionBuilder;
+    }
+};
 /// Transaction type: `adjustment`, `advance`, `advance_funding`, `anticipation_repayment`, `application_fee`, `application_fee_refund`, `charge`, `connect_collection_transfer`, `contribution`, `issuing_authorization_hold`, `issuing_authorization_release`, `issuing_dispute`, `issuing_transaction`, `obligation_inbound`, `obligation_outbound`, `obligation_reversal_inbound`, `obligation_reversal_outbound`, `obligation_payout`, `obligation_payout_failure`, `payment`, `payment_failure_refund`, `payment_refund`, `payment_reversal`, `payment_unreconciled`, `payout`, `payout_cancel`, `payout_failure`, `refund`, `refund_failure`, `reserve_transaction`, `reserved_funds`, `stripe_fee`, `stripe_fx_fee`, `tax_fee`, `topup`, `topup_reversal`, `transfer`, `transfer_cancel`, `transfer_failure`, or `transfer_refund`.
 /// Learn more about [balance transaction types and what they represent](https://stripe.com/docs/reports/balance-transaction-types).
 /// To classify transactions for accounting purposes, consider `reporting_category` instead.
@@ -221,7 +343,22 @@ impl<'de> serde::Deserialize<'de> for BalanceTransactionType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Ok(Self::from_str(&s).unwrap_or(BalanceTransactionType::Unknown))
+        Ok(Self::from_str(&s).unwrap_or(Self::Unknown))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for BalanceTransactionType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<BalanceTransactionType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(BalanceTransactionType::from_str(s).unwrap_or(BalanceTransactionType::Unknown));
+        Ok(())
     }
 }
 impl stripe_types::Object for BalanceTransaction {

@@ -12,11 +12,7 @@ impl<'a> RetrievePromotionCode<'a> {
 impl<'a> RetrievePromotionCode<'a> {
     /// Retrieves the promotion code with the given ID.
     /// In order to retrieve a promotion code by the customer-facing `code` use [list](https://stripe.com/docs/api/promotion_codes/list) with the desired `code`.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        promotion_code: &stripe_shared::PromotionCodeId,
-    ) -> stripe::Response<stripe_shared::PromotionCode> {
+    pub fn send(&self, client: &stripe::Client, promotion_code: &stripe_shared::PromotionCodeId) -> stripe::Response<stripe_shared::PromotionCode> {
         client.get_query(&format!("/promotion_codes/{promotion_code}"), self)
     }
 }
@@ -59,17 +55,7 @@ pub struct CreatePromotionCode<'a> {
 }
 impl<'a> CreatePromotionCode<'a> {
     pub fn new(coupon: &'a str) -> Self {
-        Self {
-            active: None,
-            code: None,
-            coupon,
-            customer: None,
-            expand: None,
-            expires_at: None,
-            max_redemptions: None,
-            metadata: None,
-            restrictions: None,
-        }
+        Self { active: None, code: None, coupon, customer: None, expand: None, expires_at: None, max_redemptions: None, metadata: None, restrictions: None }
     }
 }
 /// Settings that restrict the redemption of the promotion code.
@@ -78,8 +64,7 @@ pub struct CreatePromotionCodeRestrictions<'a> {
     /// Promotion codes defined in each available currency option.
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub currency_options:
-        Option<&'a std::collections::HashMap<stripe_types::Currency, CurrencyOption>>,
+    pub currency_options: Option<&'a std::collections::HashMap<stripe_types::Currency, CurrencyOption>>,
     /// A Boolean indicating if the Promotion Code should only be redeemed for Customers without any successful payments or invoices.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub first_time_transaction: Option<bool>,
@@ -132,8 +117,7 @@ pub struct UpdatePromotionCodeRestrictions<'a> {
     /// Promotion codes defined in each available currency option.
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub currency_options:
-        Option<&'a std::collections::HashMap<stripe_types::Currency, CurrencyOption>>,
+    pub currency_options: Option<&'a std::collections::HashMap<stripe_types::Currency, CurrencyOption>>,
 }
 impl<'a> UpdatePromotionCodeRestrictions<'a> {
     pub fn new() -> Self {
@@ -143,16 +127,8 @@ impl<'a> UpdatePromotionCodeRestrictions<'a> {
 impl<'a> UpdatePromotionCode<'a> {
     /// Updates the specified promotion code by setting the values of the parameters passed.
     /// Most fields are, by design, not editable.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        promotion_code: &stripe_shared::PromotionCodeId,
-    ) -> stripe::Response<stripe_shared::PromotionCode> {
-        client.send_form(
-            &format!("/promotion_codes/{promotion_code}"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, promotion_code: &stripe_shared::PromotionCodeId) -> stripe::Response<stripe_shared::PromotionCode> {
+        client.send_form(&format!("/promotion_codes/{promotion_code}"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -198,15 +174,10 @@ impl<'a> ListPromotionCode<'a> {
 }
 impl<'a> ListPromotionCode<'a> {
     /// Returns a list of your promotion codes.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::PromotionCode>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::PromotionCode>> {
         client.get_query("/promotion_codes", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PromotionCode>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PromotionCode>> {
         stripe::ListPaginator::from_list_params("/promotion_codes", self)
     }
 }

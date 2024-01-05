@@ -1,12 +1,82 @@
-#[derive(Copy, Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, Default)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct InvoicePaymentMethodOptionsCard {
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub installments: Option<stripe_shared::InvoiceInstallmentsCard>,
     /// We strongly recommend that you rely on our SCA Engine to automatically prompt your customers for authentication based on risk level and [other requirements](https://stripe.com/docs/strong-customer-authentication).
     /// However, if you wish to request 3D Secure based on logic from your own fraud engine, provide this option.
     /// Read our guide on [manually requesting 3D Secure](https://stripe.com/docs/payments/3d-secure#manual-three-ds) for more information on how this configuration interacts with Radar and our SCA Engine.
     pub request_three_d_secure: Option<InvoicePaymentMethodOptionsCardRequestThreeDSecure>,
 }
+#[cfg(feature = "min-ser")]
+pub struct InvoicePaymentMethodOptionsCardBuilder {
+    installments: Option<Option<stripe_shared::InvoiceInstallmentsCard>>,
+    request_three_d_secure: Option<Option<InvoicePaymentMethodOptionsCardRequestThreeDSecure>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for InvoicePaymentMethodOptionsCard {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<InvoicePaymentMethodOptionsCard>,
+        builder: InvoicePaymentMethodOptionsCardBuilder,
+    }
+
+    impl Visitor for Place<InvoicePaymentMethodOptionsCard> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: InvoicePaymentMethodOptionsCardBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for InvoicePaymentMethodOptionsCardBuilder {
+        type Out = InvoicePaymentMethodOptionsCard;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "installments" => Ok(Deserialize::begin(&mut self.installments)),
+                "request_three_d_secure" => Ok(Deserialize::begin(&mut self.request_three_d_secure)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self { installments: Deserialize::default(), request_three_d_secure: Deserialize::default() }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let installments = self.installments.take()?;
+            let request_three_d_secure = self.request_three_d_secure.take()?;
+
+            Some(Self::Out { installments, request_three_d_secure })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for InvoicePaymentMethodOptionsCard {
+        type Builder = InvoicePaymentMethodOptionsCardBuilder;
+    }
+};
 /// We strongly recommend that you rely on our SCA Engine to automatically prompt your customers for authentication based on risk level and [other requirements](https://stripe.com/docs/strong-customer-authentication).
 /// However, if you wish to request 3D Secure based on logic from your own fraud engine, provide this option.
 /// Read our guide on [manually requesting 3D Secure](https://stripe.com/docs/payments/3d-secure#manual-three-ds) for more information on how this configuration interacts with Radar and our SCA Engine.
@@ -64,10 +134,21 @@ impl<'de> serde::Deserialize<'de> for InvoicePaymentMethodOptionsCardRequestThre
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for InvoicePaymentMethodOptionsCardRequestThreeDSecure",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for InvoicePaymentMethodOptionsCardRequestThreeDSecure"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for InvoicePaymentMethodOptionsCardRequestThreeDSecure {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<InvoicePaymentMethodOptionsCardRequestThreeDSecure> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(InvoicePaymentMethodOptionsCardRequestThreeDSecure::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

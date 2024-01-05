@@ -1,10 +1,81 @@
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct TreasuryOutboundTransfersResourceReturnedDetails {
     /// Reason for the return.
     pub code: TreasuryOutboundTransfersResourceReturnedDetailsCode,
     /// The Transaction associated with this object.
     pub transaction: stripe_types::Expandable<stripe_treasury::TreasuryTransaction>,
 }
+#[cfg(feature = "min-ser")]
+pub struct TreasuryOutboundTransfersResourceReturnedDetailsBuilder {
+    code: Option<TreasuryOutboundTransfersResourceReturnedDetailsCode>,
+    transaction: Option<stripe_types::Expandable<stripe_treasury::TreasuryTransaction>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for TreasuryOutboundTransfersResourceReturnedDetails {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<TreasuryOutboundTransfersResourceReturnedDetails>,
+        builder: TreasuryOutboundTransfersResourceReturnedDetailsBuilder,
+    }
+
+    impl Visitor for Place<TreasuryOutboundTransfersResourceReturnedDetails> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: TreasuryOutboundTransfersResourceReturnedDetailsBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for TreasuryOutboundTransfersResourceReturnedDetailsBuilder {
+        type Out = TreasuryOutboundTransfersResourceReturnedDetails;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "code" => Ok(Deserialize::begin(&mut self.code)),
+                "transaction" => Ok(Deserialize::begin(&mut self.transaction)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self { code: Deserialize::default(), transaction: Deserialize::default() }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let code = self.code.take()?;
+            let transaction = self.transaction.take()?;
+
+            Some(Self::Out { code, transaction })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for TreasuryOutboundTransfersResourceReturnedDetails {
+        type Builder = TreasuryOutboundTransfersResourceReturnedDetailsBuilder;
+    }
+};
 /// Reason for the return.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryOutboundTransfersResourceReturnedDetailsCode {
@@ -84,10 +155,21 @@ impl<'de> serde::Deserialize<'de> for TreasuryOutboundTransfersResourceReturnedD
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for TreasuryOutboundTransfersResourceReturnedDetailsCode",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryOutboundTransfersResourceReturnedDetailsCode"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TreasuryOutboundTransfersResourceReturnedDetailsCode {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TreasuryOutboundTransfersResourceReturnedDetailsCode> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TreasuryOutboundTransfersResourceReturnedDetailsCode::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

@@ -19,7 +19,7 @@ impl<'a> FindAppsSecret<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct FindAppsSecretScope<'a> {
     /// The secret scope type.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: FindAppsSecretScopeType,
     /// The user ID.
     /// This field is required if `type` is set to `user`, and should not be provided if `type` is set to `account`.
@@ -114,7 +114,7 @@ impl<'a> CreateAppsSecret<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateAppsSecretScope<'a> {
     /// The secret scope type.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: CreateAppsSecretScopeType,
     /// The user ID.
     /// This field is required if `type` is set to `user`, and should not be provided if `type` is set to `account`.
@@ -204,7 +204,7 @@ impl<'a> DeleteWhereAppsSecret<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct DeleteWhereAppsSecretScope<'a> {
     /// The secret scope type.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: DeleteWhereAppsSecretScopeType,
     /// The user ID.
     /// This field is required if `type` is set to `user`, and should not be provided if `type` is set to `account`.
@@ -306,7 +306,7 @@ impl<'a> ListAppsSecret<'a> {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct ListAppsSecretScope<'a> {
     /// The secret scope type.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: ListAppsSecretScopeType,
     /// The user ID.
     /// This field is required if `type` is set to `user`, and should not be provided if `type` is set to `account`.
@@ -371,10 +371,7 @@ impl serde::Serialize for ListAppsSecretScopeType {
 }
 impl<'a> ListAppsSecret<'a> {
     /// List all secrets stored on the given scope.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_connect::AppsSecret>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_connect::AppsSecret>> {
         client.get_query("/apps/secrets", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_connect::AppsSecret>> {

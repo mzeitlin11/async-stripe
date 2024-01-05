@@ -1,4 +1,6 @@
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct TaxProductResourceTaxCalculationShippingCost {
     /// The shipping amount in integer cents.
     /// If `tax_behavior=inclusive`, then this amount includes taxes.
@@ -7,17 +9,103 @@ pub struct TaxProductResourceTaxCalculationShippingCost {
     /// The amount of tax calculated for shipping, in integer cents.
     pub amount_tax: i64,
     /// The ID of an existing [ShippingRate](https://stripe.com/docs/api/shipping_rates/object).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub shipping_rate: Option<String>,
     /// Specifies whether the `amount` includes taxes.
     /// If `tax_behavior=inclusive`, then the amount includes taxes.
     pub tax_behavior: TaxProductResourceTaxCalculationShippingCostTaxBehavior,
     /// Detailed account of taxes relevant to shipping cost.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_breakdown: Option<Vec<stripe_misc::TaxProductResourceLineItemTaxBreakdown>>,
     /// The [tax code](https://stripe.com/docs/tax/tax-categories) ID used for shipping.
     pub tax_code: String,
 }
+#[cfg(feature = "min-ser")]
+pub struct TaxProductResourceTaxCalculationShippingCostBuilder {
+    amount: Option<i64>,
+    amount_tax: Option<i64>,
+    shipping_rate: Option<Option<String>>,
+    tax_behavior: Option<TaxProductResourceTaxCalculationShippingCostTaxBehavior>,
+    tax_breakdown: Option<Option<Vec<stripe_misc::TaxProductResourceLineItemTaxBreakdown>>>,
+    tax_code: Option<String>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for TaxProductResourceTaxCalculationShippingCost {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<TaxProductResourceTaxCalculationShippingCost>,
+        builder: TaxProductResourceTaxCalculationShippingCostBuilder,
+    }
+
+    impl Visitor for Place<TaxProductResourceTaxCalculationShippingCost> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: TaxProductResourceTaxCalculationShippingCostBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for TaxProductResourceTaxCalculationShippingCostBuilder {
+        type Out = TaxProductResourceTaxCalculationShippingCost;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "amount" => Ok(Deserialize::begin(&mut self.amount)),
+                "amount_tax" => Ok(Deserialize::begin(&mut self.amount_tax)),
+                "shipping_rate" => Ok(Deserialize::begin(&mut self.shipping_rate)),
+                "tax_behavior" => Ok(Deserialize::begin(&mut self.tax_behavior)),
+                "tax_breakdown" => Ok(Deserialize::begin(&mut self.tax_breakdown)),
+                "tax_code" => Ok(Deserialize::begin(&mut self.tax_code)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                amount: Deserialize::default(),
+                amount_tax: Deserialize::default(),
+                shipping_rate: Deserialize::default(),
+                tax_behavior: Deserialize::default(),
+                tax_breakdown: Deserialize::default(),
+                tax_code: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let amount = self.amount.take()?;
+            let amount_tax = self.amount_tax.take()?;
+            let shipping_rate = self.shipping_rate.take()?;
+            let tax_behavior = self.tax_behavior.take()?;
+            let tax_breakdown = self.tax_breakdown.take()?;
+            let tax_code = self.tax_code.take()?;
+
+            Some(Self::Out { amount, amount_tax, shipping_rate, tax_behavior, tax_breakdown, tax_code })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for TaxProductResourceTaxCalculationShippingCost {
+        type Builder = TaxProductResourceTaxCalculationShippingCostBuilder;
+    }
+};
 /// Specifies whether the `amount` includes taxes.
 /// If `tax_behavior=inclusive`, then the amount includes taxes.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -74,10 +162,21 @@ impl<'de> serde::Deserialize<'de> for TaxProductResourceTaxCalculationShippingCo
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for TaxProductResourceTaxCalculationShippingCostTaxBehavior",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TaxProductResourceTaxCalculationShippingCostTaxBehavior"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TaxProductResourceTaxCalculationShippingCostTaxBehavior {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TaxProductResourceTaxCalculationShippingCostTaxBehavior> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TaxProductResourceTaxCalculationShippingCostTaxBehavior::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

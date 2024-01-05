@@ -14,7 +14,7 @@ default-members = ["async-stripe", "stripe_types", "stripe_webhook", "tests", "g
 resolver = "2"
 # Makes dependency management simpler to allow codegen crate to use whichever dep versions
 # it wants without affecting dependency resolution of the user-facing library crates
-exclude = ["openapi"]
+exclude = ["openapi", "mini-test"]
 
 [workspace.package]
 version = "0.22.2"
@@ -40,3 +40,4 @@ serde = {version = ">=1.0.79", features = ["derive"] } # we use `serde(other)` w
 http-types = { version = "2.12.0", default-features = false }
 smol_str = { version = "0.2.0", features = ["serde"] }
 serde_json = "1.0"
+miniserde = "0.1.34"

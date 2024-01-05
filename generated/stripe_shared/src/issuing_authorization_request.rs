@@ -1,4 +1,6 @@
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct IssuingAuthorizationRequest {
     /// The `pending_request.amount` at the time of the request, presented in your card's currency and in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal).
     /// Stripe held this amount from your account to fund the authorization if the request was approved.
@@ -36,6 +38,118 @@ pub struct IssuingAuthorizationRequest {
     /// Referred to by networks as transmission time.
     pub requested_at: Option<stripe_types::Timestamp>,
 }
+#[cfg(feature = "min-ser")]
+pub struct IssuingAuthorizationRequestBuilder {
+    amount: Option<i64>,
+    amount_details: Option<Option<stripe_shared::IssuingAuthorizationAmountDetails>>,
+    approved: Option<bool>,
+    authorization_code: Option<Option<String>>,
+    created: Option<stripe_types::Timestamp>,
+    currency: Option<stripe_types::Currency>,
+    merchant_amount: Option<i64>,
+    merchant_currency: Option<stripe_types::Currency>,
+    network_risk_score: Option<Option<i64>>,
+    reason: Option<IssuingAuthorizationRequestReason>,
+    reason_message: Option<Option<String>>,
+    requested_at: Option<Option<stripe_types::Timestamp>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for IssuingAuthorizationRequest {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<IssuingAuthorizationRequest>,
+        builder: IssuingAuthorizationRequestBuilder,
+    }
+
+    impl Visitor for Place<IssuingAuthorizationRequest> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: IssuingAuthorizationRequestBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for IssuingAuthorizationRequestBuilder {
+        type Out = IssuingAuthorizationRequest;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "amount" => Ok(Deserialize::begin(&mut self.amount)),
+                "amount_details" => Ok(Deserialize::begin(&mut self.amount_details)),
+                "approved" => Ok(Deserialize::begin(&mut self.approved)),
+                "authorization_code" => Ok(Deserialize::begin(&mut self.authorization_code)),
+                "created" => Ok(Deserialize::begin(&mut self.created)),
+                "currency" => Ok(Deserialize::begin(&mut self.currency)),
+                "merchant_amount" => Ok(Deserialize::begin(&mut self.merchant_amount)),
+                "merchant_currency" => Ok(Deserialize::begin(&mut self.merchant_currency)),
+                "network_risk_score" => Ok(Deserialize::begin(&mut self.network_risk_score)),
+                "reason" => Ok(Deserialize::begin(&mut self.reason)),
+                "reason_message" => Ok(Deserialize::begin(&mut self.reason_message)),
+                "requested_at" => Ok(Deserialize::begin(&mut self.requested_at)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                amount: Deserialize::default(),
+                amount_details: Deserialize::default(),
+                approved: Deserialize::default(),
+                authorization_code: Deserialize::default(),
+                created: Deserialize::default(),
+                currency: Deserialize::default(),
+                merchant_amount: Deserialize::default(),
+                merchant_currency: Deserialize::default(),
+                network_risk_score: Deserialize::default(),
+                reason: Deserialize::default(),
+                reason_message: Deserialize::default(),
+                requested_at: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let amount = self.amount.take()?;
+            let amount_details = self.amount_details.take()?;
+            let approved = self.approved.take()?;
+            let authorization_code = self.authorization_code.take()?;
+            let created = self.created.take()?;
+            let currency = self.currency.take()?;
+            let merchant_amount = self.merchant_amount.take()?;
+            let merchant_currency = self.merchant_currency.take()?;
+            let network_risk_score = self.network_risk_score.take()?;
+            let reason = self.reason.take()?;
+            let reason_message = self.reason_message.take()?;
+            let requested_at = self.requested_at.take()?;
+
+            Some(Self::Out { amount, amount_details, approved, authorization_code, created, currency, merchant_amount, merchant_currency, network_risk_score, reason, reason_message, requested_at })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for IssuingAuthorizationRequest {
+        type Builder = IssuingAuthorizationRequestBuilder;
+    }
+};
 /// When an authorization is approved or declined by you or by Stripe, this field provides additional detail on the reason for the outcome.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -131,6 +245,21 @@ impl<'de> serde::Deserialize<'de> for IssuingAuthorizationRequestReason {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Ok(Self::from_str(&s).unwrap_or(IssuingAuthorizationRequestReason::Unknown))
+        Ok(Self::from_str(&s).unwrap_or(Self::Unknown))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for IssuingAuthorizationRequestReason {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<IssuingAuthorizationRequestReason> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(IssuingAuthorizationRequestReason::from_str(s).unwrap_or(IssuingAuthorizationRequestReason::Unknown));
+        Ok(())
     }
 }

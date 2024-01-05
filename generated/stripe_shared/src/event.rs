@@ -30,10 +30,11 @@
 /// for 30 days.
 ///
 /// For more details see <<https://stripe.com/docs/api/events/object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct Event {
     /// The connected account that originates the event.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub account: Option<String>,
     /// The Stripe API version used to render `data`.
     /// This property is populated only for events on or after October 31, 2014.
@@ -50,9 +51,109 @@ pub struct Event {
     /// Information on the API request that triggers the event.
     pub request: Option<stripe_shared::NotificationEventRequest>,
     /// Description of the event (for example, `invoice.created` or `charge.refunded`).
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: EventType,
 }
+#[cfg(feature = "min-ser")]
+pub struct EventBuilder {
+    account: Option<Option<String>>,
+    api_version: Option<Option<String>>,
+    created: Option<stripe_types::Timestamp>,
+    data: Option<stripe_shared::NotificationEventData>,
+    id: Option<stripe_shared::EventId>,
+    livemode: Option<bool>,
+    pending_webhooks: Option<i64>,
+    request: Option<Option<stripe_shared::NotificationEventRequest>>,
+    type_: Option<EventType>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for Event {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<Event>,
+        builder: EventBuilder,
+    }
+
+    impl Visitor for Place<Event> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: EventBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for EventBuilder {
+        type Out = Event;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "account" => Ok(Deserialize::begin(&mut self.account)),
+                "api_version" => Ok(Deserialize::begin(&mut self.api_version)),
+                "created" => Ok(Deserialize::begin(&mut self.created)),
+                "data" => Ok(Deserialize::begin(&mut self.data)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "livemode" => Ok(Deserialize::begin(&mut self.livemode)),
+                "pending_webhooks" => Ok(Deserialize::begin(&mut self.pending_webhooks)),
+                "request" => Ok(Deserialize::begin(&mut self.request)),
+                "type" => Ok(Deserialize::begin(&mut self.type_)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                account: Deserialize::default(),
+                api_version: Deserialize::default(),
+                created: Deserialize::default(),
+                data: Deserialize::default(),
+                id: Deserialize::default(),
+                livemode: Deserialize::default(),
+                pending_webhooks: Deserialize::default(),
+                request: Deserialize::default(),
+                type_: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let account = self.account.take()?;
+            let api_version = self.api_version.take()?;
+            let created = self.created.take()?;
+            let data = self.data.take()?;
+            let id = self.id.take()?;
+            let livemode = self.livemode.take()?;
+            let pending_webhooks = self.pending_webhooks.take()?;
+            let request = self.request.take()?;
+            let type_ = self.type_.take()?;
+
+            Some(Self::Out { account, api_version, created, data, id, livemode, pending_webhooks, request, type_ })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for Event {
+        type Builder = EventBuilder;
+    }
+};
 /// Description of the event (for example, `invoice.created` or `charge.refunded`).
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -331,12 +432,8 @@ impl EventType {
             CustomerSubscriptionCreated => "customer.subscription.created",
             CustomerSubscriptionDeleted => "customer.subscription.deleted",
             CustomerSubscriptionPaused => "customer.subscription.paused",
-            CustomerSubscriptionPendingUpdateApplied => {
-                "customer.subscription.pending_update_applied"
-            }
-            CustomerSubscriptionPendingUpdateExpired => {
-                "customer.subscription.pending_update_expired"
-            }
+            CustomerSubscriptionPendingUpdateApplied => "customer.subscription.pending_update_applied",
+            CustomerSubscriptionPendingUpdateExpired => "customer.subscription.pending_update_expired",
             CustomerSubscriptionResumed => "customer.subscription.resumed",
             CustomerSubscriptionTrialWillEnd => "customer.subscription.trial_will_end",
             CustomerSubscriptionUpdated => "customer.subscription.updated",
@@ -350,16 +447,12 @@ impl EventType {
             FinancialConnectionsAccountDeactivated => "financial_connections.account.deactivated",
             FinancialConnectionsAccountDisconnected => "financial_connections.account.disconnected",
             FinancialConnectionsAccountReactivated => "financial_connections.account.reactivated",
-            FinancialConnectionsAccountRefreshedBalance => {
-                "financial_connections.account.refreshed_balance"
-            }
+            FinancialConnectionsAccountRefreshedBalance => "financial_connections.account.refreshed_balance",
             IdentityVerificationSessionCanceled => "identity.verification_session.canceled",
             IdentityVerificationSessionCreated => "identity.verification_session.created",
             IdentityVerificationSessionProcessing => "identity.verification_session.processing",
             IdentityVerificationSessionRedacted => "identity.verification_session.redacted",
-            IdentityVerificationSessionRequiresInput => {
-                "identity.verification_session.requires_input"
-            }
+            IdentityVerificationSessionRequiresInput => "identity.verification_session.requires_input",
             IdentityVerificationSessionVerified => "identity.verification_session.verified",
             InvoiceCreated => "invoice.created",
             InvoiceDeleted => "invoice.deleted",
@@ -482,31 +575,23 @@ impl EventType {
             TreasuryCreditReversalPosted => "treasury.credit_reversal.posted",
             TreasuryDebitReversalCompleted => "treasury.debit_reversal.completed",
             TreasuryDebitReversalCreated => "treasury.debit_reversal.created",
-            TreasuryDebitReversalInitialCreditGranted => {
-                "treasury.debit_reversal.initial_credit_granted"
-            }
+            TreasuryDebitReversalInitialCreditGranted => "treasury.debit_reversal.initial_credit_granted",
             TreasuryFinancialAccountClosed => "treasury.financial_account.closed",
             TreasuryFinancialAccountCreated => "treasury.financial_account.created",
-            TreasuryFinancialAccountFeaturesStatusUpdated => {
-                "treasury.financial_account.features_status_updated"
-            }
+            TreasuryFinancialAccountFeaturesStatusUpdated => "treasury.financial_account.features_status_updated",
             TreasuryInboundTransferCanceled => "treasury.inbound_transfer.canceled",
             TreasuryInboundTransferCreated => "treasury.inbound_transfer.created",
             TreasuryInboundTransferFailed => "treasury.inbound_transfer.failed",
             TreasuryInboundTransferSucceeded => "treasury.inbound_transfer.succeeded",
             TreasuryOutboundPaymentCanceled => "treasury.outbound_payment.canceled",
             TreasuryOutboundPaymentCreated => "treasury.outbound_payment.created",
-            TreasuryOutboundPaymentExpectedArrivalDateUpdated => {
-                "treasury.outbound_payment.expected_arrival_date_updated"
-            }
+            TreasuryOutboundPaymentExpectedArrivalDateUpdated => "treasury.outbound_payment.expected_arrival_date_updated",
             TreasuryOutboundPaymentFailed => "treasury.outbound_payment.failed",
             TreasuryOutboundPaymentPosted => "treasury.outbound_payment.posted",
             TreasuryOutboundPaymentReturned => "treasury.outbound_payment.returned",
             TreasuryOutboundTransferCanceled => "treasury.outbound_transfer.canceled",
             TreasuryOutboundTransferCreated => "treasury.outbound_transfer.created",
-            TreasuryOutboundTransferExpectedArrivalDateUpdated => {
-                "treasury.outbound_transfer.expected_arrival_date_updated"
-            }
+            TreasuryOutboundTransferExpectedArrivalDateUpdated => "treasury.outbound_transfer.expected_arrival_date_updated",
             TreasuryOutboundTransferFailed => "treasury.outbound_transfer.failed",
             TreasuryOutboundTransferPosted => "treasury.outbound_transfer.posted",
             TreasuryOutboundTransferReturned => "treasury.outbound_transfer.returned",
@@ -574,12 +659,8 @@ impl std::str::FromStr for EventType {
             "customer.subscription.created" => Ok(CustomerSubscriptionCreated),
             "customer.subscription.deleted" => Ok(CustomerSubscriptionDeleted),
             "customer.subscription.paused" => Ok(CustomerSubscriptionPaused),
-            "customer.subscription.pending_update_applied" => {
-                Ok(CustomerSubscriptionPendingUpdateApplied)
-            }
-            "customer.subscription.pending_update_expired" => {
-                Ok(CustomerSubscriptionPendingUpdateExpired)
-            }
+            "customer.subscription.pending_update_applied" => Ok(CustomerSubscriptionPendingUpdateApplied),
+            "customer.subscription.pending_update_expired" => Ok(CustomerSubscriptionPendingUpdateExpired),
             "customer.subscription.resumed" => Ok(CustomerSubscriptionResumed),
             "customer.subscription.trial_will_end" => Ok(CustomerSubscriptionTrialWillEnd),
             "customer.subscription.updated" => Ok(CustomerSubscriptionUpdated),
@@ -587,30 +668,18 @@ impl std::str::FromStr for EventType {
             "customer.tax_id.deleted" => Ok(CustomerTaxIdDeleted),
             "customer.tax_id.updated" => Ok(CustomerTaxIdUpdated),
             "customer.updated" => Ok(CustomerUpdated),
-            "customer_cash_balance_transaction.created" => {
-                Ok(CustomerCashBalanceTransactionCreated)
-            }
+            "customer_cash_balance_transaction.created" => Ok(CustomerCashBalanceTransactionCreated),
             "file.created" => Ok(FileCreated),
             "financial_connections.account.created" => Ok(FinancialConnectionsAccountCreated),
-            "financial_connections.account.deactivated" => {
-                Ok(FinancialConnectionsAccountDeactivated)
-            }
-            "financial_connections.account.disconnected" => {
-                Ok(FinancialConnectionsAccountDisconnected)
-            }
-            "financial_connections.account.reactivated" => {
-                Ok(FinancialConnectionsAccountReactivated)
-            }
-            "financial_connections.account.refreshed_balance" => {
-                Ok(FinancialConnectionsAccountRefreshedBalance)
-            }
+            "financial_connections.account.deactivated" => Ok(FinancialConnectionsAccountDeactivated),
+            "financial_connections.account.disconnected" => Ok(FinancialConnectionsAccountDisconnected),
+            "financial_connections.account.reactivated" => Ok(FinancialConnectionsAccountReactivated),
+            "financial_connections.account.refreshed_balance" => Ok(FinancialConnectionsAccountRefreshedBalance),
             "identity.verification_session.canceled" => Ok(IdentityVerificationSessionCanceled),
             "identity.verification_session.created" => Ok(IdentityVerificationSessionCreated),
             "identity.verification_session.processing" => Ok(IdentityVerificationSessionProcessing),
             "identity.verification_session.redacted" => Ok(IdentityVerificationSessionRedacted),
-            "identity.verification_session.requires_input" => {
-                Ok(IdentityVerificationSessionRequiresInput)
-            }
+            "identity.verification_session.requires_input" => Ok(IdentityVerificationSessionRequiresInput),
             "identity.verification_session.verified" => Ok(IdentityVerificationSessionVerified),
             "invoice.created" => Ok(InvoiceCreated),
             "invoice.deleted" => Ok(InvoiceDeleted),
@@ -733,31 +802,23 @@ impl std::str::FromStr for EventType {
             "treasury.credit_reversal.posted" => Ok(TreasuryCreditReversalPosted),
             "treasury.debit_reversal.completed" => Ok(TreasuryDebitReversalCompleted),
             "treasury.debit_reversal.created" => Ok(TreasuryDebitReversalCreated),
-            "treasury.debit_reversal.initial_credit_granted" => {
-                Ok(TreasuryDebitReversalInitialCreditGranted)
-            }
+            "treasury.debit_reversal.initial_credit_granted" => Ok(TreasuryDebitReversalInitialCreditGranted),
             "treasury.financial_account.closed" => Ok(TreasuryFinancialAccountClosed),
             "treasury.financial_account.created" => Ok(TreasuryFinancialAccountCreated),
-            "treasury.financial_account.features_status_updated" => {
-                Ok(TreasuryFinancialAccountFeaturesStatusUpdated)
-            }
+            "treasury.financial_account.features_status_updated" => Ok(TreasuryFinancialAccountFeaturesStatusUpdated),
             "treasury.inbound_transfer.canceled" => Ok(TreasuryInboundTransferCanceled),
             "treasury.inbound_transfer.created" => Ok(TreasuryInboundTransferCreated),
             "treasury.inbound_transfer.failed" => Ok(TreasuryInboundTransferFailed),
             "treasury.inbound_transfer.succeeded" => Ok(TreasuryInboundTransferSucceeded),
             "treasury.outbound_payment.canceled" => Ok(TreasuryOutboundPaymentCanceled),
             "treasury.outbound_payment.created" => Ok(TreasuryOutboundPaymentCreated),
-            "treasury.outbound_payment.expected_arrival_date_updated" => {
-                Ok(TreasuryOutboundPaymentExpectedArrivalDateUpdated)
-            }
+            "treasury.outbound_payment.expected_arrival_date_updated" => Ok(TreasuryOutboundPaymentExpectedArrivalDateUpdated),
             "treasury.outbound_payment.failed" => Ok(TreasuryOutboundPaymentFailed),
             "treasury.outbound_payment.posted" => Ok(TreasuryOutboundPaymentPosted),
             "treasury.outbound_payment.returned" => Ok(TreasuryOutboundPaymentReturned),
             "treasury.outbound_transfer.canceled" => Ok(TreasuryOutboundTransferCanceled),
             "treasury.outbound_transfer.created" => Ok(TreasuryOutboundTransferCreated),
-            "treasury.outbound_transfer.expected_arrival_date_updated" => {
-                Ok(TreasuryOutboundTransferExpectedArrivalDateUpdated)
-            }
+            "treasury.outbound_transfer.expected_arrival_date_updated" => Ok(TreasuryOutboundTransferExpectedArrivalDateUpdated),
             "treasury.outbound_transfer.failed" => Ok(TreasuryOutboundTransferFailed),
             "treasury.outbound_transfer.posted" => Ok(TreasuryOutboundTransferPosted),
             "treasury.outbound_transfer.returned" => Ok(TreasuryOutboundTransferReturned),
@@ -797,7 +858,22 @@ impl<'de> serde::Deserialize<'de> for EventType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Ok(Self::from_str(&s).unwrap_or(EventType::Unknown))
+        Ok(Self::from_str(&s).unwrap_or(Self::Unknown))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for EventType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<EventType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(EventType::from_str(s).unwrap_or(EventType::Unknown));
+        Ok(())
     }
 }
 impl stripe_types::Object for Event {

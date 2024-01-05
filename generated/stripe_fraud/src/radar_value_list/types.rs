@@ -3,7 +3,9 @@
 /// Related guide: [Default Stripe lists](https://stripe.com/docs/radar/lists#managing-list-items)
 ///
 /// For more details see <<https://stripe.com/docs/api/radar/value_lists/object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct RadarValueList {
     /// The name of the value list for use in rules.
     pub alias: String,
@@ -26,6 +28,106 @@ pub struct RadarValueList {
     /// The name of the value list.
     pub name: String,
 }
+#[cfg(feature = "min-ser")]
+pub struct RadarValueListBuilder {
+    alias: Option<String>,
+    created: Option<stripe_types::Timestamp>,
+    created_by: Option<String>,
+    id: Option<stripe_fraud::RadarValueListId>,
+    item_type: Option<stripe_fraud::RadarValueListItemType>,
+    list_items: Option<stripe_types::List<stripe_fraud::RadarValueListItem>>,
+    livemode: Option<bool>,
+    metadata: Option<std::collections::HashMap<String, String>>,
+    name: Option<String>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for RadarValueList {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<RadarValueList>,
+        builder: RadarValueListBuilder,
+    }
+
+    impl Visitor for Place<RadarValueList> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: RadarValueListBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for RadarValueListBuilder {
+        type Out = RadarValueList;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "alias" => Ok(Deserialize::begin(&mut self.alias)),
+                "created" => Ok(Deserialize::begin(&mut self.created)),
+                "created_by" => Ok(Deserialize::begin(&mut self.created_by)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "item_type" => Ok(Deserialize::begin(&mut self.item_type)),
+                "list_items" => Ok(Deserialize::begin(&mut self.list_items)),
+                "livemode" => Ok(Deserialize::begin(&mut self.livemode)),
+                "metadata" => Ok(Deserialize::begin(&mut self.metadata)),
+                "name" => Ok(Deserialize::begin(&mut self.name)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                alias: Deserialize::default(),
+                created: Deserialize::default(),
+                created_by: Deserialize::default(),
+                id: Deserialize::default(),
+                item_type: Deserialize::default(),
+                list_items: Deserialize::default(),
+                livemode: Deserialize::default(),
+                metadata: Deserialize::default(),
+                name: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let alias = self.alias.take()?;
+            let created = self.created.take()?;
+            let created_by = self.created_by.take()?;
+            let id = self.id.take()?;
+            let item_type = self.item_type.take()?;
+            let list_items = self.list_items.take()?;
+            let livemode = self.livemode.take()?;
+            let metadata = self.metadata.take()?;
+            let name = self.name.take()?;
+
+            Some(Self::Out { alias, created, created_by, id, item_type, list_items, livemode, metadata, name })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for RadarValueList {
+        type Builder = RadarValueListBuilder;
+    }
+};
 impl stripe_types::Object for RadarValueList {
     type Id = stripe_fraud::RadarValueListId;
     fn id(&self) -> &Self::Id {
@@ -111,7 +213,21 @@ impl<'de> serde::Deserialize<'de> for RadarValueListItemType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for RadarValueListItemType"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for RadarValueListItemType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for RadarValueListItemType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<RadarValueListItemType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(RadarValueListItemType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

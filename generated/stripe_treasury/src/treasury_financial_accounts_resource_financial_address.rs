@@ -1,16 +1,87 @@
 /// FinancialAddresses contain identifying information that resolves to a FinancialAccount.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct TreasuryFinancialAccountsResourceFinancialAddress {
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub aba: Option<stripe_treasury::TreasuryFinancialAccountsResourceAbaRecord>,
     /// The list of networks that the address supports
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub supported_networks:
-        Option<Vec<TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks>>,
+    pub supported_networks: Option<Vec<TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks>>,
     /// The type of financial address
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: TreasuryFinancialAccountsResourceFinancialAddressType,
 }
+#[cfg(feature = "min-ser")]
+pub struct TreasuryFinancialAccountsResourceFinancialAddressBuilder {
+    aba: Option<Option<stripe_treasury::TreasuryFinancialAccountsResourceAbaRecord>>,
+    supported_networks: Option<Option<Vec<TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks>>>,
+    type_: Option<TreasuryFinancialAccountsResourceFinancialAddressType>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for TreasuryFinancialAccountsResourceFinancialAddress {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<TreasuryFinancialAccountsResourceFinancialAddress>,
+        builder: TreasuryFinancialAccountsResourceFinancialAddressBuilder,
+    }
+
+    impl Visitor for Place<TreasuryFinancialAccountsResourceFinancialAddress> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: TreasuryFinancialAccountsResourceFinancialAddressBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for TreasuryFinancialAccountsResourceFinancialAddressBuilder {
+        type Out = TreasuryFinancialAccountsResourceFinancialAddress;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "aba" => Ok(Deserialize::begin(&mut self.aba)),
+                "supported_networks" => Ok(Deserialize::begin(&mut self.supported_networks)),
+                "type" => Ok(Deserialize::begin(&mut self.type_)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self { aba: Deserialize::default(), supported_networks: Deserialize::default(), type_: Deserialize::default() }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let aba = self.aba.take()?;
+            let supported_networks = self.supported_networks.take()?;
+            let type_ = self.type_.take()?;
+
+            Some(Self::Out { aba, supported_networks, type_ })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for TreasuryFinancialAccountsResourceFinancialAddress {
+        type Builder = TreasuryFinancialAccountsResourceFinancialAddressBuilder;
+    }
+};
 /// The list of networks that the address supports
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks {
@@ -62,13 +133,26 @@ impl serde::Serialize for TreasuryFinancialAccountsResourceFinancialAddressSuppo
         serializer.serialize_str(self.as_str())
     }
 }
-impl<'de> serde::Deserialize<'de>
-    for TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks
-{
+impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TreasuryFinancialAccountsResourceFinancialAddressSupportedNetworks::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// The type of financial address
@@ -123,10 +207,21 @@ impl<'de> serde::Deserialize<'de> for TreasuryFinancialAccountsResourceFinancial
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for TreasuryFinancialAccountsResourceFinancialAddressType",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryFinancialAccountsResourceFinancialAddressType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TreasuryFinancialAccountsResourceFinancialAddressType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TreasuryFinancialAccountsResourceFinancialAddressType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TreasuryFinancialAccountsResourceFinancialAddressType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

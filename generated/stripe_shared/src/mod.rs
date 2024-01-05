@@ -8,6 +8,9 @@
 //! reexported.
 
 extern crate self as stripe_shared;
+
+#[cfg(feature = "min-ser")]
+miniserde::make_place!(Place);
 #[doc(hidden)]
 pub mod account;
 #[doc(inline)]

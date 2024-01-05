@@ -40,10 +40,7 @@ impl CreateAccountSessionComponentsAccountOnboarding {
 }
 impl<'a> CreateAccountSession<'a> {
     /// Creates a AccountSession object that includes a single-use token that the platform can use on their front-end to grant client-side API access.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_connect::AccountSession> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_connect::AccountSession> {
         client.send_form("/account_sessions", self, http_types::Method::Post)
     }
 }

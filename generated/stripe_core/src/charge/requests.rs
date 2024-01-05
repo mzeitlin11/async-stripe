@@ -28,15 +28,10 @@ impl<'a> SearchCharge<'a> {
     /// conditions, data is searchable in less than a minute.
     /// Occasionally, propagation of new or updated data can be up.
     /// to an hour behind during outages. Search functionality is not available to merchants in India.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::SearchList<stripe_shared::Charge>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::SearchList<stripe_shared::Charge>> {
         client.get_query("/charges/search", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Charge>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::SearchList<stripe_shared::Charge>> {
         stripe::ListPaginator::from_search_params("/charges/search", self)
     }
 }
@@ -79,10 +74,7 @@ impl<'a> ListCharge<'a> {
 impl<'a> ListCharge<'a> {
     /// Returns a list of charges you’ve previously created.
     /// The charges are returned in sorted order, with the most recent charges appearing first.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::Charge>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::Charge>> {
         client.get_query("/charges", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Charge>> {
@@ -248,11 +240,7 @@ impl<'a> RetrieveCharge<'a> {
     /// Retrieves the details of a charge that has previously been created.
     /// Supply the unique charge ID that was returned from your previous request, and Stripe will return the corresponding charge information.
     /// The same information is returned when creating or refunding the charge.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        charge: &stripe_shared::ChargeId,
-    ) -> stripe::Response<stripe_shared::Charge> {
+    pub fn send(&self, client: &stripe::Client, charge: &stripe_shared::ChargeId) -> stripe::Response<stripe_shared::Charge> {
         client.get_query(&format!("/charges/{charge}"), self)
     }
 }
@@ -368,11 +356,7 @@ impl serde::Serialize for UpdateChargeFraudDetailsUserReport {
 impl<'a> UpdateCharge<'a> {
     /// Updates the specified charge by setting the values of the parameters passed.
     /// Any parameters not provided will be left unchanged.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        charge: &stripe_shared::ChargeId,
-    ) -> stripe::Response<stripe_shared::Charge> {
+    pub fn send(&self, client: &stripe::Client, charge: &stripe_shared::ChargeId) -> stripe::Response<stripe_shared::Charge> {
         client.send_form(&format!("/charges/{charge}"), self, http_types::Method::Post)
     }
 }
@@ -442,11 +426,7 @@ impl<'a> CaptureCharge<'a> {
     ///
     /// Don’t use this method to capture a PaymentIntent-initiated charge.
     /// Use [Capture a PaymentIntent](https://stripe.com/docs/api/payment_intents/capture).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        charge: &stripe_shared::ChargeId,
-    ) -> stripe::Response<stripe_shared::Charge> {
+    pub fn send(&self, client: &stripe::Client, charge: &stripe_shared::ChargeId) -> stripe::Response<stripe_shared::Charge> {
         client.send_form(&format!("/charges/{charge}/capture"), self, http_types::Method::Post)
     }
 }

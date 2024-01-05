@@ -14,15 +14,10 @@ impl<'a> ListPaymentMethodConfiguration<'a> {
 }
 impl<'a> ListPaymentMethodConfiguration<'a> {
     /// List payment method configurations
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_payment::PaymentMethodConfiguration>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_payment::PaymentMethodConfiguration>> {
         client.get_query("/payment_method_configurations", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_payment::PaymentMethodConfiguration>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_payment::PaymentMethodConfiguration>> {
         stripe::ListPaginator::from_list_params("/payment_method_configurations", self)
     }
 }
@@ -39,11 +34,7 @@ impl<'a> RetrievePaymentMethodConfiguration<'a> {
 }
 impl<'a> RetrievePaymentMethodConfiguration<'a> {
     /// Retrieve payment method configuration
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        configuration: &stripe_payment::PaymentMethodConfigurationId,
-    ) -> stripe::Response<stripe_payment::PaymentMethodConfiguration> {
+    pub fn send(&self, client: &stripe::Client, configuration: &stripe_payment::PaymentMethodConfigurationId) -> stripe::Response<stripe_payment::PaymentMethodConfiguration> {
         client.get_query(&format!("/payment_method_configurations/{configuration}"), self)
     }
 }
@@ -380,8 +371,7 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationAffirmDisplayPreferenc
 pub struct UpdatePaymentMethodConfigurationAfterpayClearpay {
     /// Whether or not the payment method should be displayed.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub display_preference:
-        Option<UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreference>,
+    pub display_preference: Option<UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreference>,
 }
 impl UpdatePaymentMethodConfigurationAfterpayClearpay {
     pub fn new() -> Self {
@@ -393,8 +383,7 @@ impl UpdatePaymentMethodConfigurationAfterpayClearpay {
 pub struct UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreference {
     /// The account's preference for whether or not to display this payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub preference:
-        Option<UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference>,
+    pub preference: Option<UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference>,
 }
 impl UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreference {
     pub fn new() -> Self {
@@ -419,9 +408,7 @@ impl UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference
     }
 }
 
-impl std::str::FromStr
-    for UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference
-{
+impl std::str::FromStr for UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference::*;
@@ -438,24 +425,18 @@ impl AsRef<str> for UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPrefe
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference
-{
+impl std::fmt::Display for UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference
-{
+impl std::fmt::Debug for UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference
-{
+impl serde::Serialize for UpdatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -641,8 +622,7 @@ impl UpdatePaymentMethodConfigurationApplePayLater {
 pub struct UpdatePaymentMethodConfigurationApplePayLaterDisplayPreference {
     /// The account's preference for whether or not to display this payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub preference:
-        Option<UpdatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference>,
+    pub preference: Option<UpdatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference>,
 }
 impl UpdatePaymentMethodConfigurationApplePayLaterDisplayPreference {
     pub fn new() -> Self {
@@ -667,9 +647,7 @@ impl UpdatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference {
     }
 }
 
-impl std::str::FromStr
-    for UpdatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference
-{
+impl std::str::FromStr for UpdatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference::*;
@@ -686,9 +664,7 @@ impl AsRef<str> for UpdatePaymentMethodConfigurationApplePayLaterDisplayPreferen
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference
-{
+impl std::fmt::Display for UpdatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
@@ -1189,8 +1165,7 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationCardDisplayPreferenceP
 pub struct UpdatePaymentMethodConfigurationCartesBancaires {
     /// Whether or not the payment method should be displayed.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub display_preference:
-        Option<UpdatePaymentMethodConfigurationCartesBancairesDisplayPreference>,
+    pub display_preference: Option<UpdatePaymentMethodConfigurationCartesBancairesDisplayPreference>,
 }
 impl UpdatePaymentMethodConfigurationCartesBancaires {
     pub fn new() -> Self {
@@ -1202,8 +1177,7 @@ impl UpdatePaymentMethodConfigurationCartesBancaires {
 pub struct UpdatePaymentMethodConfigurationCartesBancairesDisplayPreference {
     /// The account's preference for whether or not to display this payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub preference:
-        Option<UpdatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference>,
+    pub preference: Option<UpdatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference>,
 }
 impl UpdatePaymentMethodConfigurationCartesBancairesDisplayPreference {
     pub fn new() -> Self {
@@ -1228,9 +1202,7 @@ impl UpdatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference 
     }
 }
 
-impl std::str::FromStr
-    for UpdatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference
-{
+impl std::str::FromStr for UpdatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference::*;
@@ -1247,24 +1219,18 @@ impl AsRef<str> for UpdatePaymentMethodConfigurationCartesBancairesDisplayPrefer
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference
-{
+impl std::fmt::Display for UpdatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for UpdatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference
-{
+impl std::fmt::Debug for UpdatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for UpdatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference
-{
+impl serde::Serialize for UpdatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -2726,8 +2692,7 @@ impl UpdatePaymentMethodConfigurationUsBankAccount {
 pub struct UpdatePaymentMethodConfigurationUsBankAccountDisplayPreference {
     /// The account's preference for whether or not to display this payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub preference:
-        Option<UpdatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference>,
+    pub preference: Option<UpdatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference>,
 }
 impl UpdatePaymentMethodConfigurationUsBankAccountDisplayPreference {
     pub fn new() -> Self {
@@ -2752,9 +2717,7 @@ impl UpdatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference {
     }
 }
 
-impl std::str::FromStr
-    for UpdatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference
-{
+impl std::str::FromStr for UpdatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference::*;
@@ -2771,9 +2734,7 @@ impl AsRef<str> for UpdatePaymentMethodConfigurationUsBankAccountDisplayPreferen
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference
-{
+impl std::fmt::Display for UpdatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
@@ -2875,16 +2836,8 @@ impl serde::Serialize for UpdatePaymentMethodConfigurationWechatPayDisplayPrefer
 }
 impl<'a> UpdatePaymentMethodConfiguration<'a> {
     /// Update payment method configuration
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        configuration: &stripe_payment::PaymentMethodConfigurationId,
-    ) -> stripe::Response<stripe_payment::PaymentMethodConfiguration> {
-        client.send_form(
-            &format!("/payment_method_configurations/{configuration}"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, configuration: &stripe_payment::PaymentMethodConfigurationId) -> stripe::Response<stripe_payment::PaymentMethodConfiguration> {
+        client.send_form(&format!("/payment_method_configurations/{configuration}"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -3220,8 +3173,7 @@ impl serde::Serialize for CreatePaymentMethodConfigurationAffirmDisplayPreferenc
 pub struct CreatePaymentMethodConfigurationAfterpayClearpay {
     /// Whether or not the payment method should be displayed.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub display_preference:
-        Option<CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreference>,
+    pub display_preference: Option<CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreference>,
 }
 impl CreatePaymentMethodConfigurationAfterpayClearpay {
     pub fn new() -> Self {
@@ -3233,8 +3185,7 @@ impl CreatePaymentMethodConfigurationAfterpayClearpay {
 pub struct CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreference {
     /// The account's preference for whether or not to display this payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub preference:
-        Option<CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference>,
+    pub preference: Option<CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference>,
 }
 impl CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreference {
     pub fn new() -> Self {
@@ -3259,9 +3210,7 @@ impl CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference
     }
 }
 
-impl std::str::FromStr
-    for CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference
-{
+impl std::str::FromStr for CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference::*;
@@ -3278,24 +3227,18 @@ impl AsRef<str> for CreatePaymentMethodConfigurationAfterpayClearpayDisplayPrefe
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference
-{
+impl std::fmt::Display for CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference
-{
+impl std::fmt::Debug for CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference
-{
+impl serde::Serialize for CreatePaymentMethodConfigurationAfterpayClearpayDisplayPreferencePreference {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -3481,8 +3424,7 @@ impl CreatePaymentMethodConfigurationApplePayLater {
 pub struct CreatePaymentMethodConfigurationApplePayLaterDisplayPreference {
     /// The account's preference for whether or not to display this payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub preference:
-        Option<CreatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference>,
+    pub preference: Option<CreatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference>,
 }
 impl CreatePaymentMethodConfigurationApplePayLaterDisplayPreference {
     pub fn new() -> Self {
@@ -3507,9 +3449,7 @@ impl CreatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference {
     }
 }
 
-impl std::str::FromStr
-    for CreatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference
-{
+impl std::str::FromStr for CreatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference::*;
@@ -3526,9 +3466,7 @@ impl AsRef<str> for CreatePaymentMethodConfigurationApplePayLaterDisplayPreferen
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference
-{
+impl std::fmt::Display for CreatePaymentMethodConfigurationApplePayLaterDisplayPreferencePreference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
@@ -4029,8 +3967,7 @@ impl serde::Serialize for CreatePaymentMethodConfigurationCardDisplayPreferenceP
 pub struct CreatePaymentMethodConfigurationCartesBancaires {
     /// Whether or not the payment method should be displayed.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub display_preference:
-        Option<CreatePaymentMethodConfigurationCartesBancairesDisplayPreference>,
+    pub display_preference: Option<CreatePaymentMethodConfigurationCartesBancairesDisplayPreference>,
 }
 impl CreatePaymentMethodConfigurationCartesBancaires {
     pub fn new() -> Self {
@@ -4042,8 +3979,7 @@ impl CreatePaymentMethodConfigurationCartesBancaires {
 pub struct CreatePaymentMethodConfigurationCartesBancairesDisplayPreference {
     /// The account's preference for whether or not to display this payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub preference:
-        Option<CreatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference>,
+    pub preference: Option<CreatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference>,
 }
 impl CreatePaymentMethodConfigurationCartesBancairesDisplayPreference {
     pub fn new() -> Self {
@@ -4068,9 +4004,7 @@ impl CreatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference 
     }
 }
 
-impl std::str::FromStr
-    for CreatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference
-{
+impl std::str::FromStr for CreatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference::*;
@@ -4087,24 +4021,18 @@ impl AsRef<str> for CreatePaymentMethodConfigurationCartesBancairesDisplayPrefer
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference
-{
+impl std::fmt::Display for CreatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference
-{
+impl std::fmt::Debug for CreatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference
-{
+impl serde::Serialize for CreatePaymentMethodConfigurationCartesBancairesDisplayPreferencePreference {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -5566,8 +5494,7 @@ impl CreatePaymentMethodConfigurationUsBankAccount {
 pub struct CreatePaymentMethodConfigurationUsBankAccountDisplayPreference {
     /// The account's preference for whether or not to display this payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub preference:
-        Option<CreatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference>,
+    pub preference: Option<CreatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference>,
 }
 impl CreatePaymentMethodConfigurationUsBankAccountDisplayPreference {
     pub fn new() -> Self {
@@ -5592,9 +5519,7 @@ impl CreatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference {
     }
 }
 
-impl std::str::FromStr
-    for CreatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference
-{
+impl std::str::FromStr for CreatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference::*;
@@ -5611,9 +5536,7 @@ impl AsRef<str> for CreatePaymentMethodConfigurationUsBankAccountDisplayPreferen
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference
-{
+impl std::fmt::Display for CreatePaymentMethodConfigurationUsBankAccountDisplayPreferencePreference {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
@@ -5715,10 +5638,7 @@ impl serde::Serialize for CreatePaymentMethodConfigurationWechatPayDisplayPrefer
 }
 impl<'a> CreatePaymentMethodConfiguration<'a> {
     /// Creates a payment method configuration
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_payment::PaymentMethodConfiguration> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_payment::PaymentMethodConfiguration> {
         client.send_form("/payment_method_configurations", self, http_types::Method::Post)
     }
 }

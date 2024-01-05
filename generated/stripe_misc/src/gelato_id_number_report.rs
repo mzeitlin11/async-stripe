@@ -1,5 +1,7 @@
 /// Result from an id_number check
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct GelatoIdNumberReport {
     /// Date of birth.
     pub dob: Option<stripe_misc::GelatoDataIdNumberReportDate>,
@@ -16,6 +18,98 @@ pub struct GelatoIdNumberReport {
     /// Status of this `id_number` check.
     pub status: GelatoIdNumberReportStatus,
 }
+#[cfg(feature = "min-ser")]
+pub struct GelatoIdNumberReportBuilder {
+    dob: Option<Option<stripe_misc::GelatoDataIdNumberReportDate>>,
+    error: Option<Option<stripe_misc::GelatoIdNumberReportError>>,
+    first_name: Option<Option<String>>,
+    id_number: Option<Option<String>>,
+    id_number_type: Option<Option<GelatoIdNumberReportIdNumberType>>,
+    last_name: Option<Option<String>>,
+    status: Option<GelatoIdNumberReportStatus>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for GelatoIdNumberReport {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<GelatoIdNumberReport>,
+        builder: GelatoIdNumberReportBuilder,
+    }
+
+    impl Visitor for Place<GelatoIdNumberReport> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: GelatoIdNumberReportBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for GelatoIdNumberReportBuilder {
+        type Out = GelatoIdNumberReport;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "dob" => Ok(Deserialize::begin(&mut self.dob)),
+                "error" => Ok(Deserialize::begin(&mut self.error)),
+                "first_name" => Ok(Deserialize::begin(&mut self.first_name)),
+                "id_number" => Ok(Deserialize::begin(&mut self.id_number)),
+                "id_number_type" => Ok(Deserialize::begin(&mut self.id_number_type)),
+                "last_name" => Ok(Deserialize::begin(&mut self.last_name)),
+                "status" => Ok(Deserialize::begin(&mut self.status)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                dob: Deserialize::default(),
+                error: Deserialize::default(),
+                first_name: Deserialize::default(),
+                id_number: Deserialize::default(),
+                id_number_type: Deserialize::default(),
+                last_name: Deserialize::default(),
+                status: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let dob = self.dob.take()?;
+            let error = self.error.take()?;
+            let first_name = self.first_name.take()?;
+            let id_number = self.id_number.take()?;
+            let id_number_type = self.id_number_type.take()?;
+            let last_name = self.last_name.take()?;
+            let status = self.status.take()?;
+
+            Some(Self::Out { dob, error, first_name, id_number, id_number_type, last_name, status })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for GelatoIdNumberReport {
+        type Builder = GelatoIdNumberReportBuilder;
+    }
+};
 /// Type of ID number.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum GelatoIdNumberReportIdNumberType {
@@ -74,9 +168,22 @@ impl<'de> serde::Deserialize<'de> for GelatoIdNumberReportIdNumberType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for GelatoIdNumberReportIdNumberType")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for GelatoIdNumberReportIdNumberType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for GelatoIdNumberReportIdNumberType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<GelatoIdNumberReportIdNumberType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(GelatoIdNumberReportIdNumberType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// Status of this `id_number` check.
@@ -134,7 +241,21 @@ impl<'de> serde::Deserialize<'de> for GelatoIdNumberReportStatus {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for GelatoIdNumberReportStatus"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for GelatoIdNumberReportStatus"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for GelatoIdNumberReportStatus {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<GelatoIdNumberReportStatus> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(GelatoIdNumberReportStatus::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

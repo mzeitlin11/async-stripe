@@ -150,29 +150,96 @@ impl<'a> UpdateCustomerCardOwnerAddress<'a> {
 }
 impl<'a> UpdateCustomerCard<'a> {
     /// Update a specified source for a given customer.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-        id: &str,
-    ) -> stripe::Response<UpdateCustomerCardReturned> {
-        client.send_form(
-            &format!("/customers/{customer}/sources/{id}"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId, id: &str) -> stripe::Response<UpdateCustomerCardReturned> {
+        client.send_form(&format!("/customers/{customer}/sources/{id}"), self, http_types::Method::Post)
     }
 }
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "object")]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
+#[cfg_attr(not(feature = "min-ser"), serde(tag = "object"))]
 pub enum UpdateCustomerCardReturned {
-    #[serde(rename = "card")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "card"))]
     Card(stripe_shared::Card),
-    #[serde(rename = "bank_account")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "bank_account"))]
     BankAccount(stripe_shared::BankAccount),
-    #[serde(rename = "source")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "source"))]
     Source(stripe_shared::Source),
 }
+
+#[cfg(feature = "min-ser")]
+#[derive(Default)]
+pub struct UpdateCustomerCardReturnedBuilder {
+    inner: stripe_types::miniserde_helpers::ObjectBuilderInner,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::json::{from_str, to_string};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::MapBuilder;
+
+    use super::*;
+
+    make_place!(Place);
+
+    struct Builder<'a> {
+        out: &'a mut Option<UpdateCustomerCardReturned>,
+        builder: UpdateCustomerCardReturnedBuilder,
+    }
+
+    impl Deserialize for UpdateCustomerCardReturned {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    impl Visitor for Place<UpdateCustomerCardReturned> {
+        fn map(&mut self) -> miniserde::Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: Default::default() }))
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl stripe_types::MapBuilder for UpdateCustomerCardReturnedBuilder {
+        type Out = UpdateCustomerCardReturned;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            self.inner.key_inner(k)
+        }
+
+        fn deser_default() -> Self {
+            Self::default()
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let (obj_key, object) = self.inner.finish_inner()?;
+            let obj_str = to_string(&object);
+            Some(match obj_key.as_str() {
+                "card" => UpdateCustomerCardReturned::Card(from_str(&obj_str).ok()?),
+                "bank_account" => UpdateCustomerCardReturned::BankAccount(from_str(&obj_str).ok()?),
+                "source" => UpdateCustomerCardReturned::Source(from_str(&obj_str).ok()?),
+
+                _ => return None,
+            })
+        }
+    }
+
+    impl stripe_types::ObjectDeser for UpdateCustomerCardReturned {
+        type Builder = UpdateCustomerCardReturnedBuilder;
+    }
+};
+
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct DeleteCustomerCard<'a> {
     /// Specifies which fields in the response should be expanded.
@@ -186,24 +253,23 @@ impl<'a> DeleteCustomerCard<'a> {
 }
 impl<'a> DeleteCustomerCard<'a> {
     /// Delete a specified source for a given customer.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-        id: &str,
-    ) -> stripe::Response<DeleteCustomerCardReturned> {
-        client.send_form(
-            &format!("/customers/{customer}/sources/{id}"),
-            self,
-            http_types::Method::Delete,
-        )
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId, id: &str) -> stripe::Response<DeleteCustomerCardReturned> {
+        client.send_form(&format!("/customers/{customer}/sources/{id}"), self, http_types::Method::Delete)
     }
 }
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
+#[cfg_attr(not(feature = "min-ser"), serde(untagged))]
 pub enum DeleteCustomerCardReturned {
     PaymentSource(stripe_shared::PaymentSource),
     DeletedPaymentSource(stripe_shared::DeletedPaymentSource),
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for DeleteCustomerCardReturned {
+    fn begin(_out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        todo!()
+    }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateAccountCard<'a> {
@@ -382,8 +448,7 @@ pub struct UpdateAccountCardDocuments<'a> {
     /// One or more documents that support the [Bank account ownership verification](https://support.stripe.com/questions/bank-account-ownership-verification) requirement.
     /// Must be a document associated with the bank account that displays the last 4 digits of the account number, either a statement or a voided check.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub bank_account_ownership_verification:
-        Option<UpdateAccountCardDocumentsBankAccountOwnershipVerification<'a>>,
+    pub bank_account_ownership_verification: Option<UpdateAccountCardDocumentsBankAccountOwnershipVerification<'a>>,
 }
 impl<'a> UpdateAccountCardDocuments<'a> {
     pub fn new() -> Self {
@@ -408,17 +473,8 @@ impl<'a> UpdateAccountCard<'a> {
     /// Other bank account details are not editable by design.
     ///
     /// You can re-enable a disabled bank account by performing an update call without providing any arguments or changes.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-        id: &str,
-    ) -> stripe::Response<stripe_shared::ExternalAccount> {
-        client.send_form(
-            &format!("/accounts/{account}/external_accounts/{id}"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId, id: &str) -> stripe::Response<stripe_shared::ExternalAccount> {
+        client.send_form(&format!("/accounts/{account}/external_accounts/{id}"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -430,16 +486,7 @@ impl DeleteAccountCard {
 }
 impl DeleteAccountCard {
     /// Delete a specified external account for a given account.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-        id: &str,
-    ) -> stripe::Response<stripe_shared::DeletedExternalAccount> {
-        client.send_form(
-            &format!("/accounts/{account}/external_accounts/{id}"),
-            self,
-            http_types::Method::Delete,
-        )
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId, id: &str) -> stripe::Response<stripe_shared::DeletedExternalAccount> {
+        client.send_form(&format!("/accounts/{account}/external_accounts/{id}"), self, http_types::Method::Delete)
     }
 }

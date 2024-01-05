@@ -1,27 +1,118 @@
 /// Represents an action performed by the reader
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct TerminalReaderReaderResourceReaderAction {
     /// Failure code, only set if status is `failed`.
     pub failure_code: Option<String>,
     /// Detailed failure message, only set if status is `failed`.
     pub failure_message: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub process_payment_intent:
-        Option<stripe_terminal::TerminalReaderReaderResourceProcessPaymentIntentAction>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub process_setup_intent:
-        Option<stripe_terminal::TerminalReaderReaderResourceProcessSetupIntentAction>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    pub process_payment_intent: Option<stripe_terminal::TerminalReaderReaderResourceProcessPaymentIntentAction>,
+    pub process_setup_intent: Option<stripe_terminal::TerminalReaderReaderResourceProcessSetupIntentAction>,
     pub refund_payment: Option<stripe_terminal::TerminalReaderReaderResourceRefundPaymentAction>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub set_reader_display:
-        Option<stripe_terminal::TerminalReaderReaderResourceSetReaderDisplayAction>,
+    pub set_reader_display: Option<stripe_terminal::TerminalReaderReaderResourceSetReaderDisplayAction>,
     /// Status of the action performed by the reader.
     pub status: TerminalReaderReaderResourceReaderActionStatus,
     /// Type of action performed by the reader.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: TerminalReaderReaderResourceReaderActionType,
 }
+#[cfg(feature = "min-ser")]
+pub struct TerminalReaderReaderResourceReaderActionBuilder {
+    failure_code: Option<Option<String>>,
+    failure_message: Option<Option<String>>,
+    process_payment_intent: Option<Option<stripe_terminal::TerminalReaderReaderResourceProcessPaymentIntentAction>>,
+    process_setup_intent: Option<Option<stripe_terminal::TerminalReaderReaderResourceProcessSetupIntentAction>>,
+    refund_payment: Option<Option<stripe_terminal::TerminalReaderReaderResourceRefundPaymentAction>>,
+    set_reader_display: Option<Option<stripe_terminal::TerminalReaderReaderResourceSetReaderDisplayAction>>,
+    status: Option<TerminalReaderReaderResourceReaderActionStatus>,
+    type_: Option<TerminalReaderReaderResourceReaderActionType>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for TerminalReaderReaderResourceReaderAction {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<TerminalReaderReaderResourceReaderAction>,
+        builder: TerminalReaderReaderResourceReaderActionBuilder,
+    }
+
+    impl Visitor for Place<TerminalReaderReaderResourceReaderAction> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: TerminalReaderReaderResourceReaderActionBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for TerminalReaderReaderResourceReaderActionBuilder {
+        type Out = TerminalReaderReaderResourceReaderAction;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "failure_code" => Ok(Deserialize::begin(&mut self.failure_code)),
+                "failure_message" => Ok(Deserialize::begin(&mut self.failure_message)),
+                "process_payment_intent" => Ok(Deserialize::begin(&mut self.process_payment_intent)),
+                "process_setup_intent" => Ok(Deserialize::begin(&mut self.process_setup_intent)),
+                "refund_payment" => Ok(Deserialize::begin(&mut self.refund_payment)),
+                "set_reader_display" => Ok(Deserialize::begin(&mut self.set_reader_display)),
+                "status" => Ok(Deserialize::begin(&mut self.status)),
+                "type" => Ok(Deserialize::begin(&mut self.type_)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                failure_code: Deserialize::default(),
+                failure_message: Deserialize::default(),
+                process_payment_intent: Deserialize::default(),
+                process_setup_intent: Deserialize::default(),
+                refund_payment: Deserialize::default(),
+                set_reader_display: Deserialize::default(),
+                status: Deserialize::default(),
+                type_: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let failure_code = self.failure_code.take()?;
+            let failure_message = self.failure_message.take()?;
+            let process_payment_intent = self.process_payment_intent.take()?;
+            let process_setup_intent = self.process_setup_intent.take()?;
+            let refund_payment = self.refund_payment.take()?;
+            let set_reader_display = self.set_reader_display.take()?;
+            let status = self.status.take()?;
+            let type_ = self.type_.take()?;
+
+            Some(Self::Out { failure_code, failure_message, process_payment_intent, process_setup_intent, refund_payment, set_reader_display, status, type_ })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for TerminalReaderReaderResourceReaderAction {
+        type Builder = TerminalReaderReaderResourceReaderActionBuilder;
+    }
+};
 /// Status of the action performed by the reader.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TerminalReaderReaderResourceReaderActionStatus {
@@ -80,11 +171,22 @@ impl<'de> serde::Deserialize<'de> for TerminalReaderReaderResourceReaderActionSt
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for TerminalReaderReaderResourceReaderActionStatus",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TerminalReaderReaderResourceReaderActionStatus"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TerminalReaderReaderResourceReaderActionStatus {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TerminalReaderReaderResourceReaderActionStatus> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TerminalReaderReaderResourceReaderActionStatus::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// Type of action performed by the reader.
@@ -148,10 +250,21 @@ impl<'de> serde::Deserialize<'de> for TerminalReaderReaderResourceReaderActionTy
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for TerminalReaderReaderResourceReaderActionType",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TerminalReaderReaderResourceReaderActionType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TerminalReaderReaderResourceReaderActionType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TerminalReaderReaderResourceReaderActionType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TerminalReaderReaderResourceReaderActionType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

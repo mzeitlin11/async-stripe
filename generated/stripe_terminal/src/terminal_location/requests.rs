@@ -11,19 +11,23 @@ impl<'a> RetrieveTerminalLocation<'a> {
 }
 impl<'a> RetrieveTerminalLocation<'a> {
     /// Retrieves a `Location` object.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        location: &stripe_terminal::TerminalLocationId,
-    ) -> stripe::Response<RetrieveTerminalLocationReturned> {
+    pub fn send(&self, client: &stripe::Client, location: &stripe_terminal::TerminalLocationId) -> stripe::Response<RetrieveTerminalLocationReturned> {
         client.get_query(&format!("/terminal/locations/{location}"), self)
     }
 }
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
+#[cfg_attr(not(feature = "min-ser"), serde(untagged))]
 pub enum RetrieveTerminalLocationReturned {
     TerminalLocation(stripe_terminal::TerminalLocation),
     DeletedTerminalLocation(stripe_terminal::DeletedTerminalLocation),
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for RetrieveTerminalLocationReturned {
+    fn begin(_out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        todo!()
+    }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTerminalLocation<'a> {
@@ -78,10 +82,7 @@ impl<'a> CreateTerminalLocationAddress<'a> {
 impl<'a> CreateTerminalLocation<'a> {
     /// Creates a new `Location` object.
     /// For further details, including which address fields are required in each country, see the [Manage locations](https://stripe.com/docs/terminal/fleet/locations) guide.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_terminal::TerminalLocation> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_terminal::TerminalLocation> {
         client.send_form("/terminal/locations", self, http_types::Method::Post)
     }
 }
@@ -141,19 +142,23 @@ impl<'a> UpdateTerminalLocationAddress<'a> {
 impl<'a> UpdateTerminalLocation<'a> {
     /// Updates a `Location` object by setting the values of the parameters passed.
     /// Any parameters not provided will be left unchanged.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        location: &stripe_terminal::TerminalLocationId,
-    ) -> stripe::Response<UpdateTerminalLocationReturned> {
+    pub fn send(&self, client: &stripe::Client, location: &stripe_terminal::TerminalLocationId) -> stripe::Response<UpdateTerminalLocationReturned> {
         client.send_form(&format!("/terminal/locations/{location}"), self, http_types::Method::Post)
     }
 }
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
+#[cfg_attr(not(feature = "min-ser"), serde(untagged))]
 pub enum UpdateTerminalLocationReturned {
     TerminalLocation(stripe_terminal::TerminalLocation),
     DeletedTerminalLocation(stripe_terminal::DeletedTerminalLocation),
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for UpdateTerminalLocationReturned {
+    fn begin(_out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        todo!()
+    }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct ListTerminalLocation<'a> {
@@ -182,15 +187,10 @@ impl<'a> ListTerminalLocation<'a> {
 }
 impl<'a> ListTerminalLocation<'a> {
     /// Returns a list of `Location` objects.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_terminal::TerminalLocation>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_terminal::TerminalLocation>> {
         client.get_query("/terminal/locations", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_terminal::TerminalLocation>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_terminal::TerminalLocation>> {
         stripe::ListPaginator::from_list_params("/terminal/locations", self)
     }
 }
@@ -203,15 +203,7 @@ impl DeleteTerminalLocation {
 }
 impl DeleteTerminalLocation {
     /// Deletes a `Location` object.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        location: &stripe_terminal::TerminalLocationId,
-    ) -> stripe::Response<stripe_terminal::DeletedTerminalLocation> {
-        client.send_form(
-            &format!("/terminal/locations/{location}"),
-            self,
-            http_types::Method::Delete,
-        )
+    pub fn send(&self, client: &stripe::Client, location: &stripe_terminal::TerminalLocationId) -> stripe::Response<stripe_terminal::DeletedTerminalLocation> {
+        client.send_form(&format!("/terminal/locations/{location}"), self, http_types::Method::Delete)
     }
 }

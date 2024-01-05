@@ -28,10 +28,7 @@ impl<'a> ListPaymentLink<'a> {
 }
 impl<'a> ListPaymentLink<'a> {
     /// Returns a list of your payment links.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::PaymentLink>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::PaymentLink>> {
         client.get_query("/payment_links", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PaymentLink>> {
@@ -51,11 +48,7 @@ impl<'a> RetrievePaymentLink<'a> {
 }
 impl<'a> RetrievePaymentLink<'a> {
     /// Retrieve a payment link.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        payment_link: &stripe_shared::PaymentLinkId,
-    ) -> stripe::Response<stripe_shared::PaymentLink> {
+    pub fn send(&self, client: &stripe::Client, payment_link: &stripe_shared::PaymentLinkId) -> stripe::Response<stripe_shared::PaymentLink> {
         client.get_query(&format!("/payment_links/{payment_link}"), self)
     }
 }
@@ -87,21 +80,11 @@ impl<'a> ListLineItemsPaymentLink<'a> {
 impl<'a> ListLineItemsPaymentLink<'a> {
     /// When retrieving a payment link, there is an includable **line_items** property containing the first handful of those items.
     /// There is also a URL where you can retrieve the full (paginated) list of line items.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        payment_link: &stripe_shared::PaymentLinkId,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
+    pub fn send(&self, client: &stripe::Client, payment_link: &stripe_shared::PaymentLinkId) -> stripe::Response<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
         client.get_query(&format!("/payment_links/{payment_link}/line_items"), self)
     }
-    pub fn paginate(
-        self,
-        payment_link: &stripe_shared::PaymentLinkId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
-        stripe::ListPaginator::from_list_params(
-            &format!("/payment_links/{payment_link}/line_items"),
-            self,
-        )
+    pub fn paginate(self, payment_link: &stripe_shared::PaymentLinkId) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CheckoutSessionItem>> {
+        stripe::ListPaginator::from_list_params(&format!("/payment_links/{payment_link}/line_items"), self)
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -247,7 +230,7 @@ pub struct CreatePaymentLinkAfterCompletion<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub redirect: Option<AfterCompletionRedirectParams<'a>>,
     /// The specified behavior after the purchase is complete. Either `redirect` or `hosted_confirmation`.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: CreatePaymentLinkAfterCompletionType,
 }
 impl<'a> CreatePaymentLinkAfterCompletion<'a> {
@@ -454,15 +437,11 @@ pub struct CreatePaymentLinkCustomFields<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<CreatePaymentLinkCustomFieldsText>,
     /// The type of the field.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: CreatePaymentLinkCustomFieldsType,
 }
 impl<'a> CreatePaymentLinkCustomFields<'a> {
-    pub fn new(
-        key: &'a str,
-        label: CreatePaymentLinkCustomFieldsLabel<'a>,
-        type_: CreatePaymentLinkCustomFieldsType,
-    ) -> Self {
+    pub fn new(key: &'a str, label: CreatePaymentLinkCustomFieldsLabel<'a>, type_: CreatePaymentLinkCustomFieldsType) -> Self {
         Self { dropdown: None, key, label, numeric: None, optional: None, text: None, type_ }
     }
 }
@@ -472,7 +451,7 @@ pub struct CreatePaymentLinkCustomFieldsLabel<'a> {
     /// Custom text for the label, displayed to the customer. Up to 50 characters.
     pub custom: &'a str,
     /// The type of the label.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: CreatePaymentLinkCustomFieldsLabelType,
 }
 impl<'a> CreatePaymentLinkCustomFieldsLabel<'a> {
@@ -715,8 +694,7 @@ pub struct CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptions {
     /// `include_inclusive_tax` will include inclusive tax (and exclude exclusive tax) in invoice PDF amounts.
     /// `exclude_tax` will exclude all tax (inclusive and exclusive alike) from invoice PDF amounts.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount_tax_display:
-        Option<CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay>,
+    pub amount_tax_display: Option<CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay>,
 }
 impl CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptions {
     pub fn new() -> Self {
@@ -742,9 +720,7 @@ impl CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay
     }
 }
 
-impl std::str::FromStr
-    for CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay
-{
+impl std::str::FromStr for CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay::*;
@@ -760,24 +736,18 @@ impl AsRef<str> for CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsA
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay
-{
+impl std::fmt::Display for CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay
-{
+impl std::fmt::Debug for CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay
-{
+impl serde::Serialize for CreatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -1040,9 +1010,7 @@ pub struct CreatePaymentLinkShippingAddressCollection<'a> {
     pub allowed_countries: &'a [CreatePaymentLinkShippingAddressCollectionAllowedCountries],
 }
 impl<'a> CreatePaymentLinkShippingAddressCollection<'a> {
-    pub fn new(
-        allowed_countries: &'a [CreatePaymentLinkShippingAddressCollectionAllowedCountries],
-    ) -> Self {
+    pub fn new(allowed_countries: &'a [CreatePaymentLinkShippingAddressCollectionAllowedCountries]) -> Self {
         Self { allowed_countries }
     }
 }
@@ -1961,7 +1929,7 @@ pub struct UpdatePaymentLinkAfterCompletion<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub redirect: Option<AfterCompletionRedirectParams<'a>>,
     /// The specified behavior after the purchase is complete. Either `redirect` or `hosted_confirmation`.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: UpdatePaymentLinkAfterCompletionType,
 }
 impl<'a> UpdatePaymentLinkAfterCompletion<'a> {
@@ -2043,15 +2011,11 @@ pub struct UpdatePaymentLinkCustomFields<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<UpdatePaymentLinkCustomFieldsText>,
     /// The type of the field.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: UpdatePaymentLinkCustomFieldsType,
 }
 impl<'a> UpdatePaymentLinkCustomFields<'a> {
-    pub fn new(
-        key: &'a str,
-        label: UpdatePaymentLinkCustomFieldsLabel<'a>,
-        type_: UpdatePaymentLinkCustomFieldsType,
-    ) -> Self {
+    pub fn new(key: &'a str, label: UpdatePaymentLinkCustomFieldsLabel<'a>, type_: UpdatePaymentLinkCustomFieldsType) -> Self {
         Self { dropdown: None, key, label, numeric: None, optional: None, text: None, type_ }
     }
 }
@@ -2061,7 +2025,7 @@ pub struct UpdatePaymentLinkCustomFieldsLabel<'a> {
     /// Custom text for the label, displayed to the customer. Up to 50 characters.
     pub custom: &'a str,
     /// The type of the label.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: UpdatePaymentLinkCustomFieldsLabelType,
 }
 impl<'a> UpdatePaymentLinkCustomFieldsLabel<'a> {
@@ -2304,8 +2268,7 @@ pub struct UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptions {
     /// `include_inclusive_tax` will include inclusive tax (and exclude exclusive tax) in invoice PDF amounts.
     /// `exclude_tax` will exclude all tax (inclusive and exclusive alike) from invoice PDF amounts.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub amount_tax_display:
-        Option<UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay>,
+    pub amount_tax_display: Option<UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay>,
 }
 impl UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptions {
     pub fn new() -> Self {
@@ -2331,9 +2294,7 @@ impl UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay
     }
 }
 
-impl std::str::FromStr
-    for UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay
-{
+impl std::str::FromStr for UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay::*;
@@ -2349,24 +2310,18 @@ impl AsRef<str> for UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsA
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay
-{
+impl std::fmt::Display for UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay
-{
+impl std::fmt::Debug for UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay
-{
+impl serde::Serialize for UpdatePaymentLinkInvoiceCreationInvoiceDataRenderingOptionsAmountTaxDisplay {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -2484,9 +2439,7 @@ pub struct UpdatePaymentLinkShippingAddressCollection<'a> {
     pub allowed_countries: &'a [UpdatePaymentLinkShippingAddressCollectionAllowedCountries],
 }
 impl<'a> UpdatePaymentLinkShippingAddressCollection<'a> {
-    pub fn new(
-        allowed_countries: &'a [UpdatePaymentLinkShippingAddressCollectionAllowedCountries],
-    ) -> Self {
+    pub fn new(allowed_countries: &'a [UpdatePaymentLinkShippingAddressCollectionAllowedCountries]) -> Self {
         Self { allowed_countries }
     }
 }
@@ -3269,11 +3222,7 @@ impl<'a> UpdatePaymentLinkSubscriptionData<'a> {
 }
 impl<'a> UpdatePaymentLink<'a> {
     /// Updates a payment link.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        payment_link: &stripe_shared::PaymentLinkId,
-    ) -> stripe::Response<stripe_shared::PaymentLink> {
+    pub fn send(&self, client: &stripe::Client, payment_link: &stripe_shared::PaymentLinkId) -> stripe::Response<stripe_shared::PaymentLink> {
         client.send_form(&format!("/payment_links/{payment_link}"), self, http_types::Method::Post)
     }
 }

@@ -42,10 +42,7 @@ impl<'a> ListInvoiceItem<'a> {
 impl<'a> ListInvoiceItem<'a> {
     /// Returns a list of your invoice items.
     /// Invoice items are returned sorted by creation date, with the most recently created invoice items appearing first.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::InvoiceItem>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::InvoiceItem>> {
         client.get_query("/invoiceitems", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::InvoiceItem>> {
@@ -320,11 +317,7 @@ impl<'a> RetrieveInvoiceItem<'a> {
 }
 impl<'a> RetrieveInvoiceItem<'a> {
     /// Retrieves the invoice item with the given ID.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        invoiceitem: &stripe_shared::InvoiceItemId,
-    ) -> stripe::Response<stripe_shared::InvoiceItem> {
+    pub fn send(&self, client: &stripe::Client, invoiceitem: &stripe_shared::InvoiceItemId) -> stripe::Response<stripe_shared::InvoiceItem> {
         client.get_query(&format!("/invoiceitems/{invoiceitem}"), self)
     }
 }
@@ -545,11 +538,7 @@ impl serde::Serialize for UpdateInvoiceItemTaxBehavior {
 impl<'a> UpdateInvoiceItem<'a> {
     /// Updates the amount or description of an invoice item on an upcoming invoice.
     /// Updating an invoice item is only possible before the invoice it’s attached to is closed.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        invoiceitem: &stripe_shared::InvoiceItemId,
-    ) -> stripe::Response<stripe_shared::InvoiceItem> {
+    pub fn send(&self, client: &stripe::Client, invoiceitem: &stripe_shared::InvoiceItemId) -> stripe::Response<stripe_shared::InvoiceItem> {
         client.send_form(&format!("/invoiceitems/{invoiceitem}"), self, http_types::Method::Post)
     }
 }
@@ -563,11 +552,7 @@ impl DeleteInvoiceItem {
 impl DeleteInvoiceItem {
     /// Deletes an invoice item, removing it from an invoice.
     /// Deleting invoice items is only possible when they’re not attached to invoices, or if it’s attached to a draft invoice.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        invoiceitem: &stripe_shared::InvoiceItemId,
-    ) -> stripe::Response<stripe_shared::DeletedInvoiceitem> {
+    pub fn send(&self, client: &stripe::Client, invoiceitem: &stripe_shared::InvoiceItemId) -> stripe::Response<stripe_shared::DeletedInvoiceitem> {
         client.send_form(&format!("/invoiceitems/{invoiceitem}"), self, http_types::Method::Delete)
     }
 }

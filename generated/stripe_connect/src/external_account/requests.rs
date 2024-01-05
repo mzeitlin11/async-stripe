@@ -79,21 +79,11 @@ impl serde::Serialize for ListExternalAccountObject {
 }
 impl<'a> ListExternalAccount<'a> {
     /// List external accounts for an account.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::ExternalAccount>> {
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId) -> stripe::Response<stripe_types::List<stripe_shared::ExternalAccount>> {
         client.get_query(&format!("/accounts/{account}/external_accounts"), self)
     }
-    pub fn paginate(
-        self,
-        account: &stripe_shared::AccountId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::ExternalAccount>> {
-        stripe::ListPaginator::from_list_params(
-            &format!("/accounts/{account}/external_accounts"),
-            self,
-        )
+    pub fn paginate(self, account: &stripe_shared::AccountId) -> stripe::ListPaginator<stripe_types::List<stripe_shared::ExternalAccount>> {
+        stripe::ListPaginator::from_list_params(&format!("/accounts/{account}/external_accounts"), self)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -109,12 +99,7 @@ impl<'a> RetrieveExternalAccount<'a> {
 }
 impl<'a> RetrieveExternalAccount<'a> {
     /// Retrieve a specified external account for a given account.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-        id: &str,
-    ) -> stripe::Response<stripe_shared::ExternalAccount> {
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId, id: &str) -> stripe::Response<stripe_shared::ExternalAccount> {
         client.get_query(&format!("/accounts/{account}/external_accounts/{id}"), self)
     }
 }
@@ -142,16 +127,8 @@ impl<'a> CreateExternalAccount<'a> {
 }
 impl<'a> CreateExternalAccount<'a> {
     /// Create an external account for a given account.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-    ) -> stripe::Response<stripe_shared::ExternalAccount> {
-        client.send_form(
-            &format!("/accounts/{account}/external_accounts"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId) -> stripe::Response<stripe_shared::ExternalAccount> {
+        client.send_form(&format!("/accounts/{account}/external_accounts"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -331,8 +308,7 @@ pub struct UpdateExternalAccountDocuments<'a> {
     /// One or more documents that support the [Bank account ownership verification](https://support.stripe.com/questions/bank-account-ownership-verification) requirement.
     /// Must be a document associated with the bank account that displays the last 4 digits of the account number, either a statement or a voided check.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub bank_account_ownership_verification:
-        Option<UpdateExternalAccountDocumentsBankAccountOwnershipVerification<'a>>,
+    pub bank_account_ownership_verification: Option<UpdateExternalAccountDocumentsBankAccountOwnershipVerification<'a>>,
 }
 impl<'a> UpdateExternalAccountDocuments<'a> {
     pub fn new() -> Self {
@@ -357,17 +333,8 @@ impl<'a> UpdateExternalAccount<'a> {
     /// Other bank account details are not editable by design.
     ///
     /// You can re-enable a disabled bank account by performing an update call without providing any arguments or changes.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-        id: &str,
-    ) -> stripe::Response<stripe_shared::ExternalAccount> {
-        client.send_form(
-            &format!("/accounts/{account}/external_accounts/{id}"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId, id: &str) -> stripe::Response<stripe_shared::ExternalAccount> {
+        client.send_form(&format!("/accounts/{account}/external_accounts/{id}"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -379,16 +346,7 @@ impl DeleteExternalAccount {
 }
 impl DeleteExternalAccount {
     /// Delete a specified external account for a given account.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-        id: &str,
-    ) -> stripe::Response<stripe_shared::DeletedExternalAccount> {
-        client.send_form(
-            &format!("/accounts/{account}/external_accounts/{id}"),
-            self,
-            http_types::Method::Delete,
-        )
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId, id: &str) -> stripe::Response<stripe_shared::DeletedExternalAccount> {
+        client.send_form(&format!("/accounts/{account}/external_accounts/{id}"), self, http_types::Method::Delete)
     }
 }

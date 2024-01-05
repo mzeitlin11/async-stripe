@@ -20,6 +20,7 @@ stripe_connect = {path = "../../generated/stripe_connect", features = ["account"
 [features]
 async = []
 
+min-ser = ["stripe_types/min-ser", "stripe_checkout/min-ser", "stripe_core/min-ser", "stripe_checkout/min-ser", "stripe_billing/min-ser", "stripe_connect/min-ser"]
 runtime-tokio-hyper = ["async-stripe/runtime-tokio-hyper", "async"]
 runtime-tokio-hyper-rustls = ["async-stripe/runtime-tokio-hyper-rustls", "async"]
 runtime-tokio-hyper-rustls-webpki = ["async-stripe/runtime-tokio-hyper-rustls-webpki", "async"]

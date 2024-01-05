@@ -1,26 +1,110 @@
-#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct IssuingNetworkTokenDevice {
     /// An obfuscated ID derived from the device ID.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub device_fingerprint: Option<String>,
     /// The IP address of the device at provisioning time.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub ip_address: Option<String>,
     /// The geographic latitude/longitude coordinates of the device at provisioning time.
     /// The format is [+-]decimal/[+-]decimal.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub location: Option<String>,
     /// The name of the device used for tokenization.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     /// The phone number of the device used for tokenization.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub phone_number: Option<String>,
     /// The type of device used for tokenization.
-    #[serde(rename = "type")]
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: Option<IssuingNetworkTokenDeviceType>,
 }
+#[cfg(feature = "min-ser")]
+pub struct IssuingNetworkTokenDeviceBuilder {
+    device_fingerprint: Option<Option<String>>,
+    ip_address: Option<Option<String>>,
+    location: Option<Option<String>>,
+    name: Option<Option<String>>,
+    phone_number: Option<Option<String>>,
+    type_: Option<Option<IssuingNetworkTokenDeviceType>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for IssuingNetworkTokenDevice {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<IssuingNetworkTokenDevice>,
+        builder: IssuingNetworkTokenDeviceBuilder,
+    }
+
+    impl Visitor for Place<IssuingNetworkTokenDevice> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: IssuingNetworkTokenDeviceBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for IssuingNetworkTokenDeviceBuilder {
+        type Out = IssuingNetworkTokenDevice;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "device_fingerprint" => Ok(Deserialize::begin(&mut self.device_fingerprint)),
+                "ip_address" => Ok(Deserialize::begin(&mut self.ip_address)),
+                "location" => Ok(Deserialize::begin(&mut self.location)),
+                "name" => Ok(Deserialize::begin(&mut self.name)),
+                "phone_number" => Ok(Deserialize::begin(&mut self.phone_number)),
+                "type" => Ok(Deserialize::begin(&mut self.type_)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                device_fingerprint: Deserialize::default(),
+                ip_address: Deserialize::default(),
+                location: Deserialize::default(),
+                name: Deserialize::default(),
+                phone_number: Deserialize::default(),
+                type_: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let device_fingerprint = self.device_fingerprint.take()?;
+            let ip_address = self.ip_address.take()?;
+            let location = self.location.take()?;
+            let name = self.name.take()?;
+            let phone_number = self.phone_number.take()?;
+            let type_ = self.type_.take()?;
+
+            Some(Self::Out { device_fingerprint, ip_address, location, name, phone_number, type_ })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for IssuingNetworkTokenDevice {
+        type Builder = IssuingNetworkTokenDeviceBuilder;
+    }
+};
 /// The type of device used for tokenization.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum IssuingNetworkTokenDeviceType {
@@ -79,8 +163,21 @@ impl<'de> serde::Deserialize<'de> for IssuingNetworkTokenDeviceType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for IssuingNetworkTokenDeviceType")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for IssuingNetworkTokenDeviceType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for IssuingNetworkTokenDeviceType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<IssuingNetworkTokenDeviceType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(IssuingNetworkTokenDeviceType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

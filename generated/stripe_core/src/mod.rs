@@ -7,6 +7,9 @@
 //! for requests mentioned in the `Core Resources` section of the [Stripe API docs](https://stripe.com/docs/api)
 
 extern crate self as stripe_core;
+
+#[cfg(feature = "min-ser")]
+miniserde::make_place!(Place);
 pub use balance::types::*;
 pub mod balance;
 #[doc(hidden)]
@@ -37,7 +40,19 @@ pub use stripe_shared::charge_outcome::*;
 pub use stripe_shared::charge_transfer_data::*;
 pub use stripe_shared::connect_collection_transfer::*;
 pub mod customer;
-pub use stripe_shared::customer::*;pub use stripe_shared::customer_acceptance::*;pub use stripe_shared::customer_balance_customer_balance_settings::*;pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_adjusted_for_overdraft::*;pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_applied_to_payment_transaction::*;pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_funded_transaction::*;pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_funded_transaction_resource_bank_transfer::*;pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_funded_transaction_resource_bank_transfer_resource_eu_bank_transfer::*;pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_funded_transaction_resource_bank_transfer_resource_gb_bank_transfer::*;pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_funded_transaction_resource_bank_transfer_resource_jp_bank_transfer::*;pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_funded_transaction_resource_bank_transfer_resource_us_bank_transfer::*;pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_refunded_from_payment_transaction::*;pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_unapplied_from_payment_transaction::*;
+pub use stripe_shared::customer::*;
+pub use stripe_shared::customer_acceptance::*;
+pub use stripe_shared::customer_balance_customer_balance_settings::*;
+pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_adjusted_for_overdraft::*;
+pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_applied_to_payment_transaction::*;
+pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_funded_transaction::*;
+pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_funded_transaction_resource_bank_transfer::*;
+pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_funded_transaction_resource_bank_transfer_resource_eu_bank_transfer::*;
+pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_funded_transaction_resource_bank_transfer_resource_gb_bank_transfer::*;
+pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_funded_transaction_resource_bank_transfer_resource_jp_bank_transfer::*;
+pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_funded_transaction_resource_bank_transfer_resource_us_bank_transfer::*;
+pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_refunded_from_payment_transaction::*;
+pub use stripe_shared::customer_balance_resource_cash_balance_transaction_resource_unapplied_from_payment_transaction::*;
 pub mod customer_balance_transaction;
 pub use stripe_shared::customer_balance_transaction::*;
 pub mod customer_cash_balance_transaction;

@@ -11,24 +11,23 @@ impl<'a> DetachSource<'a> {
 }
 impl<'a> DetachSource<'a> {
     /// Delete a specified source for a given customer.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-        id: &str,
-    ) -> stripe::Response<DetachSourceReturned> {
-        client.send_form(
-            &format!("/customers/{customer}/sources/{id}"),
-            self,
-            http_types::Method::Delete,
-        )
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId, id: &str) -> stripe::Response<DetachSourceReturned> {
+        client.send_form(&format!("/customers/{customer}/sources/{id}"), self, http_types::Method::Delete)
     }
 }
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
+#[cfg_attr(not(feature = "min-ser"), serde(untagged))]
 pub enum DetachSourceReturned {
     PaymentSource(stripe_shared::PaymentSource),
     DeletedPaymentSource(stripe_shared::DeletedPaymentSource),
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for DetachSourceReturned {
+    fn begin(_out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        todo!()
+    }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveSource<'a> {
@@ -47,11 +46,7 @@ impl<'a> RetrieveSource<'a> {
 impl<'a> RetrieveSource<'a> {
     /// Retrieves an existing source object.
     /// Supply the unique source ID from a source creation request and Stripe will return the corresponding up-to-date source object information.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        source: &stripe_shared::SourceId,
-    ) -> stripe::Response<stripe_shared::Source> {
+    pub fn send(&self, client: &stripe::Client, source: &stripe_shared::SourceId) -> stripe::Response<stripe_shared::Source> {
         client.get_query(&format!("/sources/{source}"), self)
     }
 }
@@ -112,7 +107,7 @@ pub struct CreateSource<'a> {
     pub token: Option<&'a str>,
     /// The `type` of the source to create.
     /// Required unless `customer` and `original_source` are specified (see the [Cloning card Sources](https://stripe.com/docs/sources/connect#cloning-card-sources) guide).
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -229,7 +224,7 @@ pub struct CreateSourceMandateAcceptance<'a> {
     /// Either `accepted` (the mandate was accepted) or `refused` (the mandate was refused).
     pub status: CreateSourceMandateAcceptanceStatus,
     /// The type of acceptance information included with the mandate. Either `online` or `offline`
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<CreateSourceMandateAcceptanceType>,
     /// The user agent of the browser from which the mandate was accepted or refused by the customer.
@@ -238,15 +233,7 @@ pub struct CreateSourceMandateAcceptance<'a> {
 }
 impl<'a> CreateSourceMandateAcceptance<'a> {
     pub fn new(status: CreateSourceMandateAcceptanceStatus) -> Self {
-        Self {
-            date: None,
-            ip: None,
-            offline: None,
-            online: None,
-            status,
-            type_: None,
-            user_agent: None,
-        }
+        Self { date: None, ip: None, offline: None, online: None, status, type_: None, user_agent: None }
     }
 }
 /// The status of the mandate acceptance.
@@ -591,7 +578,7 @@ pub struct CreateSourceSourceOrderItems<'a> {
     /// When type is `sku`, this is the number of instances of the SKU to be ordered.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<CreateSourceSourceOrderItemsType>,
 }
@@ -789,7 +776,7 @@ pub struct UpdateSourceMandateAcceptance<'a> {
     /// Either `accepted` (the mandate was accepted) or `refused` (the mandate was refused).
     pub status: UpdateSourceMandateAcceptanceStatus,
     /// The type of acceptance information included with the mandate. Either `online` or `offline`
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<UpdateSourceMandateAcceptanceType>,
     /// The user agent of the browser from which the mandate was accepted or refused by the customer.
@@ -798,15 +785,7 @@ pub struct UpdateSourceMandateAcceptance<'a> {
 }
 impl<'a> UpdateSourceMandateAcceptance<'a> {
     pub fn new(status: UpdateSourceMandateAcceptanceStatus) -> Self {
-        Self {
-            date: None,
-            ip: None,
-            offline: None,
-            online: None,
-            status,
-            type_: None,
-            user_agent: None,
-        }
+        Self { date: None, ip: None, offline: None, online: None, status, type_: None, user_agent: None }
     }
 }
 /// The status of the mandate acceptance.
@@ -1067,7 +1046,7 @@ pub struct UpdateSourceSourceOrderItems<'a> {
     /// When type is `sku`, this is the number of instances of the SKU to be ordered.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub quantity: Option<u64>,
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<UpdateSourceSourceOrderItemsType>,
 }
@@ -1139,11 +1118,7 @@ impl<'a> UpdateSource<'a> {
     /// This request accepts the `metadata` and `owner` as arguments.
     /// It is also possible to update type specific information for selected payment methods.
     /// Please refer to our [payment method guides](https://stripe.com/docs/sources) for more detail.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        source: &stripe_shared::SourceId,
-    ) -> stripe::Response<stripe_shared::Source> {
+    pub fn send(&self, client: &stripe::Client, source: &stripe_shared::SourceId) -> stripe::Response<stripe_shared::Source> {
         client.send_form(&format!("/sources/{source}"), self, http_types::Method::Post)
     }
 }
@@ -1162,11 +1137,7 @@ impl<'a> VerifySource<'a> {
 }
 impl<'a> VerifySource<'a> {
     /// Verify a given source.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        source: &stripe_shared::SourceId,
-    ) -> stripe::Response<stripe_shared::Source> {
+    pub fn send(&self, client: &stripe::Client, source: &stripe_shared::SourceId) -> stripe::Response<stripe_shared::Source> {
         client.send_form(&format!("/sources/{source}/verify"), self, http_types::Method::Post)
     }
 }
@@ -1197,21 +1168,11 @@ impl<'a> SourceTransactionsSource<'a> {
 }
 impl<'a> SourceTransactionsSource<'a> {
     /// List source transactions for a given source.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        source: &stripe_shared::SourceId,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::SourceTransaction>> {
+    pub fn send(&self, client: &stripe::Client, source: &stripe_shared::SourceId) -> stripe::Response<stripe_types::List<stripe_shared::SourceTransaction>> {
         client.get_query(&format!("/sources/{source}/source_transactions"), self)
     }
-    pub fn paginate(
-        self,
-        source: &stripe_shared::SourceId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::SourceTransaction>> {
-        stripe::ListPaginator::from_list_params(
-            &format!("/sources/{source}/source_transactions"),
-            self,
-        )
+    pub fn paginate(self, source: &stripe_shared::SourceId) -> stripe::ListPaginator<stripe_types::List<stripe_shared::SourceTransaction>> {
+        stripe::ListPaginator::from_list_params(&format!("/sources/{source}/source_transactions"), self)
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]

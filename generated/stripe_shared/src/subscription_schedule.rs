@@ -3,7 +3,9 @@
 /// Related guide: [Subscription schedules](https://stripe.com/docs/billing/subscriptions/subscription-schedules).
 ///
 /// For more details see <<https://stripe.com/docs/api/subscription_schedules/object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct SubscriptionSchedule {
     /// ID of the Connect Application that created the schedule.
     pub application: Option<stripe_types::Expandable<stripe_shared::Application>>,
@@ -44,6 +46,156 @@ pub struct SubscriptionSchedule {
     /// ID of the test clock this subscription schedule belongs to.
     pub test_clock: Option<stripe_types::Expandable<stripe_shared::TestHelpersTestClock>>,
 }
+#[cfg(feature = "min-ser")]
+pub struct SubscriptionScheduleBuilder {
+    application: Option<Option<stripe_types::Expandable<stripe_shared::Application>>>,
+    canceled_at: Option<Option<stripe_types::Timestamp>>,
+    completed_at: Option<Option<stripe_types::Timestamp>>,
+    created: Option<stripe_types::Timestamp>,
+    current_phase: Option<Option<stripe_shared::SubscriptionScheduleCurrentPhase>>,
+    customer: Option<stripe_types::Expandable<stripe_shared::Customer>>,
+    default_settings: Option<stripe_shared::SubscriptionSchedulesResourceDefaultSettings>,
+    end_behavior: Option<stripe_shared::SubscriptionScheduleEndBehavior>,
+    id: Option<stripe_shared::SubscriptionScheduleId>,
+    livemode: Option<bool>,
+    metadata: Option<Option<std::collections::HashMap<String, String>>>,
+    phases: Option<Vec<stripe_shared::SubscriptionSchedulePhaseConfiguration>>,
+    released_at: Option<Option<stripe_types::Timestamp>>,
+    released_subscription: Option<Option<String>>,
+    status: Option<SubscriptionScheduleStatus>,
+    subscription: Option<Option<stripe_types::Expandable<stripe_shared::Subscription>>>,
+    test_clock: Option<Option<stripe_types::Expandable<stripe_shared::TestHelpersTestClock>>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for SubscriptionSchedule {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<SubscriptionSchedule>,
+        builder: SubscriptionScheduleBuilder,
+    }
+
+    impl Visitor for Place<SubscriptionSchedule> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: SubscriptionScheduleBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for SubscriptionScheduleBuilder {
+        type Out = SubscriptionSchedule;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "application" => Ok(Deserialize::begin(&mut self.application)),
+                "canceled_at" => Ok(Deserialize::begin(&mut self.canceled_at)),
+                "completed_at" => Ok(Deserialize::begin(&mut self.completed_at)),
+                "created" => Ok(Deserialize::begin(&mut self.created)),
+                "current_phase" => Ok(Deserialize::begin(&mut self.current_phase)),
+                "customer" => Ok(Deserialize::begin(&mut self.customer)),
+                "default_settings" => Ok(Deserialize::begin(&mut self.default_settings)),
+                "end_behavior" => Ok(Deserialize::begin(&mut self.end_behavior)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "livemode" => Ok(Deserialize::begin(&mut self.livemode)),
+                "metadata" => Ok(Deserialize::begin(&mut self.metadata)),
+                "phases" => Ok(Deserialize::begin(&mut self.phases)),
+                "released_at" => Ok(Deserialize::begin(&mut self.released_at)),
+                "released_subscription" => Ok(Deserialize::begin(&mut self.released_subscription)),
+                "status" => Ok(Deserialize::begin(&mut self.status)),
+                "subscription" => Ok(Deserialize::begin(&mut self.subscription)),
+                "test_clock" => Ok(Deserialize::begin(&mut self.test_clock)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                application: Deserialize::default(),
+                canceled_at: Deserialize::default(),
+                completed_at: Deserialize::default(),
+                created: Deserialize::default(),
+                current_phase: Deserialize::default(),
+                customer: Deserialize::default(),
+                default_settings: Deserialize::default(),
+                end_behavior: Deserialize::default(),
+                id: Deserialize::default(),
+                livemode: Deserialize::default(),
+                metadata: Deserialize::default(),
+                phases: Deserialize::default(),
+                released_at: Deserialize::default(),
+                released_subscription: Deserialize::default(),
+                status: Deserialize::default(),
+                subscription: Deserialize::default(),
+                test_clock: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let application = self.application.take()?;
+            let canceled_at = self.canceled_at.take()?;
+            let completed_at = self.completed_at.take()?;
+            let created = self.created.take()?;
+            let current_phase = self.current_phase.take()?;
+            let customer = self.customer.take()?;
+            let default_settings = self.default_settings.take()?;
+            let end_behavior = self.end_behavior.take()?;
+            let id = self.id.take()?;
+            let livemode = self.livemode.take()?;
+            let metadata = self.metadata.take()?;
+            let phases = self.phases.take()?;
+            let released_at = self.released_at.take()?;
+            let released_subscription = self.released_subscription.take()?;
+            let status = self.status.take()?;
+            let subscription = self.subscription.take()?;
+            let test_clock = self.test_clock.take()?;
+
+            Some(Self::Out {
+                application,
+                canceled_at,
+                completed_at,
+                created,
+                current_phase,
+                customer,
+                default_settings,
+                end_behavior,
+                id,
+                livemode,
+                metadata,
+                phases,
+                released_at,
+                released_subscription,
+                status,
+                subscription,
+                test_clock,
+            })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for SubscriptionSchedule {
+        type Builder = SubscriptionScheduleBuilder;
+    }
+};
 /// The present status of the subscription schedule.
 /// Possible values are `not_started`, `active`, `completed`, `released`, and `canceled`.
 /// You can read more about the different states in our [behavior guide](https://stripe.com/docs/billing/subscriptions/subscription-schedules).
@@ -110,8 +262,22 @@ impl<'de> serde::Deserialize<'de> for SubscriptionScheduleStatus {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for SubscriptionScheduleStatus"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for SubscriptionScheduleStatus"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for SubscriptionScheduleStatus {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<SubscriptionScheduleStatus> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(SubscriptionScheduleStatus::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 impl stripe_types::Object for SubscriptionSchedule {
@@ -181,8 +347,21 @@ impl<'de> serde::Deserialize<'de> for SubscriptionScheduleEndBehavior {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for SubscriptionScheduleEndBehavior")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for SubscriptionScheduleEndBehavior"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for SubscriptionScheduleEndBehavior {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<SubscriptionScheduleEndBehavior> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(SubscriptionScheduleEndBehavior::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

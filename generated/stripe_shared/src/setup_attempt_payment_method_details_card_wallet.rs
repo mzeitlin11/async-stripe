@@ -1,15 +1,87 @@
-#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct SetupAttemptPaymentMethodDetailsCardWallet {
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub apple_pay: Option<stripe_shared::PaymentMethodDetailsCardWalletApplePay>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub google_pay: Option<stripe_shared::PaymentMethodDetailsCardWalletGooglePay>,
     /// The type of the card wallet, one of `apple_pay`, `google_pay`, or `link`.
     /// An additional hash is included on the Wallet subhash with a name matching this value.
     /// It contains additional information specific to the card wallet type.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: SetupAttemptPaymentMethodDetailsCardWalletType,
 }
+#[cfg(feature = "min-ser")]
+pub struct SetupAttemptPaymentMethodDetailsCardWalletBuilder {
+    apple_pay: Option<Option<stripe_shared::PaymentMethodDetailsCardWalletApplePay>>,
+    google_pay: Option<Option<stripe_shared::PaymentMethodDetailsCardWalletGooglePay>>,
+    type_: Option<SetupAttemptPaymentMethodDetailsCardWalletType>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for SetupAttemptPaymentMethodDetailsCardWallet {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<SetupAttemptPaymentMethodDetailsCardWallet>,
+        builder: SetupAttemptPaymentMethodDetailsCardWalletBuilder,
+    }
+
+    impl Visitor for Place<SetupAttemptPaymentMethodDetailsCardWallet> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: SetupAttemptPaymentMethodDetailsCardWalletBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for SetupAttemptPaymentMethodDetailsCardWalletBuilder {
+        type Out = SetupAttemptPaymentMethodDetailsCardWallet;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "apple_pay" => Ok(Deserialize::begin(&mut self.apple_pay)),
+                "google_pay" => Ok(Deserialize::begin(&mut self.google_pay)),
+                "type" => Ok(Deserialize::begin(&mut self.type_)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self { apple_pay: Deserialize::default(), google_pay: Deserialize::default(), type_: Deserialize::default() }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let apple_pay = self.apple_pay.take()?;
+            let google_pay = self.google_pay.take()?;
+            let type_ = self.type_.take()?;
+
+            Some(Self::Out { apple_pay, google_pay, type_ })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for SetupAttemptPaymentMethodDetailsCardWallet {
+        type Builder = SetupAttemptPaymentMethodDetailsCardWalletBuilder;
+    }
+};
 /// The type of the card wallet, one of `apple_pay`, `google_pay`, or `link`.
 /// An additional hash is included on the Wallet subhash with a name matching this value.
 /// It contains additional information specific to the card wallet type.
@@ -70,10 +142,21 @@ impl<'de> serde::Deserialize<'de> for SetupAttemptPaymentMethodDetailsCardWallet
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for SetupAttemptPaymentMethodDetailsCardWalletType",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for SetupAttemptPaymentMethodDetailsCardWalletType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for SetupAttemptPaymentMethodDetailsCardWalletType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<SetupAttemptPaymentMethodDetailsCardWalletType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(SetupAttemptPaymentMethodDetailsCardWalletType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

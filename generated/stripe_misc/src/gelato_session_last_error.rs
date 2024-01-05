@@ -1,11 +1,82 @@
 /// Shows last VerificationSession error
-#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct GelatoSessionLastError {
     /// A short machine-readable string giving the reason for the verification or user-session failure.
     pub code: Option<GelatoSessionLastErrorCode>,
     /// A message that explains the reason for verification or user-session failure.
     pub reason: Option<String>,
 }
+#[cfg(feature = "min-ser")]
+pub struct GelatoSessionLastErrorBuilder {
+    code: Option<Option<GelatoSessionLastErrorCode>>,
+    reason: Option<Option<String>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for GelatoSessionLastError {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<GelatoSessionLastError>,
+        builder: GelatoSessionLastErrorBuilder,
+    }
+
+    impl Visitor for Place<GelatoSessionLastError> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: GelatoSessionLastErrorBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for GelatoSessionLastErrorBuilder {
+        type Out = GelatoSessionLastError;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "code" => Ok(Deserialize::begin(&mut self.code)),
+                "reason" => Ok(Deserialize::begin(&mut self.reason)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self { code: Deserialize::default(), reason: Deserialize::default() }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let code = self.code.take()?;
+            let reason = self.reason.take()?;
+
+            Some(Self::Out { code, reason })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for GelatoSessionLastError {
+        type Builder = GelatoSessionLastErrorBuilder;
+    }
+};
 /// A short machine-readable string giving the reason for the verification or user-session failure.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -104,6 +175,21 @@ impl<'de> serde::Deserialize<'de> for GelatoSessionLastErrorCode {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Ok(Self::from_str(&s).unwrap_or(GelatoSessionLastErrorCode::Unknown))
+        Ok(Self::from_str(&s).unwrap_or(Self::Unknown))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for GelatoSessionLastErrorCode {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<GelatoSessionLastErrorCode> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(GelatoSessionLastErrorCode::from_str(s).unwrap_or(GelatoSessionLastErrorCode::Unknown));
+        Ok(())
     }
 }

@@ -1,5 +1,7 @@
 /// TransactionEntries represent individual units of money movements within a single [Transaction](https://stripe.com/docs/api#transactions).
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct TreasuryTransactionEntry {
     pub balance_impact: stripe_treasury::TreasuryTransactionsResourceBalanceImpact,
     /// Time at which the object was created. Measured in seconds since the Unix epoch.
@@ -24,9 +26,121 @@ pub struct TreasuryTransactionEntry {
     /// The Transaction associated with this object.
     pub transaction: stripe_types::Expandable<stripe_treasury::TreasuryTransaction>,
     /// The specific money movement that generated the TransactionEntry.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: TreasuryTransactionEntryType,
 }
+#[cfg(feature = "min-ser")]
+pub struct TreasuryTransactionEntryBuilder {
+    balance_impact: Option<stripe_treasury::TreasuryTransactionsResourceBalanceImpact>,
+    created: Option<stripe_types::Timestamp>,
+    currency: Option<stripe_types::Currency>,
+    effective_at: Option<stripe_types::Timestamp>,
+    financial_account: Option<String>,
+    flow: Option<Option<String>>,
+    flow_details: Option<Option<stripe_treasury::TreasuryTransactionsResourceFlowDetails>>,
+    flow_type: Option<TreasuryTransactionEntryFlowType>,
+    id: Option<stripe_treasury::TreasuryTransactionEntryId>,
+    livemode: Option<bool>,
+    transaction: Option<stripe_types::Expandable<stripe_treasury::TreasuryTransaction>>,
+    type_: Option<TreasuryTransactionEntryType>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for TreasuryTransactionEntry {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<TreasuryTransactionEntry>,
+        builder: TreasuryTransactionEntryBuilder,
+    }
+
+    impl Visitor for Place<TreasuryTransactionEntry> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: TreasuryTransactionEntryBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for TreasuryTransactionEntryBuilder {
+        type Out = TreasuryTransactionEntry;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "balance_impact" => Ok(Deserialize::begin(&mut self.balance_impact)),
+                "created" => Ok(Deserialize::begin(&mut self.created)),
+                "currency" => Ok(Deserialize::begin(&mut self.currency)),
+                "effective_at" => Ok(Deserialize::begin(&mut self.effective_at)),
+                "financial_account" => Ok(Deserialize::begin(&mut self.financial_account)),
+                "flow" => Ok(Deserialize::begin(&mut self.flow)),
+                "flow_details" => Ok(Deserialize::begin(&mut self.flow_details)),
+                "flow_type" => Ok(Deserialize::begin(&mut self.flow_type)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "livemode" => Ok(Deserialize::begin(&mut self.livemode)),
+                "transaction" => Ok(Deserialize::begin(&mut self.transaction)),
+                "type" => Ok(Deserialize::begin(&mut self.type_)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                balance_impact: Deserialize::default(),
+                created: Deserialize::default(),
+                currency: Deserialize::default(),
+                effective_at: Deserialize::default(),
+                financial_account: Deserialize::default(),
+                flow: Deserialize::default(),
+                flow_details: Deserialize::default(),
+                flow_type: Deserialize::default(),
+                id: Deserialize::default(),
+                livemode: Deserialize::default(),
+                transaction: Deserialize::default(),
+                type_: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let balance_impact = self.balance_impact.take()?;
+            let created = self.created.take()?;
+            let currency = self.currency.take()?;
+            let effective_at = self.effective_at.take()?;
+            let financial_account = self.financial_account.take()?;
+            let flow = self.flow.take()?;
+            let flow_details = self.flow_details.take()?;
+            let flow_type = self.flow_type.take()?;
+            let id = self.id.take()?;
+            let livemode = self.livemode.take()?;
+            let transaction = self.transaction.take()?;
+            let type_ = self.type_.take()?;
+
+            Some(Self::Out { balance_impact, created, currency, effective_at, financial_account, flow, flow_details, flow_type, id, livemode, transaction, type_ })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for TreasuryTransactionEntry {
+        type Builder = TreasuryTransactionEntryBuilder;
+    }
+};
 /// Type of the flow associated with the TransactionEntry.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TreasuryTransactionEntryFlowType {
@@ -103,9 +217,22 @@ impl<'de> serde::Deserialize<'de> for TreasuryTransactionEntryFlowType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for TreasuryTransactionEntryFlowType")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TreasuryTransactionEntryFlowType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TreasuryTransactionEntryFlowType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TreasuryTransactionEntryFlowType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TreasuryTransactionEntryFlowType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// The specific money movement that generated the TransactionEntry.
@@ -221,7 +348,22 @@ impl<'de> serde::Deserialize<'de> for TreasuryTransactionEntryType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Ok(Self::from_str(&s).unwrap_or(TreasuryTransactionEntryType::Unknown))
+        Ok(Self::from_str(&s).unwrap_or(Self::Unknown))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TreasuryTransactionEntryType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TreasuryTransactionEntryType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TreasuryTransactionEntryType::from_str(s).unwrap_or(TreasuryTransactionEntryType::Unknown));
+        Ok(())
     }
 }
 impl stripe_types::Object for TreasuryTransactionEntry {

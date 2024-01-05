@@ -1,4 +1,6 @@
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct TaxProductResourceCustomerDetails {
     /// The customer's postal address (for example, home or business location).
     pub address: Option<stripe_misc::TaxProductResourcePostalAddress>,
@@ -11,6 +13,90 @@ pub struct TaxProductResourceCustomerDetails {
     /// The taxability override used for taxation.
     pub taxability_override: TaxProductResourceCustomerDetailsTaxabilityOverride,
 }
+#[cfg(feature = "min-ser")]
+pub struct TaxProductResourceCustomerDetailsBuilder {
+    address: Option<Option<stripe_misc::TaxProductResourcePostalAddress>>,
+    address_source: Option<Option<TaxProductResourceCustomerDetailsAddressSource>>,
+    ip_address: Option<Option<String>>,
+    tax_ids: Option<Vec<stripe_misc::TaxProductResourceCustomerDetailsResourceTaxId>>,
+    taxability_override: Option<TaxProductResourceCustomerDetailsTaxabilityOverride>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for TaxProductResourceCustomerDetails {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<TaxProductResourceCustomerDetails>,
+        builder: TaxProductResourceCustomerDetailsBuilder,
+    }
+
+    impl Visitor for Place<TaxProductResourceCustomerDetails> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: TaxProductResourceCustomerDetailsBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for TaxProductResourceCustomerDetailsBuilder {
+        type Out = TaxProductResourceCustomerDetails;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "address" => Ok(Deserialize::begin(&mut self.address)),
+                "address_source" => Ok(Deserialize::begin(&mut self.address_source)),
+                "ip_address" => Ok(Deserialize::begin(&mut self.ip_address)),
+                "tax_ids" => Ok(Deserialize::begin(&mut self.tax_ids)),
+                "taxability_override" => Ok(Deserialize::begin(&mut self.taxability_override)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                address: Deserialize::default(),
+                address_source: Deserialize::default(),
+                ip_address: Deserialize::default(),
+                tax_ids: Deserialize::default(),
+                taxability_override: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let address = self.address.take()?;
+            let address_source = self.address_source.take()?;
+            let ip_address = self.ip_address.take()?;
+            let tax_ids = self.tax_ids.take()?;
+            let taxability_override = self.taxability_override.take()?;
+
+            Some(Self::Out { address, address_source, ip_address, tax_ids, taxability_override })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for TaxProductResourceCustomerDetails {
+        type Builder = TaxProductResourceCustomerDetailsBuilder;
+    }
+};
 /// The type of customer address provided.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TaxProductResourceCustomerDetailsAddressSource {
@@ -66,11 +152,22 @@ impl<'de> serde::Deserialize<'de> for TaxProductResourceCustomerDetailsAddressSo
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for TaxProductResourceCustomerDetailsAddressSource",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TaxProductResourceCustomerDetailsAddressSource"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TaxProductResourceCustomerDetailsAddressSource {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TaxProductResourceCustomerDetailsAddressSource> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TaxProductResourceCustomerDetailsAddressSource::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// The taxability override used for taxation.
@@ -131,10 +228,21 @@ impl<'de> serde::Deserialize<'de> for TaxProductResourceCustomerDetailsTaxabilit
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for TaxProductResourceCustomerDetailsTaxabilityOverride",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TaxProductResourceCustomerDetailsTaxabilityOverride"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TaxProductResourceCustomerDetailsTaxabilityOverride {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TaxProductResourceCustomerDetailsTaxabilityOverride> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TaxProductResourceCustomerDetailsTaxabilityOverride::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

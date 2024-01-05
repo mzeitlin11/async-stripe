@@ -1,8 +1,76 @@
-#[derive(Copy, Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug, Default)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct PaymentMethodP24 {
     /// The customer's bank, if provided.
     pub bank: Option<PaymentMethodP24Bank>,
 }
+#[cfg(feature = "min-ser")]
+pub struct PaymentMethodP24Builder {
+    bank: Option<Option<PaymentMethodP24Bank>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for PaymentMethodP24 {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<PaymentMethodP24>,
+        builder: PaymentMethodP24Builder,
+    }
+
+    impl Visitor for Place<PaymentMethodP24> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: PaymentMethodP24Builder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for PaymentMethodP24Builder {
+        type Out = PaymentMethodP24;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "bank" => Ok(Deserialize::begin(&mut self.bank)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self { bank: Deserialize::default() }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let bank = self.bank.take()?;
+
+            Some(Self::Out { bank })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for PaymentMethodP24 {
+        type Builder = PaymentMethodP24Builder;
+    }
+};
 /// The customer's bank, if provided.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -131,6 +199,21 @@ impl<'de> serde::Deserialize<'de> for PaymentMethodP24Bank {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Ok(Self::from_str(&s).unwrap_or(PaymentMethodP24Bank::Unknown))
+        Ok(Self::from_str(&s).unwrap_or(Self::Unknown))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentMethodP24Bank {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentMethodP24Bank> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentMethodP24Bank::from_str(s).unwrap_or(PaymentMethodP24Bank::Unknown));
+        Ok(())
     }
 }

@@ -28,6 +28,31 @@ impl<'de> serde::Deserialize<'de> for AlwaysTrue {
     }
 }
 
+#[cfg(feature = "min-ser")]
+mod miniserde_deser {
+    use miniserde::de::Visitor;
+    use miniserde::Deserialize;
+
+    use crate::{AlwaysTrue, Place};
+
+    impl Deserialize for AlwaysTrue {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    impl Visitor for Place<AlwaysTrue> {
+        fn boolean(&mut self, b: bool) -> miniserde::Result<()> {
+            if b {
+                self.out = Some(AlwaysTrue);
+                Ok(())
+            } else {
+                Err(miniserde::Error)
+            }
+        }
+    }
+}
+
 pub type Metadata = HashMap<String, String>;
 pub type Timestamp = i64;
 

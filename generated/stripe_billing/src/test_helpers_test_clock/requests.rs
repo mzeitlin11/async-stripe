@@ -11,11 +11,7 @@ impl<'a> RetrieveTestHelpersTestClock<'a> {
 }
 impl<'a> RetrieveTestHelpersTestClock<'a> {
     /// Retrieves a test clock.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        test_clock: &stripe_shared::TestHelpersTestClockId,
-    ) -> stripe::Response<stripe_shared::TestHelpersTestClock> {
+    pub fn send(&self, client: &stripe::Client, test_clock: &stripe_shared::TestHelpersTestClockId) -> stripe::Response<stripe_shared::TestHelpersTestClock> {
         client.get_query(&format!("/test_helpers/test_clocks/{test_clock}"), self)
     }
 }
@@ -37,10 +33,7 @@ impl<'a> CreateTestHelpersTestClock<'a> {
 }
 impl<'a> CreateTestHelpersTestClock<'a> {
     /// Creates a new test clock that can be attached to new customers and quotes.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_shared::TestHelpersTestClock> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_shared::TestHelpersTestClock> {
         client.send_form("/test_helpers/test_clocks", self, http_types::Method::Post)
     }
 }
@@ -53,16 +46,8 @@ impl DeleteTestHelpersTestClock {
 }
 impl DeleteTestHelpersTestClock {
     /// Deletes a test clock.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        test_clock: &stripe_shared::TestHelpersTestClockId,
-    ) -> stripe::Response<stripe_shared::DeletedTestHelpersTestClock> {
-        client.send_form(
-            &format!("/test_helpers/test_clocks/{test_clock}"),
-            self,
-            http_types::Method::Delete,
-        )
+    pub fn send(&self, client: &stripe::Client, test_clock: &stripe_shared::TestHelpersTestClockId) -> stripe::Response<stripe_shared::DeletedTestHelpersTestClock> {
+        client.send_form(&format!("/test_helpers/test_clocks/{test_clock}"), self, http_types::Method::Delete)
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -84,16 +69,8 @@ impl<'a> AdvanceTestHelpersTestClock<'a> {
 impl<'a> AdvanceTestHelpersTestClock<'a> {
     /// Starts advancing a test clock to a specified time in the future.
     /// Advancement is done when status changes to `Ready`.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        test_clock: &stripe_shared::TestHelpersTestClockId,
-    ) -> stripe::Response<stripe_shared::TestHelpersTestClock> {
-        client.send_form(
-            &format!("/test_helpers/test_clocks/{test_clock}/advance"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, test_clock: &stripe_shared::TestHelpersTestClockId) -> stripe::Response<stripe_shared::TestHelpersTestClock> {
+        client.send_form(&format!("/test_helpers/test_clocks/{test_clock}/advance"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -123,15 +100,10 @@ impl<'a> ListTestHelpersTestClock<'a> {
 }
 impl<'a> ListTestHelpersTestClock<'a> {
     /// Returns a list of your test clocks.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::TestHelpersTestClock>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::TestHelpersTestClock>> {
         client.get_query("/test_helpers/test_clocks", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::TestHelpersTestClock>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::TestHelpersTestClock>> {
         stripe::ListPaginator::from_list_params("/test_helpers/test_clocks", self)
     }
 }

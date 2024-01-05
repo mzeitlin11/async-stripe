@@ -1,4 +1,6 @@
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct TaxProductResourceLineItemTaxBreakdown {
     /// The amount of tax, in integer cents.
     pub amount: i64,
@@ -14,6 +16,94 @@ pub struct TaxProductResourceLineItemTaxBreakdown {
     /// The amount on which tax is calculated, in integer cents.
     pub taxable_amount: i64,
 }
+#[cfg(feature = "min-ser")]
+pub struct TaxProductResourceLineItemTaxBreakdownBuilder {
+    amount: Option<i64>,
+    jurisdiction: Option<stripe_misc::TaxProductResourceJurisdiction>,
+    sourcing: Option<TaxProductResourceLineItemTaxBreakdownSourcing>,
+    tax_rate_details: Option<Option<stripe_misc::TaxProductResourceLineItemTaxRateDetails>>,
+    taxability_reason: Option<TaxProductResourceLineItemTaxBreakdownTaxabilityReason>,
+    taxable_amount: Option<i64>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for TaxProductResourceLineItemTaxBreakdown {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<TaxProductResourceLineItemTaxBreakdown>,
+        builder: TaxProductResourceLineItemTaxBreakdownBuilder,
+    }
+
+    impl Visitor for Place<TaxProductResourceLineItemTaxBreakdown> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: TaxProductResourceLineItemTaxBreakdownBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for TaxProductResourceLineItemTaxBreakdownBuilder {
+        type Out = TaxProductResourceLineItemTaxBreakdown;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "amount" => Ok(Deserialize::begin(&mut self.amount)),
+                "jurisdiction" => Ok(Deserialize::begin(&mut self.jurisdiction)),
+                "sourcing" => Ok(Deserialize::begin(&mut self.sourcing)),
+                "tax_rate_details" => Ok(Deserialize::begin(&mut self.tax_rate_details)),
+                "taxability_reason" => Ok(Deserialize::begin(&mut self.taxability_reason)),
+                "taxable_amount" => Ok(Deserialize::begin(&mut self.taxable_amount)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                amount: Deserialize::default(),
+                jurisdiction: Deserialize::default(),
+                sourcing: Deserialize::default(),
+                tax_rate_details: Deserialize::default(),
+                taxability_reason: Deserialize::default(),
+                taxable_amount: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let amount = self.amount.take()?;
+            let jurisdiction = self.jurisdiction.take()?;
+            let sourcing = self.sourcing.take()?;
+            let tax_rate_details = self.tax_rate_details.take()?;
+            let taxability_reason = self.taxability_reason.take()?;
+            let taxable_amount = self.taxable_amount.take()?;
+
+            Some(Self::Out { amount, jurisdiction, sourcing, tax_rate_details, taxability_reason, taxable_amount })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for TaxProductResourceLineItemTaxBreakdown {
+        type Builder = TaxProductResourceLineItemTaxBreakdownBuilder;
+    }
+};
 /// Indicates whether the jurisdiction was determined by the origin (merchant's address) or destination (customer's address).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TaxProductResourceLineItemTaxBreakdownSourcing {
@@ -69,11 +159,22 @@ impl<'de> serde::Deserialize<'de> for TaxProductResourceLineItemTaxBreakdownSour
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for TaxProductResourceLineItemTaxBreakdownSourcing",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TaxProductResourceLineItemTaxBreakdownSourcing"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TaxProductResourceLineItemTaxBreakdownSourcing {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TaxProductResourceLineItemTaxBreakdownSourcing> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TaxProductResourceLineItemTaxBreakdownSourcing::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// The reasoning behind this tax, for example, if the product is tax exempt.
@@ -175,7 +276,21 @@ impl<'de> serde::Deserialize<'de> for TaxProductResourceLineItemTaxBreakdownTaxa
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Ok(Self::from_str(&s)
-            .unwrap_or(TaxProductResourceLineItemTaxBreakdownTaxabilityReason::Unknown))
+        Ok(Self::from_str(&s).unwrap_or(Self::Unknown))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TaxProductResourceLineItemTaxBreakdownTaxabilityReason {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TaxProductResourceLineItemTaxBreakdownTaxabilityReason> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TaxProductResourceLineItemTaxBreakdownTaxabilityReason::from_str(s).unwrap_or(TaxProductResourceLineItemTaxBreakdownTaxabilityReason::Unknown));
+        Ok(())
     }
 }

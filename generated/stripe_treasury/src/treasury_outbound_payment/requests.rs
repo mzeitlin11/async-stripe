@@ -19,12 +19,10 @@ pub struct CreateTreasuryOutboundPayment<'a> {
     /// Hash used to generate the PaymentMethod to be used for this OutboundPayment.
     /// Exclusive with `destination_payment_method`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub destination_payment_method_data:
-        Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodData<'a>>,
+    pub destination_payment_method_data: Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodData<'a>>,
     /// Payment method-specific configuration for this OutboundPayment.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub destination_payment_method_options:
-        Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodOptions>,
+    pub destination_payment_method_options: Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodOptions>,
     /// End user details.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub end_user_details: Option<CreateTreasuryOutboundPaymentEndUserDetails<'a>>,
@@ -69,8 +67,7 @@ impl<'a> CreateTreasuryOutboundPayment<'a> {
 pub struct CreateTreasuryOutboundPaymentDestinationPaymentMethodData<'a> {
     /// Billing information associated with the PaymentMethod that may be used or required by particular types of payment methods.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub billing_details:
-        Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodDataBillingDetails<'a>>,
+    pub billing_details: Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodDataBillingDetails<'a>>,
     /// Required if type is set to `financial_account`. The FinancialAccount ID to send funds to.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_account: Option<&'a str>,
@@ -83,22 +80,15 @@ pub struct CreateTreasuryOutboundPaymentDestinationPaymentMethodData<'a> {
     /// The type of the PaymentMethod.
     /// An additional hash is included on the PaymentMethod with a name matching this value.
     /// It contains additional information specific to the PaymentMethod type.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: CreateTreasuryOutboundPaymentDestinationPaymentMethodDataType,
     /// Required hash if type is set to `us_bank_account`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub us_bank_account:
-        Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccount<'a>>,
+    pub us_bank_account: Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccount<'a>>,
 }
 impl<'a> CreateTreasuryOutboundPaymentDestinationPaymentMethodData<'a> {
     pub fn new(type_: CreateTreasuryOutboundPaymentDestinationPaymentMethodDataType) -> Self {
-        Self {
-            billing_details: None,
-            financial_account: None,
-            metadata: None,
-            type_,
-            us_bank_account: None,
-        }
+        Self { billing_details: None, financial_account: None, metadata: None, type_, us_bank_account: None }
     }
 }
 /// Billing information associated with the PaymentMethod that may be used or required by particular types of payment methods.
@@ -106,8 +96,7 @@ impl<'a> CreateTreasuryOutboundPaymentDestinationPaymentMethodData<'a> {
 pub struct CreateTreasuryOutboundPaymentDestinationPaymentMethodDataBillingDetails<'a> {
     /// Billing address.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub address:
-        Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodDataBillingDetailsAddress<'a>>,
+    pub address: Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodDataBillingDetailsAddress<'a>>,
     /// Email address.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<&'a str>,
@@ -208,16 +197,13 @@ impl serde::Serialize for CreateTreasuryOutboundPaymentDestinationPaymentMethodD
 pub struct CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccount<'a> {
     /// Account holder type: individual or company.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub account_holder_type: Option<
-        CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType,
-    >,
+    pub account_holder_type: Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType>,
     /// Account number of the bank account.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub account_number: Option<&'a str>,
     /// Account type: checkings or savings. Defaults to checking if omitted.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub account_type:
-        Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType>,
+    pub account_type: Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType>,
     /// The ID of a Financial Connections Account to use as a payment method.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub financial_connections_account: Option<&'a str>,
@@ -246,9 +232,7 @@ impl CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccou
     }
 }
 
-impl std::str::FromStr
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType
-{
+impl std::str::FromStr for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType::*;
@@ -259,31 +243,23 @@ impl std::str::FromStr
         }
     }
 }
-impl AsRef<str>
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType
-{
+impl AsRef<str> for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType
-{
+impl std::fmt::Display for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType
-{
+impl std::fmt::Debug for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType
-{
+impl serde::Serialize for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountHolderType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -307,9 +283,7 @@ impl CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccou
     }
 }
 
-impl std::str::FromStr
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType
-{
+impl std::str::FromStr for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType::*;
@@ -320,31 +294,23 @@ impl std::str::FromStr
         }
     }
 }
-impl AsRef<str>
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType
-{
+impl AsRef<str> for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType
-{
+impl std::fmt::Display for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType
-{
+impl std::fmt::Debug for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType
-{
+impl serde::Serialize for CreateTreasuryOutboundPaymentDestinationPaymentMethodDataUsBankAccountAccountType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -357,8 +323,7 @@ impl serde::Serialize
 pub struct CreateTreasuryOutboundPaymentDestinationPaymentMethodOptions {
     /// Optional fields for `us_bank_account`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub us_bank_account:
-        Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccount>,
+    pub us_bank_account: Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccount>,
 }
 impl CreateTreasuryOutboundPaymentDestinationPaymentMethodOptions {
     pub fn new() -> Self {
@@ -371,8 +336,7 @@ pub struct CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAcc
     /// The US bank account network that must be used for this OutboundPayment.
     /// If not set, we will default to the PaymentMethod's preferred network.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub network:
-        Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork>,
+    pub network: Option<CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork>,
 }
 impl CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccount {
     pub fn new() -> Self {
@@ -396,9 +360,7 @@ impl CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNe
     }
 }
 
-impl std::str::FromStr
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork
-{
+impl std::str::FromStr for CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         use CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork::*;
@@ -409,31 +371,23 @@ impl std::str::FromStr
         }
     }
 }
-impl AsRef<str>
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork
-{
+impl AsRef<str> for CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
-impl std::fmt::Display
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork
-{
+impl std::fmt::Display for CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
-impl std::fmt::Debug
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork
-{
+impl std::fmt::Debug for CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
-impl serde::Serialize
-    for CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork
-{
+impl serde::Serialize for CreateTreasuryOutboundPaymentDestinationPaymentMethodOptionsUsBankAccountNetwork {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -459,10 +413,7 @@ impl<'a> CreateTreasuryOutboundPaymentEndUserDetails<'a> {
 }
 impl<'a> CreateTreasuryOutboundPayment<'a> {
     /// Creates an OutboundPayment.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_treasury::TreasuryOutboundPayment> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_treasury::TreasuryOutboundPayment> {
         client.send_form("/treasury/outbound_payments", self, http_types::Method::Post)
     }
 }
@@ -479,11 +430,7 @@ impl<'a> RetrieveTreasuryOutboundPayment<'a> {
 }
 impl<'a> RetrieveTreasuryOutboundPayment<'a> {
     /// Retrieves the details of an existing OutboundPayment by passing the unique OutboundPayment ID from either the OutboundPayment creation request or OutboundPayment list.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &stripe_treasury::TreasuryOutboundPaymentId,
-    ) -> stripe::Response<stripe_treasury::TreasuryOutboundPayment> {
+    pub fn send(&self, client: &stripe::Client, id: &stripe_treasury::TreasuryOutboundPaymentId) -> stripe::Response<stripe_treasury::TreasuryOutboundPayment> {
         client.get_query(&format!("/treasury/outbound_payments/{id}"), self)
     }
 }
@@ -517,28 +464,15 @@ pub struct ListTreasuryOutboundPayment<'a> {
 }
 impl<'a> ListTreasuryOutboundPayment<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self {
-            customer: None,
-            ending_before: None,
-            expand: None,
-            financial_account,
-            limit: None,
-            starting_after: None,
-            status: None,
-        }
+        Self { customer: None, ending_before: None, expand: None, financial_account, limit: None, starting_after: None, status: None }
     }
 }
 impl<'a> ListTreasuryOutboundPayment<'a> {
     /// Returns a list of OutboundPayments sent from the specified FinancialAccount.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryOutboundPayment>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryOutboundPayment>> {
         client.get_query("/treasury/outbound_payments", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_treasury::TreasuryOutboundPayment>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_treasury::TreasuryOutboundPayment>> {
         stripe::ListPaginator::from_list_params("/treasury/outbound_payments", self)
     }
 }
@@ -555,16 +489,8 @@ impl<'a> CancelTreasuryOutboundPayment<'a> {
 }
 impl<'a> CancelTreasuryOutboundPayment<'a> {
     /// Cancel an OutboundPayment.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &stripe_treasury::TreasuryOutboundPaymentId,
-    ) -> stripe::Response<stripe_treasury::TreasuryOutboundPayment> {
-        client.send_form(
-            &format!("/treasury/outbound_payments/{id}/cancel"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, id: &stripe_treasury::TreasuryOutboundPaymentId) -> stripe::Response<stripe_treasury::TreasuryOutboundPayment> {
+        client.send_form(&format!("/treasury/outbound_payments/{id}/cancel"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -581,16 +507,8 @@ impl<'a> FailTreasuryOutboundPayment<'a> {
 impl<'a> FailTreasuryOutboundPayment<'a> {
     /// Transitions a test mode created OutboundPayment to the `failed` status.
     /// The OutboundPayment must already be in the `processing` state.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &str,
-    ) -> stripe::Response<stripe_treasury::TreasuryOutboundPayment> {
-        client.send_form(
-            &format!("/test_helpers/treasury/outbound_payments/{id}/fail"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, id: &str) -> stripe::Response<stripe_treasury::TreasuryOutboundPayment> {
+        client.send_form(&format!("/test_helpers/treasury/outbound_payments/{id}/fail"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -607,16 +525,8 @@ impl<'a> PostTreasuryOutboundPayment<'a> {
 impl<'a> PostTreasuryOutboundPayment<'a> {
     /// Transitions a test mode created OutboundPayment to the `posted` status.
     /// The OutboundPayment must already be in the `processing` state.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &str,
-    ) -> stripe::Response<stripe_treasury::TreasuryOutboundPayment> {
-        client.send_form(
-            &format!("/test_helpers/treasury/outbound_payments/{id}/post"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, id: &str) -> stripe::Response<stripe_treasury::TreasuryOutboundPayment> {
+        client.send_form(&format!("/test_helpers/treasury/outbound_payments/{id}/post"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -723,15 +633,7 @@ impl serde::Serialize for ReturnOutboundPaymentTreasuryOutboundPaymentReturnedDe
 impl<'a> ReturnOutboundPaymentTreasuryOutboundPayment<'a> {
     /// Transitions a test mode created OutboundPayment to the `returned` status.
     /// The OutboundPayment must already be in the `processing` state.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &str,
-    ) -> stripe::Response<stripe_treasury::TreasuryOutboundPayment> {
-        client.send_form(
-            &format!("/test_helpers/treasury/outbound_payments/{id}/return"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, id: &str) -> stripe::Response<stripe_treasury::TreasuryOutboundPayment> {
+        client.send_form(&format!("/test_helpers/treasury/outbound_payments/{id}/return"), self, http_types::Method::Post)
     }
 }

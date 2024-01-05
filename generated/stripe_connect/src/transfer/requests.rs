@@ -37,17 +37,7 @@ pub struct CreateTransfer<'a> {
 }
 impl<'a> CreateTransfer<'a> {
     pub fn new(currency: stripe_types::Currency, destination: &'a str) -> Self {
-        Self {
-            amount: None,
-            currency,
-            description: None,
-            destination,
-            expand: None,
-            metadata: None,
-            source_transaction: None,
-            source_type: None,
-            transfer_group: None,
-        }
+        Self { amount: None, currency, description: None, destination, expand: None, metadata: None, source_transaction: None, source_type: None, transfer_group: None }
     }
 }
 /// The source balance to use for this transfer.
@@ -149,10 +139,7 @@ impl<'a> ListTransfer<'a> {
 impl<'a> ListTransfer<'a> {
     /// Returns a list of existing transfers sent to connected accounts.
     /// The transfers are returned in sorted order, with the most recently created transfers appearing first.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::Transfer>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::Transfer>> {
         client.get_query("/transfers", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Transfer>> {
@@ -173,11 +160,7 @@ impl<'a> RetrieveTransfer<'a> {
 impl<'a> RetrieveTransfer<'a> {
     /// Retrieves the details of an existing transfer.
     /// Supply the unique transfer ID from either a transfer creation request or the transfer list, and Stripe will return the corresponding transfer information.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        transfer: &stripe_shared::TransferId,
-    ) -> stripe::Response<stripe_shared::Transfer> {
+    pub fn send(&self, client: &stripe::Client, transfer: &stripe_shared::TransferId) -> stripe::Response<stripe_shared::Transfer> {
         client.get_query(&format!("/transfers/{transfer}"), self)
     }
 }
@@ -206,11 +189,7 @@ impl<'a> UpdateTransfer<'a> {
     /// Any parameters not provided will be left unchanged.
     ///
     /// This request accepts only metadata as an argument.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        transfer: &stripe_shared::TransferId,
-    ) -> stripe::Response<stripe_shared::Transfer> {
+    pub fn send(&self, client: &stripe::Client, transfer: &stripe_shared::TransferId) -> stripe::Response<stripe_shared::Transfer> {
         client.send_form(&format!("/transfers/{transfer}"), self, http_types::Method::Post)
     }
 }

@@ -11,11 +11,7 @@ impl<'a> RetrieveIdentityVerificationReport<'a> {
 }
 impl<'a> RetrieveIdentityVerificationReport<'a> {
     /// Retrieves an existing VerificationReport
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        report: &stripe_misc::IdentityVerificationReportId,
-    ) -> stripe::Response<stripe_misc::IdentityVerificationReport> {
+    pub fn send(&self, client: &stripe::Client, report: &stripe_misc::IdentityVerificationReportId) -> stripe::Response<stripe_misc::IdentityVerificationReport> {
         client.get_query(&format!("/identity/verification_reports/{report}"), self)
     }
 }
@@ -41,7 +37,7 @@ pub struct ListIdentityVerificationReport<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub starting_after: Option<&'a str>,
     /// Only return VerificationReports of this type
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<stripe_misc::IdentityVerificationReportType>,
     /// Only return VerificationReports created by this VerificationSession ID.
@@ -56,15 +52,10 @@ impl<'a> ListIdentityVerificationReport<'a> {
 }
 impl<'a> ListIdentityVerificationReport<'a> {
     /// List all verification reports.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_misc::IdentityVerificationReport>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_misc::IdentityVerificationReport>> {
         client.get_query("/identity/verification_reports", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::IdentityVerificationReport>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_misc::IdentityVerificationReport>> {
         stripe::ListPaginator::from_list_params("/identity/verification_reports", self)
     }
 }

@@ -1,4 +1,6 @@
-#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct SetupAttemptPaymentMethodDetailsBancontact {
     /// Bank code of bank associated with the bank account.
     pub bank_code: Option<String>,
@@ -19,6 +21,102 @@ pub struct SetupAttemptPaymentMethodDetailsBancontact {
     /// (if supported) at the time of authorization or settlement. They cannot be set or mutated.
     pub verified_name: Option<String>,
 }
+#[cfg(feature = "min-ser")]
+pub struct SetupAttemptPaymentMethodDetailsBancontactBuilder {
+    bank_code: Option<Option<String>>,
+    bank_name: Option<Option<String>>,
+    bic: Option<Option<String>>,
+    generated_sepa_debit: Option<Option<stripe_types::Expandable<stripe_shared::PaymentMethod>>>,
+    generated_sepa_debit_mandate: Option<Option<stripe_types::Expandable<stripe_shared::Mandate>>>,
+    iban_last4: Option<Option<String>>,
+    preferred_language: Option<Option<SetupAttemptPaymentMethodDetailsBancontactPreferredLanguage>>,
+    verified_name: Option<Option<String>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for SetupAttemptPaymentMethodDetailsBancontact {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<SetupAttemptPaymentMethodDetailsBancontact>,
+        builder: SetupAttemptPaymentMethodDetailsBancontactBuilder,
+    }
+
+    impl Visitor for Place<SetupAttemptPaymentMethodDetailsBancontact> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: SetupAttemptPaymentMethodDetailsBancontactBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for SetupAttemptPaymentMethodDetailsBancontactBuilder {
+        type Out = SetupAttemptPaymentMethodDetailsBancontact;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "bank_code" => Ok(Deserialize::begin(&mut self.bank_code)),
+                "bank_name" => Ok(Deserialize::begin(&mut self.bank_name)),
+                "bic" => Ok(Deserialize::begin(&mut self.bic)),
+                "generated_sepa_debit" => Ok(Deserialize::begin(&mut self.generated_sepa_debit)),
+                "generated_sepa_debit_mandate" => Ok(Deserialize::begin(&mut self.generated_sepa_debit_mandate)),
+                "iban_last4" => Ok(Deserialize::begin(&mut self.iban_last4)),
+                "preferred_language" => Ok(Deserialize::begin(&mut self.preferred_language)),
+                "verified_name" => Ok(Deserialize::begin(&mut self.verified_name)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                bank_code: Deserialize::default(),
+                bank_name: Deserialize::default(),
+                bic: Deserialize::default(),
+                generated_sepa_debit: Deserialize::default(),
+                generated_sepa_debit_mandate: Deserialize::default(),
+                iban_last4: Deserialize::default(),
+                preferred_language: Deserialize::default(),
+                verified_name: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let bank_code = self.bank_code.take()?;
+            let bank_name = self.bank_name.take()?;
+            let bic = self.bic.take()?;
+            let generated_sepa_debit = self.generated_sepa_debit.take()?;
+            let generated_sepa_debit_mandate = self.generated_sepa_debit_mandate.take()?;
+            let iban_last4 = self.iban_last4.take()?;
+            let preferred_language = self.preferred_language.take()?;
+            let verified_name = self.verified_name.take()?;
+
+            Some(Self::Out { bank_code, bank_name, bic, generated_sepa_debit, generated_sepa_debit_mandate, iban_last4, preferred_language, verified_name })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for SetupAttemptPaymentMethodDetailsBancontact {
+        type Builder = SetupAttemptPaymentMethodDetailsBancontactBuilder;
+    }
+};
 /// Preferred language of the Bancontact authorization page that the customer is redirected to.
 /// Can be one of `en`, `de`, `fr`, or `nl`
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -81,10 +179,21 @@ impl<'de> serde::Deserialize<'de> for SetupAttemptPaymentMethodDetailsBancontact
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for SetupAttemptPaymentMethodDetailsBancontactPreferredLanguage",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for SetupAttemptPaymentMethodDetailsBancontactPreferredLanguage"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for SetupAttemptPaymentMethodDetailsBancontactPreferredLanguage {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<SetupAttemptPaymentMethodDetailsBancontactPreferredLanguage> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(SetupAttemptPaymentMethodDetailsBancontactPreferredLanguage::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

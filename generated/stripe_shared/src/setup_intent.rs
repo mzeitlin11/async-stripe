@@ -21,7 +21,9 @@
 /// Related guide: [Setup Intents API](https://stripe.com/docs/payments/setup-intents)
 ///
 /// For more details see <<https://stripe.com/docs/api/setup_intents/object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct SetupIntent {
     /// ID of the Connect application that created the SetupIntent.
     pub application: Option<stripe_types::Expandable<stripe_shared::Application>>,
@@ -29,11 +31,9 @@ pub struct SetupIntent {
     ///
     /// It can only be used for this Stripe Account’s own money movement flows like InboundTransfer and OutboundTransfers.
     /// It cannot be set to true when setting up a PaymentMethod for a Customer, and defaults to false when attaching a PaymentMethod to a Customer.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub attach_to_self: Option<bool>,
     /// Settings for dynamic payment methods compatible with this Setup Intent
-    pub automatic_payment_methods:
-        Option<stripe_shared::PaymentFlowsAutomaticPaymentMethodsSetupIntent>,
+    pub automatic_payment_methods: Option<stripe_shared::PaymentFlowsAutomaticPaymentMethodsSetupIntent>,
     /// Reason for cancellation of this SetupIntent, one of `abandoned`, `requested_by_customer`, or `duplicate`.
     pub cancellation_reason: Option<stripe_shared::SetupIntentCancellationReason>,
     /// The client secret of this SetupIntent. Used for client-side retrieval using a publishable key.
@@ -77,8 +77,7 @@ pub struct SetupIntent {
     /// ID of the payment method used with this SetupIntent.
     pub payment_method: Option<stripe_types::Expandable<stripe_shared::PaymentMethod>>,
     /// Information about the payment method configuration used for this Setup Intent.
-    pub payment_method_configuration_details:
-        Option<stripe_shared::PaymentMethodConfigBizPaymentMethodConfigurationDetails>,
+    pub payment_method_configuration_details: Option<stripe_shared::PaymentMethodConfigBizPaymentMethodConfigurationDetails>,
     /// Payment method-specific configuration for this SetupIntent.
     pub payment_method_options: Option<stripe_shared::SetupIntentPaymentMethodOptions>,
     /// The list of payment method types (e.g. card) that this SetupIntent is allowed to set up.
@@ -94,6 +93,191 @@ pub struct SetupIntent {
     /// If not provided, this value defaults to `off_session`.
     pub usage: String,
 }
+#[cfg(feature = "min-ser")]
+pub struct SetupIntentBuilder {
+    application: Option<Option<stripe_types::Expandable<stripe_shared::Application>>>,
+    attach_to_self: Option<Option<bool>>,
+    automatic_payment_methods: Option<Option<stripe_shared::PaymentFlowsAutomaticPaymentMethodsSetupIntent>>,
+    cancellation_reason: Option<Option<stripe_shared::SetupIntentCancellationReason>>,
+    client_secret: Option<Option<String>>,
+    created: Option<stripe_types::Timestamp>,
+    customer: Option<Option<stripe_types::Expandable<stripe_shared::Customer>>>,
+    description: Option<Option<String>>,
+    flow_directions: Option<Option<Vec<stripe_shared::SetupIntentFlowDirections>>>,
+    id: Option<stripe_shared::SetupIntentId>,
+    last_setup_error: Option<Option<Box<stripe_shared::ApiErrors>>>,
+    latest_attempt: Option<Option<stripe_types::Expandable<stripe_shared::SetupAttempt>>>,
+    livemode: Option<bool>,
+    mandate: Option<Option<stripe_types::Expandable<stripe_shared::Mandate>>>,
+    metadata: Option<Option<std::collections::HashMap<String, String>>>,
+    next_action: Option<Option<stripe_shared::SetupIntentNextAction>>,
+    on_behalf_of: Option<Option<stripe_types::Expandable<stripe_shared::Account>>>,
+    payment_method: Option<Option<stripe_types::Expandable<stripe_shared::PaymentMethod>>>,
+    payment_method_configuration_details: Option<Option<stripe_shared::PaymentMethodConfigBizPaymentMethodConfigurationDetails>>,
+    payment_method_options: Option<Option<stripe_shared::SetupIntentPaymentMethodOptions>>,
+    payment_method_types: Option<Vec<String>>,
+    single_use_mandate: Option<Option<stripe_types::Expandable<stripe_shared::Mandate>>>,
+    status: Option<SetupIntentStatus>,
+    usage: Option<String>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for SetupIntent {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<SetupIntent>,
+        builder: SetupIntentBuilder,
+    }
+
+    impl Visitor for Place<SetupIntent> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: SetupIntentBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for SetupIntentBuilder {
+        type Out = SetupIntent;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "application" => Ok(Deserialize::begin(&mut self.application)),
+                "attach_to_self" => Ok(Deserialize::begin(&mut self.attach_to_self)),
+                "automatic_payment_methods" => Ok(Deserialize::begin(&mut self.automatic_payment_methods)),
+                "cancellation_reason" => Ok(Deserialize::begin(&mut self.cancellation_reason)),
+                "client_secret" => Ok(Deserialize::begin(&mut self.client_secret)),
+                "created" => Ok(Deserialize::begin(&mut self.created)),
+                "customer" => Ok(Deserialize::begin(&mut self.customer)),
+                "description" => Ok(Deserialize::begin(&mut self.description)),
+                "flow_directions" => Ok(Deserialize::begin(&mut self.flow_directions)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "last_setup_error" => Ok(Deserialize::begin(&mut self.last_setup_error)),
+                "latest_attempt" => Ok(Deserialize::begin(&mut self.latest_attempt)),
+                "livemode" => Ok(Deserialize::begin(&mut self.livemode)),
+                "mandate" => Ok(Deserialize::begin(&mut self.mandate)),
+                "metadata" => Ok(Deserialize::begin(&mut self.metadata)),
+                "next_action" => Ok(Deserialize::begin(&mut self.next_action)),
+                "on_behalf_of" => Ok(Deserialize::begin(&mut self.on_behalf_of)),
+                "payment_method" => Ok(Deserialize::begin(&mut self.payment_method)),
+                "payment_method_configuration_details" => Ok(Deserialize::begin(&mut self.payment_method_configuration_details)),
+                "payment_method_options" => Ok(Deserialize::begin(&mut self.payment_method_options)),
+                "payment_method_types" => Ok(Deserialize::begin(&mut self.payment_method_types)),
+                "single_use_mandate" => Ok(Deserialize::begin(&mut self.single_use_mandate)),
+                "status" => Ok(Deserialize::begin(&mut self.status)),
+                "usage" => Ok(Deserialize::begin(&mut self.usage)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                application: Deserialize::default(),
+                attach_to_self: Deserialize::default(),
+                automatic_payment_methods: Deserialize::default(),
+                cancellation_reason: Deserialize::default(),
+                client_secret: Deserialize::default(),
+                created: Deserialize::default(),
+                customer: Deserialize::default(),
+                description: Deserialize::default(),
+                flow_directions: Deserialize::default(),
+                id: Deserialize::default(),
+                last_setup_error: Deserialize::default(),
+                latest_attempt: Deserialize::default(),
+                livemode: Deserialize::default(),
+                mandate: Deserialize::default(),
+                metadata: Deserialize::default(),
+                next_action: Deserialize::default(),
+                on_behalf_of: Deserialize::default(),
+                payment_method: Deserialize::default(),
+                payment_method_configuration_details: Deserialize::default(),
+                payment_method_options: Deserialize::default(),
+                payment_method_types: Deserialize::default(),
+                single_use_mandate: Deserialize::default(),
+                status: Deserialize::default(),
+                usage: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let application = self.application.take()?;
+            let attach_to_self = self.attach_to_self.take()?;
+            let automatic_payment_methods = self.automatic_payment_methods.take()?;
+            let cancellation_reason = self.cancellation_reason.take()?;
+            let client_secret = self.client_secret.take()?;
+            let created = self.created.take()?;
+            let customer = self.customer.take()?;
+            let description = self.description.take()?;
+            let flow_directions = self.flow_directions.take()?;
+            let id = self.id.take()?;
+            let last_setup_error = self.last_setup_error.take()?;
+            let latest_attempt = self.latest_attempt.take()?;
+            let livemode = self.livemode.take()?;
+            let mandate = self.mandate.take()?;
+            let metadata = self.metadata.take()?;
+            let next_action = self.next_action.take()?;
+            let on_behalf_of = self.on_behalf_of.take()?;
+            let payment_method = self.payment_method.take()?;
+            let payment_method_configuration_details = self.payment_method_configuration_details.take()?;
+            let payment_method_options = self.payment_method_options.take()?;
+            let payment_method_types = self.payment_method_types.take()?;
+            let single_use_mandate = self.single_use_mandate.take()?;
+            let status = self.status.take()?;
+            let usage = self.usage.take()?;
+
+            Some(Self::Out {
+                application,
+                attach_to_self,
+                automatic_payment_methods,
+                cancellation_reason,
+                client_secret,
+                created,
+                customer,
+                description,
+                flow_directions,
+                id,
+                last_setup_error,
+                latest_attempt,
+                livemode,
+                mandate,
+                metadata,
+                next_action,
+                on_behalf_of,
+                payment_method,
+                payment_method_configuration_details,
+                payment_method_options,
+                payment_method_types,
+                single_use_mandate,
+                status,
+                usage,
+            })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for SetupIntent {
+        type Builder = SetupIntentBuilder;
+    }
+};
 /// [Status](https://stripe.com/docs/payments/intents#intent-statuses) of this SetupIntent, one of `requires_payment_method`, `requires_confirmation`, `requires_action`, `processing`, `canceled`, or `succeeded`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum SetupIntentStatus {
@@ -161,8 +345,22 @@ impl<'de> serde::Deserialize<'de> for SetupIntentStatus {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for SetupIntentStatus"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for SetupIntentStatus"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for SetupIntentStatus {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<SetupIntentStatus> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(SetupIntentStatus::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 impl stripe_types::Object for SetupIntent {
@@ -229,9 +427,22 @@ impl<'de> serde::Deserialize<'de> for SetupIntentCancellationReason {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for SetupIntentCancellationReason")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for SetupIntentCancellationReason"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for SetupIntentCancellationReason {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<SetupIntentCancellationReason> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(SetupIntentCancellationReason::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -288,7 +499,21 @@ impl<'de> serde::Deserialize<'de> for SetupIntentFlowDirections {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for SetupIntentFlowDirections"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for SetupIntentFlowDirections"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for SetupIntentFlowDirections {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<SetupIntentFlowDirections> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(SetupIntentFlowDirections::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

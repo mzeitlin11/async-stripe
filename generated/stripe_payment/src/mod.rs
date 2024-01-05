@@ -8,10 +8,28 @@
 //! of the [Stripe API docs](https://stripe.com/docs/api)
 
 extern crate self as stripe_payment;
+
+#[cfg(feature = "min-ser")]
+miniserde::make_place!(Place);
 pub mod bank_account;
 pub use stripe_shared::bank_account::*;
 pub mod card;
-pub use stripe_shared::card::*;pub use stripe_shared::card_issuing_account_terms_of_service::*;pub use stripe_shared::card_mandate_payment_method_details::*;pub use stripe_shared::deleted_bank_account::*;pub use stripe_shared::deleted_card::*;pub use stripe_shared::deleted_external_account::*;pub use stripe_shared::deleted_payment_source::*;pub use stripe_shared::external_account_requirements::*;pub use stripe_shared::networks::*;pub use stripe_shared::payment_flows_private_payment_methods_alipay::*;pub use stripe_shared::payment_flows_private_payment_methods_alipay_details::*;pub use stripe_shared::payment_flows_private_payment_methods_card_details_api_resource_enterprise_features_extended_authorization_extended_authorization::*;pub use stripe_shared::payment_flows_private_payment_methods_card_details_api_resource_enterprise_features_incremental_authorization_incremental_authorization::*;pub use stripe_shared::payment_flows_private_payment_methods_card_details_api_resource_enterprise_features_overcapture_overcapture::*;pub use stripe_shared::payment_flows_private_payment_methods_card_details_api_resource_multicapture::*;pub use stripe_shared::payment_flows_private_payment_methods_klarna_dob::*;
+pub use stripe_shared::card::*;
+pub use stripe_shared::card_issuing_account_terms_of_service::*;
+pub use stripe_shared::card_mandate_payment_method_details::*;
+pub use stripe_shared::deleted_bank_account::*;
+pub use stripe_shared::deleted_card::*;
+pub use stripe_shared::deleted_external_account::*;
+pub use stripe_shared::deleted_payment_source::*;
+pub use stripe_shared::external_account_requirements::*;
+pub use stripe_shared::networks::*;
+pub use stripe_shared::payment_flows_private_payment_methods_alipay::*;
+pub use stripe_shared::payment_flows_private_payment_methods_alipay_details::*;
+pub use stripe_shared::payment_flows_private_payment_methods_card_details_api_resource_enterprise_features_extended_authorization_extended_authorization::*;
+pub use stripe_shared::payment_flows_private_payment_methods_card_details_api_resource_enterprise_features_incremental_authorization_incremental_authorization::*;
+pub use stripe_shared::payment_flows_private_payment_methods_card_details_api_resource_enterprise_features_overcapture_overcapture::*;
+pub use stripe_shared::payment_flows_private_payment_methods_card_details_api_resource_multicapture::*;
+pub use stripe_shared::payment_flows_private_payment_methods_klarna_dob::*;
 pub mod payment_link;
 pub use stripe_shared::payment_link::*;
 pub use stripe_shared::payment_links_resource_after_completion::*;

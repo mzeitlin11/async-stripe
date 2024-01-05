@@ -7,7 +7,9 @@
 /// Related guide: [Payment Links API](https://stripe.com/docs/payment-links)
 ///
 /// For more details see <<https://stripe.com/docs/api/payment_links/payment_links/object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct PaymentLink {
     /// Whether the payment link's `url` is active.
     /// If `false`, customers visiting the URL will be shown a page saying that the link has been deactivated.
@@ -40,7 +42,6 @@ pub struct PaymentLink {
     /// Configuration for creating invoice for payment mode payment links.
     pub invoice_creation: Option<stripe_shared::PaymentLinksResourceInvoiceCreation>,
     /// The line items representing what is being sold.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub line_items: Option<stripe_types::List<stripe_shared::CheckoutSessionItem>>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
@@ -59,8 +60,7 @@ pub struct PaymentLink {
     pub payment_method_types: Option<Vec<stripe_shared::PaymentLinkPaymentMethodTypes>>,
     pub phone_number_collection: stripe_shared::PaymentLinksResourcePhoneNumberCollection,
     /// Configuration for collecting the customer's shipping address.
-    pub shipping_address_collection:
-        Option<stripe_shared::PaymentLinksResourceShippingAddressCollection>,
+    pub shipping_address_collection: Option<stripe_shared::PaymentLinksResourceShippingAddressCollection>,
     /// The shipping rate options applied to the session.
     pub shipping_options: Vec<stripe_shared::PaymentLinksResourceShippingOption>,
     /// Indicates the type of transaction being performed which customizes relevant text on the page, such as the submit button.
@@ -74,6 +74,221 @@ pub struct PaymentLink {
     /// The public URL that can be shared with customers.
     pub url: String,
 }
+#[cfg(feature = "min-ser")]
+pub struct PaymentLinkBuilder {
+    active: Option<bool>,
+    after_completion: Option<stripe_shared::PaymentLinksResourceAfterCompletion>,
+    allow_promotion_codes: Option<bool>,
+    application: Option<Option<stripe_types::Expandable<stripe_shared::Application>>>,
+    application_fee_amount: Option<Option<i64>>,
+    application_fee_percent: Option<Option<f64>>,
+    automatic_tax: Option<stripe_shared::PaymentLinksResourceAutomaticTax>,
+    billing_address_collection: Option<stripe_shared::PaymentLinkBillingAddressCollection>,
+    consent_collection: Option<Option<stripe_shared::PaymentLinksResourceConsentCollection>>,
+    currency: Option<stripe_types::Currency>,
+    custom_fields: Option<Vec<stripe_shared::PaymentLinksResourceCustomFields>>,
+    custom_text: Option<stripe_shared::PaymentLinksResourceCustomText>,
+    customer_creation: Option<PaymentLinkCustomerCreation>,
+    id: Option<stripe_shared::PaymentLinkId>,
+    invoice_creation: Option<Option<stripe_shared::PaymentLinksResourceInvoiceCreation>>,
+    line_items: Option<Option<stripe_types::List<stripe_shared::CheckoutSessionItem>>>,
+    livemode: Option<bool>,
+    metadata: Option<std::collections::HashMap<String, String>>,
+    on_behalf_of: Option<Option<stripe_types::Expandable<stripe_shared::Account>>>,
+    payment_intent_data: Option<Option<stripe_shared::PaymentLinksResourcePaymentIntentData>>,
+    payment_method_collection: Option<PaymentLinkPaymentMethodCollection>,
+    payment_method_types: Option<Option<Vec<stripe_shared::PaymentLinkPaymentMethodTypes>>>,
+    phone_number_collection: Option<stripe_shared::PaymentLinksResourcePhoneNumberCollection>,
+    shipping_address_collection: Option<Option<stripe_shared::PaymentLinksResourceShippingAddressCollection>>,
+    shipping_options: Option<Vec<stripe_shared::PaymentLinksResourceShippingOption>>,
+    submit_type: Option<stripe_shared::PaymentLinkSubmitType>,
+    subscription_data: Option<Option<stripe_shared::PaymentLinksResourceSubscriptionData>>,
+    tax_id_collection: Option<stripe_shared::PaymentLinksResourceTaxIdCollection>,
+    transfer_data: Option<Option<stripe_shared::PaymentLinksResourceTransferData>>,
+    url: Option<String>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for PaymentLink {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<PaymentLink>,
+        builder: PaymentLinkBuilder,
+    }
+
+    impl Visitor for Place<PaymentLink> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: PaymentLinkBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for PaymentLinkBuilder {
+        type Out = PaymentLink;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "active" => Ok(Deserialize::begin(&mut self.active)),
+                "after_completion" => Ok(Deserialize::begin(&mut self.after_completion)),
+                "allow_promotion_codes" => Ok(Deserialize::begin(&mut self.allow_promotion_codes)),
+                "application" => Ok(Deserialize::begin(&mut self.application)),
+                "application_fee_amount" => Ok(Deserialize::begin(&mut self.application_fee_amount)),
+                "application_fee_percent" => Ok(Deserialize::begin(&mut self.application_fee_percent)),
+                "automatic_tax" => Ok(Deserialize::begin(&mut self.automatic_tax)),
+                "billing_address_collection" => Ok(Deserialize::begin(&mut self.billing_address_collection)),
+                "consent_collection" => Ok(Deserialize::begin(&mut self.consent_collection)),
+                "currency" => Ok(Deserialize::begin(&mut self.currency)),
+                "custom_fields" => Ok(Deserialize::begin(&mut self.custom_fields)),
+                "custom_text" => Ok(Deserialize::begin(&mut self.custom_text)),
+                "customer_creation" => Ok(Deserialize::begin(&mut self.customer_creation)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "invoice_creation" => Ok(Deserialize::begin(&mut self.invoice_creation)),
+                "line_items" => Ok(Deserialize::begin(&mut self.line_items)),
+                "livemode" => Ok(Deserialize::begin(&mut self.livemode)),
+                "metadata" => Ok(Deserialize::begin(&mut self.metadata)),
+                "on_behalf_of" => Ok(Deserialize::begin(&mut self.on_behalf_of)),
+                "payment_intent_data" => Ok(Deserialize::begin(&mut self.payment_intent_data)),
+                "payment_method_collection" => Ok(Deserialize::begin(&mut self.payment_method_collection)),
+                "payment_method_types" => Ok(Deserialize::begin(&mut self.payment_method_types)),
+                "phone_number_collection" => Ok(Deserialize::begin(&mut self.phone_number_collection)),
+                "shipping_address_collection" => Ok(Deserialize::begin(&mut self.shipping_address_collection)),
+                "shipping_options" => Ok(Deserialize::begin(&mut self.shipping_options)),
+                "submit_type" => Ok(Deserialize::begin(&mut self.submit_type)),
+                "subscription_data" => Ok(Deserialize::begin(&mut self.subscription_data)),
+                "tax_id_collection" => Ok(Deserialize::begin(&mut self.tax_id_collection)),
+                "transfer_data" => Ok(Deserialize::begin(&mut self.transfer_data)),
+                "url" => Ok(Deserialize::begin(&mut self.url)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                active: Deserialize::default(),
+                after_completion: Deserialize::default(),
+                allow_promotion_codes: Deserialize::default(),
+                application: Deserialize::default(),
+                application_fee_amount: Deserialize::default(),
+                application_fee_percent: Deserialize::default(),
+                automatic_tax: Deserialize::default(),
+                billing_address_collection: Deserialize::default(),
+                consent_collection: Deserialize::default(),
+                currency: Deserialize::default(),
+                custom_fields: Deserialize::default(),
+                custom_text: Deserialize::default(),
+                customer_creation: Deserialize::default(),
+                id: Deserialize::default(),
+                invoice_creation: Deserialize::default(),
+                line_items: Deserialize::default(),
+                livemode: Deserialize::default(),
+                metadata: Deserialize::default(),
+                on_behalf_of: Deserialize::default(),
+                payment_intent_data: Deserialize::default(),
+                payment_method_collection: Deserialize::default(),
+                payment_method_types: Deserialize::default(),
+                phone_number_collection: Deserialize::default(),
+                shipping_address_collection: Deserialize::default(),
+                shipping_options: Deserialize::default(),
+                submit_type: Deserialize::default(),
+                subscription_data: Deserialize::default(),
+                tax_id_collection: Deserialize::default(),
+                transfer_data: Deserialize::default(),
+                url: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let active = self.active.take()?;
+            let after_completion = self.after_completion.take()?;
+            let allow_promotion_codes = self.allow_promotion_codes.take()?;
+            let application = self.application.take()?;
+            let application_fee_amount = self.application_fee_amount.take()?;
+            let application_fee_percent = self.application_fee_percent.take()?;
+            let automatic_tax = self.automatic_tax.take()?;
+            let billing_address_collection = self.billing_address_collection.take()?;
+            let consent_collection = self.consent_collection.take()?;
+            let currency = self.currency.take()?;
+            let custom_fields = self.custom_fields.take()?;
+            let custom_text = self.custom_text.take()?;
+            let customer_creation = self.customer_creation.take()?;
+            let id = self.id.take()?;
+            let invoice_creation = self.invoice_creation.take()?;
+            let line_items = self.line_items.take()?;
+            let livemode = self.livemode.take()?;
+            let metadata = self.metadata.take()?;
+            let on_behalf_of = self.on_behalf_of.take()?;
+            let payment_intent_data = self.payment_intent_data.take()?;
+            let payment_method_collection = self.payment_method_collection.take()?;
+            let payment_method_types = self.payment_method_types.take()?;
+            let phone_number_collection = self.phone_number_collection.take()?;
+            let shipping_address_collection = self.shipping_address_collection.take()?;
+            let shipping_options = self.shipping_options.take()?;
+            let submit_type = self.submit_type.take()?;
+            let subscription_data = self.subscription_data.take()?;
+            let tax_id_collection = self.tax_id_collection.take()?;
+            let transfer_data = self.transfer_data.take()?;
+            let url = self.url.take()?;
+
+            Some(Self::Out {
+                active,
+                after_completion,
+                allow_promotion_codes,
+                application,
+                application_fee_amount,
+                application_fee_percent,
+                automatic_tax,
+                billing_address_collection,
+                consent_collection,
+                currency,
+                custom_fields,
+                custom_text,
+                customer_creation,
+                id,
+                invoice_creation,
+                line_items,
+                livemode,
+                metadata,
+                on_behalf_of,
+                payment_intent_data,
+                payment_method_collection,
+                payment_method_types,
+                phone_number_collection,
+                shipping_address_collection,
+                shipping_options,
+                submit_type,
+                subscription_data,
+                tax_id_collection,
+                transfer_data,
+                url,
+            })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for PaymentLink {
+        type Builder = PaymentLinkBuilder;
+    }
+};
 /// Configuration for Customer creation during checkout.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PaymentLinkCustomerCreation {
@@ -129,8 +344,22 @@ impl<'de> serde::Deserialize<'de> for PaymentLinkCustomerCreation {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for PaymentLinkCustomerCreation"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PaymentLinkCustomerCreation"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentLinkCustomerCreation {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentLinkCustomerCreation> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentLinkCustomerCreation::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// Configuration for collecting a payment method during checkout.
@@ -188,9 +417,22 @@ impl<'de> serde::Deserialize<'de> for PaymentLinkPaymentMethodCollection {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for PaymentLinkPaymentMethodCollection")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PaymentLinkPaymentMethodCollection"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentLinkPaymentMethodCollection {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentLinkPaymentMethodCollection> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentLinkPaymentMethodCollection::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 impl stripe_types::Object for PaymentLink {
@@ -254,9 +496,22 @@ impl<'de> serde::Deserialize<'de> for PaymentLinkBillingAddressCollection {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for PaymentLinkBillingAddressCollection")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PaymentLinkBillingAddressCollection"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentLinkBillingAddressCollection {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentLinkBillingAddressCollection> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentLinkBillingAddressCollection::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -395,7 +650,22 @@ impl<'de> serde::Deserialize<'de> for PaymentLinkPaymentMethodTypes {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Ok(Self::from_str(&s).unwrap_or(PaymentLinkPaymentMethodTypes::Unknown))
+        Ok(Self::from_str(&s).unwrap_or(Self::Unknown))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentLinkPaymentMethodTypes {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentLinkPaymentMethodTypes> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentLinkPaymentMethodTypes::from_str(s).unwrap_or(PaymentLinkPaymentMethodTypes::Unknown));
+        Ok(())
     }
 }
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -458,7 +728,21 @@ impl<'de> serde::Deserialize<'de> for PaymentLinkSubmitType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for PaymentLinkSubmitType"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PaymentLinkSubmitType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentLinkSubmitType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentLinkSubmitType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentLinkSubmitType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

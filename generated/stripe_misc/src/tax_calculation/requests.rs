@@ -25,19 +25,8 @@ pub struct CreateTaxCalculation<'a> {
     pub tax_date: Option<stripe_types::Timestamp>,
 }
 impl<'a> CreateTaxCalculation<'a> {
-    pub fn new(
-        currency: stripe_types::Currency,
-        line_items: &'a [CreateTaxCalculationLineItems<'a>],
-    ) -> Self {
-        Self {
-            currency,
-            customer: None,
-            customer_details: None,
-            expand: None,
-            line_items,
-            shipping_cost: None,
-            tax_date: None,
-        }
+    pub fn new(currency: stripe_types::Currency, line_items: &'a [CreateTaxCalculationLineItems<'a>]) -> Self {
+        Self { currency, customer: None, customer_details: None, expand: None, line_items, shipping_cost: None, tax_date: None }
     }
 }
 /// Details about the customer, including address and tax IDs.
@@ -148,7 +137,7 @@ impl serde::Serialize for CreateTaxCalculationCustomerDetailsAddressSource {
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTaxCalculationCustomerDetailsTaxIds<'a> {
     /// Type of the tax ID, one of `ad_nrt`, `ae_trn`, `ar_cuit`, `au_abn`, `au_arn`, `bg_uic`, `bo_tin`, `br_cnpj`, `br_cpf`, `ca_bn`, `ca_gst_hst`, `ca_pst_bc`, `ca_pst_mb`, `ca_pst_sk`, `ca_qst`, `ch_vat`, `cl_tin`, `cn_tin`, `co_nit`, `cr_tin`, `do_rcn`, `ec_ruc`, `eg_tin`, `es_cif`, `eu_oss_vat`, `eu_vat`, `gb_vat`, `ge_vat`, `hk_br`, `hu_tin`, `id_npwp`, `il_vat`, `in_gst`, `is_vat`, `jp_cn`, `jp_rn`, `jp_trn`, `ke_pin`, `kr_brn`, `li_uid`, `mx_rfc`, `my_frp`, `my_itn`, `my_sst`, `no_vat`, `nz_gst`, `pe_ruc`, `ph_tin`, `ro_tin`, `rs_pib`, `ru_inn`, `ru_kpp`, `sa_vat`, `sg_gst`, `sg_uen`, `si_tin`, `sv_nit`, `th_vat`, `tr_tin`, `tw_vat`, `ua_vat`, `us_ein`, `uy_ruc`, `ve_rif`, `vn_tin`, or `za_vat`.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: CreateTaxCalculationCustomerDetailsTaxIdsType,
     /// Value of the tax ID.
     pub value: &'a str,
@@ -491,14 +480,7 @@ pub struct CreateTaxCalculationLineItems<'a> {
 }
 impl<'a> CreateTaxCalculationLineItems<'a> {
     pub fn new(amount: i64) -> Self {
-        Self {
-            amount,
-            product: None,
-            quantity: None,
-            reference: None,
-            tax_behavior: None,
-            tax_code: None,
-        }
+        Self { amount, product: None, quantity: None, reference: None, tax_behavior: None, tax_code: None }
     }
 }
 /// Specifies whether the `amount` includes taxes. Defaults to `exclusive`.
@@ -665,20 +647,10 @@ impl<'a> ListLineItemsTaxCalculation<'a> {
 }
 impl<'a> ListLineItemsTaxCalculation<'a> {
     /// Retrieves the line items of a persisted tax calculation as a collection.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        calculation: &stripe_misc::TaxCalculationId,
-    ) -> stripe::Response<stripe_types::List<stripe_misc::TaxCalculationLineItem>> {
+    pub fn send(&self, client: &stripe::Client, calculation: &stripe_misc::TaxCalculationId) -> stripe::Response<stripe_types::List<stripe_misc::TaxCalculationLineItem>> {
         client.get_query(&format!("/tax/calculations/{calculation}/line_items"), self)
     }
-    pub fn paginate(
-        self,
-        calculation: &stripe_misc::TaxCalculationId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::TaxCalculationLineItem>> {
-        stripe::ListPaginator::from_list_params(
-            &format!("/tax/calculations/{calculation}/line_items"),
-            self,
-        )
+    pub fn paginate(self, calculation: &stripe_misc::TaxCalculationId) -> stripe::ListPaginator<stripe_types::List<stripe_misc::TaxCalculationLineItem>> {
+        stripe::ListPaginator::from_list_params(&format!("/tax/calculations/{calculation}/line_items"), self)
     }
 }

@@ -13,11 +13,7 @@ impl<'a> RetrievePayout<'a> {
     /// Retrieves the details of an existing payout.
     /// Supply the unique payout ID from either a payout creation request or the payout list.
     /// Stripe returns the corresponding payout information.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        payout: &stripe_shared::PayoutId,
-    ) -> stripe::Response<stripe_shared::Payout> {
+    pub fn send(&self, client: &stripe::Client, payout: &stripe_shared::PayoutId) -> stripe::Response<stripe_shared::Payout> {
         client.get_query(&format!("/payouts/{payout}"), self)
     }
 }
@@ -59,10 +55,7 @@ impl<'a> ListPayout<'a> {
 impl<'a> ListPayout<'a> {
     /// Returns a list of existing payouts sent to third-party bank accounts or payouts that Stripe sent to you.
     /// The payouts return in sorted order, with the most recently created payouts appearing first.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::Payout>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::Payout>> {
         client.get_query("/payouts", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Payout>> {
@@ -112,17 +105,7 @@ pub struct CreatePayout<'a> {
 }
 impl<'a> CreatePayout<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency) -> Self {
-        Self {
-            amount,
-            currency,
-            description: None,
-            destination: None,
-            expand: None,
-            metadata: None,
-            method: None,
-            source_type: None,
-            statement_descriptor: None,
-        }
+        Self { amount, currency, description: None, destination: None, expand: None, metadata: None, method: None, source_type: None, statement_descriptor: None }
     }
 }
 /// The method used to send this payout, which is `standard` or `instant`.
@@ -269,11 +252,7 @@ impl<'a> UpdatePayout<'a> {
     /// Updates the specified payout by setting the values of the parameters you pass.
     /// We don’t change parameters that you don’t provide.
     /// This request only accepts the metadata as arguments.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        payout: &stripe_shared::PayoutId,
-    ) -> stripe::Response<stripe_shared::Payout> {
+    pub fn send(&self, client: &stripe::Client, payout: &stripe_shared::PayoutId) -> stripe::Response<stripe_shared::Payout> {
         client.send_form(&format!("/payouts/{payout}"), self, http_types::Method::Post)
     }
 }
@@ -292,11 +271,7 @@ impl<'a> CancelPayout<'a> {
     /// You can cancel a previously created payout if it hasn’t been paid out yet.
     /// Stripe refunds the funds to your available balance.
     /// You can’t cancel automatic Stripe payouts.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        payout: &stripe_shared::PayoutId,
-    ) -> stripe::Response<stripe_shared::Payout> {
+    pub fn send(&self, client: &stripe::Client, payout: &stripe_shared::PayoutId) -> stripe::Response<stripe_shared::Payout> {
         client.send_form(&format!("/payouts/{payout}/cancel"), self, http_types::Method::Post)
     }
 }
@@ -323,11 +298,7 @@ impl<'a> ReversePayout<'a> {
     /// If the payout is in the `pending` status, use `/v1/payouts/:id/cancel` instead.
     ///
     /// By requesting a reversal through `/v1/payouts/:id/reverse`, you confirm that the authorized signatory of the selected bank account authorizes the debit on the bank account and that no other authorization is required.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        payout: &stripe_shared::PayoutId,
-    ) -> stripe::Response<stripe_shared::Payout> {
+    pub fn send(&self, client: &stripe::Client, payout: &stripe_shared::PayoutId) -> stripe::Response<stripe_shared::Payout> {
         client.send_form(&format!("/payouts/{payout}/reverse"), self, http_types::Method::Post)
     }
 }

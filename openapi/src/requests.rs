@@ -183,7 +183,7 @@ fn build_request(
     method_name: &str,
     path_id_map: &HashMap<String, ComponentPath>,
 ) -> anyhow::Result<RequestSpec> {
-    let params_ident = RustIdent::joined(&method_name, parent_ident);
+    let params_ident = RustIdent::joined(method_name, parent_ident);
     let return_ident = RustIdent::joined(&params_ident, "returned");
     let return_type = Inference::new(&return_ident, ObjectKind::RequestReturned)
         .required(true)

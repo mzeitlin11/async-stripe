@@ -32,7 +32,9 @@
 /// Related guide: [Send invoices to customers](https://stripe.com/docs/billing/invoices/sending)
 ///
 /// For more details see <<https://stripe.com/docs/api/invoices/object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct Invoice {
     /// The country of the business associated with this invoice, most often the business creating the invoice.
     pub account_country: Option<String>,
@@ -64,7 +66,6 @@ pub struct Invoice {
     pub attempted: bool,
     /// Controls whether Stripe performs [automatic collection](https://stripe.com/docs/invoicing/integration/automatic-advancement-collection) of the invoice.
     /// If `false`, the invoice's state doesn't automatically advance without an explicit action.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub auto_advance: Option<bool>,
     pub automatic_tax: stripe_shared::AutomaticTax,
     /// Indicates the reason why the invoice was created.
@@ -120,7 +121,6 @@ pub struct Invoice {
     /// The customer's tax IDs.
     /// Until the invoice is finalized, this field will contain the same tax IDs as `customer.tax_ids`.
     /// Once the invoice is finalized, this field will no longer be updated.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub customer_tax_ids: Option<Vec<stripe_shared::InvoicesResourceInvoiceTaxId>>,
     /// ID of the default payment method for the invoice.
     /// It must belong to the customer associated with the invoice.
@@ -161,16 +161,13 @@ pub struct Invoice {
     pub from_invoice: Option<stripe_shared::InvoicesFromInvoice>,
     /// The URL for the hosted invoice page, which allows customers to view and pay an invoice.
     /// If the invoice has not been finalized yet, this will be null.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub hosted_invoice_url: Option<String>,
     /// Unique identifier for the object.
     /// This property is always present unless the invoice is an upcoming invoice.
     /// See [Retrieve an upcoming invoice](https://stripe.com/docs/api/invoices/upcoming) for more details.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<stripe_shared::InvoiceId>,
     /// The link to download the PDF for the invoice.
     /// If the invoice has not been finalized yet, this will be null.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_pdf: Option<String>,
     /// The error encountered during the previous attempt to finalize the invoice.
     /// This field is cleared when the invoice is successfully finalized.
@@ -243,7 +240,6 @@ pub struct Invoice {
     /// Details about the subscription that created this invoice.
     pub subscription_details: Option<stripe_shared::SubscriptionDetailsData>,
     /// Only set for upcoming invoices that preview prorations. The time used to calculate prorations.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub subscription_proration_date: Option<stripe_types::Timestamp>,
     /// Total of all subscriptions, invoice items, and prorations on the invoice before any invoice level discount or exclusive tax is applied.
     /// Item discounts are already incorporated.
@@ -255,7 +251,6 @@ pub struct Invoice {
     pub tax: Option<i64>,
     /// ID of the test clock this invoice belongs to.
     pub test_clock: Option<stripe_types::Expandable<stripe_shared::TestHelpersTestClock>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub threshold_reason: Option<stripe_shared::InvoiceThresholdReason>,
     /// Total after discounts and taxes.
     pub total: i64,
@@ -272,6 +267,476 @@ pub struct Invoice {
     /// If the invoice had no webhooks to deliver, this will be set while the invoice is being created.
     pub webhooks_delivered_at: Option<stripe_types::Timestamp>,
 }
+#[cfg(feature = "min-ser")]
+pub struct InvoiceBuilder {
+    account_country: Option<Option<String>>,
+    account_name: Option<Option<String>>,
+    account_tax_ids: Option<Option<Vec<stripe_types::Expandable<stripe_shared::TaxId>>>>,
+    amount_due: Option<i64>,
+    amount_paid: Option<i64>,
+    amount_remaining: Option<i64>,
+    amount_shipping: Option<i64>,
+    application: Option<Option<stripe_types::Expandable<stripe_shared::Application>>>,
+    application_fee_amount: Option<Option<i64>>,
+    attempt_count: Option<u64>,
+    attempted: Option<bool>,
+    auto_advance: Option<Option<bool>>,
+    automatic_tax: Option<stripe_shared::AutomaticTax>,
+    billing_reason: Option<Option<InvoiceBillingReason>>,
+    charge: Option<Option<stripe_types::Expandable<stripe_shared::Charge>>>,
+    collection_method: Option<stripe_shared::InvoiceCollectionMethod>,
+    created: Option<stripe_types::Timestamp>,
+    currency: Option<stripe_types::Currency>,
+    custom_fields: Option<Option<Vec<stripe_shared::InvoiceSettingCustomField>>>,
+    customer: Option<Option<stripe_types::Expandable<stripe_shared::Customer>>>,
+    customer_address: Option<Option<stripe_shared::Address>>,
+    customer_email: Option<Option<String>>,
+    customer_name: Option<Option<String>>,
+    customer_phone: Option<Option<String>>,
+    customer_shipping: Option<Option<stripe_shared::Shipping>>,
+    customer_tax_exempt: Option<Option<InvoiceCustomerTaxExempt>>,
+    customer_tax_ids: Option<Option<Vec<stripe_shared::InvoicesResourceInvoiceTaxId>>>,
+    default_payment_method: Option<Option<stripe_types::Expandable<stripe_shared::PaymentMethod>>>,
+    default_source: Option<Option<stripe_types::Expandable<stripe_shared::PaymentSource>>>,
+    default_tax_rates: Option<Vec<stripe_shared::TaxRate>>,
+    description: Option<Option<String>>,
+    discount: Option<Option<stripe_shared::Discount>>,
+    discounts: Option<Option<Vec<stripe_types::Expandable<stripe_shared::Discount>>>>,
+    due_date: Option<Option<stripe_types::Timestamp>>,
+    effective_at: Option<Option<stripe_types::Timestamp>>,
+    ending_balance: Option<Option<i64>>,
+    footer: Option<Option<String>>,
+    from_invoice: Option<Option<stripe_shared::InvoicesFromInvoice>>,
+    hosted_invoice_url: Option<Option<String>>,
+    id: Option<Option<stripe_shared::InvoiceId>>,
+    invoice_pdf: Option<Option<String>>,
+    last_finalization_error: Option<Option<Box<stripe_shared::ApiErrors>>>,
+    latest_revision: Option<Option<stripe_types::Expandable<stripe_shared::Invoice>>>,
+    lines: Option<stripe_types::List<stripe_shared::InvoiceLineItem>>,
+    livemode: Option<bool>,
+    metadata: Option<Option<std::collections::HashMap<String, String>>>,
+    next_payment_attempt: Option<Option<stripe_types::Timestamp>>,
+    number: Option<Option<String>>,
+    on_behalf_of: Option<Option<stripe_types::Expandable<stripe_shared::Account>>>,
+    paid: Option<bool>,
+    paid_out_of_band: Option<bool>,
+    payment_intent: Option<Option<stripe_types::Expandable<stripe_shared::PaymentIntent>>>,
+    payment_settings: Option<stripe_shared::InvoicesPaymentSettings>,
+    period_end: Option<stripe_types::Timestamp>,
+    period_start: Option<stripe_types::Timestamp>,
+    post_payment_credit_notes_amount: Option<i64>,
+    pre_payment_credit_notes_amount: Option<i64>,
+    quote: Option<Option<stripe_types::Expandable<stripe_shared::Quote>>>,
+    receipt_number: Option<Option<String>>,
+    rendering: Option<Option<stripe_shared::InvoicesInvoiceRendering>>,
+    rendering_options: Option<Option<stripe_shared::InvoiceSettingRenderingOptions>>,
+    shipping_cost: Option<Option<stripe_shared::InvoicesShippingCost>>,
+    shipping_details: Option<Option<stripe_shared::Shipping>>,
+    starting_balance: Option<i64>,
+    statement_descriptor: Option<Option<String>>,
+    status: Option<Option<stripe_shared::InvoiceStatus>>,
+    status_transitions: Option<stripe_shared::InvoicesStatusTransitions>,
+    subscription: Option<Option<stripe_types::Expandable<stripe_shared::Subscription>>>,
+    subscription_details: Option<Option<stripe_shared::SubscriptionDetailsData>>,
+    subscription_proration_date: Option<Option<stripe_types::Timestamp>>,
+    subtotal: Option<i64>,
+    subtotal_excluding_tax: Option<Option<i64>>,
+    tax: Option<Option<i64>>,
+    test_clock: Option<Option<stripe_types::Expandable<stripe_shared::TestHelpersTestClock>>>,
+    threshold_reason: Option<Option<stripe_shared::InvoiceThresholdReason>>,
+    total: Option<i64>,
+    total_discount_amounts: Option<Option<Vec<stripe_shared::DiscountsResourceDiscountAmount>>>,
+    total_excluding_tax: Option<Option<i64>>,
+    total_tax_amounts: Option<Vec<stripe_shared::InvoiceTaxAmount>>,
+    transfer_data: Option<Option<stripe_shared::InvoiceTransferData>>,
+    webhooks_delivered_at: Option<Option<stripe_types::Timestamp>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for Invoice {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<Invoice>,
+        builder: InvoiceBuilder,
+    }
+
+    impl Visitor for Place<Invoice> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: InvoiceBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for InvoiceBuilder {
+        type Out = Invoice;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "account_country" => Ok(Deserialize::begin(&mut self.account_country)),
+                "account_name" => Ok(Deserialize::begin(&mut self.account_name)),
+                "account_tax_ids" => Ok(Deserialize::begin(&mut self.account_tax_ids)),
+                "amount_due" => Ok(Deserialize::begin(&mut self.amount_due)),
+                "amount_paid" => Ok(Deserialize::begin(&mut self.amount_paid)),
+                "amount_remaining" => Ok(Deserialize::begin(&mut self.amount_remaining)),
+                "amount_shipping" => Ok(Deserialize::begin(&mut self.amount_shipping)),
+                "application" => Ok(Deserialize::begin(&mut self.application)),
+                "application_fee_amount" => Ok(Deserialize::begin(&mut self.application_fee_amount)),
+                "attempt_count" => Ok(Deserialize::begin(&mut self.attempt_count)),
+                "attempted" => Ok(Deserialize::begin(&mut self.attempted)),
+                "auto_advance" => Ok(Deserialize::begin(&mut self.auto_advance)),
+                "automatic_tax" => Ok(Deserialize::begin(&mut self.automatic_tax)),
+                "billing_reason" => Ok(Deserialize::begin(&mut self.billing_reason)),
+                "charge" => Ok(Deserialize::begin(&mut self.charge)),
+                "collection_method" => Ok(Deserialize::begin(&mut self.collection_method)),
+                "created" => Ok(Deserialize::begin(&mut self.created)),
+                "currency" => Ok(Deserialize::begin(&mut self.currency)),
+                "custom_fields" => Ok(Deserialize::begin(&mut self.custom_fields)),
+                "customer" => Ok(Deserialize::begin(&mut self.customer)),
+                "customer_address" => Ok(Deserialize::begin(&mut self.customer_address)),
+                "customer_email" => Ok(Deserialize::begin(&mut self.customer_email)),
+                "customer_name" => Ok(Deserialize::begin(&mut self.customer_name)),
+                "customer_phone" => Ok(Deserialize::begin(&mut self.customer_phone)),
+                "customer_shipping" => Ok(Deserialize::begin(&mut self.customer_shipping)),
+                "customer_tax_exempt" => Ok(Deserialize::begin(&mut self.customer_tax_exempt)),
+                "customer_tax_ids" => Ok(Deserialize::begin(&mut self.customer_tax_ids)),
+                "default_payment_method" => Ok(Deserialize::begin(&mut self.default_payment_method)),
+                "default_source" => Ok(Deserialize::begin(&mut self.default_source)),
+                "default_tax_rates" => Ok(Deserialize::begin(&mut self.default_tax_rates)),
+                "description" => Ok(Deserialize::begin(&mut self.description)),
+                "discount" => Ok(Deserialize::begin(&mut self.discount)),
+                "discounts" => Ok(Deserialize::begin(&mut self.discounts)),
+                "due_date" => Ok(Deserialize::begin(&mut self.due_date)),
+                "effective_at" => Ok(Deserialize::begin(&mut self.effective_at)),
+                "ending_balance" => Ok(Deserialize::begin(&mut self.ending_balance)),
+                "footer" => Ok(Deserialize::begin(&mut self.footer)),
+                "from_invoice" => Ok(Deserialize::begin(&mut self.from_invoice)),
+                "hosted_invoice_url" => Ok(Deserialize::begin(&mut self.hosted_invoice_url)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "invoice_pdf" => Ok(Deserialize::begin(&mut self.invoice_pdf)),
+                "last_finalization_error" => Ok(Deserialize::begin(&mut self.last_finalization_error)),
+                "latest_revision" => Ok(Deserialize::begin(&mut self.latest_revision)),
+                "lines" => Ok(Deserialize::begin(&mut self.lines)),
+                "livemode" => Ok(Deserialize::begin(&mut self.livemode)),
+                "metadata" => Ok(Deserialize::begin(&mut self.metadata)),
+                "next_payment_attempt" => Ok(Deserialize::begin(&mut self.next_payment_attempt)),
+                "number" => Ok(Deserialize::begin(&mut self.number)),
+                "on_behalf_of" => Ok(Deserialize::begin(&mut self.on_behalf_of)),
+                "paid" => Ok(Deserialize::begin(&mut self.paid)),
+                "paid_out_of_band" => Ok(Deserialize::begin(&mut self.paid_out_of_band)),
+                "payment_intent" => Ok(Deserialize::begin(&mut self.payment_intent)),
+                "payment_settings" => Ok(Deserialize::begin(&mut self.payment_settings)),
+                "period_end" => Ok(Deserialize::begin(&mut self.period_end)),
+                "period_start" => Ok(Deserialize::begin(&mut self.period_start)),
+                "post_payment_credit_notes_amount" => Ok(Deserialize::begin(&mut self.post_payment_credit_notes_amount)),
+                "pre_payment_credit_notes_amount" => Ok(Deserialize::begin(&mut self.pre_payment_credit_notes_amount)),
+                "quote" => Ok(Deserialize::begin(&mut self.quote)),
+                "receipt_number" => Ok(Deserialize::begin(&mut self.receipt_number)),
+                "rendering" => Ok(Deserialize::begin(&mut self.rendering)),
+                "rendering_options" => Ok(Deserialize::begin(&mut self.rendering_options)),
+                "shipping_cost" => Ok(Deserialize::begin(&mut self.shipping_cost)),
+                "shipping_details" => Ok(Deserialize::begin(&mut self.shipping_details)),
+                "starting_balance" => Ok(Deserialize::begin(&mut self.starting_balance)),
+                "statement_descriptor" => Ok(Deserialize::begin(&mut self.statement_descriptor)),
+                "status" => Ok(Deserialize::begin(&mut self.status)),
+                "status_transitions" => Ok(Deserialize::begin(&mut self.status_transitions)),
+                "subscription" => Ok(Deserialize::begin(&mut self.subscription)),
+                "subscription_details" => Ok(Deserialize::begin(&mut self.subscription_details)),
+                "subscription_proration_date" => Ok(Deserialize::begin(&mut self.subscription_proration_date)),
+                "subtotal" => Ok(Deserialize::begin(&mut self.subtotal)),
+                "subtotal_excluding_tax" => Ok(Deserialize::begin(&mut self.subtotal_excluding_tax)),
+                "tax" => Ok(Deserialize::begin(&mut self.tax)),
+                "test_clock" => Ok(Deserialize::begin(&mut self.test_clock)),
+                "threshold_reason" => Ok(Deserialize::begin(&mut self.threshold_reason)),
+                "total" => Ok(Deserialize::begin(&mut self.total)),
+                "total_discount_amounts" => Ok(Deserialize::begin(&mut self.total_discount_amounts)),
+                "total_excluding_tax" => Ok(Deserialize::begin(&mut self.total_excluding_tax)),
+                "total_tax_amounts" => Ok(Deserialize::begin(&mut self.total_tax_amounts)),
+                "transfer_data" => Ok(Deserialize::begin(&mut self.transfer_data)),
+                "webhooks_delivered_at" => Ok(Deserialize::begin(&mut self.webhooks_delivered_at)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                account_country: Deserialize::default(),
+                account_name: Deserialize::default(),
+                account_tax_ids: Deserialize::default(),
+                amount_due: Deserialize::default(),
+                amount_paid: Deserialize::default(),
+                amount_remaining: Deserialize::default(),
+                amount_shipping: Deserialize::default(),
+                application: Deserialize::default(),
+                application_fee_amount: Deserialize::default(),
+                attempt_count: Deserialize::default(),
+                attempted: Deserialize::default(),
+                auto_advance: Deserialize::default(),
+                automatic_tax: Deserialize::default(),
+                billing_reason: Deserialize::default(),
+                charge: Deserialize::default(),
+                collection_method: Deserialize::default(),
+                created: Deserialize::default(),
+                currency: Deserialize::default(),
+                custom_fields: Deserialize::default(),
+                customer: Deserialize::default(),
+                customer_address: Deserialize::default(),
+                customer_email: Deserialize::default(),
+                customer_name: Deserialize::default(),
+                customer_phone: Deserialize::default(),
+                customer_shipping: Deserialize::default(),
+                customer_tax_exempt: Deserialize::default(),
+                customer_tax_ids: Deserialize::default(),
+                default_payment_method: Deserialize::default(),
+                default_source: Deserialize::default(),
+                default_tax_rates: Deserialize::default(),
+                description: Deserialize::default(),
+                discount: Deserialize::default(),
+                discounts: Deserialize::default(),
+                due_date: Deserialize::default(),
+                effective_at: Deserialize::default(),
+                ending_balance: Deserialize::default(),
+                footer: Deserialize::default(),
+                from_invoice: Deserialize::default(),
+                hosted_invoice_url: Deserialize::default(),
+                id: Deserialize::default(),
+                invoice_pdf: Deserialize::default(),
+                last_finalization_error: Deserialize::default(),
+                latest_revision: Deserialize::default(),
+                lines: Deserialize::default(),
+                livemode: Deserialize::default(),
+                metadata: Deserialize::default(),
+                next_payment_attempt: Deserialize::default(),
+                number: Deserialize::default(),
+                on_behalf_of: Deserialize::default(),
+                paid: Deserialize::default(),
+                paid_out_of_band: Deserialize::default(),
+                payment_intent: Deserialize::default(),
+                payment_settings: Deserialize::default(),
+                period_end: Deserialize::default(),
+                period_start: Deserialize::default(),
+                post_payment_credit_notes_amount: Deserialize::default(),
+                pre_payment_credit_notes_amount: Deserialize::default(),
+                quote: Deserialize::default(),
+                receipt_number: Deserialize::default(),
+                rendering: Deserialize::default(),
+                rendering_options: Deserialize::default(),
+                shipping_cost: Deserialize::default(),
+                shipping_details: Deserialize::default(),
+                starting_balance: Deserialize::default(),
+                statement_descriptor: Deserialize::default(),
+                status: Deserialize::default(),
+                status_transitions: Deserialize::default(),
+                subscription: Deserialize::default(),
+                subscription_details: Deserialize::default(),
+                subscription_proration_date: Deserialize::default(),
+                subtotal: Deserialize::default(),
+                subtotal_excluding_tax: Deserialize::default(),
+                tax: Deserialize::default(),
+                test_clock: Deserialize::default(),
+                threshold_reason: Deserialize::default(),
+                total: Deserialize::default(),
+                total_discount_amounts: Deserialize::default(),
+                total_excluding_tax: Deserialize::default(),
+                total_tax_amounts: Deserialize::default(),
+                transfer_data: Deserialize::default(),
+                webhooks_delivered_at: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let account_country = self.account_country.take()?;
+            let account_name = self.account_name.take()?;
+            let account_tax_ids = self.account_tax_ids.take()?;
+            let amount_due = self.amount_due.take()?;
+            let amount_paid = self.amount_paid.take()?;
+            let amount_remaining = self.amount_remaining.take()?;
+            let amount_shipping = self.amount_shipping.take()?;
+            let application = self.application.take()?;
+            let application_fee_amount = self.application_fee_amount.take()?;
+            let attempt_count = self.attempt_count.take()?;
+            let attempted = self.attempted.take()?;
+            let auto_advance = self.auto_advance.take()?;
+            let automatic_tax = self.automatic_tax.take()?;
+            let billing_reason = self.billing_reason.take()?;
+            let charge = self.charge.take()?;
+            let collection_method = self.collection_method.take()?;
+            let created = self.created.take()?;
+            let currency = self.currency.take()?;
+            let custom_fields = self.custom_fields.take()?;
+            let customer = self.customer.take()?;
+            let customer_address = self.customer_address.take()?;
+            let customer_email = self.customer_email.take()?;
+            let customer_name = self.customer_name.take()?;
+            let customer_phone = self.customer_phone.take()?;
+            let customer_shipping = self.customer_shipping.take()?;
+            let customer_tax_exempt = self.customer_tax_exempt.take()?;
+            let customer_tax_ids = self.customer_tax_ids.take()?;
+            let default_payment_method = self.default_payment_method.take()?;
+            let default_source = self.default_source.take()?;
+            let default_tax_rates = self.default_tax_rates.take()?;
+            let description = self.description.take()?;
+            let discount = self.discount.take()?;
+            let discounts = self.discounts.take()?;
+            let due_date = self.due_date.take()?;
+            let effective_at = self.effective_at.take()?;
+            let ending_balance = self.ending_balance.take()?;
+            let footer = self.footer.take()?;
+            let from_invoice = self.from_invoice.take()?;
+            let hosted_invoice_url = self.hosted_invoice_url.take()?;
+            let id = self.id.take()?;
+            let invoice_pdf = self.invoice_pdf.take()?;
+            let last_finalization_error = self.last_finalization_error.take()?;
+            let latest_revision = self.latest_revision.take()?;
+            let lines = self.lines.take()?;
+            let livemode = self.livemode.take()?;
+            let metadata = self.metadata.take()?;
+            let next_payment_attempt = self.next_payment_attempt.take()?;
+            let number = self.number.take()?;
+            let on_behalf_of = self.on_behalf_of.take()?;
+            let paid = self.paid.take()?;
+            let paid_out_of_band = self.paid_out_of_band.take()?;
+            let payment_intent = self.payment_intent.take()?;
+            let payment_settings = self.payment_settings.take()?;
+            let period_end = self.period_end.take()?;
+            let period_start = self.period_start.take()?;
+            let post_payment_credit_notes_amount = self.post_payment_credit_notes_amount.take()?;
+            let pre_payment_credit_notes_amount = self.pre_payment_credit_notes_amount.take()?;
+            let quote = self.quote.take()?;
+            let receipt_number = self.receipt_number.take()?;
+            let rendering = self.rendering.take()?;
+            let rendering_options = self.rendering_options.take()?;
+            let shipping_cost = self.shipping_cost.take()?;
+            let shipping_details = self.shipping_details.take()?;
+            let starting_balance = self.starting_balance.take()?;
+            let statement_descriptor = self.statement_descriptor.take()?;
+            let status = self.status.take()?;
+            let status_transitions = self.status_transitions.take()?;
+            let subscription = self.subscription.take()?;
+            let subscription_details = self.subscription_details.take()?;
+            let subscription_proration_date = self.subscription_proration_date.take()?;
+            let subtotal = self.subtotal.take()?;
+            let subtotal_excluding_tax = self.subtotal_excluding_tax.take()?;
+            let tax = self.tax.take()?;
+            let test_clock = self.test_clock.take()?;
+            let threshold_reason = self.threshold_reason.take()?;
+            let total = self.total.take()?;
+            let total_discount_amounts = self.total_discount_amounts.take()?;
+            let total_excluding_tax = self.total_excluding_tax.take()?;
+            let total_tax_amounts = self.total_tax_amounts.take()?;
+            let transfer_data = self.transfer_data.take()?;
+            let webhooks_delivered_at = self.webhooks_delivered_at.take()?;
+
+            Some(Self::Out {
+                account_country,
+                account_name,
+                account_tax_ids,
+                amount_due,
+                amount_paid,
+                amount_remaining,
+                amount_shipping,
+                application,
+                application_fee_amount,
+                attempt_count,
+                attempted,
+                auto_advance,
+                automatic_tax,
+                billing_reason,
+                charge,
+                collection_method,
+                created,
+                currency,
+                custom_fields,
+                customer,
+                customer_address,
+                customer_email,
+                customer_name,
+                customer_phone,
+                customer_shipping,
+                customer_tax_exempt,
+                customer_tax_ids,
+                default_payment_method,
+                default_source,
+                default_tax_rates,
+                description,
+                discount,
+                discounts,
+                due_date,
+                effective_at,
+                ending_balance,
+                footer,
+                from_invoice,
+                hosted_invoice_url,
+                id,
+                invoice_pdf,
+                last_finalization_error,
+                latest_revision,
+                lines,
+                livemode,
+                metadata,
+                next_payment_attempt,
+                number,
+                on_behalf_of,
+                paid,
+                paid_out_of_band,
+                payment_intent,
+                payment_settings,
+                period_end,
+                period_start,
+                post_payment_credit_notes_amount,
+                pre_payment_credit_notes_amount,
+                quote,
+                receipt_number,
+                rendering,
+                rendering_options,
+                shipping_cost,
+                shipping_details,
+                starting_balance,
+                statement_descriptor,
+                status,
+                status_transitions,
+                subscription,
+                subscription_details,
+                subscription_proration_date,
+                subtotal,
+                subtotal_excluding_tax,
+                tax,
+                test_clock,
+                threshold_reason,
+                total,
+                total_discount_amounts,
+                total_excluding_tax,
+                total_tax_amounts,
+                transfer_data,
+                webhooks_delivered_at,
+            })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for Invoice {
+        type Builder = InvoiceBuilder;
+    }
+};
 /// Indicates the reason why the invoice was created.
 ///
 /// * `manual`: Unrelated to a subscription, for example, created via the invoice editor.
@@ -357,8 +822,22 @@ impl<'de> serde::Deserialize<'de> for InvoiceBillingReason {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for InvoiceBillingReason"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for InvoiceBillingReason"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for InvoiceBillingReason {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<InvoiceBillingReason> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(InvoiceBillingReason::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// The customer's tax exempt status.
@@ -421,8 +900,22 @@ impl<'de> serde::Deserialize<'de> for InvoiceCustomerTaxExempt {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for InvoiceCustomerTaxExempt"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for InvoiceCustomerTaxExempt"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for InvoiceCustomerTaxExempt {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<InvoiceCustomerTaxExempt> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(InvoiceCustomerTaxExempt::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 impl stripe_types::Object for Invoice {
@@ -486,8 +979,22 @@ impl<'de> serde::Deserialize<'de> for InvoiceCollectionMethod {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for InvoiceCollectionMethod"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for InvoiceCollectionMethod"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for InvoiceCollectionMethod {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<InvoiceCollectionMethod> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(InvoiceCollectionMethod::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -554,5 +1061,20 @@ impl<'de> serde::Deserialize<'de> for InvoiceStatus {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for InvoiceStatus"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for InvoiceStatus {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<InvoiceStatus> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(InvoiceStatus::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

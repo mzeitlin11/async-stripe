@@ -11,11 +11,7 @@ impl<'a> RetrieveTreasuryTransactionEntry<'a> {
 }
 impl<'a> RetrieveTreasuryTransactionEntry<'a> {
     /// Retrieves a TransactionEntry object.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &stripe_treasury::TreasuryTransactionEntryId,
-    ) -> stripe::Response<stripe_treasury::TreasuryTransactionEntry> {
+    pub fn send(&self, client: &stripe::Client, id: &stripe_treasury::TreasuryTransactionEntryId) -> stripe::Response<stripe_treasury::TreasuryTransactionEntry> {
         client.get_query(&format!("/treasury/transaction_entries/{id}"), self)
     }
 }
@@ -54,17 +50,7 @@ pub struct ListTreasuryTransactionEntry<'a> {
 }
 impl<'a> ListTreasuryTransactionEntry<'a> {
     pub fn new(financial_account: &'a str) -> Self {
-        Self {
-            created: None,
-            effective_at: None,
-            ending_before: None,
-            expand: None,
-            financial_account,
-            limit: None,
-            order_by: None,
-            starting_after: None,
-            transaction: None,
-        }
+        Self { created: None, effective_at: None, ending_before: None, expand: None, financial_account, limit: None, order_by: None, starting_after: None, transaction: None }
     }
 }
 /// The results are in reverse chronological order by `created` or `effective_at`.
@@ -121,15 +107,10 @@ impl serde::Serialize for ListTreasuryTransactionEntryOrderBy {
 }
 impl<'a> ListTreasuryTransactionEntry<'a> {
     /// Retrieves a list of TransactionEntry objects.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryTransactionEntry>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_treasury::TreasuryTransactionEntry>> {
         client.get_query("/treasury/transaction_entries", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_treasury::TreasuryTransactionEntry>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_treasury::TreasuryTransactionEntry>> {
         stripe::ListPaginator::from_list_params("/treasury/transaction_entries", self)
     }
 }

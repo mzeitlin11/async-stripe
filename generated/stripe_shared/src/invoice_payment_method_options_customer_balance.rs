@@ -1,12 +1,81 @@
-#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, Default)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct InvoicePaymentMethodOptionsCustomerBalance {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub bank_transfer:
-        Option<stripe_shared::InvoicePaymentMethodOptionsCustomerBalanceBankTransfer>,
+    pub bank_transfer: Option<stripe_shared::InvoicePaymentMethodOptionsCustomerBalanceBankTransfer>,
     /// The funding method type to be used when there are not enough funds in the customer balance.
     /// Permitted values include: `bank_transfer`.
     pub funding_type: Option<InvoicePaymentMethodOptionsCustomerBalanceFundingType>,
 }
+#[cfg(feature = "min-ser")]
+pub struct InvoicePaymentMethodOptionsCustomerBalanceBuilder {
+    bank_transfer: Option<Option<stripe_shared::InvoicePaymentMethodOptionsCustomerBalanceBankTransfer>>,
+    funding_type: Option<Option<InvoicePaymentMethodOptionsCustomerBalanceFundingType>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for InvoicePaymentMethodOptionsCustomerBalance {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<InvoicePaymentMethodOptionsCustomerBalance>,
+        builder: InvoicePaymentMethodOptionsCustomerBalanceBuilder,
+    }
+
+    impl Visitor for Place<InvoicePaymentMethodOptionsCustomerBalance> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: InvoicePaymentMethodOptionsCustomerBalanceBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for InvoicePaymentMethodOptionsCustomerBalanceBuilder {
+        type Out = InvoicePaymentMethodOptionsCustomerBalance;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "bank_transfer" => Ok(Deserialize::begin(&mut self.bank_transfer)),
+                "funding_type" => Ok(Deserialize::begin(&mut self.funding_type)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self { bank_transfer: Deserialize::default(), funding_type: Deserialize::default() }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let bank_transfer = self.bank_transfer.take()?;
+            let funding_type = self.funding_type.take()?;
+
+            Some(Self::Out { bank_transfer, funding_type })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for InvoicePaymentMethodOptionsCustomerBalance {
+        type Builder = InvoicePaymentMethodOptionsCustomerBalanceBuilder;
+    }
+};
 /// The funding method type to be used when there are not enough funds in the customer balance.
 /// Permitted values include: `bank_transfer`.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -60,10 +129,21 @@ impl<'de> serde::Deserialize<'de> for InvoicePaymentMethodOptionsCustomerBalance
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for InvoicePaymentMethodOptionsCustomerBalanceFundingType",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for InvoicePaymentMethodOptionsCustomerBalanceFundingType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for InvoicePaymentMethodOptionsCustomerBalanceFundingType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<InvoicePaymentMethodOptionsCustomerBalanceFundingType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(InvoicePaymentMethodOptionsCustomerBalanceFundingType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

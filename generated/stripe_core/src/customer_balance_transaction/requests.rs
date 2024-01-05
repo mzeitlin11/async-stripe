@@ -11,12 +11,7 @@ impl<'a> RetrieveCustomerBalanceTransaction<'a> {
 }
 impl<'a> RetrieveCustomerBalanceTransaction<'a> {
     /// Retrieves a specific customer balance transaction that updated the customer’s [balances](https://stripe.com/docs/billing/customer/balance).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-        transaction: &str,
-    ) -> stripe::Response<stripe_shared::CustomerBalanceTransaction> {
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId, transaction: &str) -> stripe::Response<stripe_shared::CustomerBalanceTransaction> {
         client.get_query(&format!("/customers/{customer}/balance_transactions/{transaction}"), self)
     }
 }
@@ -47,21 +42,11 @@ impl<'a> ListCustomerBalanceTransaction<'a> {
 }
 impl<'a> ListCustomerBalanceTransaction<'a> {
     /// Returns a list of transactions that updated the customer’s [balances](https://stripe.com/docs/billing/customer/balance).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::CustomerBalanceTransaction>> {
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId) -> stripe::Response<stripe_types::List<stripe_shared::CustomerBalanceTransaction>> {
         client.get_query(&format!("/customers/{customer}/balance_transactions"), self)
     }
-    pub fn paginate(
-        self,
-        customer: &stripe_shared::CustomerId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CustomerBalanceTransaction>> {
-        stripe::ListPaginator::from_list_params(
-            &format!("/customers/{customer}/balance_transactions"),
-            self,
-        )
+    pub fn paginate(self, customer: &stripe_shared::CustomerId) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CustomerBalanceTransaction>> {
+        stripe::ListPaginator::from_list_params(&format!("/customers/{customer}/balance_transactions"), self)
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]
@@ -93,16 +78,8 @@ impl<'a> CreateCustomerBalanceTransaction<'a> {
 }
 impl<'a> CreateCustomerBalanceTransaction<'a> {
     /// Creates an immutable transaction that updates the customer’s credit [balance](https://stripe.com/docs/billing/customer/balance).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-    ) -> stripe::Response<stripe_shared::CustomerBalanceTransaction> {
-        client.send_form(
-            &format!("/customers/{customer}/balance_transactions"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId) -> stripe::Response<stripe_shared::CustomerBalanceTransaction> {
+        client.send_form(&format!("/customers/{customer}/balance_transactions"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -127,16 +104,7 @@ impl<'a> UpdateCustomerBalanceTransaction<'a> {
 }
 impl<'a> UpdateCustomerBalanceTransaction<'a> {
     /// Most credit balance transaction fields are immutable, but you may update its `description` and `metadata`.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        customer: &stripe_shared::CustomerId,
-        transaction: &str,
-    ) -> stripe::Response<stripe_shared::CustomerBalanceTransaction> {
-        client.send_form(
-            &format!("/customers/{customer}/balance_transactions/{transaction}"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, customer: &stripe_shared::CustomerId, transaction: &str) -> stripe::Response<stripe_shared::CustomerBalanceTransaction> {
+        client.send_form(&format!("/customers/{customer}/balance_transactions/{transaction}"), self, http_types::Method::Post)
     }
 }

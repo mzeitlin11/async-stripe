@@ -26,7 +26,9 @@
 /// - *determine app fees to charge a connected account*
 ///
 /// *Using this Exchange Rates API beta for any purpose other than to transact on Stripe is strictly prohibited and constitutes a violation of Stripe's terms of service.*.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct ExchangeRate {
     /// Unique identifier for the object.
     /// Represented as the three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) in lowercase.
@@ -34,6 +36,75 @@ pub struct ExchangeRate {
     /// Hash where the keys are supported currencies and the values are the exchange rate at which the base id currency converts to the key currency.
     pub rates: std::collections::HashMap<String, f64>,
 }
+#[cfg(feature = "min-ser")]
+pub struct ExchangeRateBuilder {
+    id: Option<stripe_misc::ExchangeRateId>,
+    rates: Option<std::collections::HashMap<String, f64>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for ExchangeRate {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<ExchangeRate>,
+        builder: ExchangeRateBuilder,
+    }
+
+    impl Visitor for Place<ExchangeRate> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: ExchangeRateBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for ExchangeRateBuilder {
+        type Out = ExchangeRate;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "rates" => Ok(Deserialize::begin(&mut self.rates)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self { id: Deserialize::default(), rates: Deserialize::default() }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let id = self.id.take()?;
+            let rates = self.rates.take()?;
+
+            Some(Self::Out { id, rates })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for ExchangeRate {
+        type Builder = ExchangeRateBuilder;
+    }
+};
 impl stripe_types::Object for ExchangeRate {
     type Id = stripe_misc::ExchangeRateId;
     fn id(&self) -> &Self::Id {

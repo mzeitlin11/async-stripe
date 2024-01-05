@@ -29,10 +29,7 @@ impl<'a> ListCoupon<'a> {
 }
 impl<'a> ListCoupon<'a> {
     /// Returns a list of your coupons.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::Coupon>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::Coupon>> {
         client.get_query("/coupons", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Coupon>> {
@@ -53,8 +50,7 @@ pub struct CreateCoupon<'a> {
     /// Coupons defined in each available currency option (only supported if `amount_off` is passed).
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub currency_options:
-        Option<&'a std::collections::HashMap<stripe_types::Currency, CurrencyOption>>,
+    pub currency_options: Option<&'a std::collections::HashMap<stripe_types::Currency, CurrencyOption>>,
     /// Specifies how long the discount will be in effect if used on a subscription. Defaults to `once`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration: Option<stripe_shared::CouponDuration>,
@@ -131,11 +127,7 @@ impl<'a> RetrieveCoupon<'a> {
 }
 impl<'a> RetrieveCoupon<'a> {
     /// Retrieves the coupon with the given ID.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        coupon: &stripe_shared::CouponId,
-    ) -> stripe::Response<stripe_shared::Coupon> {
+    pub fn send(&self, client: &stripe::Client, coupon: &stripe_shared::CouponId) -> stripe::Response<stripe_shared::Coupon> {
         client.get_query(&format!("/coupons/{coupon}"), self)
     }
 }
@@ -144,8 +136,7 @@ pub struct UpdateCoupon<'a> {
     /// Coupons defined in each available currency option (only supported if the coupon is amount-based).
     /// Each key must be a three-letter [ISO currency code](https://www.iso.org/iso-4217-currency-codes.html) and a [supported currency](https://stripe.com/docs/currencies).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub currency_options:
-        Option<&'a std::collections::HashMap<stripe_types::Currency, CurrencyOption>>,
+    pub currency_options: Option<&'a std::collections::HashMap<stripe_types::Currency, CurrencyOption>>,
     /// Specifies which fields in the response should be expanded.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub expand: Option<&'a [&'a str]>,
@@ -168,11 +159,7 @@ impl<'a> UpdateCoupon<'a> {
 impl<'a> UpdateCoupon<'a> {
     /// Updates the metadata of a coupon.
     /// Other coupon details (currency, duration, amount_off) are, by design, not editable.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        coupon: &stripe_shared::CouponId,
-    ) -> stripe::Response<stripe_shared::Coupon> {
+    pub fn send(&self, client: &stripe::Client, coupon: &stripe_shared::CouponId) -> stripe::Response<stripe_shared::Coupon> {
         client.send_form(&format!("/coupons/{coupon}"), self, http_types::Method::Post)
     }
 }
@@ -187,11 +174,7 @@ impl DeleteCoupon {
     /// You can delete coupons via the [coupon management](https://dashboard.stripe.com/coupons) page of the Stripe dashboard.
     /// However, deleting a coupon does not affect any customers who have already applied the coupon; it means that new customers can’t redeem the coupon.
     /// You can also delete coupons via the API.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        coupon: &stripe_shared::CouponId,
-    ) -> stripe::Response<stripe_shared::DeletedCoupon> {
+    pub fn send(&self, client: &stripe::Client, coupon: &stripe_shared::CouponId) -> stripe::Response<stripe_shared::DeletedCoupon> {
         client.send_form(&format!("/coupons/{coupon}"), self, http_types::Method::Delete)
     }
 }

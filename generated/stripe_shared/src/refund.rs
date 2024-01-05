@@ -5,7 +5,9 @@
 /// Related guide: [Refunds](https://stripe.com/docs/refunds)
 ///
 /// For more details see <<https://stripe.com/docs/api/refunds/object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct Refund {
     /// Amount, in cents (or local equivalent).
     pub amount: i64,
@@ -20,25 +22,19 @@ pub struct Refund {
     pub currency: stripe_types::Currency,
     /// An arbitrary string attached to the object.
     /// You can use this for displaying to users (available on non-card refunds only).
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     /// After the refund fails, this balance transaction describes the adjustment made on your account balance that reverses the initial balance transaction.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub failure_balance_transaction:
-        Option<stripe_types::Expandable<stripe_shared::BalanceTransaction>>,
+    pub failure_balance_transaction: Option<stripe_types::Expandable<stripe_shared::BalanceTransaction>>,
     /// Provides the reason for the refund failure.
     /// Possible values are: `lost_or_stolen_card`, `expired_or_canceled_card`, `charge_for_pending_refund_disputed`, `insufficient_funds`, `declined`, `merchant_request`, or `unknown`.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub failure_reason: Option<String>,
     /// Unique identifier for the object.
     pub id: stripe_shared::RefundId,
     /// For payment methods without native refund support (for example, Konbini, PromptPay), provide an email address for the customer to receive refund instructions.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub instructions_email: Option<String>,
     /// Set of [key-value pairs](https://stripe.com/docs/api/metadata) that you can attach to an object.
     /// This can be useful for storing additional information about the object in a structured format.
     pub metadata: Option<std::collections::HashMap<String, String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub next_action: Option<stripe_shared::RefundNextAction>,
     /// ID of the PaymentIntent that's refunded.
     pub payment_intent: Option<stripe_types::Expandable<stripe_shared::PaymentIntent>>,
@@ -58,6 +54,161 @@ pub struct Refund {
     /// This is only applicable if the charge was created using the destination parameter.
     pub transfer_reversal: Option<stripe_types::Expandable<stripe_shared::TransferReversal>>,
 }
+#[cfg(feature = "min-ser")]
+pub struct RefundBuilder {
+    amount: Option<i64>,
+    balance_transaction: Option<Option<stripe_types::Expandable<stripe_shared::BalanceTransaction>>>,
+    charge: Option<Option<stripe_types::Expandable<stripe_shared::Charge>>>,
+    created: Option<stripe_types::Timestamp>,
+    currency: Option<stripe_types::Currency>,
+    description: Option<Option<String>>,
+    failure_balance_transaction: Option<Option<stripe_types::Expandable<stripe_shared::BalanceTransaction>>>,
+    failure_reason: Option<Option<String>>,
+    id: Option<stripe_shared::RefundId>,
+    instructions_email: Option<Option<String>>,
+    metadata: Option<Option<std::collections::HashMap<String, String>>>,
+    next_action: Option<Option<stripe_shared::RefundNextAction>>,
+    payment_intent: Option<Option<stripe_types::Expandable<stripe_shared::PaymentIntent>>>,
+    reason: Option<Option<RefundReason>>,
+    receipt_number: Option<Option<String>>,
+    source_transfer_reversal: Option<Option<stripe_types::Expandable<stripe_shared::TransferReversal>>>,
+    status: Option<Option<String>>,
+    transfer_reversal: Option<Option<stripe_types::Expandable<stripe_shared::TransferReversal>>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for Refund {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<Refund>,
+        builder: RefundBuilder,
+    }
+
+    impl Visitor for Place<Refund> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: RefundBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for RefundBuilder {
+        type Out = Refund;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "amount" => Ok(Deserialize::begin(&mut self.amount)),
+                "balance_transaction" => Ok(Deserialize::begin(&mut self.balance_transaction)),
+                "charge" => Ok(Deserialize::begin(&mut self.charge)),
+                "created" => Ok(Deserialize::begin(&mut self.created)),
+                "currency" => Ok(Deserialize::begin(&mut self.currency)),
+                "description" => Ok(Deserialize::begin(&mut self.description)),
+                "failure_balance_transaction" => Ok(Deserialize::begin(&mut self.failure_balance_transaction)),
+                "failure_reason" => Ok(Deserialize::begin(&mut self.failure_reason)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "instructions_email" => Ok(Deserialize::begin(&mut self.instructions_email)),
+                "metadata" => Ok(Deserialize::begin(&mut self.metadata)),
+                "next_action" => Ok(Deserialize::begin(&mut self.next_action)),
+                "payment_intent" => Ok(Deserialize::begin(&mut self.payment_intent)),
+                "reason" => Ok(Deserialize::begin(&mut self.reason)),
+                "receipt_number" => Ok(Deserialize::begin(&mut self.receipt_number)),
+                "source_transfer_reversal" => Ok(Deserialize::begin(&mut self.source_transfer_reversal)),
+                "status" => Ok(Deserialize::begin(&mut self.status)),
+                "transfer_reversal" => Ok(Deserialize::begin(&mut self.transfer_reversal)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                amount: Deserialize::default(),
+                balance_transaction: Deserialize::default(),
+                charge: Deserialize::default(),
+                created: Deserialize::default(),
+                currency: Deserialize::default(),
+                description: Deserialize::default(),
+                failure_balance_transaction: Deserialize::default(),
+                failure_reason: Deserialize::default(),
+                id: Deserialize::default(),
+                instructions_email: Deserialize::default(),
+                metadata: Deserialize::default(),
+                next_action: Deserialize::default(),
+                payment_intent: Deserialize::default(),
+                reason: Deserialize::default(),
+                receipt_number: Deserialize::default(),
+                source_transfer_reversal: Deserialize::default(),
+                status: Deserialize::default(),
+                transfer_reversal: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let amount = self.amount.take()?;
+            let balance_transaction = self.balance_transaction.take()?;
+            let charge = self.charge.take()?;
+            let created = self.created.take()?;
+            let currency = self.currency.take()?;
+            let description = self.description.take()?;
+            let failure_balance_transaction = self.failure_balance_transaction.take()?;
+            let failure_reason = self.failure_reason.take()?;
+            let id = self.id.take()?;
+            let instructions_email = self.instructions_email.take()?;
+            let metadata = self.metadata.take()?;
+            let next_action = self.next_action.take()?;
+            let payment_intent = self.payment_intent.take()?;
+            let reason = self.reason.take()?;
+            let receipt_number = self.receipt_number.take()?;
+            let source_transfer_reversal = self.source_transfer_reversal.take()?;
+            let status = self.status.take()?;
+            let transfer_reversal = self.transfer_reversal.take()?;
+
+            Some(Self::Out {
+                amount,
+                balance_transaction,
+                charge,
+                created,
+                currency,
+                description,
+                failure_balance_transaction,
+                failure_reason,
+                id,
+                instructions_email,
+                metadata,
+                next_action,
+                payment_intent,
+                reason,
+                receipt_number,
+                source_transfer_reversal,
+                status,
+                transfer_reversal,
+            })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for Refund {
+        type Builder = RefundBuilder;
+    }
+};
 /// Reason for the refund, which is either user-provided (`duplicate`, `fraudulent`, or `requested_by_customer`) or generated by Stripe internally (`expired_uncaptured_charge`).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum RefundReason {
@@ -120,6 +271,21 @@ impl<'de> serde::Deserialize<'de> for RefundReason {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for RefundReason"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for RefundReason {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<RefundReason> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(RefundReason::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 impl stripe_types::Object for Refund {

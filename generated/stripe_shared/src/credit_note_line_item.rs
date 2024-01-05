@@ -1,7 +1,9 @@
 /// The credit note line item object
 ///
 /// For more details see <<https://stripe.com/docs/api/credit_notes/line_item>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct CreditNoteLineItem {
     /// The integer amount in cents (or local equivalent) representing the gross amount being credited for this line item, excluding (exclusive) tax and discounts.
     pub amount: i64,
@@ -16,7 +18,6 @@ pub struct CreditNoteLineItem {
     /// Unique identifier for the object.
     pub id: stripe_shared::CreditNoteLineItemId,
     /// ID of the invoice line item being credited
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub invoice_line_item: Option<String>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
@@ -28,7 +29,7 @@ pub struct CreditNoteLineItem {
     pub tax_rates: Vec<stripe_shared::TaxRate>,
     /// The type of the credit note line item, one of `invoice_line_item` or `custom_line_item`.
     /// When the type is `invoice_line_item` there is an additional `invoice_line_item` property on the resource the value of which is the id of the credited line item on the invoice.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: CreditNoteLineItemType,
     /// The cost of each unit of product being credited.
     pub unit_amount: Option<i64>,
@@ -37,6 +38,146 @@ pub struct CreditNoteLineItem {
     /// The amount in cents (or local equivalent) representing the unit amount being credited for this line item, excluding all tax and discounts.
     pub unit_amount_excluding_tax: Option<String>,
 }
+#[cfg(feature = "min-ser")]
+pub struct CreditNoteLineItemBuilder {
+    amount: Option<i64>,
+    amount_excluding_tax: Option<Option<i64>>,
+    description: Option<Option<String>>,
+    discount_amount: Option<i64>,
+    discount_amounts: Option<Vec<stripe_shared::DiscountsResourceDiscountAmount>>,
+    id: Option<stripe_shared::CreditNoteLineItemId>,
+    invoice_line_item: Option<Option<String>>,
+    livemode: Option<bool>,
+    quantity: Option<Option<u64>>,
+    tax_amounts: Option<Vec<stripe_shared::CreditNoteTaxAmount>>,
+    tax_rates: Option<Vec<stripe_shared::TaxRate>>,
+    type_: Option<CreditNoteLineItemType>,
+    unit_amount: Option<Option<i64>>,
+    unit_amount_decimal: Option<Option<String>>,
+    unit_amount_excluding_tax: Option<Option<String>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for CreditNoteLineItem {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<CreditNoteLineItem>,
+        builder: CreditNoteLineItemBuilder,
+    }
+
+    impl Visitor for Place<CreditNoteLineItem> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: CreditNoteLineItemBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for CreditNoteLineItemBuilder {
+        type Out = CreditNoteLineItem;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "amount" => Ok(Deserialize::begin(&mut self.amount)),
+                "amount_excluding_tax" => Ok(Deserialize::begin(&mut self.amount_excluding_tax)),
+                "description" => Ok(Deserialize::begin(&mut self.description)),
+                "discount_amount" => Ok(Deserialize::begin(&mut self.discount_amount)),
+                "discount_amounts" => Ok(Deserialize::begin(&mut self.discount_amounts)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "invoice_line_item" => Ok(Deserialize::begin(&mut self.invoice_line_item)),
+                "livemode" => Ok(Deserialize::begin(&mut self.livemode)),
+                "quantity" => Ok(Deserialize::begin(&mut self.quantity)),
+                "tax_amounts" => Ok(Deserialize::begin(&mut self.tax_amounts)),
+                "tax_rates" => Ok(Deserialize::begin(&mut self.tax_rates)),
+                "type" => Ok(Deserialize::begin(&mut self.type_)),
+                "unit_amount" => Ok(Deserialize::begin(&mut self.unit_amount)),
+                "unit_amount_decimal" => Ok(Deserialize::begin(&mut self.unit_amount_decimal)),
+                "unit_amount_excluding_tax" => Ok(Deserialize::begin(&mut self.unit_amount_excluding_tax)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                amount: Deserialize::default(),
+                amount_excluding_tax: Deserialize::default(),
+                description: Deserialize::default(),
+                discount_amount: Deserialize::default(),
+                discount_amounts: Deserialize::default(),
+                id: Deserialize::default(),
+                invoice_line_item: Deserialize::default(),
+                livemode: Deserialize::default(),
+                quantity: Deserialize::default(),
+                tax_amounts: Deserialize::default(),
+                tax_rates: Deserialize::default(),
+                type_: Deserialize::default(),
+                unit_amount: Deserialize::default(),
+                unit_amount_decimal: Deserialize::default(),
+                unit_amount_excluding_tax: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let amount = self.amount.take()?;
+            let amount_excluding_tax = self.amount_excluding_tax.take()?;
+            let description = self.description.take()?;
+            let discount_amount = self.discount_amount.take()?;
+            let discount_amounts = self.discount_amounts.take()?;
+            let id = self.id.take()?;
+            let invoice_line_item = self.invoice_line_item.take()?;
+            let livemode = self.livemode.take()?;
+            let quantity = self.quantity.take()?;
+            let tax_amounts = self.tax_amounts.take()?;
+            let tax_rates = self.tax_rates.take()?;
+            let type_ = self.type_.take()?;
+            let unit_amount = self.unit_amount.take()?;
+            let unit_amount_decimal = self.unit_amount_decimal.take()?;
+            let unit_amount_excluding_tax = self.unit_amount_excluding_tax.take()?;
+
+            Some(Self::Out {
+                amount,
+                amount_excluding_tax,
+                description,
+                discount_amount,
+                discount_amounts,
+                id,
+                invoice_line_item,
+                livemode,
+                quantity,
+                tax_amounts,
+                tax_rates,
+                type_,
+                unit_amount,
+                unit_amount_decimal,
+                unit_amount_excluding_tax,
+            })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for CreditNoteLineItem {
+        type Builder = CreditNoteLineItemBuilder;
+    }
+};
 /// The type of the credit note line item, one of `invoice_line_item` or `custom_line_item`.
 /// When the type is `invoice_line_item` there is an additional `invoice_line_item` property on the resource the value of which is the id of the credited line item on the invoice.
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -93,8 +234,22 @@ impl<'de> serde::Deserialize<'de> for CreditNoteLineItemType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for CreditNoteLineItemType"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for CreditNoteLineItemType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for CreditNoteLineItemType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<CreditNoteLineItemType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(CreditNoteLineItemType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 impl stripe_types::Object for CreditNoteLineItem {

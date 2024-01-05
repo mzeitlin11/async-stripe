@@ -1,13 +1,15 @@
 use std::fmt::Debug;
+use std::str::FromStr;
 
-use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+
+use crate::StripeDeserialize;
 
 /// Implemented by types which represent stripe objects.
 pub trait Object {
     /// The canonical id type for this object.
-    type Id: AsCursorOpt;
+    type Id: AsCursorOpt + FromCursor;
     /// The id of the object.
     fn id(&self) -> &Self::Id;
 }
@@ -18,6 +20,30 @@ pub trait AsCursorOpt {
 
 pub trait AsCursor {
     fn as_cursor(&self) -> &str;
+}
+
+pub trait FromCursor {
+    fn from_cursor(val: &str) -> Option<Self>
+    where
+        Self: Sized;
+}
+
+impl FromCursor for smol_str::SmolStr {
+    fn from_cursor(val: &str) -> Option<Self>
+    where
+        Self: Sized,
+    {
+        Self::from_str(val).ok()
+    }
+}
+
+impl<T: FromCursor> FromCursor for Option<T> {
+    fn from_cursor(val: &str) -> Option<Self>
+    where
+        Self: Sized,
+    {
+        Some(T::from_cursor(val))
+    }
 }
 
 impl AsCursor for smol_str::SmolStr {
@@ -47,7 +73,7 @@ impl<T: AsCursor> AsCursorOpt for Option<T> {
 /// is not part of the shared list impl. We account for this by ensuring to call `update_params`
 /// before breaking the `SearchList` into pieces.
 #[doc(hidden)]
-pub trait PaginableList: DeserializeOwned {
+pub trait PaginableList: StripeDeserialize {
     /// Underlying single element type, e.g. `Account`
     type Data;
 
@@ -77,7 +103,11 @@ pub struct ListParts<T> {
     pub has_more: bool,
 }
 
-impl<T: Object + DeserializeOwned> PaginableList for List<T> {
+impl<T> PaginableList for List<T>
+where
+    T: Object,
+    List<T>: StripeDeserialize,
+{
     type Data = T;
 
     fn into_parts(self) -> ListParts<Self::Data> {
@@ -153,7 +183,10 @@ impl<T: Clone> Clone for SearchList<T> {
     }
 }
 
-impl<T: DeserializeOwned> PaginableList for SearchList<T> {
+impl<T> PaginableList for SearchList<T>
+where
+    SearchList<T>: StripeDeserialize,
+{
     type Data = T;
 
     /// NB: here we lose `next_page`, so we should be sure to `update_params`
@@ -182,6 +215,113 @@ impl<T: DeserializeOwned> PaginableList for SearchList<T> {
             params["page"] = Value::String(next_page);
         } else {
             self.has_more = false;
+        }
+    }
+}
+
+#[cfg(feature = "min-ser")]
+mod miniserde {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Error};
+
+    use crate::{List, SearchList};
+    make_place!(Place);
+
+    impl<T: Deserialize> Deserialize for List<T> {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    impl<T: Deserialize> Visitor for Place<List<T>> {
+        fn map(&mut self) -> miniserde::Result<Box<dyn Map + '_>> {
+            Ok(Box::new(ListBuilder {
+                out: &mut self.out,
+                data: Deserialize::default(),
+                has_more: Deserialize::default(),
+                total_count: Deserialize::default(),
+                url: Deserialize::default(),
+            }))
+        }
+    }
+
+    struct ListBuilder<'a, T> {
+        out: &'a mut Option<List<T>>,
+        data: Option<Vec<T>>,
+        has_more: Option<bool>,
+        total_count: Option<Option<u64>>,
+        url: Option<String>,
+    }
+
+    impl<'a, T: Deserialize> Map for ListBuilder<'a, T> {
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "url" => Ok(Deserialize::begin(&mut self.url)),
+                "data" => Ok(Deserialize::begin(&mut self.data)),
+                "has_more" => Ok(Deserialize::begin(&mut self.has_more)),
+                "total_count" => Ok(Deserialize::begin(&mut self.total_count)),
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn finish(&mut self) -> miniserde::Result<()> {
+            let url = self.url.take().ok_or(Error)?;
+            let data = self.data.take().ok_or(Error)?;
+            let has_more = self.has_more.take().ok_or(Error)?;
+            let total_count = self.total_count.take().ok_or(Error)?;
+            *self.out = Some(List { data, has_more, total_count, url });
+            Ok(())
+        }
+    }
+
+    impl<T: Deserialize> Deserialize for SearchList<T> {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct SearchListBuilder<'a, T> {
+        out: &'a mut Option<SearchList<T>>,
+        data: Option<Vec<T>>,
+        has_more: Option<bool>,
+        total_count: Option<Option<u64>>,
+        url: Option<String>,
+        next_page: Option<Option<String>>,
+    }
+
+    impl<T: Deserialize> Visitor for Place<SearchList<T>> {
+        fn map(&mut self) -> miniserde::Result<Box<dyn Map + '_>> {
+            Ok(Box::new(SearchListBuilder {
+                out: &mut self.out,
+                data: Deserialize::default(),
+                has_more: Deserialize::default(),
+                total_count: Deserialize::default(),
+                url: Deserialize::default(),
+                next_page: Deserialize::default(),
+            }))
+        }
+    }
+
+    impl<'a, T: Deserialize> Map for SearchListBuilder<'a, T> {
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "url" => Ok(Deserialize::begin(&mut self.url)),
+                "data" => Ok(Deserialize::begin(&mut self.data)),
+                "has_more" => Ok(Deserialize::begin(&mut self.has_more)),
+                "total_count" => Ok(Deserialize::begin(&mut self.total_count)),
+                "next_page" => Ok(Deserialize::begin(&mut self.next_page)),
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn finish(&mut self) -> miniserde::Result<()> {
+            let url = self.url.take().ok_or(Error)?;
+            let data = self.data.take().ok_or(Error)?;
+            let has_more = self.has_more.take().ok_or(Error)?;
+            let total_count = self.total_count.take().ok_or(Error)?;
+            let next_page = self.next_page.take().ok_or(Error)?;
+            *self.out = Some(SearchList { data, has_more, total_count, url, next_page });
+            Ok(())
         }
     }
 }

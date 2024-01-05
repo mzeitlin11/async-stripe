@@ -20,7 +20,7 @@ pub struct CreateAccountLink<'a> {
     pub return_url: Option<&'a str>,
     /// The type of account link the user is requesting.
     /// Possible values are `account_onboarding` or `account_update`.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: CreateAccountLinkType,
 }
 impl<'a> CreateAccountLink<'a> {

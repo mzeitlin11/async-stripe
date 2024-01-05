@@ -1,8 +1,9 @@
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct InboundTransfersPaymentMethodDetailsUsBankAccount {
     /// Account holder type: individual or company.
-    pub account_holder_type:
-        Option<InboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType>,
+    pub account_holder_type: Option<InboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType>,
     /// Account type: checkings or savings. Defaults to checking if omitted.
     pub account_type: Option<InboundTransfersPaymentMethodDetailsUsBankAccountAccountType>,
     /// Name of the bank associated with the bank account.
@@ -17,6 +18,98 @@ pub struct InboundTransfersPaymentMethodDetailsUsBankAccount {
     /// Routing number of the bank account.
     pub routing_number: Option<String>,
 }
+#[cfg(feature = "min-ser")]
+pub struct InboundTransfersPaymentMethodDetailsUsBankAccountBuilder {
+    account_holder_type: Option<Option<InboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType>>,
+    account_type: Option<Option<InboundTransfersPaymentMethodDetailsUsBankAccountAccountType>>,
+    bank_name: Option<Option<String>>,
+    fingerprint: Option<Option<String>>,
+    last4: Option<Option<String>>,
+    network: Option<InboundTransfersPaymentMethodDetailsUsBankAccountNetwork>,
+    routing_number: Option<Option<String>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for InboundTransfersPaymentMethodDetailsUsBankAccount {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<InboundTransfersPaymentMethodDetailsUsBankAccount>,
+        builder: InboundTransfersPaymentMethodDetailsUsBankAccountBuilder,
+    }
+
+    impl Visitor for Place<InboundTransfersPaymentMethodDetailsUsBankAccount> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: InboundTransfersPaymentMethodDetailsUsBankAccountBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for InboundTransfersPaymentMethodDetailsUsBankAccountBuilder {
+        type Out = InboundTransfersPaymentMethodDetailsUsBankAccount;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "account_holder_type" => Ok(Deserialize::begin(&mut self.account_holder_type)),
+                "account_type" => Ok(Deserialize::begin(&mut self.account_type)),
+                "bank_name" => Ok(Deserialize::begin(&mut self.bank_name)),
+                "fingerprint" => Ok(Deserialize::begin(&mut self.fingerprint)),
+                "last4" => Ok(Deserialize::begin(&mut self.last4)),
+                "network" => Ok(Deserialize::begin(&mut self.network)),
+                "routing_number" => Ok(Deserialize::begin(&mut self.routing_number)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                account_holder_type: Deserialize::default(),
+                account_type: Deserialize::default(),
+                bank_name: Deserialize::default(),
+                fingerprint: Deserialize::default(),
+                last4: Deserialize::default(),
+                network: Deserialize::default(),
+                routing_number: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let account_holder_type = self.account_holder_type.take()?;
+            let account_type = self.account_type.take()?;
+            let bank_name = self.bank_name.take()?;
+            let fingerprint = self.fingerprint.take()?;
+            let last4 = self.last4.take()?;
+            let network = self.network.take()?;
+            let routing_number = self.routing_number.take()?;
+
+            Some(Self::Out { account_holder_type, account_type, bank_name, fingerprint, last4, network, routing_number })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for InboundTransfersPaymentMethodDetailsUsBankAccount {
+        type Builder = InboundTransfersPaymentMethodDetailsUsBankAccountBuilder;
+    }
+};
 /// Account holder type: individual or company.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum InboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType {
@@ -68,13 +161,26 @@ impl serde::Serialize for InboundTransfersPaymentMethodDetailsUsBankAccountAccou
         serializer.serialize_str(self.as_str())
     }
 }
-impl<'de> serde::Deserialize<'de>
-    for InboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType
-{
+impl<'de> serde::Deserialize<'de> for InboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for InboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for InboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<InboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(InboundTransfersPaymentMethodDetailsUsBankAccountAccountHolderType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// Account type: checkings or savings. Defaults to checking if omitted.
@@ -132,11 +238,22 @@ impl<'de> serde::Deserialize<'de> for InboundTransfersPaymentMethodDetailsUsBank
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for InboundTransfersPaymentMethodDetailsUsBankAccountAccountType",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for InboundTransfersPaymentMethodDetailsUsBankAccountAccountType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for InboundTransfersPaymentMethodDetailsUsBankAccountAccountType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<InboundTransfersPaymentMethodDetailsUsBankAccountAccountType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(InboundTransfersPaymentMethodDetailsUsBankAccountAccountType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// The US bank account network used to debit funds.
@@ -191,10 +308,21 @@ impl<'de> serde::Deserialize<'de> for InboundTransfersPaymentMethodDetailsUsBank
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom(
-                "Unknown value for InboundTransfersPaymentMethodDetailsUsBankAccountNetwork",
-            )
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for InboundTransfersPaymentMethodDetailsUsBankAccountNetwork"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for InboundTransfersPaymentMethodDetailsUsBankAccountNetwork {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<InboundTransfersPaymentMethodDetailsUsBankAccountNetwork> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(InboundTransfersPaymentMethodDetailsUsBankAccountNetwork::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

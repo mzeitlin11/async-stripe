@@ -1,8 +1,76 @@
-#[derive(Copy, Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Copy, Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct TreasuryInboundTransfersResourceFailureDetails {
     /// Reason for the failure.
     pub code: TreasuryInboundTransfersResourceFailureDetailsCode,
 }
+#[cfg(feature = "min-ser")]
+pub struct TreasuryInboundTransfersResourceFailureDetailsBuilder {
+    code: Option<TreasuryInboundTransfersResourceFailureDetailsCode>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for TreasuryInboundTransfersResourceFailureDetails {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<TreasuryInboundTransfersResourceFailureDetails>,
+        builder: TreasuryInboundTransfersResourceFailureDetailsBuilder,
+    }
+
+    impl Visitor for Place<TreasuryInboundTransfersResourceFailureDetails> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: TreasuryInboundTransfersResourceFailureDetailsBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for TreasuryInboundTransfersResourceFailureDetailsBuilder {
+        type Out = TreasuryInboundTransfersResourceFailureDetails;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "code" => Ok(Deserialize::begin(&mut self.code)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self { code: Deserialize::default() }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let code = self.code.take()?;
+
+            Some(Self::Out { code })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for TreasuryInboundTransfersResourceFailureDetails {
+        type Builder = TreasuryInboundTransfersResourceFailureDetailsBuilder;
+    }
+};
 /// Reason for the failure.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -95,7 +163,21 @@ impl<'de> serde::Deserialize<'de> for TreasuryInboundTransfersResourceFailureDet
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Ok(Self::from_str(&s)
-            .unwrap_or(TreasuryInboundTransfersResourceFailureDetailsCode::Unknown))
+        Ok(Self::from_str(&s).unwrap_or(Self::Unknown))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TreasuryInboundTransfersResourceFailureDetailsCode {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TreasuryInboundTransfersResourceFailureDetailsCode> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TreasuryInboundTransfersResourceFailureDetailsCode::from_str(s).unwrap_or(TreasuryInboundTransfersResourceFailureDetailsCode::Unknown));
+        Ok(())
     }
 }

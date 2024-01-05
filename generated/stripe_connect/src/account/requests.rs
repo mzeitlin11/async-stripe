@@ -28,11 +28,7 @@ impl<'a> RetrieveAccount<'a> {
 }
 impl<'a> RetrieveAccount<'a> {
     /// Retrieves the details of an account.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-    ) -> stripe::Response<stripe_shared::Account> {
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId) -> stripe::Response<stripe_shared::Account> {
         client.get_query(&format!("/accounts/{account}"), self)
     }
 }
@@ -779,11 +775,7 @@ impl<'a> UpdateAccount<'a> {
     /// To update your own account, use the [Dashboard](https://dashboard.stripe.com/settings/account).
     /// Refer to our.
     /// [Connect](https://stripe.com/docs/connect/updating-accounts) documentation to learn more about updating accounts.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-    ) -> stripe::Response<stripe_shared::Account> {
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId) -> stripe::Response<stripe_shared::Account> {
         client.send_form(&format!("/accounts/{account}"), self, http_types::Method::Post)
     }
 }
@@ -817,10 +809,7 @@ impl<'a> ListAccount<'a> {
 impl<'a> ListAccount<'a> {
     /// Returns a list of accounts connected to your platform via [Connect](https://stripe.com/docs/connect).
     /// If you’re not a platform, the list is empty.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::Account>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::Account>> {
         client.get_query("/accounts", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Account>> {
@@ -893,7 +882,7 @@ pub struct CreateAccount<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tos_acceptance: Option<TosAcceptanceSpecs<'a>>,
     /// The type of Stripe account to create. May be one of `custom`, `express` or `standard`.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<stripe_shared::AccountType>,
 }
@@ -1591,11 +1580,7 @@ impl DeleteAccount {
     /// Custom or Express accounts created using live-mode keys can only be deleted once all balances are zero.
     ///
     /// If you want to delete your own account, use the [account information tab in your account settings](https://dashboard.stripe.com/settings/account) instead.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-    ) -> stripe::Response<stripe_shared::DeletedAccount> {
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId) -> stripe::Response<stripe_shared::DeletedAccount> {
         client.send_form(&format!("/accounts/{account}"), self, http_types::Method::Delete)
     }
 }
@@ -1617,11 +1602,7 @@ impl<'a> RejectAccount<'a> {
     ///
     /// Test-mode Custom and Express accounts can be rejected at any time.
     /// Accounts created using live-mode keys may only be rejected once all balances are zero.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-    ) -> stripe::Response<stripe_shared::Account> {
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId) -> stripe::Response<stripe_shared::Account> {
         client.send_form(&format!("/accounts/{account}/reject"), self, http_types::Method::Post)
     }
 }
@@ -1680,17 +1661,10 @@ impl PersonsAccountRelationship {
 impl<'a> PersonsAccount<'a> {
     /// Returns a list of people associated with the account’s legal entity.
     /// The people are returned sorted by creation date, with the most recent people appearing first.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::Person>> {
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId) -> stripe::Response<stripe_types::List<stripe_shared::Person>> {
         client.get_query(&format!("/accounts/{account}/persons"), self)
     }
-    pub fn paginate(
-        self,
-        account: &stripe_shared::AccountId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Person>> {
+    pub fn paginate(self, account: &stripe_shared::AccountId) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Person>> {
         stripe::ListPaginator::from_list_params(&format!("/accounts/{account}/persons"), self)
     }
 }
@@ -1708,17 +1682,10 @@ impl<'a> CapabilitiesAccount<'a> {
 impl<'a> CapabilitiesAccount<'a> {
     /// Returns a list of capabilities associated with the account.
     /// The capabilities are returned sorted by creation date, with the most recent capability appearing first.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        account: &stripe_shared::AccountId,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::Capability>> {
+    pub fn send(&self, client: &stripe::Client, account: &stripe_shared::AccountId) -> stripe::Response<stripe_types::List<stripe_shared::Capability>> {
         client.get_query(&format!("/accounts/{account}/capabilities"), self)
     }
-    pub fn paginate(
-        self,
-        account: &stripe_shared::AccountId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Capability>> {
+    pub fn paginate(self, account: &stripe_shared::AccountId) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Capability>> {
         stripe::ListPaginator::from_list_params(&format!("/accounts/{account}/capabilities"), self)
     }
 }

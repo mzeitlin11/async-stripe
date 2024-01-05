@@ -6,7 +6,9 @@ use hmac::{Hmac, Mac};
 use sha2::Sha256;
 use stripe_shared::event::EventType;
 use stripe_shared::ApiVersion;
+use stripe_types::StripeDeserialize;
 
+use crate::WebhookError::BadParse;
 use crate::{EventObject, WebhookError};
 
 #[derive(Clone, Debug)]
@@ -44,7 +46,7 @@ pub struct EventData {
     ///
     /// If an array attribute has any updated elements, this object contains the entire array.
     /// In Stripe API versions 2017-04-06 or earlier, an updated array attribute in this object includes only the updated array elements.
-    pub previous_attributes: Option<serde_json::Value>,
+    pub previous_attributes: Option<stripe_types::Value>,
 }
 
 pub struct Webhook {
@@ -87,7 +89,7 @@ impl Webhook {
             return Err(WebhookError::BadTimestamp(signature.t));
         }
 
-        let base_evt: stripe_shared::Event = serde_json::from_str(payload)?;
+        let base_evt = stripe_shared::Event::deserialize(payload).map_err(|_| BadParse)?;
 
         Ok(Event {
             account: base_evt.account,
@@ -96,7 +98,8 @@ impl Webhook {
                 .map(|s| ApiVersion::from_str(&s).unwrap_or(ApiVersion::Unknown)),
             created: base_evt.created,
             data: EventData {
-                object: serde_json::from_value(base_evt.data.object)?,
+                // object: serde_json::from_value(base_evt.data.object)?,
+                object: todo!(),
                 previous_attributes: base_evt.data.previous_attributes,
             },
             id: base_evt.id,

@@ -87,7 +87,7 @@ pub struct CreateCreditNoteLines<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_rates: Option<&'a [&'a str]>,
     /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: CreateCreditNoteLinesType,
     /// The integer unit amount in cents (or local equivalent) of the credit note line item.
     /// This `unit_amount` will be multiplied by the quantity to get the full amount to credit for this line item.
@@ -101,17 +101,7 @@ pub struct CreateCreditNoteLines<'a> {
 }
 impl<'a> CreateCreditNoteLines<'a> {
     pub fn new(type_: CreateCreditNoteLinesType) -> Self {
-        Self {
-            amount: None,
-            description: None,
-            invoice_line_item: None,
-            quantity: None,
-            tax_amounts: None,
-            tax_rates: None,
-            type_,
-            unit_amount: None,
-            unit_amount_decimal: None,
-        }
+        Self { amount: None, description: None, invoice_line_item: None, quantity: None, tax_amounts: None, tax_rates: None, type_, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
@@ -277,7 +267,7 @@ pub struct PreviewCreditNoteLines<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_rates: Option<&'a [&'a str]>,
     /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: PreviewCreditNoteLinesType,
     /// The integer unit amount in cents (or local equivalent) of the credit note line item.
     /// This `unit_amount` will be multiplied by the quantity to get the full amount to credit for this line item.
@@ -291,17 +281,7 @@ pub struct PreviewCreditNoteLines<'a> {
 }
 impl<'a> PreviewCreditNoteLines<'a> {
     pub fn new(type_: PreviewCreditNoteLinesType) -> Self {
-        Self {
-            amount: None,
-            description: None,
-            invoice_line_item: None,
-            quantity: None,
-            tax_amounts: None,
-            tax_rates: None,
-            type_,
-            unit_amount: None,
-            unit_amount_decimal: None,
-        }
+        Self { amount: None, description: None, invoice_line_item: None, quantity: None, tax_amounts: None, tax_rates: None, type_, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
@@ -374,11 +354,7 @@ impl<'a> RetrieveCreditNote<'a> {
 }
 impl<'a> RetrieveCreditNote<'a> {
     /// Retrieves the credit note object with the given identifier.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &stripe_shared::CreditNoteId,
-    ) -> stripe::Response<stripe_shared::CreditNote> {
+    pub fn send(&self, client: &stripe::Client, id: &stripe_shared::CreditNoteId) -> stripe::Response<stripe_shared::CreditNote> {
         client.get_query(&format!("/credit_notes/{id}"), self)
     }
 }
@@ -415,10 +391,7 @@ impl<'a> ListCreditNote<'a> {
 }
 impl<'a> ListCreditNote<'a> {
     /// Returns a list of credit notes.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::CreditNote>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::CreditNote>> {
         client.get_query("/credit_notes", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CreditNote>> {
@@ -447,11 +420,7 @@ impl<'a> UpdateCreditNote<'a> {
 }
 impl<'a> UpdateCreditNote<'a> {
     /// Updates an existing credit note.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &stripe_shared::CreditNoteId,
-    ) -> stripe::Response<stripe_shared::CreditNote> {
+    pub fn send(&self, client: &stripe::Client, id: &stripe_shared::CreditNoteId) -> stripe::Response<stripe_shared::CreditNote> {
         client.send_form(&format!("/credit_notes/{id}"), self, http_types::Method::Post)
     }
 }
@@ -469,11 +438,7 @@ impl<'a> VoidCreditNoteCreditNote<'a> {
 impl<'a> VoidCreditNoteCreditNote<'a> {
     /// Marks a credit note as void.
     /// Learn more about [voiding credit notes](https://stripe.com/docs/billing/invoices/credit-notes#voiding).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        id: &stripe_shared::CreditNoteId,
-    ) -> stripe::Response<stripe_shared::CreditNote> {
+    pub fn send(&self, client: &stripe::Client, id: &stripe_shared::CreditNoteId) -> stripe::Response<stripe_shared::CreditNote> {
         client.send_form(&format!("/credit_notes/{id}/void"), self, http_types::Method::Post)
     }
 }
@@ -583,7 +548,7 @@ pub struct PreviewLinesCreditNoteLines<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tax_rates: Option<&'a [&'a str]>,
     /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: PreviewLinesCreditNoteLinesType,
     /// The integer unit amount in cents (or local equivalent) of the credit note line item.
     /// This `unit_amount` will be multiplied by the quantity to get the full amount to credit for this line item.
@@ -597,17 +562,7 @@ pub struct PreviewLinesCreditNoteLines<'a> {
 }
 impl<'a> PreviewLinesCreditNoteLines<'a> {
     pub fn new(type_: PreviewLinesCreditNoteLinesType) -> Self {
-        Self {
-            amount: None,
-            description: None,
-            invoice_line_item: None,
-            quantity: None,
-            tax_amounts: None,
-            tax_rates: None,
-            type_,
-            unit_amount: None,
-            unit_amount_decimal: None,
-        }
+        Self { amount: None, description: None, invoice_line_item: None, quantity: None, tax_amounts: None, tax_rates: None, type_, unit_amount: None, unit_amount_decimal: None }
     }
 }
 /// Type of the credit note line item, one of `invoice_line_item` or `custom_line_item`
@@ -664,15 +619,10 @@ impl serde::Serialize for PreviewLinesCreditNoteLinesType {
 impl<'a> PreviewLinesCreditNote<'a> {
     /// When retrieving a credit note preview, you’ll get a **lines** property containing the first handful of those items.
     /// This URL you can retrieve the full (paginated) list of line items.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::CreditNoteLineItem>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::CreditNoteLineItem>> {
         client.get_query("/credit_notes/preview/lines", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CreditNoteLineItem>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::CreditNoteLineItem>> {
         stripe::ListPaginator::from_list_params("/credit_notes/preview/lines", self)
     }
 }

@@ -5,7 +5,9 @@
 /// Related guide: [Topping up your platform account](https://stripe.com/docs/connect/top-ups)
 ///
 /// For more details see <<https://stripe.com/docs/api/topups/object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct Topup {
     /// Amount transferred.
     pub amount: i64,
@@ -45,6 +47,146 @@ pub struct Topup {
     /// A string that identifies this top-up as part of a group.
     pub transfer_group: Option<String>,
 }
+#[cfg(feature = "min-ser")]
+pub struct TopupBuilder {
+    amount: Option<i64>,
+    balance_transaction: Option<Option<stripe_types::Expandable<stripe_shared::BalanceTransaction>>>,
+    created: Option<stripe_types::Timestamp>,
+    currency: Option<stripe_types::Currency>,
+    description: Option<Option<String>>,
+    expected_availability_date: Option<Option<stripe_types::Timestamp>>,
+    failure_code: Option<Option<String>>,
+    failure_message: Option<Option<String>>,
+    id: Option<stripe_shared::TopupId>,
+    livemode: Option<bool>,
+    metadata: Option<std::collections::HashMap<String, String>>,
+    source: Option<Option<stripe_shared::Source>>,
+    statement_descriptor: Option<Option<String>>,
+    status: Option<TopupStatus>,
+    transfer_group: Option<Option<String>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for Topup {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<Topup>,
+        builder: TopupBuilder,
+    }
+
+    impl Visitor for Place<Topup> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: TopupBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for TopupBuilder {
+        type Out = Topup;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "amount" => Ok(Deserialize::begin(&mut self.amount)),
+                "balance_transaction" => Ok(Deserialize::begin(&mut self.balance_transaction)),
+                "created" => Ok(Deserialize::begin(&mut self.created)),
+                "currency" => Ok(Deserialize::begin(&mut self.currency)),
+                "description" => Ok(Deserialize::begin(&mut self.description)),
+                "expected_availability_date" => Ok(Deserialize::begin(&mut self.expected_availability_date)),
+                "failure_code" => Ok(Deserialize::begin(&mut self.failure_code)),
+                "failure_message" => Ok(Deserialize::begin(&mut self.failure_message)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "livemode" => Ok(Deserialize::begin(&mut self.livemode)),
+                "metadata" => Ok(Deserialize::begin(&mut self.metadata)),
+                "source" => Ok(Deserialize::begin(&mut self.source)),
+                "statement_descriptor" => Ok(Deserialize::begin(&mut self.statement_descriptor)),
+                "status" => Ok(Deserialize::begin(&mut self.status)),
+                "transfer_group" => Ok(Deserialize::begin(&mut self.transfer_group)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                amount: Deserialize::default(),
+                balance_transaction: Deserialize::default(),
+                created: Deserialize::default(),
+                currency: Deserialize::default(),
+                description: Deserialize::default(),
+                expected_availability_date: Deserialize::default(),
+                failure_code: Deserialize::default(),
+                failure_message: Deserialize::default(),
+                id: Deserialize::default(),
+                livemode: Deserialize::default(),
+                metadata: Deserialize::default(),
+                source: Deserialize::default(),
+                statement_descriptor: Deserialize::default(),
+                status: Deserialize::default(),
+                transfer_group: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let amount = self.amount.take()?;
+            let balance_transaction = self.balance_transaction.take()?;
+            let created = self.created.take()?;
+            let currency = self.currency.take()?;
+            let description = self.description.take()?;
+            let expected_availability_date = self.expected_availability_date.take()?;
+            let failure_code = self.failure_code.take()?;
+            let failure_message = self.failure_message.take()?;
+            let id = self.id.take()?;
+            let livemode = self.livemode.take()?;
+            let metadata = self.metadata.take()?;
+            let source = self.source.take()?;
+            let statement_descriptor = self.statement_descriptor.take()?;
+            let status = self.status.take()?;
+            let transfer_group = self.transfer_group.take()?;
+
+            Some(Self::Out {
+                amount,
+                balance_transaction,
+                created,
+                currency,
+                description,
+                expected_availability_date,
+                failure_code,
+                failure_message,
+                id,
+                livemode,
+                metadata,
+                source,
+                statement_descriptor,
+                status,
+                transfer_group,
+            })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for Topup {
+        type Builder = TopupBuilder;
+    }
+};
 /// The status of the top-up is either `canceled`, `failed`, `pending`, `reversed`, or `succeeded`.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum TopupStatus {
@@ -110,6 +252,21 @@ impl<'de> serde::Deserialize<'de> for TopupStatus {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TopupStatus"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TopupStatus {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TopupStatus> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TopupStatus::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 impl stripe_types::Object for Topup {

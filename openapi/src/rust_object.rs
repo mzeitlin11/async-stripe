@@ -219,6 +219,11 @@ impl StructField {
         self.doc_comment = Some(doc_comment.to_string());
         self
     }
+
+    /// Expected name of the field when (de)serializing
+    pub fn wire_name(&self) -> &str {
+        self.rename_as.as_ref().unwrap_or(&self.field_name)
+    }
 }
 
 pub struct ObjectRef {
@@ -254,13 +259,23 @@ pub enum ObjectKind {
     Type,
 }
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+pub enum ShouldImplSerialize {
+    Always,
+    SkipIfMinSer,
+    Never,
+}
+
 impl ObjectKind {
     pub fn is_request_param(self) -> bool {
         matches!(self, Self::RequestParam)
     }
 
-    pub fn should_impl_serialize(self) -> bool {
-        true
+    pub fn should_impl_serialize(self) -> ShouldImplSerialize {
+        match self {
+            Self::RequestParam => ShouldImplSerialize::Always,
+            Self::Type | Self::RequestReturned => ShouldImplSerialize::SkipIfMinSer,
+        }
     }
 
     pub fn should_impl_deserialize(self) -> bool {

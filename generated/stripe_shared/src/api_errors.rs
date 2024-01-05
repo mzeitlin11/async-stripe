@@ -1,45 +1,151 @@
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct ApiErrors {
     /// For card errors, the ID of the failed charge.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub charge: Option<String>,
     /// For some errors that could be handled programmatically, a short string indicating the [error code](https://stripe.com/docs/error-codes) reported.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub code: Option<ApiErrorsCode>,
     /// For card errors resulting from a card issuer decline, a short string indicating the [card issuer's reason for the decline](https://stripe.com/docs/declines#issuer-declines) if they provide one.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub decline_code: Option<String>,
     /// A URL to more information about the [error code](https://stripe.com/docs/error-codes) reported.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub doc_url: Option<String>,
     /// A human-readable message providing more details about the error.
     /// For card errors, these messages can be shown to your users.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
     /// If the error is parameter-specific, the parameter related to the error.
     /// For example, you can use this to display a message near the correct form field.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub param: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_intent: Option<stripe_shared::PaymentIntent>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method: Option<stripe_shared::PaymentMethod>,
     /// If the error is specific to the type of payment method, the payment method type that had a problem.
     /// This field is only populated for invoice-related errors.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub payment_method_type: Option<String>,
     /// A URL to the request log entry in your dashboard.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub request_log_url: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub setup_intent: Option<stripe_shared::SetupIntent>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub source: Option<stripe_shared::PaymentSource>,
     /// The type of error returned.
     /// One of `api_error`, `card_error`, `idempotency_error`, or `invalid_request_error`.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     pub type_: ApiErrorsType,
 }
+#[cfg(feature = "min-ser")]
+pub struct ApiErrorsBuilder {
+    charge: Option<Option<String>>,
+    code: Option<Option<ApiErrorsCode>>,
+    decline_code: Option<Option<String>>,
+    doc_url: Option<Option<String>>,
+    message: Option<Option<String>>,
+    param: Option<Option<String>>,
+    payment_intent: Option<Option<stripe_shared::PaymentIntent>>,
+    payment_method: Option<Option<stripe_shared::PaymentMethod>>,
+    payment_method_type: Option<Option<String>>,
+    request_log_url: Option<Option<String>>,
+    setup_intent: Option<Option<stripe_shared::SetupIntent>>,
+    source: Option<Option<stripe_shared::PaymentSource>>,
+    type_: Option<ApiErrorsType>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for ApiErrors {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<ApiErrors>,
+        builder: ApiErrorsBuilder,
+    }
+
+    impl Visitor for Place<ApiErrors> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: ApiErrorsBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for ApiErrorsBuilder {
+        type Out = ApiErrors;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "charge" => Ok(Deserialize::begin(&mut self.charge)),
+                "code" => Ok(Deserialize::begin(&mut self.code)),
+                "decline_code" => Ok(Deserialize::begin(&mut self.decline_code)),
+                "doc_url" => Ok(Deserialize::begin(&mut self.doc_url)),
+                "message" => Ok(Deserialize::begin(&mut self.message)),
+                "param" => Ok(Deserialize::begin(&mut self.param)),
+                "payment_intent" => Ok(Deserialize::begin(&mut self.payment_intent)),
+                "payment_method" => Ok(Deserialize::begin(&mut self.payment_method)),
+                "payment_method_type" => Ok(Deserialize::begin(&mut self.payment_method_type)),
+                "request_log_url" => Ok(Deserialize::begin(&mut self.request_log_url)),
+                "setup_intent" => Ok(Deserialize::begin(&mut self.setup_intent)),
+                "source" => Ok(Deserialize::begin(&mut self.source)),
+                "type" => Ok(Deserialize::begin(&mut self.type_)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                charge: Deserialize::default(),
+                code: Deserialize::default(),
+                decline_code: Deserialize::default(),
+                doc_url: Deserialize::default(),
+                message: Deserialize::default(),
+                param: Deserialize::default(),
+                payment_intent: Deserialize::default(),
+                payment_method: Deserialize::default(),
+                payment_method_type: Deserialize::default(),
+                request_log_url: Deserialize::default(),
+                setup_intent: Deserialize::default(),
+                source: Deserialize::default(),
+                type_: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let charge = self.charge.take()?;
+            let code = self.code.take()?;
+            let decline_code = self.decline_code.take()?;
+            let doc_url = self.doc_url.take()?;
+            let message = self.message.take()?;
+            let param = self.param.take()?;
+            let payment_intent = self.payment_intent.take()?;
+            let payment_method = self.payment_method.take()?;
+            let payment_method_type = self.payment_method_type.take()?;
+            let request_log_url = self.request_log_url.take()?;
+            let setup_intent = self.setup_intent.take()?;
+            let source = self.source.take()?;
+            let type_ = self.type_.take()?;
+
+            Some(Self::Out { charge, code, decline_code, doc_url, message, param, payment_intent, payment_method, payment_method_type, request_log_url, setup_intent, source, type_ })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for ApiErrors {
+        type Builder = ApiErrorsBuilder;
+    }
+};
 /// For some errors that could be handled programmatically, a short string indicating the [error code](https://stripe.com/docs/error-codes) reported.
 #[derive(Copy, Clone, Eq, PartialEq)]
 #[non_exhaustive]
@@ -213,9 +319,7 @@ impl ApiErrorsCode {
         match self {
             AccountClosed => "account_closed",
             AccountCountryInvalidAddress => "account_country_invalid_address",
-            AccountErrorCountryChangeRequiresAdditionalSteps => {
-                "account_error_country_change_requires_additional_steps"
-            }
+            AccountErrorCountryChangeRequiresAdditionalSteps => "account_error_country_change_requires_additional_steps",
             AccountInformationMismatch => "account_information_mismatch",
             AccountInvalid => "account_invalid",
             AccountNumberInvalid => "account_number_invalid",
@@ -304,41 +408,25 @@ impl ApiErrorsCode {
             PaymentIntentAuthenticationFailure => "payment_intent_authentication_failure",
             PaymentIntentIncompatiblePaymentMethod => "payment_intent_incompatible_payment_method",
             PaymentIntentInvalidParameter => "payment_intent_invalid_parameter",
-            PaymentIntentKonbiniRejectedConfirmationNumber => {
-                "payment_intent_konbini_rejected_confirmation_number"
-            }
+            PaymentIntentKonbiniRejectedConfirmationNumber => "payment_intent_konbini_rejected_confirmation_number",
             PaymentIntentMandateInvalid => "payment_intent_mandate_invalid",
             PaymentIntentPaymentAttemptExpired => "payment_intent_payment_attempt_expired",
             PaymentIntentPaymentAttemptFailed => "payment_intent_payment_attempt_failed",
             PaymentIntentUnexpectedState => "payment_intent_unexpected_state",
-            PaymentMethodBankAccountAlreadyVerified => {
-                "payment_method_bank_account_already_verified"
-            }
+            PaymentMethodBankAccountAlreadyVerified => "payment_method_bank_account_already_verified",
             PaymentMethodBankAccountBlocked => "payment_method_bank_account_blocked",
-            PaymentMethodBillingDetailsAddressMissing => {
-                "payment_method_billing_details_address_missing"
-            }
+            PaymentMethodBillingDetailsAddressMissing => "payment_method_billing_details_address_missing",
             PaymentMethodConfigurationFailures => "payment_method_configuration_failures",
             PaymentMethodCurrencyMismatch => "payment_method_currency_mismatch",
             PaymentMethodCustomerDecline => "payment_method_customer_decline",
             PaymentMethodInvalidParameter => "payment_method_invalid_parameter",
             PaymentMethodInvalidParameterTestmode => "payment_method_invalid_parameter_testmode",
             PaymentMethodMicrodepositFailed => "payment_method_microdeposit_failed",
-            PaymentMethodMicrodepositVerificationAmountsInvalid => {
-                "payment_method_microdeposit_verification_amounts_invalid"
-            }
-            PaymentMethodMicrodepositVerificationAmountsMismatch => {
-                "payment_method_microdeposit_verification_amounts_mismatch"
-            }
-            PaymentMethodMicrodepositVerificationAttemptsExceeded => {
-                "payment_method_microdeposit_verification_attempts_exceeded"
-            }
-            PaymentMethodMicrodepositVerificationDescriptorCodeMismatch => {
-                "payment_method_microdeposit_verification_descriptor_code_mismatch"
-            }
-            PaymentMethodMicrodepositVerificationTimeout => {
-                "payment_method_microdeposit_verification_timeout"
-            }
+            PaymentMethodMicrodepositVerificationAmountsInvalid => "payment_method_microdeposit_verification_amounts_invalid",
+            PaymentMethodMicrodepositVerificationAmountsMismatch => "payment_method_microdeposit_verification_amounts_mismatch",
+            PaymentMethodMicrodepositVerificationAttemptsExceeded => "payment_method_microdeposit_verification_attempts_exceeded",
+            PaymentMethodMicrodepositVerificationDescriptorCodeMismatch => "payment_method_microdeposit_verification_descriptor_code_mismatch",
+            PaymentMethodMicrodepositVerificationTimeout => "payment_method_microdeposit_verification_timeout",
             PaymentMethodNotAvailable => "payment_method_not_available",
             PaymentMethodProviderDecline => "payment_method_provider_decline",
             PaymentMethodProviderTimeout => "payment_method_provider_timeout",
@@ -386,9 +474,7 @@ impl ApiErrorsCode {
             TokenAlreadyUsed => "token_already_used",
             TokenCardNetworkInvalid => "token_card_network_invalid",
             TokenInUse => "token_in_use",
-            TransferSourceBalanceParametersMismatch => {
-                "transfer_source_balance_parameters_mismatch"
-            }
+            TransferSourceBalanceParametersMismatch => "transfer_source_balance_parameters_mismatch",
             TransfersNotAllowed => "transfers_not_allowed",
             UrlInvalid => "url_invalid",
             Unknown => "unknown",
@@ -403,9 +489,7 @@ impl std::str::FromStr for ApiErrorsCode {
         match s {
             "account_closed" => Ok(AccountClosed),
             "account_country_invalid_address" => Ok(AccountCountryInvalidAddress),
-            "account_error_country_change_requires_additional_steps" => {
-                Ok(AccountErrorCountryChangeRequiresAdditionalSteps)
-            }
+            "account_error_country_change_requires_additional_steps" => Ok(AccountErrorCountryChangeRequiresAdditionalSteps),
             "account_information_mismatch" => Ok(AccountInformationMismatch),
             "account_invalid" => Ok(AccountInvalid),
             "account_number_invalid" => Ok(AccountNumberInvalid),
@@ -492,47 +576,27 @@ impl std::str::FromStr for ApiErrorsCode {
             "parameters_exclusive" => Ok(ParametersExclusive),
             "payment_intent_action_required" => Ok(PaymentIntentActionRequired),
             "payment_intent_authentication_failure" => Ok(PaymentIntentAuthenticationFailure),
-            "payment_intent_incompatible_payment_method" => {
-                Ok(PaymentIntentIncompatiblePaymentMethod)
-            }
+            "payment_intent_incompatible_payment_method" => Ok(PaymentIntentIncompatiblePaymentMethod),
             "payment_intent_invalid_parameter" => Ok(PaymentIntentInvalidParameter),
-            "payment_intent_konbini_rejected_confirmation_number" => {
-                Ok(PaymentIntentKonbiniRejectedConfirmationNumber)
-            }
+            "payment_intent_konbini_rejected_confirmation_number" => Ok(PaymentIntentKonbiniRejectedConfirmationNumber),
             "payment_intent_mandate_invalid" => Ok(PaymentIntentMandateInvalid),
             "payment_intent_payment_attempt_expired" => Ok(PaymentIntentPaymentAttemptExpired),
             "payment_intent_payment_attempt_failed" => Ok(PaymentIntentPaymentAttemptFailed),
             "payment_intent_unexpected_state" => Ok(PaymentIntentUnexpectedState),
-            "payment_method_bank_account_already_verified" => {
-                Ok(PaymentMethodBankAccountAlreadyVerified)
-            }
+            "payment_method_bank_account_already_verified" => Ok(PaymentMethodBankAccountAlreadyVerified),
             "payment_method_bank_account_blocked" => Ok(PaymentMethodBankAccountBlocked),
-            "payment_method_billing_details_address_missing" => {
-                Ok(PaymentMethodBillingDetailsAddressMissing)
-            }
+            "payment_method_billing_details_address_missing" => Ok(PaymentMethodBillingDetailsAddressMissing),
             "payment_method_configuration_failures" => Ok(PaymentMethodConfigurationFailures),
             "payment_method_currency_mismatch" => Ok(PaymentMethodCurrencyMismatch),
             "payment_method_customer_decline" => Ok(PaymentMethodCustomerDecline),
             "payment_method_invalid_parameter" => Ok(PaymentMethodInvalidParameter),
-            "payment_method_invalid_parameter_testmode" => {
-                Ok(PaymentMethodInvalidParameterTestmode)
-            }
+            "payment_method_invalid_parameter_testmode" => Ok(PaymentMethodInvalidParameterTestmode),
             "payment_method_microdeposit_failed" => Ok(PaymentMethodMicrodepositFailed),
-            "payment_method_microdeposit_verification_amounts_invalid" => {
-                Ok(PaymentMethodMicrodepositVerificationAmountsInvalid)
-            }
-            "payment_method_microdeposit_verification_amounts_mismatch" => {
-                Ok(PaymentMethodMicrodepositVerificationAmountsMismatch)
-            }
-            "payment_method_microdeposit_verification_attempts_exceeded" => {
-                Ok(PaymentMethodMicrodepositVerificationAttemptsExceeded)
-            }
-            "payment_method_microdeposit_verification_descriptor_code_mismatch" => {
-                Ok(PaymentMethodMicrodepositVerificationDescriptorCodeMismatch)
-            }
-            "payment_method_microdeposit_verification_timeout" => {
-                Ok(PaymentMethodMicrodepositVerificationTimeout)
-            }
+            "payment_method_microdeposit_verification_amounts_invalid" => Ok(PaymentMethodMicrodepositVerificationAmountsInvalid),
+            "payment_method_microdeposit_verification_amounts_mismatch" => Ok(PaymentMethodMicrodepositVerificationAmountsMismatch),
+            "payment_method_microdeposit_verification_attempts_exceeded" => Ok(PaymentMethodMicrodepositVerificationAttemptsExceeded),
+            "payment_method_microdeposit_verification_descriptor_code_mismatch" => Ok(PaymentMethodMicrodepositVerificationDescriptorCodeMismatch),
+            "payment_method_microdeposit_verification_timeout" => Ok(PaymentMethodMicrodepositVerificationTimeout),
             "payment_method_not_available" => Ok(PaymentMethodNotAvailable),
             "payment_method_provider_decline" => Ok(PaymentMethodProviderDecline),
             "payment_method_provider_timeout" => Ok(PaymentMethodProviderTimeout),
@@ -580,9 +644,7 @@ impl std::str::FromStr for ApiErrorsCode {
             "token_already_used" => Ok(TokenAlreadyUsed),
             "token_card_network_invalid" => Ok(TokenCardNetworkInvalid),
             "token_in_use" => Ok(TokenInUse),
-            "transfer_source_balance_parameters_mismatch" => {
-                Ok(TransferSourceBalanceParametersMismatch)
-            }
+            "transfer_source_balance_parameters_mismatch" => Ok(TransferSourceBalanceParametersMismatch),
             "transfers_not_allowed" => Ok(TransfersNotAllowed),
             "url_invalid" => Ok(UrlInvalid),
             _ => Err(()),
@@ -617,7 +679,22 @@ impl<'de> serde::Deserialize<'de> for ApiErrorsCode {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Ok(Self::from_str(&s).unwrap_or(ApiErrorsCode::Unknown))
+        Ok(Self::from_str(&s).unwrap_or(Self::Unknown))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for ApiErrorsCode {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<ApiErrorsCode> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(ApiErrorsCode::from_str(s).unwrap_or(ApiErrorsCode::Unknown));
+        Ok(())
     }
 }
 /// The type of error returned.
@@ -683,5 +760,20 @@ impl<'de> serde::Deserialize<'de> for ApiErrorsType {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
         Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for ApiErrorsType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for ApiErrorsType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<ApiErrorsType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(ApiErrorsType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

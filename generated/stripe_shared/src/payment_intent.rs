@@ -11,7 +11,9 @@
 /// Related guide: [Payment Intents API](https://stripe.com/docs/payments/payment-intents)
 ///
 /// For more details see <<https://stripe.com/docs/api/payment_intents/object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct PaymentIntent {
     /// Amount intended to be collected by this PaymentIntent.
     /// A positive integer representing how much to charge in the [smallest currency unit](https://stripe.com/docs/currencies#zero-decimal) (e.g., 100 cents to charge $1.00 or 100 to charge ¥100, a zero-decimal currency).
@@ -20,7 +22,6 @@ pub struct PaymentIntent {
     pub amount: i64,
     /// Amount that can be captured from this PaymentIntent.
     pub amount_capturable: i64,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub amount_details: Option<stripe_shared::PaymentFlowsAmountDetails>,
     /// Amount that this PaymentIntent collects.
     pub amount_received: i64,
@@ -31,8 +32,7 @@ pub struct PaymentIntent {
     /// For more information, see the PaymentIntents [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts).
     pub application_fee_amount: Option<i64>,
     /// Settings to configure compatible payment methods from the [Stripe Dashboard](https://dashboard.stripe.com/settings/payment_methods).
-    pub automatic_payment_methods:
-        Option<stripe_shared::PaymentFlowsAutomaticPaymentMethodsPaymentIntent>,
+    pub automatic_payment_methods: Option<stripe_shared::PaymentFlowsAutomaticPaymentMethodsPaymentIntent>,
     /// Populated when `status` is `canceled`, this is the time at which the PaymentIntent was canceled.
     /// Measured in seconds since the Unix epoch.
     pub canceled_at: Option<stripe_types::Timestamp>,
@@ -85,8 +85,7 @@ pub struct PaymentIntent {
     /// ID of the payment method used in this PaymentIntent.
     pub payment_method: Option<stripe_types::Expandable<stripe_shared::PaymentMethod>>,
     /// Information about the payment method configuration used for this PaymentIntent.
-    pub payment_method_configuration_details:
-        Option<stripe_shared::PaymentMethodConfigBizPaymentMethodConfigurationDetails>,
+    pub payment_method_configuration_details: Option<stripe_shared::PaymentMethodConfigBizPaymentMethodConfigurationDetails>,
     /// Payment-method-specific configuration for this PaymentIntent.
     pub payment_method_options: Option<stripe_shared::PaymentIntentPaymentMethodOptions>,
     /// The list of payment method types (e.g. card) that this PaymentIntent is allowed to use.
@@ -127,6 +126,266 @@ pub struct PaymentIntent {
     /// Learn more about the [use case for connected accounts](https://stripe.com/docs/connect/separate-charges-and-transfers).
     pub transfer_group: Option<String>,
 }
+#[cfg(feature = "min-ser")]
+pub struct PaymentIntentBuilder {
+    amount: Option<i64>,
+    amount_capturable: Option<i64>,
+    amount_details: Option<Option<stripe_shared::PaymentFlowsAmountDetails>>,
+    amount_received: Option<i64>,
+    application: Option<Option<stripe_types::Expandable<stripe_shared::Application>>>,
+    application_fee_amount: Option<Option<i64>>,
+    automatic_payment_methods: Option<Option<stripe_shared::PaymentFlowsAutomaticPaymentMethodsPaymentIntent>>,
+    canceled_at: Option<Option<stripe_types::Timestamp>>,
+    cancellation_reason: Option<Option<PaymentIntentCancellationReason>>,
+    capture_method: Option<stripe_shared::PaymentIntentCaptureMethod>,
+    client_secret: Option<Option<String>>,
+    confirmation_method: Option<stripe_shared::PaymentIntentConfirmationMethod>,
+    created: Option<stripe_types::Timestamp>,
+    currency: Option<stripe_types::Currency>,
+    customer: Option<Option<stripe_types::Expandable<stripe_shared::Customer>>>,
+    description: Option<Option<String>>,
+    id: Option<stripe_shared::PaymentIntentId>,
+    invoice: Option<Option<stripe_types::Expandable<stripe_shared::Invoice>>>,
+    last_payment_error: Option<Option<Box<stripe_shared::ApiErrors>>>,
+    latest_charge: Option<Option<stripe_types::Expandable<stripe_shared::Charge>>>,
+    livemode: Option<bool>,
+    metadata: Option<std::collections::HashMap<String, String>>,
+    next_action: Option<Option<stripe_shared::PaymentIntentNextAction>>,
+    on_behalf_of: Option<Option<stripe_types::Expandable<stripe_shared::Account>>>,
+    payment_method: Option<Option<stripe_types::Expandable<stripe_shared::PaymentMethod>>>,
+    payment_method_configuration_details: Option<Option<stripe_shared::PaymentMethodConfigBizPaymentMethodConfigurationDetails>>,
+    payment_method_options: Option<Option<stripe_shared::PaymentIntentPaymentMethodOptions>>,
+    payment_method_types: Option<Vec<String>>,
+    processing: Option<Option<stripe_shared::PaymentIntentProcessing>>,
+    receipt_email: Option<Option<String>>,
+    review: Option<Option<stripe_types::Expandable<stripe_shared::Review>>>,
+    setup_future_usage: Option<Option<stripe_shared::PaymentIntentSetupFutureUsage>>,
+    shipping: Option<Option<stripe_shared::Shipping>>,
+    source: Option<Option<stripe_types::Expandable<stripe_shared::PaymentSource>>>,
+    statement_descriptor: Option<Option<String>>,
+    statement_descriptor_suffix: Option<Option<String>>,
+    status: Option<PaymentIntentStatus>,
+    transfer_data: Option<Option<stripe_shared::TransferData>>,
+    transfer_group: Option<Option<String>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for PaymentIntent {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<PaymentIntent>,
+        builder: PaymentIntentBuilder,
+    }
+
+    impl Visitor for Place<PaymentIntent> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: PaymentIntentBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for PaymentIntentBuilder {
+        type Out = PaymentIntent;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "amount" => Ok(Deserialize::begin(&mut self.amount)),
+                "amount_capturable" => Ok(Deserialize::begin(&mut self.amount_capturable)),
+                "amount_details" => Ok(Deserialize::begin(&mut self.amount_details)),
+                "amount_received" => Ok(Deserialize::begin(&mut self.amount_received)),
+                "application" => Ok(Deserialize::begin(&mut self.application)),
+                "application_fee_amount" => Ok(Deserialize::begin(&mut self.application_fee_amount)),
+                "automatic_payment_methods" => Ok(Deserialize::begin(&mut self.automatic_payment_methods)),
+                "canceled_at" => Ok(Deserialize::begin(&mut self.canceled_at)),
+                "cancellation_reason" => Ok(Deserialize::begin(&mut self.cancellation_reason)),
+                "capture_method" => Ok(Deserialize::begin(&mut self.capture_method)),
+                "client_secret" => Ok(Deserialize::begin(&mut self.client_secret)),
+                "confirmation_method" => Ok(Deserialize::begin(&mut self.confirmation_method)),
+                "created" => Ok(Deserialize::begin(&mut self.created)),
+                "currency" => Ok(Deserialize::begin(&mut self.currency)),
+                "customer" => Ok(Deserialize::begin(&mut self.customer)),
+                "description" => Ok(Deserialize::begin(&mut self.description)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "invoice" => Ok(Deserialize::begin(&mut self.invoice)),
+                "last_payment_error" => Ok(Deserialize::begin(&mut self.last_payment_error)),
+                "latest_charge" => Ok(Deserialize::begin(&mut self.latest_charge)),
+                "livemode" => Ok(Deserialize::begin(&mut self.livemode)),
+                "metadata" => Ok(Deserialize::begin(&mut self.metadata)),
+                "next_action" => Ok(Deserialize::begin(&mut self.next_action)),
+                "on_behalf_of" => Ok(Deserialize::begin(&mut self.on_behalf_of)),
+                "payment_method" => Ok(Deserialize::begin(&mut self.payment_method)),
+                "payment_method_configuration_details" => Ok(Deserialize::begin(&mut self.payment_method_configuration_details)),
+                "payment_method_options" => Ok(Deserialize::begin(&mut self.payment_method_options)),
+                "payment_method_types" => Ok(Deserialize::begin(&mut self.payment_method_types)),
+                "processing" => Ok(Deserialize::begin(&mut self.processing)),
+                "receipt_email" => Ok(Deserialize::begin(&mut self.receipt_email)),
+                "review" => Ok(Deserialize::begin(&mut self.review)),
+                "setup_future_usage" => Ok(Deserialize::begin(&mut self.setup_future_usage)),
+                "shipping" => Ok(Deserialize::begin(&mut self.shipping)),
+                "source" => Ok(Deserialize::begin(&mut self.source)),
+                "statement_descriptor" => Ok(Deserialize::begin(&mut self.statement_descriptor)),
+                "statement_descriptor_suffix" => Ok(Deserialize::begin(&mut self.statement_descriptor_suffix)),
+                "status" => Ok(Deserialize::begin(&mut self.status)),
+                "transfer_data" => Ok(Deserialize::begin(&mut self.transfer_data)),
+                "transfer_group" => Ok(Deserialize::begin(&mut self.transfer_group)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                amount: Deserialize::default(),
+                amount_capturable: Deserialize::default(),
+                amount_details: Deserialize::default(),
+                amount_received: Deserialize::default(),
+                application: Deserialize::default(),
+                application_fee_amount: Deserialize::default(),
+                automatic_payment_methods: Deserialize::default(),
+                canceled_at: Deserialize::default(),
+                cancellation_reason: Deserialize::default(),
+                capture_method: Deserialize::default(),
+                client_secret: Deserialize::default(),
+                confirmation_method: Deserialize::default(),
+                created: Deserialize::default(),
+                currency: Deserialize::default(),
+                customer: Deserialize::default(),
+                description: Deserialize::default(),
+                id: Deserialize::default(),
+                invoice: Deserialize::default(),
+                last_payment_error: Deserialize::default(),
+                latest_charge: Deserialize::default(),
+                livemode: Deserialize::default(),
+                metadata: Deserialize::default(),
+                next_action: Deserialize::default(),
+                on_behalf_of: Deserialize::default(),
+                payment_method: Deserialize::default(),
+                payment_method_configuration_details: Deserialize::default(),
+                payment_method_options: Deserialize::default(),
+                payment_method_types: Deserialize::default(),
+                processing: Deserialize::default(),
+                receipt_email: Deserialize::default(),
+                review: Deserialize::default(),
+                setup_future_usage: Deserialize::default(),
+                shipping: Deserialize::default(),
+                source: Deserialize::default(),
+                statement_descriptor: Deserialize::default(),
+                statement_descriptor_suffix: Deserialize::default(),
+                status: Deserialize::default(),
+                transfer_data: Deserialize::default(),
+                transfer_group: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let amount = self.amount.take()?;
+            let amount_capturable = self.amount_capturable.take()?;
+            let amount_details = self.amount_details.take()?;
+            let amount_received = self.amount_received.take()?;
+            let application = self.application.take()?;
+            let application_fee_amount = self.application_fee_amount.take()?;
+            let automatic_payment_methods = self.automatic_payment_methods.take()?;
+            let canceled_at = self.canceled_at.take()?;
+            let cancellation_reason = self.cancellation_reason.take()?;
+            let capture_method = self.capture_method.take()?;
+            let client_secret = self.client_secret.take()?;
+            let confirmation_method = self.confirmation_method.take()?;
+            let created = self.created.take()?;
+            let currency = self.currency.take()?;
+            let customer = self.customer.take()?;
+            let description = self.description.take()?;
+            let id = self.id.take()?;
+            let invoice = self.invoice.take()?;
+            let last_payment_error = self.last_payment_error.take()?;
+            let latest_charge = self.latest_charge.take()?;
+            let livemode = self.livemode.take()?;
+            let metadata = self.metadata.take()?;
+            let next_action = self.next_action.take()?;
+            let on_behalf_of = self.on_behalf_of.take()?;
+            let payment_method = self.payment_method.take()?;
+            let payment_method_configuration_details = self.payment_method_configuration_details.take()?;
+            let payment_method_options = self.payment_method_options.take()?;
+            let payment_method_types = self.payment_method_types.take()?;
+            let processing = self.processing.take()?;
+            let receipt_email = self.receipt_email.take()?;
+            let review = self.review.take()?;
+            let setup_future_usage = self.setup_future_usage.take()?;
+            let shipping = self.shipping.take()?;
+            let source = self.source.take()?;
+            let statement_descriptor = self.statement_descriptor.take()?;
+            let statement_descriptor_suffix = self.statement_descriptor_suffix.take()?;
+            let status = self.status.take()?;
+            let transfer_data = self.transfer_data.take()?;
+            let transfer_group = self.transfer_group.take()?;
+
+            Some(Self::Out {
+                amount,
+                amount_capturable,
+                amount_details,
+                amount_received,
+                application,
+                application_fee_amount,
+                automatic_payment_methods,
+                canceled_at,
+                cancellation_reason,
+                capture_method,
+                client_secret,
+                confirmation_method,
+                created,
+                currency,
+                customer,
+                description,
+                id,
+                invoice,
+                last_payment_error,
+                latest_charge,
+                livemode,
+                metadata,
+                next_action,
+                on_behalf_of,
+                payment_method,
+                payment_method_configuration_details,
+                payment_method_options,
+                payment_method_types,
+                processing,
+                receipt_email,
+                review,
+                setup_future_usage,
+                shipping,
+                source,
+                statement_descriptor,
+                statement_descriptor_suffix,
+                status,
+                transfer_data,
+                transfer_group,
+            })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for PaymentIntent {
+        type Builder = PaymentIntentBuilder;
+    }
+};
 /// Reason for cancellation of this PaymentIntent, either user-provided (`duplicate`, `fraudulent`, `requested_by_customer`, or `abandoned`) or generated by Stripe internally (`failed_invoice`, `void_invoice`, or `automatic`).
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum PaymentIntentCancellationReason {
@@ -197,9 +456,22 @@ impl<'de> serde::Deserialize<'de> for PaymentIntentCancellationReason {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for PaymentIntentCancellationReason")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PaymentIntentCancellationReason"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentIntentCancellationReason {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentIntentCancellationReason> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentIntentCancellationReason::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 /// Status of this PaymentIntent, one of `requires_payment_method`, `requires_confirmation`, `requires_action`, `processing`, `requires_capture`, `canceled`, or `succeeded`.
@@ -273,8 +545,22 @@ impl<'de> serde::Deserialize<'de> for PaymentIntentStatus {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for PaymentIntentStatus"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PaymentIntentStatus"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentIntentStatus {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentIntentStatus> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentIntentStatus::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 impl stripe_types::Object for PaymentIntent {
@@ -341,8 +627,22 @@ impl<'de> serde::Deserialize<'de> for PaymentIntentCaptureMethod {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for PaymentIntentCaptureMethod"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PaymentIntentCaptureMethod"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentIntentCaptureMethod {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentIntentCaptureMethod> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentIntentCaptureMethod::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -399,9 +699,22 @@ impl<'de> serde::Deserialize<'de> for PaymentIntentConfirmationMethod {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for PaymentIntentConfirmationMethod")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PaymentIntentConfirmationMethod"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentIntentConfirmationMethod {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentIntentConfirmationMethod> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentIntentConfirmationMethod::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -458,8 +771,21 @@ impl<'de> serde::Deserialize<'de> for PaymentIntentSetupFutureUsage {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s).map_err(|_| {
-            serde::de::Error::custom("Unknown value for PaymentIntentSetupFutureUsage")
-        })
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for PaymentIntentSetupFutureUsage"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for PaymentIntentSetupFutureUsage {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<PaymentIntentSetupFutureUsage> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(PaymentIntentSetupFutureUsage::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

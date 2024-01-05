@@ -11,19 +11,18 @@
 /// Related guide: [Understanding Connect account balances](https://stripe.com/docs/connect/account-balances).
 ///
 /// For more details see <<https://stripe.com/docs/api/balance/balance_object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct Balance {
     /// Available funds that you can transfer or pay out automatically by Stripe or explicitly through the [Transfers API](https://stripe.com/docs/api#transfers) or [Payouts API](https://stripe.com/docs/api#payouts).
     /// You can find the available balance for each currency and payment type in the `source_types` property.
     pub available: Vec<stripe_core::BalanceAmount>,
     /// Funds held due to negative balances on connected Custom accounts.
     /// You can find the connect reserve balance for each currency and payment type in the `source_types` property.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub connect_reserved: Option<Vec<stripe_core::BalanceAmount>>,
     /// Funds that you can pay out using Instant Payouts.
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub instant_available: Option<Vec<stripe_core::BalanceAmountNet>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub issuing: Option<stripe_core::BalanceDetail>,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
@@ -31,3 +30,91 @@ pub struct Balance {
     /// You can find the pending balance for each currency and each payment type in the `source_types` property.
     pub pending: Vec<stripe_core::BalanceAmount>,
 }
+#[cfg(feature = "min-ser")]
+pub struct BalanceBuilder {
+    available: Option<Vec<stripe_core::BalanceAmount>>,
+    connect_reserved: Option<Option<Vec<stripe_core::BalanceAmount>>>,
+    instant_available: Option<Option<Vec<stripe_core::BalanceAmountNet>>>,
+    issuing: Option<Option<stripe_core::BalanceDetail>>,
+    livemode: Option<bool>,
+    pending: Option<Vec<stripe_core::BalanceAmount>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for Balance {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<Balance>,
+        builder: BalanceBuilder,
+    }
+
+    impl Visitor for Place<Balance> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: BalanceBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for BalanceBuilder {
+        type Out = Balance;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "available" => Ok(Deserialize::begin(&mut self.available)),
+                "connect_reserved" => Ok(Deserialize::begin(&mut self.connect_reserved)),
+                "instant_available" => Ok(Deserialize::begin(&mut self.instant_available)),
+                "issuing" => Ok(Deserialize::begin(&mut self.issuing)),
+                "livemode" => Ok(Deserialize::begin(&mut self.livemode)),
+                "pending" => Ok(Deserialize::begin(&mut self.pending)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                available: Deserialize::default(),
+                connect_reserved: Deserialize::default(),
+                instant_available: Deserialize::default(),
+                issuing: Deserialize::default(),
+                livemode: Deserialize::default(),
+                pending: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let available = self.available.take()?;
+            let connect_reserved = self.connect_reserved.take()?;
+            let instant_available = self.instant_available.take()?;
+            let issuing = self.issuing.take()?;
+            let livemode = self.livemode.take()?;
+            let pending = self.pending.take()?;
+
+            Some(Self::Out { available, connect_reserved, instant_available, issuing, livemode, pending })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for Balance {
+        type Builder = BalanceBuilder;
+    }
+};

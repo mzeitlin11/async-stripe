@@ -118,7 +118,7 @@ pub struct CreatePaymentMethod<'a> {
     /// The type of the PaymentMethod.
     /// An additional hash is included on the PaymentMethod with a name matching this value.
     /// It contains additional information specific to the PaymentMethod type.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<CreatePaymentMethodType>,
     /// If this is an `us_bank_account` PaymentMethod, this hash contains details about the US bank account payment method.
@@ -147,11 +147,7 @@ pub struct CreatePaymentMethodAcssDebit<'a> {
     pub transit_number: &'a str,
 }
 impl<'a> CreatePaymentMethodAcssDebit<'a> {
-    pub fn new(
-        account_number: &'a str,
-        institution_number: &'a str,
-        transit_number: &'a str,
-    ) -> Self {
+    pub fn new(account_number: &'a str, institution_number: &'a str, transit_number: &'a str) -> Self {
         Self { account_number, institution_number, transit_number }
     }
 }
@@ -1227,11 +1223,7 @@ impl<'a> RetrievePaymentMethod<'a> {
 impl<'a> RetrievePaymentMethod<'a> {
     /// Retrieves a PaymentMethod object attached to the StripeAccount.
     /// To retrieve a payment method attached to a Customer, you should use [Retrieve a Customer’s PaymentMethods](https://stripe.com/docs/api/payment_methods/customer).
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        payment_method: &stripe_shared::PaymentMethodId,
-    ) -> stripe::Response<stripe_shared::PaymentMethod> {
+    pub fn send(&self, client: &stripe::Client, payment_method: &stripe_shared::PaymentMethodId) -> stripe::Response<stripe_shared::PaymentMethod> {
         client.get_query(&format!("/payment_methods/{payment_method}"), self)
     }
 }
@@ -1344,16 +1336,8 @@ impl serde::Serialize for UpdatePaymentMethodUsBankAccountAccountHolderType {
 }
 impl<'a> UpdatePaymentMethod<'a> {
     /// Updates a PaymentMethod object. A PaymentMethod must be attached a customer to be updated.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        payment_method: &stripe_shared::PaymentMethodId,
-    ) -> stripe::Response<stripe_shared::PaymentMethod> {
-        client.send_form(
-            &format!("/payment_methods/{payment_method}"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, payment_method: &stripe_shared::PaymentMethodId) -> stripe::Response<stripe_shared::PaymentMethod> {
+        client.send_form(&format!("/payment_methods/{payment_method}"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1381,7 +1365,7 @@ pub struct ListPaymentMethod<'a> {
     /// An optional filter on the list, based on the object `type` field.
     /// Without the filter, the list includes all current and future payment method types.
     /// If your integration expects only one type of payment method in the response, make sure to provide a type value in the request.
-    #[serde(rename = "type")]
+    #[cfg_attr(not(feature = "min-ser"), serde(rename = "type"))]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub type_: Option<ListPaymentMethodType>,
 }
@@ -1540,15 +1524,10 @@ impl serde::Serialize for ListPaymentMethodType {
 impl<'a> ListPaymentMethod<'a> {
     /// Returns a list of PaymentMethods for Treasury flows.
     /// If you want to list the PaymentMethods attached to a Customer for payments, you should use the [List a Customer’s PaymentMethods](https://stripe.com/docs/api/payment_methods/customer_list) API instead.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::PaymentMethod>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::PaymentMethod>> {
         client.get_query("/payment_methods", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PaymentMethod>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::PaymentMethod>> {
         stripe::ListPaginator::from_list_params("/payment_methods", self)
     }
 }
@@ -1580,16 +1559,8 @@ impl<'a> AttachPaymentMethod<'a> {
     /// To use this PaymentMethod as the default for invoice or subscription payments,
     /// set <a href="/docs/api/customers/update#update_customer-invoice_settings-default_payment_method">`invoice_settings.default_payment_method`</a>,.
     /// on the Customer to the PaymentMethod’s ID.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        payment_method: &stripe_shared::PaymentMethodId,
-    ) -> stripe::Response<stripe_shared::PaymentMethod> {
-        client.send_form(
-            &format!("/payment_methods/{payment_method}/attach"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, payment_method: &stripe_shared::PaymentMethodId) -> stripe::Response<stripe_shared::PaymentMethod> {
+        client.send_form(&format!("/payment_methods/{payment_method}/attach"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -1606,16 +1577,8 @@ impl<'a> DetachPaymentMethod<'a> {
 impl<'a> DetachPaymentMethod<'a> {
     /// Detaches a PaymentMethod object from a Customer.
     /// After a PaymentMethod is detached, it can no longer be used for a payment or re-attached to a Customer.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        payment_method: &stripe_shared::PaymentMethodId,
-    ) -> stripe::Response<stripe_shared::PaymentMethod> {
-        client.send_form(
-            &format!("/payment_methods/{payment_method}/detach"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, payment_method: &stripe_shared::PaymentMethodId) -> stripe::Response<stripe_shared::PaymentMethod> {
+        client.send_form(&format!("/payment_methods/{payment_method}/detach"), self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]

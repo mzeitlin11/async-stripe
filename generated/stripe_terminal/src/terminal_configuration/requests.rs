@@ -47,10 +47,7 @@ impl<'a> CreateTerminalConfigurationVerifoneP400<'a> {
 }
 impl<'a> CreateTerminalConfiguration<'a> {
     /// Creates a new `Configuration` object.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_terminal::TerminalConfiguration> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_terminal::TerminalConfiguration> {
         client.send_form("/terminal/configurations", self, http_types::Method::Post)
     }
 }
@@ -84,15 +81,10 @@ impl<'a> ListTerminalConfiguration<'a> {
 }
 impl<'a> ListTerminalConfiguration<'a> {
     /// Returns a list of `Configuration` objects.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_terminal::TerminalConfiguration>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_terminal::TerminalConfiguration>> {
         client.get_query("/terminal/configurations", self)
     }
-    pub fn paginate(
-        self,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_terminal::TerminalConfiguration>> {
+    pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_terminal::TerminalConfiguration>> {
         stripe::ListPaginator::from_list_params("/terminal/configurations", self)
     }
 }
@@ -109,19 +101,23 @@ impl<'a> RetrieveTerminalConfiguration<'a> {
 }
 impl<'a> RetrieveTerminalConfiguration<'a> {
     /// Retrieves a `Configuration` object.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        configuration: &stripe_terminal::TerminalConfigurationId,
-    ) -> stripe::Response<RetrieveTerminalConfigurationReturned> {
+    pub fn send(&self, client: &stripe::Client, configuration: &stripe_terminal::TerminalConfigurationId) -> stripe::Response<RetrieveTerminalConfigurationReturned> {
         client.get_query(&format!("/terminal/configurations/{configuration}"), self)
     }
 }
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
+#[cfg_attr(not(feature = "min-ser"), serde(untagged))]
 pub enum RetrieveTerminalConfigurationReturned {
     TerminalConfiguration(stripe_terminal::TerminalConfiguration),
     DeletedTerminalConfiguration(stripe_terminal::DeletedTerminalConfiguration),
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for RetrieveTerminalConfigurationReturned {
+    fn begin(_out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        todo!()
+    }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateTerminalConfiguration<'a> {
@@ -172,23 +168,23 @@ impl<'a> UpdateTerminalConfigurationVerifoneP400<'a> {
 }
 impl<'a> UpdateTerminalConfiguration<'a> {
     /// Updates a new `Configuration` object.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        configuration: &stripe_terminal::TerminalConfigurationId,
-    ) -> stripe::Response<UpdateTerminalConfigurationReturned> {
-        client.send_form(
-            &format!("/terminal/configurations/{configuration}"),
-            self,
-            http_types::Method::Post,
-        )
+    pub fn send(&self, client: &stripe::Client, configuration: &stripe_terminal::TerminalConfigurationId) -> stripe::Response<UpdateTerminalConfigurationReturned> {
+        client.send_form(&format!("/terminal/configurations/{configuration}"), self, http_types::Method::Post)
     }
 }
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
-#[serde(untagged)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
+#[cfg_attr(not(feature = "min-ser"), serde(untagged))]
 pub enum UpdateTerminalConfigurationReturned {
     TerminalConfiguration(stripe_terminal::TerminalConfiguration),
     DeletedTerminalConfiguration(stripe_terminal::DeletedTerminalConfiguration),
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for UpdateTerminalConfigurationReturned {
+    fn begin(_out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        todo!()
+    }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct DeleteTerminalConfiguration {}
@@ -199,16 +195,8 @@ impl DeleteTerminalConfiguration {
 }
 impl DeleteTerminalConfiguration {
     /// Deletes a `Configuration` object.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        configuration: &stripe_terminal::TerminalConfigurationId,
-    ) -> stripe::Response<stripe_terminal::DeletedTerminalConfiguration> {
-        client.send_form(
-            &format!("/terminal/configurations/{configuration}"),
-            self,
-            http_types::Method::Delete,
-        )
+    pub fn send(&self, client: &stripe::Client, configuration: &stripe_terminal::TerminalConfigurationId) -> stripe::Response<stripe_terminal::DeletedTerminalConfiguration> {
+        client.send_form(&format!("/terminal/configurations/{configuration}"), self, http_types::Method::Delete)
     }
 }
 #[derive(Copy, Clone, Debug, serde::Serialize)]

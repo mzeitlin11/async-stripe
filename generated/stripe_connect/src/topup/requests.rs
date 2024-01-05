@@ -31,16 +31,7 @@ pub struct CreateTopup<'a> {
 }
 impl<'a> CreateTopup<'a> {
     pub fn new(amount: i64, currency: stripe_types::Currency) -> Self {
-        Self {
-            amount,
-            currency,
-            description: None,
-            expand: None,
-            metadata: None,
-            source: None,
-            statement_descriptor: None,
-            transfer_group: None,
-        }
+        Self { amount, currency, description: None, expand: None, metadata: None, source: None, statement_descriptor: None, transfer_group: None }
     }
 }
 impl<'a> CreateTopup<'a> {
@@ -145,10 +136,7 @@ impl serde::Serialize for ListTopupStatus {
 }
 impl<'a> ListTopup<'a> {
     /// Returns a list of top-ups.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-    ) -> stripe::Response<stripe_types::List<stripe_shared::Topup>> {
+    pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_types::List<stripe_shared::Topup>> {
         client.get_query("/topups", self)
     }
     pub fn paginate(self) -> stripe::ListPaginator<stripe_types::List<stripe_shared::Topup>> {
@@ -169,11 +157,7 @@ impl<'a> RetrieveTopup<'a> {
 impl<'a> RetrieveTopup<'a> {
     /// Retrieves the details of a top-up that has previously been created.
     /// Supply the unique top-up ID that was returned from your previous request, and Stripe will return the corresponding top-up information.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        topup: &stripe_shared::TopupId,
-    ) -> stripe::Response<stripe_shared::Topup> {
+    pub fn send(&self, client: &stripe::Client, topup: &stripe_shared::TopupId) -> stripe::Response<stripe_shared::Topup> {
         client.get_query(&format!("/topups/{topup}"), self)
     }
 }
@@ -199,11 +183,7 @@ impl<'a> UpdateTopup<'a> {
 }
 impl<'a> UpdateTopup<'a> {
     /// Updates the metadata of a top-up. Other top-up details are not editable by design.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        topup: &stripe_shared::TopupId,
-    ) -> stripe::Response<stripe_shared::Topup> {
+    pub fn send(&self, client: &stripe::Client, topup: &stripe_shared::TopupId) -> stripe::Response<stripe_shared::Topup> {
         client.send_form(&format!("/topups/{topup}"), self, http_types::Method::Post)
     }
 }
@@ -220,11 +200,7 @@ impl<'a> CancelTopup<'a> {
 }
 impl<'a> CancelTopup<'a> {
     /// Cancels a top-up. Only pending top-ups can be canceled.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        topup: &stripe_shared::TopupId,
-    ) -> stripe::Response<stripe_shared::Topup> {
+    pub fn send(&self, client: &stripe::Client, topup: &stripe_shared::TopupId) -> stripe::Response<stripe_shared::Topup> {
         client.send_form(&format!("/topups/{topup}/cancel"), self, http_types::Method::Post)
     }
 }

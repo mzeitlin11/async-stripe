@@ -3,7 +3,9 @@
 /// Related guide: [Connecting to a reader](https://stripe.com/docs/terminal/payments/connect-reader)
 ///
 /// For more details see <<https://stripe.com/docs/api/terminal/readers/object>>.
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug)]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Serialize))]
+#[cfg_attr(not(feature = "min-ser"), derive(serde::Deserialize))]
 pub struct TerminalReader {
     /// The most recent action performed by the reader.
     pub action: Option<stripe_terminal::TerminalReaderReaderResourceReaderAction>,
@@ -29,6 +31,114 @@ pub struct TerminalReader {
     /// The networking status of the reader.
     pub status: Option<String>,
 }
+#[cfg(feature = "min-ser")]
+pub struct TerminalReaderBuilder {
+    action: Option<Option<stripe_terminal::TerminalReaderReaderResourceReaderAction>>,
+    device_sw_version: Option<Option<String>>,
+    device_type: Option<stripe_terminal::TerminalReaderDeviceType>,
+    id: Option<stripe_terminal::TerminalReaderId>,
+    ip_address: Option<Option<String>>,
+    label: Option<String>,
+    livemode: Option<bool>,
+    location: Option<Option<stripe_types::Expandable<stripe_terminal::TerminalLocation>>>,
+    metadata: Option<std::collections::HashMap<String, String>>,
+    serial_number: Option<String>,
+    status: Option<Option<String>>,
+}
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::{MapBuilder, ObjectDeser};
+
+    make_place!(Place);
+
+    impl Deserialize for TerminalReader {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    struct Builder<'a> {
+        out: &'a mut Option<TerminalReader>,
+        builder: TerminalReaderBuilder,
+    }
+
+    impl Visitor for Place<TerminalReader> {
+        fn map(&mut self) -> Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: TerminalReaderBuilder::deser_default() }))
+        }
+    }
+
+    impl MapBuilder for TerminalReaderBuilder {
+        type Out = TerminalReader;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            match k {
+                "action" => Ok(Deserialize::begin(&mut self.action)),
+                "device_sw_version" => Ok(Deserialize::begin(&mut self.device_sw_version)),
+                "device_type" => Ok(Deserialize::begin(&mut self.device_type)),
+                "id" => Ok(Deserialize::begin(&mut self.id)),
+                "ip_address" => Ok(Deserialize::begin(&mut self.ip_address)),
+                "label" => Ok(Deserialize::begin(&mut self.label)),
+                "livemode" => Ok(Deserialize::begin(&mut self.livemode)),
+                "location" => Ok(Deserialize::begin(&mut self.location)),
+                "metadata" => Ok(Deserialize::begin(&mut self.metadata)),
+                "serial_number" => Ok(Deserialize::begin(&mut self.serial_number)),
+                "status" => Ok(Deserialize::begin(&mut self.status)),
+
+                _ => Ok(<dyn Visitor>::ignore()),
+            }
+        }
+
+        fn deser_default() -> Self {
+            Self {
+                action: Deserialize::default(),
+                device_sw_version: Deserialize::default(),
+                device_type: Deserialize::default(),
+                id: Deserialize::default(),
+                ip_address: Deserialize::default(),
+                label: Deserialize::default(),
+                livemode: Deserialize::default(),
+                location: Deserialize::default(),
+                metadata: Deserialize::default(),
+                serial_number: Deserialize::default(),
+                status: Deserialize::default(),
+            }
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let action = self.action.take()?;
+            let device_sw_version = self.device_sw_version.take()?;
+            let device_type = self.device_type.take()?;
+            let id = self.id.take()?;
+            let ip_address = self.ip_address.take()?;
+            let label = self.label.take()?;
+            let livemode = self.livemode.take()?;
+            let location = self.location.take()?;
+            let metadata = self.metadata.take()?;
+            let serial_number = self.serial_number.take()?;
+            let status = self.status.take()?;
+
+            Some(Self::Out { action, device_sw_version, device_type, id, ip_address, label, livemode, location, metadata, serial_number, status })
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl ObjectDeser for TerminalReader {
+        type Builder = TerminalReaderBuilder;
+    }
+};
 impl stripe_types::Object for TerminalReader {
     type Id = stripe_terminal::TerminalReaderId;
     fn id(&self) -> &Self::Id {
@@ -102,7 +212,21 @@ impl<'de> serde::Deserialize<'de> for TerminalReaderDeviceType {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;
         let s: std::borrow::Cow<'de, str> = serde::Deserialize::deserialize(deserializer)?;
-        Self::from_str(&s)
-            .map_err(|_| serde::de::Error::custom("Unknown value for TerminalReaderDeviceType"))
+        Self::from_str(&s).map_err(|_| serde::de::Error::custom("Unknown value for TerminalReaderDeviceType"))
+    }
+}
+#[cfg(feature = "min-ser")]
+impl miniserde::Deserialize for TerminalReaderDeviceType {
+    fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
+        crate::Place::new(out)
+    }
+}
+
+#[cfg(feature = "min-ser")]
+impl miniserde::de::Visitor for crate::Place<TerminalReaderDeviceType> {
+    fn string(&mut self, s: &str) -> miniserde::Result<()> {
+        use std::str::FromStr;
+        self.out = Some(TerminalReaderDeviceType::from_str(s).map_err(|_| miniserde::Error)?);
+        Ok(())
     }
 }

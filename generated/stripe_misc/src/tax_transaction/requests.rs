@@ -11,11 +11,7 @@ impl<'a> RetrieveTaxTransaction<'a> {
 }
 impl<'a> RetrieveTaxTransaction<'a> {
     /// Retrieves a Tax `Transaction` object.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        transaction: &stripe_misc::TaxTransactionId,
-    ) -> stripe::Response<stripe_misc::TaxTransaction> {
+    pub fn send(&self, client: &stripe::Client, transaction: &stripe_misc::TaxTransactionId) -> stripe::Response<stripe_misc::TaxTransaction> {
         client.get_query(&format!("/tax/transactions/{transaction}"), self)
     }
 }
@@ -50,21 +46,8 @@ pub struct CreateReversalTaxTransaction<'a> {
     pub shipping_cost: Option<CreateReversalTaxTransactionShippingCost>,
 }
 impl<'a> CreateReversalTaxTransaction<'a> {
-    pub fn new(
-        mode: CreateReversalTaxTransactionMode,
-        original_transaction: &'a str,
-        reference: &'a str,
-    ) -> Self {
-        Self {
-            expand: None,
-            flat_amount: None,
-            line_items: None,
-            metadata: None,
-            mode,
-            original_transaction,
-            reference,
-            shipping_cost: None,
-        }
+    pub fn new(mode: CreateReversalTaxTransactionMode, original_transaction: &'a str, reference: &'a str) -> Self {
+        Self { expand: None, flat_amount: None, line_items: None, metadata: None, mode, original_transaction, reference, shipping_cost: None }
     }
 }
 /// The line item amounts to reverse.
@@ -88,12 +71,7 @@ pub struct CreateReversalTaxTransactionLineItems<'a> {
     pub reference: &'a str,
 }
 impl<'a> CreateReversalTaxTransactionLineItems<'a> {
-    pub fn new(
-        amount: i64,
-        amount_tax: i64,
-        original_line_item: &'a str,
-        reference: &'a str,
-    ) -> Self {
+    pub fn new(amount: i64, amount_tax: i64, original_line_item: &'a str, reference: &'a str) -> Self {
         Self { amount, amount_tax, metadata: None, original_line_item, quantity: None, reference }
     }
 }
@@ -193,11 +171,7 @@ impl<'a> CreateFromCalculationTaxTransaction<'a> {
 impl<'a> CreateFromCalculationTaxTransaction<'a> {
     /// Creates a Tax `Transaction` from a calculation.
     pub fn send(&self, client: &stripe::Client) -> stripe::Response<stripe_misc::TaxTransaction> {
-        client.send_form(
-            "/tax/transactions/create_from_calculation",
-            self,
-            http_types::Method::Post,
-        )
+        client.send_form("/tax/transactions/create_from_calculation", self, http_types::Method::Post)
     }
 }
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
@@ -227,20 +201,10 @@ impl<'a> ListLineItemsTaxTransaction<'a> {
 }
 impl<'a> ListLineItemsTaxTransaction<'a> {
     /// Retrieves the line items of a committed standalone transaction as a collection.
-    pub fn send(
-        &self,
-        client: &stripe::Client,
-        transaction: &stripe_misc::TaxTransactionId,
-    ) -> stripe::Response<stripe_types::List<stripe_misc::TaxTransactionLineItem>> {
+    pub fn send(&self, client: &stripe::Client, transaction: &stripe_misc::TaxTransactionId) -> stripe::Response<stripe_types::List<stripe_misc::TaxTransactionLineItem>> {
         client.get_query(&format!("/tax/transactions/{transaction}/line_items"), self)
     }
-    pub fn paginate(
-        self,
-        transaction: &stripe_misc::TaxTransactionId,
-    ) -> stripe::ListPaginator<stripe_types::List<stripe_misc::TaxTransactionLineItem>> {
-        stripe::ListPaginator::from_list_params(
-            &format!("/tax/transactions/{transaction}/line_items"),
-            self,
-        )
+    pub fn paginate(self, transaction: &stripe_misc::TaxTransactionId) -> stripe::ListPaginator<stripe_types::List<stripe_misc::TaxTransactionLineItem>> {
+        stripe::ListPaginator::from_list_params(&format!("/tax/transactions/{transaction}/line_items"), self)
     }
 }

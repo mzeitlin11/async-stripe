@@ -1,27 +1,25 @@
 use std::fmt::Write;
 
-use indexmap::IndexMap;
 use indoc::{formatdoc, writedoc};
 
-use crate::components::Components;
-use crate::rust_object::{ObjectRef, StructField};
+use crate::rust_object::{EnumOfObjects, StructField};
 use crate::templates::enums::write_feature_gate;
 use crate::templates::ObjectWriter;
 use crate::types::RustIdent;
 
-pub fn gen_enum_of_objects_miniserde(
-    components: &Components,
-    ident: &RustIdent,
-    objects: &IndexMap<&str, ObjectRef>,
-) -> String {
+pub fn gen_enum_of_objects_miniserde(ident: &RustIdent, objects: &EnumOfObjects) -> String {
     let builder_name = RustIdent::joined(ident, "Builder");
-    let inner = build_inner(components, ident, &builder_name, objects);
+    let inner_builder_type = match objects {
+        EnumOfObjects::MaybeDeleted(_) => "MaybeDeletedBuilderInner",
+        EnumOfObjects::ObjectUnion(_) => "ObjectBuilderInner",
+    };
+    let inner = build_inner(ident, &builder_name, objects);
     formatdoc! {
         r#"
         #[cfg(feature = "min-ser")]
         #[derive(Default)]
         pub struct {builder_name} {{
-            inner: stripe_types::miniserde_helpers::ObjectBuilderInner,
+            inner: stripe_types::miniserde_helpers::{inner_builder_type},
         }}
     
         #[cfg(feature = "min-ser")]
@@ -40,22 +38,47 @@ pub fn gen_enum_of_objects_miniserde(
     }
 }
 
-fn build_inner(
-    components: &Components,
-    ident: &RustIdent,
-    builder_name: &RustIdent,
-    objects: &IndexMap<&str, ObjectRef>,
-) -> String {
+fn take_out_inner(ident: &RustIdent, objects: &EnumOfObjects) -> String {
     let mut finish_inner = String::new();
-    for (obj_discr, obj) in objects {
-        let comp = components.get(&obj.path);
-        let name = comp.ident();
-        write_feature_gate(&mut finish_inner, obj);
-        let _ = writeln!(
-            finish_inner,
-            r#""{obj_discr}" => {ident}::{name}(from_str(&obj_str).ok()?),"#
-        );
+    match objects {
+        EnumOfObjects::MaybeDeleted(items) => {
+            let deleted_name = &items.deleted.ident;
+            let base_name = &items.base.ident;
+            formatdoc! {r#"
+            let (deleted, object) = self.inner.finish_inner()?;
+            let obj_str = to_string(&object);
+            Some(if deleted {{
+                {ident}::{deleted_name}(from_str(&obj_str).ok()?)
+            }} else {{
+                {ident}::{base_name}(from_str(&obj_str).ok()?)
+            }})
+            "#}
+        }
+        EnumOfObjects::ObjectUnion(objects) => {
+            for (obj_discr, obj) in objects {
+                let name = &obj.ident;
+                write_feature_gate(&mut finish_inner, obj);
+                let _ = writeln!(
+                    finish_inner,
+                    r#""{obj_discr}" => {ident}::{name}(from_str(&obj_str).ok()?),"#
+                );
+            }
+            formatdoc! {r#"
+            let (obj_key, object) = self.inner.finish_inner()?;
+            let obj_str = to_string(&object);
+            Some(match obj_key.as_str() {{
+                {finish_inner}
+                _ => return None,
+            }})
+            "#
+
+            }
+        }
     }
+}
+
+fn build_inner(ident: &RustIdent, builder_name: &RustIdent, objects: &EnumOfObjects) -> String {
+    let take_out_func_inner = take_out_inner(ident, objects);
     formatdoc! {r#"
     struct Builder<'a> {{
         out: &'a mut Option<{ident}>,
@@ -100,12 +123,7 @@ fn build_inner(
         }}
 
         fn take_out(&mut self) -> Option<Self::Out> {{
-            let (obj_key, object) = self.inner.finish_inner()?;
-            let obj_str = to_string(&object);
-            Some(match obj_key.as_str() {{
-                {finish_inner}
-                _ => return None,
-            }})
+            {take_out_func_inner}
         }}
     }}
     
@@ -200,6 +218,7 @@ fn miniserde_struct_inner(
     impl MapBuilder for {builder_name} {{
         type Out = {ident};
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {{
+            #[allow(clippy::match_single_binding)]
             match k {{
                 {key_inner}
                 _ => Ok(<dyn Visitor>::ignore()),

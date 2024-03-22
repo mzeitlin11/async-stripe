@@ -70,6 +70,7 @@ const _: () = {
     impl MapBuilder for ScheduledQueryRunBuilder {
         type Out = ScheduledQueryRun;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "created" => Ok(Deserialize::begin(&mut self.created)),
                 "data_load_time" => Ok(Deserialize::begin(&mut self.data_load_time)),

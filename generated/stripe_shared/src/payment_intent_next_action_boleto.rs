@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentNextActionBoletoBuilder {
         type Out = PaymentIntentNextActionBoleto;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "expires_at" => Ok(Deserialize::begin(&mut self.expires_at)),
                 "hosted_voucher_url" => Ok(Deserialize::begin(&mut self.hosted_voucher_url)),

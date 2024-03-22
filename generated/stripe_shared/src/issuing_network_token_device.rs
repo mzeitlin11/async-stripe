@@ -55,6 +55,7 @@ const _: () = {
     impl MapBuilder for IssuingNetworkTokenDeviceBuilder {
         type Out = IssuingNetworkTokenDevice;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "device_fingerprint" => Ok(Deserialize::begin(&mut self.device_fingerprint)),
                 "ip_address" => Ok(Deserialize::begin(&mut self.ip_address)),

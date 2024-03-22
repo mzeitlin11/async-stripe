@@ -43,6 +43,7 @@ const _: () = {
     impl MapBuilder for AccountDeclineChargeOnBuilder {
         type Out = AccountDeclineChargeOn;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "avs_failure" => Ok(Deserialize::begin(&mut self.avs_failure)),
                 "cvc_failure" => Ok(Deserialize::begin(&mut self.cvc_failure)),

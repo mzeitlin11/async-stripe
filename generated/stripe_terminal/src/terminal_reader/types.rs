@@ -74,6 +74,7 @@ const _: () = {
     impl MapBuilder for TerminalReaderBuilder {
         type Out = TerminalReader;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "action" => Ok(Deserialize::begin(&mut self.action)),
                 "device_sw_version" => Ok(Deserialize::begin(&mut self.device_sw_version)),

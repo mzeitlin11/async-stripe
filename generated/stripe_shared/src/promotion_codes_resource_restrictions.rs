@@ -48,6 +48,7 @@ const _: () = {
     impl MapBuilder for PromotionCodesResourceRestrictionsBuilder {
         type Out = PromotionCodesResourceRestrictions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "currency_options" => Ok(Deserialize::begin(&mut self.currency_options)),
                 "first_time_transaction" => Ok(Deserialize::begin(&mut self.first_time_transaction)),

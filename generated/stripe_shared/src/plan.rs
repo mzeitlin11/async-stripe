@@ -124,6 +124,7 @@ const _: () = {
     impl MapBuilder for PlanBuilder {
         type Out = Plan;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "active" => Ok(Deserialize::begin(&mut self.active)),
                 "aggregate_usage" => Ok(Deserialize::begin(&mut self.aggregate_usage)),

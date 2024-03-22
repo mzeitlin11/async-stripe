@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for IssuingCardGooglePayBuilder {
         type Out = IssuingCardGooglePay;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "eligible" => Ok(Deserialize::begin(&mut self.eligible)),
                 "ineligible_reason" => Ok(Deserialize::begin(&mut self.ineligible_reason)),

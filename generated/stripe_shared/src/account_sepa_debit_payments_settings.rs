@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for AccountSepaDebitPaymentsSettingsBuilder {
         type Out = AccountSepaDebitPaymentsSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "creditor_id" => Ok(Deserialize::begin(&mut self.creditor_id)),
 

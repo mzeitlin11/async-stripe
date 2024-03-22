@@ -48,6 +48,7 @@ const _: () = {
     impl MapBuilder for MandateAcssDebitBuilder {
         type Out = MandateAcssDebit;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "default_for" => Ok(Deserialize::begin(&mut self.default_for)),
                 "interval_description" => Ok(Deserialize::begin(&mut self.interval_description)),

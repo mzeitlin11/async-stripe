@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for PackageDimensionsBuilder {
         type Out = PackageDimensions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "height" => Ok(Deserialize::begin(&mut self.height)),
                 "length" => Ok(Deserialize::begin(&mut self.length)),

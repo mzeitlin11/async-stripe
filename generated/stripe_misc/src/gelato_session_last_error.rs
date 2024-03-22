@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for GelatoSessionLastErrorBuilder {
         type Out = GelatoSessionLastError;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "code" => Ok(Deserialize::begin(&mut self.code)),
                 "reason" => Ok(Deserialize::begin(&mut self.reason)),

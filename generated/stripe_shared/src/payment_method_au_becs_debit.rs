@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodAuBecsDebitBuilder {
         type Out = PaymentMethodAuBecsDebit;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "bsb_number" => Ok(Deserialize::begin(&mut self.bsb_number)),
                 "fingerprint" => Ok(Deserialize::begin(&mut self.fingerprint)),

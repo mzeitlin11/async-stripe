@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for PortalFlowsRetentionBuilder {
         type Out = PortalFlowsRetention;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "coupon_offer" => Ok(Deserialize::begin(&mut self.coupon_offer)),
                 "type" => Ok(Deserialize::begin(&mut self.type_)),

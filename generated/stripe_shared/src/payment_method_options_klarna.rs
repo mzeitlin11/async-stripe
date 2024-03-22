@@ -49,6 +49,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodOptionsKlarnaBuilder {
         type Out = PaymentMethodOptionsKlarna;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "capture_method" => Ok(Deserialize::begin(&mut self.capture_method)),
                 "preferred_locale" => Ok(Deserialize::begin(&mut self.preferred_locale)),

@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for ShippingRateDeliveryEstimateBoundBuilder {
         type Out = ShippingRateDeliveryEstimateBound;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "unit" => Ok(Deserialize::begin(&mut self.unit)),
                 "value" => Ok(Deserialize::begin(&mut self.value)),

@@ -146,7 +146,7 @@ impl<'a> Inference<'a> {
 
     fn infer_base_type(&self, field: &Schema) -> RustType {
         match &field.schema_kind {
-            SchemaKind::Type(Type::Boolean {}) => self.infer_bool_type(),
+            SchemaKind::Type(Type::Boolean(_)) => self.infer_bool_type(),
             SchemaKind::Type(Type::Number(_)) => RustType::float(),
             SchemaKind::Type(Type::Integer(format)) => self.infer_integer_type(&format.format),
             SchemaKind::Type(Type::String(typ)) => self.infer_string_typ(typ),

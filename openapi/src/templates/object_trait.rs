@@ -27,7 +27,7 @@ pub fn write_object_trait_for_enum(
     components: &Components,
     out: &mut String,
     ident: &RustIdent,
-    variants: &IndexMap<&str, ObjectRef>,
+    variants: &IndexMap<String, ObjectRef>,
 ) {
     let mut match_inner = String::with_capacity(32);
     for obj in variants.values() {

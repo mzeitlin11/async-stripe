@@ -33,12 +33,74 @@ pub enum UpdateTerminalReaderReturned {
     TerminalReader(stripe_terminal::TerminalReader),
     DeletedTerminalReader(stripe_terminal::DeletedTerminalReader),
 }
+
 #[cfg(feature = "min-ser")]
-impl miniserde::Deserialize for UpdateTerminalReaderReturned {
-    fn begin(_out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
-        todo!()
-    }
+#[derive(Default)]
+pub struct UpdateTerminalReaderReturnedBuilder {
+    inner: stripe_types::miniserde_helpers::MaybeDeletedBuilderInner,
 }
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::json::{from_str, to_string};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::MapBuilder;
+
+    use super::*;
+
+    make_place!(Place);
+
+    struct Builder<'a> {
+        out: &'a mut Option<UpdateTerminalReaderReturned>,
+        builder: UpdateTerminalReaderReturnedBuilder,
+    }
+
+    impl Deserialize for UpdateTerminalReaderReturned {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    impl Visitor for Place<UpdateTerminalReaderReturned> {
+        fn map(&mut self) -> miniserde::Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: Default::default() }))
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl stripe_types::MapBuilder for UpdateTerminalReaderReturnedBuilder {
+        type Out = UpdateTerminalReaderReturned;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            self.inner.key_inner(k)
+        }
+
+        fn deser_default() -> Self {
+            Self::default()
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let (deleted, object) = self.inner.finish_inner()?;
+            let obj_str = to_string(&object);
+            Some(if deleted { UpdateTerminalReaderReturned::DeletedTerminalReader(from_str(&obj_str).ok()?) } else { UpdateTerminalReaderReturned::TerminalReader(from_str(&obj_str).ok()?) })
+        }
+    }
+
+    impl stripe_types::ObjectDeser for UpdateTerminalReaderReturned {
+        type Builder = UpdateTerminalReaderReturnedBuilder;
+    }
+};
+
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct RetrieveTerminalReader<'a> {
     /// Specifies which fields in the response should be expanded.
@@ -64,12 +126,74 @@ pub enum RetrieveTerminalReaderReturned {
     TerminalReader(stripe_terminal::TerminalReader),
     DeletedTerminalReader(stripe_terminal::DeletedTerminalReader),
 }
+
 #[cfg(feature = "min-ser")]
-impl miniserde::Deserialize for RetrieveTerminalReaderReturned {
-    fn begin(_out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
-        todo!()
-    }
+#[derive(Default)]
+pub struct RetrieveTerminalReaderReturnedBuilder {
+    inner: stripe_types::miniserde_helpers::MaybeDeletedBuilderInner,
 }
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::json::{from_str, to_string};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::MapBuilder;
+
+    use super::*;
+
+    make_place!(Place);
+
+    struct Builder<'a> {
+        out: &'a mut Option<RetrieveTerminalReaderReturned>,
+        builder: RetrieveTerminalReaderReturnedBuilder,
+    }
+
+    impl Deserialize for RetrieveTerminalReaderReturned {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    impl Visitor for Place<RetrieveTerminalReaderReturned> {
+        fn map(&mut self) -> miniserde::Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: Default::default() }))
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl stripe_types::MapBuilder for RetrieveTerminalReaderReturnedBuilder {
+        type Out = RetrieveTerminalReaderReturned;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            self.inner.key_inner(k)
+        }
+
+        fn deser_default() -> Self {
+            Self::default()
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let (deleted, object) = self.inner.finish_inner()?;
+            let obj_str = to_string(&object);
+            Some(if deleted { RetrieveTerminalReaderReturned::DeletedTerminalReader(from_str(&obj_str).ok()?) } else { RetrieveTerminalReaderReturned::TerminalReader(from_str(&obj_str).ok()?) })
+        }
+    }
+
+    impl stripe_types::ObjectDeser for RetrieveTerminalReaderReturned {
+        type Builder = RetrieveTerminalReaderReturnedBuilder;
+    }
+};
+
 #[derive(Copy, Clone, Debug, serde::Serialize)]
 pub struct CreateTerminalReader<'a> {
     /// Specifies which fields in the response should be expanded.

@@ -50,6 +50,7 @@ const _: () = {
     impl MapBuilder for IssuingTransactionPurchaseDetailsBuilder {
         type Out = IssuingTransactionPurchaseDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "flight" => Ok(Deserialize::begin(&mut self.flight)),
                 "fuel" => Ok(Deserialize::begin(&mut self.fuel)),

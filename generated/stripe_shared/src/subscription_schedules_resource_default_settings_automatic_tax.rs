@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for SubscriptionSchedulesResourceDefaultSettingsAutomaticTaxBuilder {
         type Out = SubscriptionSchedulesResourceDefaultSettingsAutomaticTax;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "enabled" => Ok(Deserialize::begin(&mut self.enabled)),
 

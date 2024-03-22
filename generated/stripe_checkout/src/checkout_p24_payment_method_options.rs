@@ -43,6 +43,7 @@ const _: () = {
     impl MapBuilder for CheckoutP24PaymentMethodOptionsBuilder {
         type Out = CheckoutP24PaymentMethodOptions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "setup_future_usage" => Ok(Deserialize::begin(&mut self.setup_future_usage)),
 

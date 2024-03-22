@@ -49,6 +49,7 @@ const _: () = {
     impl MapBuilder for PaymentPagesCheckoutSessionAfterExpirationRecoveryBuilder {
         type Out = PaymentPagesCheckoutSessionAfterExpirationRecovery;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "allow_promotion_codes" => Ok(Deserialize::begin(&mut self.allow_promotion_codes)),
                 "enabled" => Ok(Deserialize::begin(&mut self.enabled)),

@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for UsBankAccountNetworksBuilder {
         type Out = UsBankAccountNetworks;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "preferred" => Ok(Deserialize::begin(&mut self.preferred)),
                 "supported" => Ok(Deserialize::begin(&mut self.supported)),

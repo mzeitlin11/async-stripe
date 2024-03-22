@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodDetailsCardNetworkTokenBuilder {
         type Out = PaymentMethodDetailsCardNetworkToken;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "used" => Ok(Deserialize::begin(&mut self.used)),
 

@@ -56,6 +56,7 @@ const _: () = {
     impl MapBuilder for SubscriptionScheduleConfigurationItemBuilder {
         type Out = SubscriptionScheduleConfigurationItem;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "billing_thresholds" => Ok(Deserialize::begin(&mut self.billing_thresholds)),
                 "metadata" => Ok(Deserialize::begin(&mut self.metadata)),

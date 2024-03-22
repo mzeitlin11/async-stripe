@@ -61,6 +61,7 @@ const _: () = {
     impl MapBuilder for TestHelpersTestClockBuilder {
         type Out = TestHelpersTestClock;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "created" => Ok(Deserialize::begin(&mut self.created)),
                 "deletes_after" => Ok(Deserialize::begin(&mut self.deletes_after)),

@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentNextActionKonbiniSeicomartBuilder {
         type Out = PaymentIntentNextActionKonbiniSeicomart;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "confirmation_number" => Ok(Deserialize::begin(&mut self.confirmation_number)),
                 "payment_code" => Ok(Deserialize::begin(&mut self.payment_code)),

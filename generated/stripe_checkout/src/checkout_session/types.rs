@@ -234,6 +234,7 @@ const _: () = {
     impl MapBuilder for CheckoutSessionBuilder {
         type Out = CheckoutSession;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "after_expiration" => Ok(Deserialize::begin(&mut self.after_expiration)),
                 "allow_promotion_codes" => Ok(Deserialize::begin(&mut self.allow_promotion_codes)),

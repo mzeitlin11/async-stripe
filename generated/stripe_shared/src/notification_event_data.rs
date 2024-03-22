@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for NotificationEventDataBuilder {
         type Out = NotificationEventData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "object" => Ok(Deserialize::begin(&mut self.object)),
                 "previous_attributes" => Ok(Deserialize::begin(&mut self.previous_attributes)),

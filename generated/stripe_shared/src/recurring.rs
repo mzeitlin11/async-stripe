@@ -57,6 +57,7 @@ const _: () = {
     impl MapBuilder for RecurringBuilder {
         type Out = Recurring;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "aggregate_usage" => Ok(Deserialize::begin(&mut self.aggregate_usage)),
                 "interval" => Ok(Deserialize::begin(&mut self.interval)),

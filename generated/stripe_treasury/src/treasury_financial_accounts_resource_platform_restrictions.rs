@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for TreasuryFinancialAccountsResourcePlatformRestrictionsBuilder {
         type Out = TreasuryFinancialAccountsResourcePlatformRestrictions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "inbound_flows" => Ok(Deserialize::begin(&mut self.inbound_flows)),
                 "outbound_flows" => Ok(Deserialize::begin(&mut self.outbound_flows)),

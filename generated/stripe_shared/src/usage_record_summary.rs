@@ -52,6 +52,7 @@ const _: () = {
     impl MapBuilder for UsageRecordSummaryBuilder {
         type Out = UsageRecordSummary;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "id" => Ok(Deserialize::begin(&mut self.id)),
                 "invoice" => Ok(Deserialize::begin(&mut self.invoice)),

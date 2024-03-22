@@ -58,6 +58,7 @@ const _: () = {
     impl MapBuilder for PersonRequirementsBuilder {
         type Out = PersonRequirements;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "alternatives" => Ok(Deserialize::begin(&mut self.alternatives)),
                 "currently_due" => Ok(Deserialize::begin(&mut self.currently_due)),

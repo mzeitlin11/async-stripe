@@ -49,6 +49,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodOptionsWechatPayBuilder {
         type Out = PaymentMethodOptionsWechatPay;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "app_id" => Ok(Deserialize::begin(&mut self.app_id)),
                 "client" => Ok(Deserialize::begin(&mut self.client)),

@@ -109,6 +109,7 @@ const _: () = {
     impl MapBuilder for AccountBuilder {
         type Out = Account;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "business_profile" => Ok(Deserialize::begin(&mut self.business_profile)),
                 "business_type" => Ok(Deserialize::begin(&mut self.business_type)),

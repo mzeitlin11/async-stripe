@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for TreasuryFinancialAccountsResourceAchToggleSettingsBuilder {
         type Out = TreasuryFinancialAccountsResourceAchToggleSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "requested" => Ok(Deserialize::begin(&mut self.requested)),
                 "status" => Ok(Deserialize::begin(&mut self.status)),

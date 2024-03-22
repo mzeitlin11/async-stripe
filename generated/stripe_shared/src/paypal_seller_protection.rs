@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for PaypalSellerProtectionBuilder {
         type Out = PaypalSellerProtection;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "dispute_categories" => Ok(Deserialize::begin(&mut self.dispute_categories)),
                 "status" => Ok(Deserialize::begin(&mut self.status)),

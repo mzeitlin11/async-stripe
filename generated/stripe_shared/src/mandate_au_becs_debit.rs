@@ -39,6 +39,7 @@ const _: () = {
     impl MapBuilder for MandateAuBecsDebitBuilder {
         type Out = MandateAuBecsDebit;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "url" => Ok(Deserialize::begin(&mut self.url)),
 

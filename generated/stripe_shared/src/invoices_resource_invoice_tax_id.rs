@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for InvoicesResourceInvoiceTaxIdBuilder {
         type Out = InvoicesResourceInvoiceTaxId;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "type" => Ok(Deserialize::begin(&mut self.type_)),
                 "value" => Ok(Deserialize::begin(&mut self.value)),

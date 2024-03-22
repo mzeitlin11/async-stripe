@@ -50,6 +50,7 @@ const _: () = {
     impl MapBuilder for IssuingDisputeNotReceivedEvidenceBuilder {
         type Out = IssuingDisputeNotReceivedEvidence;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "additional_documentation" => Ok(Deserialize::begin(&mut self.additional_documentation)),
                 "expected_at" => Ok(Deserialize::begin(&mut self.expected_at)),

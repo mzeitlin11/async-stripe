@@ -87,6 +87,7 @@ const _: () = {
     impl MapBuilder for SetupAttemptPaymentMethodDetailsCardBuilder {
         type Out = SetupAttemptPaymentMethodDetailsCard;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "brand" => Ok(Deserialize::begin(&mut self.brand)),
                 "checks" => Ok(Deserialize::begin(&mut self.checks)),

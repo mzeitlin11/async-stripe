@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for TreasuryOutboundTransfersResourceStatusTransitionsBuilder {
         type Out = TreasuryOutboundTransfersResourceStatusTransitions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "canceled_at" => Ok(Deserialize::begin(&mut self.canceled_at)),
                 "failed_at" => Ok(Deserialize::begin(&mut self.failed_at)),

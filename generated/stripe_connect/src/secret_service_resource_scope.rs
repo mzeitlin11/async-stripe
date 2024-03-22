@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for SecretServiceResourceScopeBuilder {
         type Out = SecretServiceResourceScope;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "type" => Ok(Deserialize::begin(&mut self.type_)),
                 "user" => Ok(Deserialize::begin(&mut self.user)),

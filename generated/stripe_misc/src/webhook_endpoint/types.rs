@@ -80,6 +80,7 @@ const _: () = {
     impl MapBuilder for WebhookEndpointBuilder {
         type Out = WebhookEndpoint;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "api_version" => Ok(Deserialize::begin(&mut self.api_version)),
                 "application" => Ok(Deserialize::begin(&mut self.application)),

@@ -50,6 +50,7 @@ const _: () = {
     impl MapBuilder for EphemeralKeyBuilder {
         type Out = EphemeralKey;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "created" => Ok(Deserialize::begin(&mut self.created)),
                 "expires" => Ok(Deserialize::begin(&mut self.expires)),

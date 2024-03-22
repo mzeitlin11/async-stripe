@@ -48,6 +48,7 @@ const _: () = {
     impl MapBuilder for TerminalConnectionTokenBuilder {
         type Out = TerminalConnectionToken;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "location" => Ok(Deserialize::begin(&mut self.location)),
                 "secret" => Ok(Deserialize::begin(&mut self.secret)),

@@ -65,6 +65,7 @@ const _: () = {
     impl MapBuilder for IssuingNetworkTokenWalletProviderBuilder {
         type Out = IssuingNetworkTokenWalletProvider;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "account_id" => Ok(Deserialize::begin(&mut self.account_id)),
                 "account_trust_score" => Ok(Deserialize::begin(&mut self.account_trust_score)),

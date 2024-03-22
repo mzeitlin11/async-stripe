@@ -93,6 +93,7 @@ const _: () = {
     impl MapBuilder for LegalEntityCompanyBuilder {
         type Out = LegalEntityCompany;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "address" => Ok(Deserialize::begin(&mut self.address)),
                 "address_kana" => Ok(Deserialize::begin(&mut self.address_kana)),

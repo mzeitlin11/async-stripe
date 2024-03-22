@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for SourceTransactionSepaCreditTransferDataBuilder {
         type Out = SourceTransactionSepaCreditTransferData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "reference" => Ok(Deserialize::begin(&mut self.reference)),
                 "sender_iban" => Ok(Deserialize::begin(&mut self.sender_iban)),

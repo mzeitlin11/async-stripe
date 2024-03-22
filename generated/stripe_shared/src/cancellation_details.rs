@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for CancellationDetailsBuilder {
         type Out = CancellationDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "comment" => Ok(Deserialize::begin(&mut self.comment)),
                 "feedback" => Ok(Deserialize::begin(&mut self.feedback)),

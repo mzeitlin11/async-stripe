@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for PortalLoginPageBuilder {
         type Out = PortalLoginPage;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "enabled" => Ok(Deserialize::begin(&mut self.enabled)),
                 "url" => Ok(Deserialize::begin(&mut self.url)),

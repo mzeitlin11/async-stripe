@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for TaxIdVerificationBuilder {
         type Out = TaxIdVerification;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "status" => Ok(Deserialize::begin(&mut self.status)),
                 "verified_address" => Ok(Deserialize::begin(&mut self.verified_address)),

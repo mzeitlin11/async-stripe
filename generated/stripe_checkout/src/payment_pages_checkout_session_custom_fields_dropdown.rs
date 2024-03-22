@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for PaymentPagesCheckoutSessionCustomFieldsDropdownBuilder {
         type Out = PaymentPagesCheckoutSessionCustomFieldsDropdown;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "options" => Ok(Deserialize::begin(&mut self.options)),
                 "value" => Ok(Deserialize::begin(&mut self.value)),

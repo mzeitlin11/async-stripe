@@ -50,6 +50,7 @@ const _: () = {
     impl MapBuilder for InvoicesShippingCostBuilder {
         type Out = InvoicesShippingCost;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount_subtotal" => Ok(Deserialize::begin(&mut self.amount_subtotal)),
                 "amount_tax" => Ok(Deserialize::begin(&mut self.amount_tax)),

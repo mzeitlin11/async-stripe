@@ -85,6 +85,7 @@ const _: () = {
     impl MapBuilder for CreditNoteLineItemBuilder {
         type Out = CreditNoteLineItem;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount" => Ok(Deserialize::begin(&mut self.amount)),
                 "amount_excluding_tax" => Ok(Deserialize::begin(&mut self.amount_excluding_tax)),

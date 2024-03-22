@@ -39,6 +39,7 @@ const _: () = {
     impl MapBuilder for InvoiceSettingSubscriptionSchedulePhaseSettingBuilder {
         type Out = InvoiceSettingSubscriptionSchedulePhaseSetting;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "days_until_due" => Ok(Deserialize::begin(&mut self.days_until_due)),
 

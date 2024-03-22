@@ -50,6 +50,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentNextActionPixDisplayQrCodeBuilder {
         type Out = PaymentIntentNextActionPixDisplayQrCode;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "data" => Ok(Deserialize::begin(&mut self.data)),
                 "expires_at" => Ok(Deserialize::begin(&mut self.expires_at)),

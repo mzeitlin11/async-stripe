@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodDetailsFpxBuilder {
         type Out = PaymentMethodDetailsFpx;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "account_holder_type" => Ok(Deserialize::begin(&mut self.account_holder_type)),
                 "bank" => Ok(Deserialize::begin(&mut self.bank)),

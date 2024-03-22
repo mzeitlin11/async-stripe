@@ -55,6 +55,7 @@ const _: () = {
     impl MapBuilder for SourceTypeAcssDebitBuilder {
         type Out = SourceTypeAcssDebit;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "bank_address_city" => Ok(Deserialize::begin(&mut self.bank_address_city)),
                 "bank_address_line_1" => Ok(Deserialize::begin(&mut self.bank_address_line_1)),

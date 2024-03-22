@@ -49,6 +49,7 @@ const _: () = {
     impl MapBuilder for TaxDeductedAtSourceBuilder {
         type Out = TaxDeductedAtSource;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "id" => Ok(Deserialize::begin(&mut self.id)),
                 "period_end" => Ok(Deserialize::begin(&mut self.period_end)),

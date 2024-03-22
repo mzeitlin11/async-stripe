@@ -70,6 +70,7 @@ const _: () = {
     impl MapBuilder for ChargeOutcomeBuilder {
         type Out = ChargeOutcome;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "network_status" => Ok(Deserialize::begin(&mut self.network_status)),
                 "reason" => Ok(Deserialize::begin(&mut self.reason)),

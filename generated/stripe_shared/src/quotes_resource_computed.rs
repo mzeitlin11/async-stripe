@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for QuotesResourceComputedBuilder {
         type Out = QuotesResourceComputed;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "recurring" => Ok(Deserialize::begin(&mut self.recurring)),
                 "upfront" => Ok(Deserialize::begin(&mut self.upfront)),

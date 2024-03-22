@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodOptionsBoletoBuilder {
         type Out = PaymentMethodOptionsBoleto;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "expires_after_days" => Ok(Deserialize::begin(&mut self.expires_after_days)),
                 "setup_future_usage" => Ok(Deserialize::begin(&mut self.setup_future_usage)),

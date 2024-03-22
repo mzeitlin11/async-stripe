@@ -43,6 +43,7 @@ const _: () = {
     impl MapBuilder for SubscriptionBillingThresholdsBuilder {
         type Out = SubscriptionBillingThresholds;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount_gte" => Ok(Deserialize::begin(&mut self.amount_gte)),
                 "reset_billing_cycle_anchor" => Ok(Deserialize::begin(&mut self.reset_billing_cycle_anchor)),

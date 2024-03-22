@@ -72,6 +72,7 @@ const _: () = {
     impl MapBuilder for IdentityVerificationReportBuilder {
         type Out = IdentityVerificationReport;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "created" => Ok(Deserialize::begin(&mut self.created)),
                 "document" => Ok(Deserialize::begin(&mut self.document)),

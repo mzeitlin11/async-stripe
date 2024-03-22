@@ -48,6 +48,7 @@ const _: () = {
     impl MapBuilder for SourceRedirectFlowBuilder {
         type Out = SourceRedirectFlow;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "failure_reason" => Ok(Deserialize::begin(&mut self.failure_reason)),
                 "return_url" => Ok(Deserialize::begin(&mut self.return_url)),

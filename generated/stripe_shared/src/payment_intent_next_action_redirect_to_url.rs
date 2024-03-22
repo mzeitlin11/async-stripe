@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentNextActionRedirectToUrlBuilder {
         type Out = PaymentIntentNextActionRedirectToUrl;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "return_url" => Ok(Deserialize::begin(&mut self.return_url)),
                 "url" => Ok(Deserialize::begin(&mut self.url)),

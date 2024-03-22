@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for TreasuryReceivedCreditsResourceStatusTransitionsBuilder {
         type Out = TreasuryReceivedCreditsResourceStatusTransitions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "posted_at" => Ok(Deserialize::begin(&mut self.posted_at)),
 

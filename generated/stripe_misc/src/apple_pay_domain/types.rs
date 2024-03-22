@@ -46,6 +46,7 @@ const _: () = {
     impl MapBuilder for ApplePayDomainBuilder {
         type Out = ApplePayDomain;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "created" => Ok(Deserialize::begin(&mut self.created)),
                 "domain_name" => Ok(Deserialize::begin(&mut self.domain_name)),

@@ -48,6 +48,7 @@ const _: () = {
     impl MapBuilder for IssuingNetworkTokenNetworkDataBuilder {
         type Out = IssuingNetworkTokenNetworkData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "device" => Ok(Deserialize::begin(&mut self.device)),
                 "mastercard" => Ok(Deserialize::begin(&mut self.mastercard)),

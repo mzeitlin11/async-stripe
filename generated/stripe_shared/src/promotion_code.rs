@@ -77,6 +77,7 @@ const _: () = {
     impl MapBuilder for PromotionCodeBuilder {
         type Out = PromotionCode;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "active" => Ok(Deserialize::begin(&mut self.active)),
                 "code" => Ok(Deserialize::begin(&mut self.code)),

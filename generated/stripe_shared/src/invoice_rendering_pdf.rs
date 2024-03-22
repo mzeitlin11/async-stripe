@@ -40,6 +40,7 @@ const _: () = {
     impl MapBuilder for InvoiceRenderingPdfBuilder {
         type Out = InvoiceRenderingPdf;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "page_size" => Ok(Deserialize::begin(&mut self.page_size)),
 

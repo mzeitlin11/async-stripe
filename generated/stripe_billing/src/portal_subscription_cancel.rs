@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for PortalSubscriptionCancelBuilder {
         type Out = PortalSubscriptionCancel;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "cancellation_reason" => Ok(Deserialize::begin(&mut self.cancellation_reason)),
                 "enabled" => Ok(Deserialize::begin(&mut self.enabled)),

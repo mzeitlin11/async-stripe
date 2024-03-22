@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodDetailsMultibancoBuilder {
         type Out = PaymentMethodDetailsMultibanco;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "entity" => Ok(Deserialize::begin(&mut self.entity)),
                 "reference" => Ok(Deserialize::begin(&mut self.reference)),

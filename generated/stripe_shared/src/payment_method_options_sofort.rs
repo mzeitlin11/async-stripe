@@ -46,6 +46,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodOptionsSofortBuilder {
         type Out = PaymentMethodOptionsSofort;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "preferred_language" => Ok(Deserialize::begin(&mut self.preferred_language)),
                 "setup_future_usage" => Ok(Deserialize::begin(&mut self.setup_future_usage)),

@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for PortalFlowsSubscriptionUpdateConfirmDiscountBuilder {
         type Out = PortalFlowsSubscriptionUpdateConfirmDiscount;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "coupon" => Ok(Deserialize::begin(&mut self.coupon)),
                 "promotion_code" => Ok(Deserialize::begin(&mut self.promotion_code)),

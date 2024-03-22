@@ -68,6 +68,7 @@ const _: () = {
     impl MapBuilder for TaxCalculationLineItemBuilder {
         type Out = TaxCalculationLineItem;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount" => Ok(Deserialize::begin(&mut self.amount)),
                 "amount_tax" => Ok(Deserialize::begin(&mut self.amount_tax)),

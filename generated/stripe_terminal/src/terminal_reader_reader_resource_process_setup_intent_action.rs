@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for TerminalReaderReaderResourceProcessSetupIntentActionBuilder {
         type Out = TerminalReaderReaderResourceProcessSetupIntentAction;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "generated_card" => Ok(Deserialize::begin(&mut self.generated_card)),
                 "process_config" => Ok(Deserialize::begin(&mut self.process_config)),

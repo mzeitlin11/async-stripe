@@ -87,6 +87,7 @@ const _: () = {
     impl MapBuilder for SourceTypeKlarnaBuilder {
         type Out = SourceTypeKlarna;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "background_image_url" => Ok(Deserialize::begin(&mut self.background_image_url)),
                 "client_token" => Ok(Deserialize::begin(&mut self.client_token)),

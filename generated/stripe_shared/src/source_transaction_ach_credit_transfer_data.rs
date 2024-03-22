@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for SourceTransactionAchCreditTransferDataBuilder {
         type Out = SourceTransactionAchCreditTransferData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "customer_data" => Ok(Deserialize::begin(&mut self.customer_data)),
                 "fingerprint" => Ok(Deserialize::begin(&mut self.fingerprint)),

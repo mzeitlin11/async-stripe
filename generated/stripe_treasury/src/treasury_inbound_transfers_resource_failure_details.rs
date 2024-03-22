@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for TreasuryInboundTransfersResourceFailureDetailsBuilder {
         type Out = TreasuryInboundTransfersResourceFailureDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "code" => Ok(Deserialize::begin(&mut self.code)),
 

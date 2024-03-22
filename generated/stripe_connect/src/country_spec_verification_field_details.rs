@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for CountrySpecVerificationFieldDetailsBuilder {
         type Out = CountrySpecVerificationFieldDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "additional" => Ok(Deserialize::begin(&mut self.additional)),
                 "minimum" => Ok(Deserialize::begin(&mut self.minimum)),

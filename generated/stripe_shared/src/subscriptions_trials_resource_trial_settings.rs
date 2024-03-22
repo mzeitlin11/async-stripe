@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for SubscriptionsTrialsResourceTrialSettingsBuilder {
         type Out = SubscriptionsTrialsResourceTrialSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "end_behavior" => Ok(Deserialize::begin(&mut self.end_behavior)),
 

@@ -51,6 +51,7 @@ const _: () = {
     impl MapBuilder for TerminalReaderReaderResourceCartBuilder {
         type Out = TerminalReaderReaderResourceCart;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "currency" => Ok(Deserialize::begin(&mut self.currency)),
                 "line_items" => Ok(Deserialize::begin(&mut self.line_items)),

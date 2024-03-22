@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for IssuingCardholderIdDocumentBuilder {
         type Out = IssuingCardholderIdDocument;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "back" => Ok(Deserialize::begin(&mut self.back)),
                 "front" => Ok(Deserialize::begin(&mut self.front)),

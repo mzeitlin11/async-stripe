@@ -49,6 +49,7 @@ const _: () = {
     impl MapBuilder for IssuingTransactionFuelDataBuilder {
         type Out = IssuingTransactionFuelData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "type" => Ok(Deserialize::begin(&mut self.type_)),
                 "unit" => Ok(Deserialize::begin(&mut self.unit)),

@@ -75,6 +75,7 @@ const _: () = {
     impl MapBuilder for ApiErrorsBuilder {
         type Out = ApiErrors;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "charge" => Ok(Deserialize::begin(&mut self.charge)),
                 "code" => Ok(Deserialize::begin(&mut self.code)),

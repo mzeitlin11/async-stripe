@@ -99,6 +99,7 @@ const _: () = {
     impl MapBuilder for FinancialConnectionsAccountBuilder {
         type Out = FinancialConnectionsAccount;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "account_holder" => Ok(Deserialize::begin(&mut self.account_holder)),
                 "balance" => Ok(Deserialize::begin(&mut self.balance)),

@@ -52,6 +52,7 @@ const _: () = {
     impl MapBuilder for AccountCardPaymentsSettingsBuilder {
         type Out = AccountCardPaymentsSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "decline_on" => Ok(Deserialize::begin(&mut self.decline_on)),
                 "statement_descriptor_prefix" => Ok(Deserialize::begin(&mut self.statement_descriptor_prefix)),

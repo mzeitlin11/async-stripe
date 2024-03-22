@@ -95,6 +95,7 @@ const _: () = {
     impl MapBuilder for EventBuilder {
         type Out = Event;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "account" => Ok(Deserialize::begin(&mut self.account)),
                 "api_version" => Ok(Deserialize::begin(&mut self.api_version)),

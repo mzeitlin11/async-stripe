@@ -48,6 +48,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentPaymentMethodOptionsAcssDebitBuilder {
         type Out = PaymentIntentPaymentMethodOptionsAcssDebit;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "mandate_options" => Ok(Deserialize::begin(&mut self.mandate_options)),
                 "setup_future_usage" => Ok(Deserialize::begin(&mut self.setup_future_usage)),

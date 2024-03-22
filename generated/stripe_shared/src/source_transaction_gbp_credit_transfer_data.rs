@@ -58,6 +58,7 @@ const _: () = {
     impl MapBuilder for SourceTransactionGbpCreditTransferDataBuilder {
         type Out = SourceTransactionGbpCreditTransferData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "fingerprint" => Ok(Deserialize::begin(&mut self.fingerprint)),
                 "funding_method" => Ok(Deserialize::begin(&mut self.funding_method)),

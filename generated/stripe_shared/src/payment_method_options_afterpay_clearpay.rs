@@ -51,6 +51,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodOptionsAfterpayClearpayBuilder {
         type Out = PaymentMethodOptionsAfterpayClearpay;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "capture_method" => Ok(Deserialize::begin(&mut self.capture_method)),
                 "reference" => Ok(Deserialize::begin(&mut self.reference)),

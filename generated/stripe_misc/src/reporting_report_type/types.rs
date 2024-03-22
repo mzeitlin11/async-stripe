@@ -71,6 +71,7 @@ const _: () = {
     impl MapBuilder for ReportingReportTypeBuilder {
         type Out = ReportingReportType;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "data_available_end" => Ok(Deserialize::begin(&mut self.data_available_end)),
                 "data_available_start" => Ok(Deserialize::begin(&mut self.data_available_start)),

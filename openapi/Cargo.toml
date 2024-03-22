@@ -9,19 +9,19 @@ publish = ["do-not-publish"]
 
 [dependencies]
 heck = "0.4.1"
-petgraph = {version = "0.6.2", default-features = false, features = ["graphmap"]}
+petgraph = { version = "0.6.2", default-features = false, features = ["graphmap"] }
 lazy_static = "1"
 reqwest = { version = "0.11", features = ["blocking", "json"] }
 regex-lite = "0.1.5"
-serde = {version = "1", features = ["derive"]}
+serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = "0.8.8"
 anyhow = "1.0.34"
 tracing = "0.1.36"
-openapiv3 = "1.0.1"
+openapiv3 = "2.0.0"
 # So same indexmap can be used as `openapiv3` dep
-indexmap = "2.1.0"
+indexmap = "2.2.5"
 tracing-subscriber = "0.3.15"
 tabled = "0.14.0"
-clap = {version = "4.3", features = ["derive"]}
+clap = { version = "4.3", features = ["derive"] }
 indoc = "2.0.1"

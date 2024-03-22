@@ -51,6 +51,7 @@ const _: () = {
     impl MapBuilder for TreasuryFinancialAccountFeaturesBuilder {
         type Out = TreasuryFinancialAccountFeatures;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "card_issuing" => Ok(Deserialize::begin(&mut self.card_issuing)),
                 "deposit_insurance" => Ok(Deserialize::begin(&mut self.deposit_insurance)),

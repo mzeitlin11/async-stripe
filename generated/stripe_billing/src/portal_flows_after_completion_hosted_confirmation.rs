@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for PortalFlowsAfterCompletionHostedConfirmationBuilder {
         type Out = PortalFlowsAfterCompletionHostedConfirmation;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "custom_message" => Ok(Deserialize::begin(&mut self.custom_message)),
 

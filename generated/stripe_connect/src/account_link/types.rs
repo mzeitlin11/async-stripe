@@ -50,6 +50,7 @@ const _: () = {
     impl MapBuilder for AccountLinkBuilder {
         type Out = AccountLink;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "created" => Ok(Deserialize::begin(&mut self.created)),
                 "expires_at" => Ok(Deserialize::begin(&mut self.expires_at)),

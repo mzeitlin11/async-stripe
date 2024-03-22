@@ -65,6 +65,7 @@ const _: () = {
     impl MapBuilder for AccountSessionBuilder {
         type Out = AccountSession;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "account" => Ok(Deserialize::begin(&mut self.account)),
                 "client_secret" => Ok(Deserialize::begin(&mut self.client_secret)),

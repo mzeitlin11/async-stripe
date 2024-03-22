@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for InvoicePaymentMethodOptionsCardBuilder {
         type Out = InvoicePaymentMethodOptionsCard;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "installments" => Ok(Deserialize::begin(&mut self.installments)),
                 "request_three_d_secure" => Ok(Deserialize::begin(&mut self.request_three_d_secure)),

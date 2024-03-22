@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for PortalFlowsFlowSubscriptionCancelBuilder {
         type Out = PortalFlowsFlowSubscriptionCancel;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "retention" => Ok(Deserialize::begin(&mut self.retention)),
                 "subscription" => Ok(Deserialize::begin(&mut self.subscription)),

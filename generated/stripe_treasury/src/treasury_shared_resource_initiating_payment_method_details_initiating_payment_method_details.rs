@@ -53,6 +53,7 @@ const _: () = {
     impl MapBuilder for TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetailsBuilder {
         type Out = TreasurySharedResourceInitiatingPaymentMethodDetailsInitiatingPaymentMethodDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "balance" => Ok(Deserialize::begin(&mut self.balance)),
                 "billing_details" => Ok(Deserialize::begin(&mut self.billing_details)),

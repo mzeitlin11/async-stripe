@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for BankConnectionsResourceOwnershipRefreshBuilder {
         type Out = BankConnectionsResourceOwnershipRefresh;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "last_attempted_at" => Ok(Deserialize::begin(&mut self.last_attempted_at)),
                 "status" => Ok(Deserialize::begin(&mut self.status)),

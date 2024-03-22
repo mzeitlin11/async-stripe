@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for ChargeFraudDetailsBuilder {
         type Out = ChargeFraudDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "stripe_report" => Ok(Deserialize::begin(&mut self.stripe_report)),
                 "user_report" => Ok(Deserialize::begin(&mut self.user_report)),

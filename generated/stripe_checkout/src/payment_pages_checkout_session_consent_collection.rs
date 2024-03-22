@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for PaymentPagesCheckoutSessionConsentCollectionBuilder {
         type Out = PaymentPagesCheckoutSessionConsentCollection;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "promotions" => Ok(Deserialize::begin(&mut self.promotions)),
                 "terms_of_service" => Ok(Deserialize::begin(&mut self.terms_of_service)),

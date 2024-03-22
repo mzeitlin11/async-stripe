@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for InvoiceSettingRenderingOptionsBuilder {
         type Out = InvoiceSettingRenderingOptions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount_tax_display" => Ok(Deserialize::begin(&mut self.amount_tax_display)),
 

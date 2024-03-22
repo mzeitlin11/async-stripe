@@ -80,6 +80,7 @@ const _: () = {
     impl MapBuilder for TreasuryDebitReversalBuilder {
         type Out = TreasuryDebitReversal;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount" => Ok(Deserialize::begin(&mut self.amount)),
                 "created" => Ok(Deserialize::begin(&mut self.created)),

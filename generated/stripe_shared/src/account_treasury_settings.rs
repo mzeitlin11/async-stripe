@@ -37,6 +37,7 @@ const _: () = {
     impl MapBuilder for AccountTreasurySettingsBuilder {
         type Out = AccountTreasurySettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "tos_acceptance" => Ok(Deserialize::begin(&mut self.tos_acceptance)),
 

@@ -87,6 +87,7 @@ const _: () = {
     impl MapBuilder for SourceTypeCardPresentBuilder {
         type Out = SourceTypeCardPresent;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "application_cryptogram" => Ok(Deserialize::begin(&mut self.application_cryptogram)),
                 "application_preferred_name" => Ok(Deserialize::begin(&mut self.application_preferred_name)),

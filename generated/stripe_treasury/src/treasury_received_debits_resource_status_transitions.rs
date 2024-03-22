@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for TreasuryReceivedDebitsResourceStatusTransitionsBuilder {
         type Out = TreasuryReceivedDebitsResourceStatusTransitions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "completed_at" => Ok(Deserialize::begin(&mut self.completed_at)),
 

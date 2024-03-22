@@ -1144,10 +1144,6 @@ pub mod payment_intent_processing_customer_notification;
 #[doc(inline)]
 pub use payment_intent_processing_customer_notification::*;
 #[doc(hidden)]
-pub mod usage_record_summary;
-#[doc(inline)]
-pub use usage_record_summary::*;
-#[doc(hidden)]
 pub mod payment_link;
 #[doc(inline)]
 pub use payment_link::*;
@@ -2108,10 +2104,6 @@ pub mod source_code_verification_flow;
 #[doc(inline)]
 pub use source_code_verification_flow::*;
 #[doc(hidden)]
-pub mod us_bank_account_networks;
-#[doc(inline)]
-pub use us_bank_account_networks::*;
-#[doc(hidden)]
 pub mod source_order;
 #[doc(inline)]
 pub use source_order::*;
@@ -2383,6 +2375,14 @@ pub use transform_quantity::*;
 pub mod transform_usage;
 #[doc(inline)]
 pub use transform_usage::*;
+#[doc(hidden)]
+pub mod us_bank_account_networks;
+#[doc(inline)]
+pub use us_bank_account_networks::*;
+#[doc(hidden)]
+pub mod usage_record_summary;
+#[doc(inline)]
+pub use usage_record_summary::*;
 pub mod api_version;
 pub use api_version::ApiVersion;
 pub mod version;

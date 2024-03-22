@@ -121,6 +121,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodDetailsBuilder {
         type Out = PaymentMethodDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "ach_credit_transfer" => Ok(Deserialize::begin(&mut self.ach_credit_transfer)),
                 "ach_debit" => Ok(Deserialize::begin(&mut self.ach_debit)),

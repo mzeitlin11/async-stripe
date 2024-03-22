@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for ErrorBuilder {
         type Out = Error;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "error" => Ok(Deserialize::begin(&mut self.error)),
 

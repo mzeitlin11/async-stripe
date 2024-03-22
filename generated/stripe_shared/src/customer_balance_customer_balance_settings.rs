@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for CustomerBalanceCustomerBalanceSettingsBuilder {
         type Out = CustomerBalanceCustomerBalanceSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "reconciliation_mode" => Ok(Deserialize::begin(&mut self.reconciliation_mode)),
                 "using_merchant_default" => Ok(Deserialize::begin(&mut self.using_merchant_default)),

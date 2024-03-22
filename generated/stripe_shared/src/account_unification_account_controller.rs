@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for AccountUnificationAccountControllerBuilder {
         type Out = AccountUnificationAccountController;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "is_controller" => Ok(Deserialize::begin(&mut self.is_controller)),
                 "type" => Ok(Deserialize::begin(&mut self.type_)),

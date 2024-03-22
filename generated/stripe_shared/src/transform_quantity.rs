@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for TransformQuantityBuilder {
         type Out = TransformQuantity;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "divide_by" => Ok(Deserialize::begin(&mut self.divide_by)),
                 "round" => Ok(Deserialize::begin(&mut self.round)),

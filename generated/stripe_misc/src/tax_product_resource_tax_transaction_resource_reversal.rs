@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for TaxProductResourceTaxTransactionResourceReversalBuilder {
         type Out = TaxProductResourceTaxTransactionResourceReversal;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "original_transaction" => Ok(Deserialize::begin(&mut self.original_transaction)),
 

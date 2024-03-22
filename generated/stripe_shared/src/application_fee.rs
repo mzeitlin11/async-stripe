@@ -77,6 +77,7 @@ const _: () = {
     impl MapBuilder for ApplicationFeeBuilder {
         type Out = ApplicationFee;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "account" => Ok(Deserialize::begin(&mut self.account)),
                 "amount" => Ok(Deserialize::begin(&mut self.amount)),

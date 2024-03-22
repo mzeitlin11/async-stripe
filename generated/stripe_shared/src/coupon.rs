@@ -94,6 +94,7 @@ const _: () = {
     impl MapBuilder for CouponBuilder {
         type Out = Coupon;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount_off" => Ok(Deserialize::begin(&mut self.amount_off)),
                 "applies_to" => Ok(Deserialize::begin(&mut self.applies_to)),

@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for TaxProductResourceTaxSettingsStatusDetailsResourcePendingBuilder {
         type Out = TaxProductResourceTaxSettingsStatusDetailsResourcePending;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "missing_fields" => Ok(Deserialize::begin(&mut self.missing_fields)),
 

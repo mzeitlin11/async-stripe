@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for GelatoDataDocumentReportIssuedDateBuilder {
         type Out = GelatoDataDocumentReportIssuedDate;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "day" => Ok(Deserialize::begin(&mut self.day)),
                 "month" => Ok(Deserialize::begin(&mut self.month)),

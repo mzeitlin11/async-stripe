@@ -50,6 +50,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentNextActionWechatPayDisplayQrCodeBuilder {
         type Out = PaymentIntentNextActionWechatPayDisplayQrCode;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "data" => Ok(Deserialize::begin(&mut self.data)),
                 "hosted_instructions_url" => Ok(Deserialize::begin(&mut self.hosted_instructions_url)),

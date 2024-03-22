@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for LinkedAccountOptionsUsBankAccountBuilder {
         type Out = LinkedAccountOptionsUsBankAccount;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "permissions" => Ok(Deserialize::begin(&mut self.permissions)),
                 "prefetch" => Ok(Deserialize::begin(&mut self.prefetch)),

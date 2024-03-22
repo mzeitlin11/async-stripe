@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for NetworksBuilder {
         type Out = Networks;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "available" => Ok(Deserialize::begin(&mut self.available)),
                 "preferred" => Ok(Deserialize::begin(&mut self.preferred)),

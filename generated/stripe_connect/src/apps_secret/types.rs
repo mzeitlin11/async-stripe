@@ -71,6 +71,7 @@ const _: () = {
     impl MapBuilder for AppsSecretBuilder {
         type Out = AppsSecret;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "created" => Ok(Deserialize::begin(&mut self.created)),
                 "deleted" => Ok(Deserialize::begin(&mut self.deleted)),

@@ -73,6 +73,7 @@ const _: () = {
     impl MapBuilder for SubscriptionSchedulesResourceDefaultSettingsBuilder {
         type Out = SubscriptionSchedulesResourceDefaultSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "application_fee_percent" => Ok(Deserialize::begin(&mut self.application_fee_percent)),
                 "automatic_tax" => Ok(Deserialize::begin(&mut self.automatic_tax)),

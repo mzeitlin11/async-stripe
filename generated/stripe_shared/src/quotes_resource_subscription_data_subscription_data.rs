@@ -54,6 +54,7 @@ const _: () = {
     impl MapBuilder for QuotesResourceSubscriptionDataSubscriptionDataBuilder {
         type Out = QuotesResourceSubscriptionDataSubscriptionData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "description" => Ok(Deserialize::begin(&mut self.description)),
                 "effective_date" => Ok(Deserialize::begin(&mut self.effective_date)),

@@ -54,6 +54,7 @@ const _: () = {
     impl MapBuilder for TaxSettingsBuilder {
         type Out = TaxSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "defaults" => Ok(Deserialize::begin(&mut self.defaults)),
                 "head_office" => Ok(Deserialize::begin(&mut self.head_office)),

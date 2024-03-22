@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for IssuingCardholderCompanyBuilder {
         type Out = IssuingCardholderCompany;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "tax_id_provided" => Ok(Deserialize::begin(&mut self.tax_id_provided)),
 

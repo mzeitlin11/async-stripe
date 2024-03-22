@@ -64,6 +64,7 @@ const _: () = {
     impl MapBuilder for FinancialReportingFinanceReportRunRunParametersBuilder {
         type Out = FinancialReportingFinanceReportRunRunParameters;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "columns" => Ok(Deserialize::begin(&mut self.columns)),
                 "connected_account" => Ok(Deserialize::begin(&mut self.connected_account)),

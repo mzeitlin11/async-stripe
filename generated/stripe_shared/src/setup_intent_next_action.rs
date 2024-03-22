@@ -49,6 +49,7 @@ const _: () = {
     impl MapBuilder for SetupIntentNextActionBuilder {
         type Out = SetupIntentNextAction;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "cashapp_handle_redirect_or_display_qr_code" => Ok(Deserialize::begin(&mut self.cashapp_handle_redirect_or_display_qr_code)),
                 "redirect_to_url" => Ok(Deserialize::begin(&mut self.redirect_to_url)),

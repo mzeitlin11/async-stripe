@@ -50,6 +50,7 @@ const _: () = {
     impl MapBuilder for TaxProductResourceTaxBreakdownBuilder {
         type Out = TaxProductResourceTaxBreakdown;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount" => Ok(Deserialize::begin(&mut self.amount)),
                 "inclusive" => Ok(Deserialize::begin(&mut self.inclusive)),

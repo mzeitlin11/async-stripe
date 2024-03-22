@@ -55,6 +55,7 @@ const _: () = {
     impl MapBuilder for TerminalConfigurationBuilder {
         type Out = TerminalConfiguration;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "bbpos_wisepos_e" => Ok(Deserialize::begin(&mut self.bbpos_wisepos_e)),
                 "id" => Ok(Deserialize::begin(&mut self.id)),

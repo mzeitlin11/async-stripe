@@ -53,6 +53,7 @@ const _: () = {
     impl MapBuilder for IssuingTransactionFlightDataLegBuilder {
         type Out = IssuingTransactionFlightDataLeg;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "arrival_airport_code" => Ok(Deserialize::begin(&mut self.arrival_airport_code)),
                 "carrier" => Ok(Deserialize::begin(&mut self.carrier)),

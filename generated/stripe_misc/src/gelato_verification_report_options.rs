@@ -39,6 +39,7 @@ const _: () = {
     impl MapBuilder for GelatoVerificationReportOptionsBuilder {
         type Out = GelatoVerificationReportOptions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "document" => Ok(Deserialize::begin(&mut self.document)),
                 "id_number" => Ok(Deserialize::begin(&mut self.id_number)),

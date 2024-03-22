@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for PeriodBuilder {
         type Out = Period;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "end" => Ok(Deserialize::begin(&mut self.end)),
                 "start" => Ok(Deserialize::begin(&mut self.start)),

@@ -78,6 +78,7 @@ const _: () = {
     impl MapBuilder for ShippingRateBuilder {
         type Out = ShippingRate;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "active" => Ok(Deserialize::begin(&mut self.active)),
                 "created" => Ok(Deserialize::begin(&mut self.created)),

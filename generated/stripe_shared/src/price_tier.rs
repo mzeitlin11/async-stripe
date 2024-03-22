@@ -50,6 +50,7 @@ const _: () = {
     impl MapBuilder for PriceTierBuilder {
         type Out = PriceTier;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "flat_amount" => Ok(Deserialize::begin(&mut self.flat_amount)),
                 "flat_amount_decimal" => Ok(Deserialize::begin(&mut self.flat_amount_decimal)),

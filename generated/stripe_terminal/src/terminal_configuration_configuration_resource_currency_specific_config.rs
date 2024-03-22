@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for TerminalConfigurationConfigurationResourceCurrencySpecificConfigBuilder {
         type Out = TerminalConfigurationConfigurationResourceCurrencySpecificConfig;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "fixed_amounts" => Ok(Deserialize::begin(&mut self.fixed_amounts)),
                 "percentages" => Ok(Deserialize::begin(&mut self.percentages)),

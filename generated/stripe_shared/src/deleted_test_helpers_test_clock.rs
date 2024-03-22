@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for DeletedTestHelpersTestClockBuilder {
         type Out = DeletedTestHelpersTestClock;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "deleted" => Ok(Deserialize::begin(&mut self.deleted)),
                 "id" => Ok(Deserialize::begin(&mut self.id)),

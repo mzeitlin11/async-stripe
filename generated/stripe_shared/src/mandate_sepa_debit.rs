@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for MandateSepaDebitBuilder {
         type Out = MandateSepaDebit;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "reference" => Ok(Deserialize::begin(&mut self.reference)),
                 "url" => Ok(Deserialize::begin(&mut self.url)),

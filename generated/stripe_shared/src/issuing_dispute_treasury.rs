@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for IssuingDisputeTreasuryBuilder {
         type Out = IssuingDisputeTreasury;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "debit_reversal" => Ok(Deserialize::begin(&mut self.debit_reversal)),
                 "received_debit" => Ok(Deserialize::begin(&mut self.received_debit)),

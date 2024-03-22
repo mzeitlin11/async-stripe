@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for ThreeDSecureUsageBuilder {
         type Out = ThreeDSecureUsage;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "supported" => Ok(Deserialize::begin(&mut self.supported)),
 

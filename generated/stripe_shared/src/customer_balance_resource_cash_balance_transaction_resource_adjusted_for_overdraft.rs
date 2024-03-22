@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for CustomerBalanceResourceCashBalanceTransactionResourceAdjustedForOverdraftBuilder {
         type Out = CustomerBalanceResourceCashBalanceTransactionResourceAdjustedForOverdraft;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "balance_transaction" => Ok(Deserialize::begin(&mut self.balance_transaction)),
                 "linked_transaction" => Ok(Deserialize::begin(&mut self.linked_transaction)),

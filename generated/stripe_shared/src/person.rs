@@ -130,6 +130,7 @@ const _: () = {
     impl MapBuilder for PersonBuilder {
         type Out = Person;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "account" => Ok(Deserialize::begin(&mut self.account)),
                 "additional_tos_acceptances" => Ok(Deserialize::begin(&mut self.additional_tos_acceptances)),

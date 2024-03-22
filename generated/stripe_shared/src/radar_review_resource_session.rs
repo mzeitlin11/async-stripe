@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for RadarReviewResourceSessionBuilder {
         type Out = RadarReviewResourceSession;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "browser" => Ok(Deserialize::begin(&mut self.browser)),
                 "device" => Ok(Deserialize::begin(&mut self.device)),

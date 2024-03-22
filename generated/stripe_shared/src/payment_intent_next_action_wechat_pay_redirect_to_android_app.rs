@@ -56,6 +56,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentNextActionWechatPayRedirectToAndroidAppBuilder {
         type Out = PaymentIntentNextActionWechatPayRedirectToAndroidApp;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "app_id" => Ok(Deserialize::begin(&mut self.app_id)),
                 "nonce_str" => Ok(Deserialize::begin(&mut self.nonce_str)),

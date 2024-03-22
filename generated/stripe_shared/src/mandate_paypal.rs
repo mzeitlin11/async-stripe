@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for MandatePaypalBuilder {
         type Out = MandatePaypal;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "billing_agreement_id" => Ok(Deserialize::begin(&mut self.billing_agreement_id)),
                 "payer_id" => Ok(Deserialize::begin(&mut self.payer_id)),

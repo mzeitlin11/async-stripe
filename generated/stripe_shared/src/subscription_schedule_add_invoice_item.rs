@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for SubscriptionScheduleAddInvoiceItemBuilder {
         type Out = SubscriptionScheduleAddInvoiceItem;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "price" => Ok(Deserialize::begin(&mut self.price)),
                 "quantity" => Ok(Deserialize::begin(&mut self.quantity)),

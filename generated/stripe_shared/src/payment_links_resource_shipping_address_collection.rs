@@ -39,6 +39,7 @@ const _: () = {
     impl MapBuilder for PaymentLinksResourceShippingAddressCollectionBuilder {
         type Out = PaymentLinksResourceShippingAddressCollection;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "allowed_countries" => Ok(Deserialize::begin(&mut self.allowed_countries)),
 

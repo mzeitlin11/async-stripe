@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for QuotesResourceUpfrontBuilder {
         type Out = QuotesResourceUpfront;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount_subtotal" => Ok(Deserialize::begin(&mut self.amount_subtotal)),
                 "amount_total" => Ok(Deserialize::begin(&mut self.amount_total)),

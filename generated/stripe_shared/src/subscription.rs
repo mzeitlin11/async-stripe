@@ -207,6 +207,7 @@ const _: () = {
     impl MapBuilder for SubscriptionBuilder {
         type Out = Subscription;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "application" => Ok(Deserialize::begin(&mut self.application)),
                 "application_fee_percent" => Ok(Deserialize::begin(&mut self.application_fee_percent)),

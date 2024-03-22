@@ -83,6 +83,7 @@ const _: () = {
     impl MapBuilder for ReviewBuilder {
         type Out = Review;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "billing_zip" => Ok(Deserialize::begin(&mut self.billing_zip)),
                 "charge" => Ok(Deserialize::begin(&mut self.charge)),

@@ -50,6 +50,7 @@ const _: () = {
     impl MapBuilder for ShippingBuilder {
         type Out = Shipping;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "address" => Ok(Deserialize::begin(&mut self.address)),
                 "carrier" => Ok(Deserialize::begin(&mut self.carrier)),

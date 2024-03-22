@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodPaypalBuilder {
         type Out = PaymentMethodPaypal;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "payer_email" => Ok(Deserialize::begin(&mut self.payer_email)),
                 "payer_id" => Ok(Deserialize::begin(&mut self.payer_id)),

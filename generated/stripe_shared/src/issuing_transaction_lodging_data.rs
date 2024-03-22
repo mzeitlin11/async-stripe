@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for IssuingTransactionLodgingDataBuilder {
         type Out = IssuingTransactionLodgingData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "check_in_at" => Ok(Deserialize::begin(&mut self.check_in_at)),
                 "nights" => Ok(Deserialize::begin(&mut self.nights)),

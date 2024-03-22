@@ -46,6 +46,7 @@ const _: () = {
     impl MapBuilder for TransferDataBuilder {
         type Out = TransferData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount" => Ok(Deserialize::begin(&mut self.amount)),
                 "destination" => Ok(Deserialize::begin(&mut self.destination)),

@@ -70,6 +70,7 @@ const _: () = {
     impl MapBuilder for ExchangeRateBuilder {
         type Out = ExchangeRate;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "id" => Ok(Deserialize::begin(&mut self.id)),
                 "rates" => Ok(Deserialize::begin(&mut self.rates)),

@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for PaymentPagesCheckoutSessionCustomFieldsLabelBuilder {
         type Out = PaymentPagesCheckoutSessionCustomFieldsLabel;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "custom" => Ok(Deserialize::begin(&mut self.custom)),
                 "type" => Ok(Deserialize::begin(&mut self.type_)),

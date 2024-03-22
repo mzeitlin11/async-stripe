@@ -1,11 +1,12 @@
 use std::fmt::Write as _;
 
-use indexmap::IndexMap;
 use indoc::writedoc;
 
 use crate::components::Components;
 use crate::printable::PrintableWithLifetime;
-use crate::rust_object::{EnumVariant, FieldlessVariant, ObjectRef, ShouldImplSerialize};
+use crate::rust_object::{
+    EnumOfObjects, EnumVariant, FieldlessVariant, ObjectRef, ShouldImplSerialize,
+};
 use crate::templates::miniserde::gen_enum_of_objects_miniserde;
 use crate::templates::object_writer::{write_derives_line, ObjectWriter};
 use crate::templates::utils::{write_gated_serde_rename, write_gated_serde_tag};
@@ -42,17 +43,7 @@ impl<'a> ObjectWriter<'a> {
         "#
         );
         if self.obj_kind.should_impl_deserialize() {
-            let _ = writedoc!(
-                out,
-                r#"
-            #[cfg(feature = "min-ser")]
-            impl miniserde::Deserialize for {enum_name} {{
-                fn begin(_out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {{
-                    todo!()
-                }}
-            }}
-        "#
-            );
+            unimplemented!();
         }
     }
 
@@ -60,7 +51,7 @@ impl<'a> ObjectWriter<'a> {
         &self,
         out: &mut String,
         components: &Components,
-        objects: &IndexMap<&str, ObjectRef>,
+        objects: &EnumOfObjects,
     ) {
         if self.lifetime.is_some()
             || self.obj_kind.should_impl_serialize() != ShouldImplSerialize::SkipIfMinSer
@@ -71,24 +62,39 @@ impl<'a> ObjectWriter<'a> {
 
         // Build the body of the enum definition
         let mut enum_body = String::with_capacity(64);
-        for (obj_name, obj_ref) in objects {
-            let comp = components.get(&obj_ref.path);
-            let name = comp.ident();
-            let printable = components.construct_printable_type_from_path(&obj_ref.path);
-            write_feature_gate(&mut enum_body, obj_ref);
-            write_gated_serde_rename(&mut enum_body, obj_name);
-            let _ = writeln!(enum_body, "{name}({printable}),");
+
+        match objects {
+            EnumOfObjects::MaybeDeleted(maybe_deleted) => {
+                for item in [&maybe_deleted.base, &maybe_deleted.deleted] {
+                    let name = &item.ident;
+                    let printable = components.construct_printable_type_from_path(&item.path);
+                    let _ = writeln!(enum_body, "{name}({printable}),");
+                }
+            }
+            EnumOfObjects::ObjectUnion(objects) => {
+                for (obj_name, obj) in objects {
+                    let name = &obj.ident;
+                    let printable = components.construct_printable_type_from_path(&obj.path);
+                    write_feature_gate(&mut enum_body, obj);
+                    write_gated_serde_rename(&mut enum_body, &obj_name);
+                    let _ = writeln!(enum_body, "{name}({printable}),");
+                }
+            }
         }
         if self.provide_unknown_variant {
             write_gated_serde_tag(&mut enum_body, "other");
-            let _ = writeln!(enum_body, r"Unknown");
+            let _ = writeln!(enum_body, "Unknown");
         }
 
         self.write_automatic_derives(out);
         self.write_nonexhaustive_attr(out);
-        write_gated_serde_tag(out, r#"tag = "object""#);
 
-        let miniserde_impl = gen_enum_of_objects_miniserde(components, enum_name, objects);
+        match objects {
+            EnumOfObjects::MaybeDeleted(_) => write_gated_serde_tag(out, "untagged"),
+            EnumOfObjects::ObjectUnion(_) => write_gated_serde_tag(out, r#"tag = "object""#),
+        }
+
+        let miniserde_impl = gen_enum_of_objects_miniserde(enum_name, objects);
         let _ = writedoc!(
             out,
             r#"

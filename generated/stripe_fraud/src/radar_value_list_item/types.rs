@@ -58,6 +58,7 @@ const _: () = {
     impl MapBuilder for RadarValueListItemBuilder {
         type Out = RadarValueListItem;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "created" => Ok(Deserialize::begin(&mut self.created)),
                 "created_by" => Ok(Deserialize::begin(&mut self.created_by)),

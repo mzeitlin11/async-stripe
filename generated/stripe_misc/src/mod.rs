@@ -45,12 +45,6 @@ pub use bank_connections_resource_ownership_refresh::*;
 pub mod deleted_apple_pay_domain;
 #[doc(inline)]
 pub use deleted_apple_pay_domain::*;
-pub use webhook_endpoint::types::*;
-#[doc(hidden)]
-pub mod verification_session_redaction;
-pub mod webhook_endpoint;
-#[doc(inline)]
-pub use verification_session_redaction::*;
 #[doc(hidden)]
 pub mod deleted_webhook_endpoint;
 #[doc(inline)]
@@ -289,3 +283,9 @@ pub use tax_product_resource_tax_transaction_resource_reversal::*;
 pub mod tax_product_resource_tax_transaction_shipping_cost;
 #[doc(inline)]
 pub use tax_product_resource_tax_transaction_shipping_cost::*;
+#[doc(hidden)]
+pub mod verification_session_redaction;
+#[doc(inline)]
+pub use verification_session_redaction::*;
+pub use webhook_endpoint::types::*;
+pub mod webhook_endpoint;

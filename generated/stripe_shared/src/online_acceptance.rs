@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for OnlineAcceptanceBuilder {
         type Out = OnlineAcceptance;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "ip_address" => Ok(Deserialize::begin(&mut self.ip_address)),
                 "user_agent" => Ok(Deserialize::begin(&mut self.user_agent)),

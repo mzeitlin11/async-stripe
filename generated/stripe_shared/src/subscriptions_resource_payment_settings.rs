@@ -46,6 +46,7 @@ const _: () = {
     impl MapBuilder for SubscriptionsResourcePaymentSettingsBuilder {
         type Out = SubscriptionsResourcePaymentSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "payment_method_options" => Ok(Deserialize::begin(&mut self.payment_method_options)),
                 "payment_method_types" => Ok(Deserialize::begin(&mut self.payment_method_types)),

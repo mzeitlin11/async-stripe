@@ -81,6 +81,7 @@ const _: () = {
     impl MapBuilder for TaxTransactionBuilder {
         type Out = TaxTransaction;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "created" => Ok(Deserialize::begin(&mut self.created)),
                 "currency" => Ok(Deserialize::begin(&mut self.currency)),

@@ -43,6 +43,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentNextActionCashappHandleRedirectOrDisplayQrCodeBuilder {
         type Out = PaymentIntentNextActionCashappHandleRedirectOrDisplayQrCode;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "hosted_instructions_url" => Ok(Deserialize::begin(&mut self.hosted_instructions_url)),
                 "mobile_auth_url" => Ok(Deserialize::begin(&mut self.mobile_auth_url)),

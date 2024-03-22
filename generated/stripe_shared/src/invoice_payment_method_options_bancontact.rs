@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for InvoicePaymentMethodOptionsBancontactBuilder {
         type Out = InvoicePaymentMethodOptionsBancontact;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "preferred_language" => Ok(Deserialize::begin(&mut self.preferred_language)),
 

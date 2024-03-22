@@ -65,6 +65,7 @@ const _: () = {
     impl MapBuilder for FileLinkBuilder {
         type Out = FileLink;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "created" => Ok(Deserialize::begin(&mut self.created)),
                 "expired" => Ok(Deserialize::begin(&mut self.expired)),

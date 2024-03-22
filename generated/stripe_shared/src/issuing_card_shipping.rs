@@ -76,6 +76,7 @@ const _: () = {
     impl MapBuilder for IssuingCardShippingBuilder {
         type Out = IssuingCardShipping;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "address" => Ok(Deserialize::begin(&mut self.address)),
                 "carrier" => Ok(Deserialize::begin(&mut self.carrier)),

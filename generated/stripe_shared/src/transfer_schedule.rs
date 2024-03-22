@@ -51,6 +51,7 @@ const _: () = {
     impl MapBuilder for TransferScheduleBuilder {
         type Out = TransferSchedule;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "delay_days" => Ok(Deserialize::begin(&mut self.delay_days)),
                 "interval" => Ok(Deserialize::begin(&mut self.interval)),

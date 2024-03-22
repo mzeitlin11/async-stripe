@@ -48,6 +48,7 @@ const _: () = {
     impl MapBuilder for SourceTypeAchDebitBuilder {
         type Out = SourceTypeAchDebit;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "bank_name" => Ok(Deserialize::begin(&mut self.bank_name)),
                 "country" => Ok(Deserialize::begin(&mut self.country)),

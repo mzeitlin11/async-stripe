@@ -39,6 +39,7 @@ const _: () = {
     impl MapBuilder for TaxProductResourceTaxSettingsStatusDetailsBuilder {
         type Out = TaxProductResourceTaxSettingsStatusDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "active" => Ok(Deserialize::begin(&mut self.active)),
                 "pending" => Ok(Deserialize::begin(&mut self.pending)),

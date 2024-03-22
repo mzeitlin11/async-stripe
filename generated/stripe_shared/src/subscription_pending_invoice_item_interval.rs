@@ -43,6 +43,7 @@ const _: () = {
     impl MapBuilder for SubscriptionPendingInvoiceItemIntervalBuilder {
         type Out = SubscriptionPendingInvoiceItemInterval;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "interval" => Ok(Deserialize::begin(&mut self.interval)),
                 "interval_count" => Ok(Deserialize::begin(&mut self.interval_count)),

@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentNextActionWechatPayRedirectToIosAppBuilder {
         type Out = PaymentIntentNextActionWechatPayRedirectToIosApp;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "native_url" => Ok(Deserialize::begin(&mut self.native_url)),
 

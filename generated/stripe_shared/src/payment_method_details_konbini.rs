@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodDetailsKonbiniBuilder {
         type Out = PaymentMethodDetailsKonbini;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "store" => Ok(Deserialize::begin(&mut self.store)),
 

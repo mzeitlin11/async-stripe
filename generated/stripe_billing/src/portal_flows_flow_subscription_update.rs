@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for PortalFlowsFlowSubscriptionUpdateBuilder {
         type Out = PortalFlowsFlowSubscriptionUpdate;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "subscription" => Ok(Deserialize::begin(&mut self.subscription)),
 

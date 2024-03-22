@@ -109,6 +109,7 @@ const _: () = {
     impl MapBuilder for SubscriptionSchedulePhaseConfigurationBuilder {
         type Out = SubscriptionSchedulePhaseConfiguration;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "add_invoice_items" => Ok(Deserialize::begin(&mut self.add_invoice_items)),
                 "application_fee_percent" => Ok(Deserialize::begin(&mut self.application_fee_percent)),

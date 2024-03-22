@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for QuotesResourceStatusTransitionsBuilder {
         type Out = QuotesResourceStatusTransitions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "accepted_at" => Ok(Deserialize::begin(&mut self.accepted_at)),
                 "canceled_at" => Ok(Deserialize::begin(&mut self.canceled_at)),

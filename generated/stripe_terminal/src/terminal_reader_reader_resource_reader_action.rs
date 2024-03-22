@@ -57,6 +57,7 @@ const _: () = {
     impl MapBuilder for TerminalReaderReaderResourceReaderActionBuilder {
         type Out = TerminalReaderReaderResourceReaderAction;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "failure_code" => Ok(Deserialize::begin(&mut self.failure_code)),
                 "failure_message" => Ok(Deserialize::begin(&mut self.failure_message)),

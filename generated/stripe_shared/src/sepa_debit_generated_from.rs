@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for SepaDebitGeneratedFromBuilder {
         type Out = SepaDebitGeneratedFrom;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "charge" => Ok(Deserialize::begin(&mut self.charge)),
                 "setup_attempt" => Ok(Deserialize::begin(&mut self.setup_attempt)),

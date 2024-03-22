@@ -72,6 +72,7 @@ const _: () = {
     impl MapBuilder for BillingPortalConfigurationBuilder {
         type Out = BillingPortalConfiguration;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "active" => Ok(Deserialize::begin(&mut self.active)),
                 "application" => Ok(Deserialize::begin(&mut self.application)),

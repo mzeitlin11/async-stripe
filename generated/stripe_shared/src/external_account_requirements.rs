@@ -51,6 +51,7 @@ const _: () = {
     impl MapBuilder for ExternalAccountRequirementsBuilder {
         type Out = ExternalAccountRequirements;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "currently_due" => Ok(Deserialize::begin(&mut self.currently_due)),
                 "errors" => Ok(Deserialize::begin(&mut self.errors)),

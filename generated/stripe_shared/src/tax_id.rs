@@ -67,6 +67,7 @@ const _: () = {
     impl MapBuilder for TaxIdBuilder {
         type Out = TaxId;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "country" => Ok(Deserialize::begin(&mut self.country)),
                 "created" => Ok(Deserialize::begin(&mut self.created)),

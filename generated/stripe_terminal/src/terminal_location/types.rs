@@ -58,6 +58,7 @@ const _: () = {
     impl MapBuilder for TerminalLocationBuilder {
         type Out = TerminalLocation;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "address" => Ok(Deserialize::begin(&mut self.address)),
                 "configuration_overrides" => Ok(Deserialize::begin(&mut self.configuration_overrides)),

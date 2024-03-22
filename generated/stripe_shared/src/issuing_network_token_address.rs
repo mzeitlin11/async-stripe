@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for IssuingNetworkTokenAddressBuilder {
         type Out = IssuingNetworkTokenAddress;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "line1" => Ok(Deserialize::begin(&mut self.line1)),
                 "postal_code" => Ok(Deserialize::begin(&mut self.postal_code)),

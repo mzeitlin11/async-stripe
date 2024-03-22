@@ -48,6 +48,7 @@ const _: () = {
     impl MapBuilder for LegalEntityCompanyVerificationDocumentBuilder {
         type Out = LegalEntityCompanyVerificationDocument;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "back" => Ok(Deserialize::begin(&mut self.back)),
                 "details" => Ok(Deserialize::begin(&mut self.details)),

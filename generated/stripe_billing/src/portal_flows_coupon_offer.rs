@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for PortalFlowsCouponOfferBuilder {
         type Out = PortalFlowsCouponOffer;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "coupon" => Ok(Deserialize::begin(&mut self.coupon)),
 

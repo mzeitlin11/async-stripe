@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for SourceTypeAlipayBuilder {
         type Out = SourceTypeAlipay;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "data_string" => Ok(Deserialize::begin(&mut self.data_string)),
                 "native_url" => Ok(Deserialize::begin(&mut self.native_url)),

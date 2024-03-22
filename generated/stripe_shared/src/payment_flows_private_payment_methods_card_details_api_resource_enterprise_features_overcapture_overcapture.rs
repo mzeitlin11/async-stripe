@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for PaymentFlowsPrivatePaymentMethodsCardDetailsApiResourceEnterpriseFeaturesOvercaptureOvercaptureBuilder {
         type Out = PaymentFlowsPrivatePaymentMethodsCardDetailsApiResourceEnterpriseFeaturesOvercaptureOvercapture;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "maximum_amount_capturable" => Ok(Deserialize::begin(&mut self.maximum_amount_capturable)),
                 "status" => Ok(Deserialize::begin(&mut self.status)),

@@ -53,6 +53,7 @@ const _: () = {
     impl MapBuilder for AccountSettingsBuilder {
         type Out = AccountSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "bacs_debit_payments" => Ok(Deserialize::begin(&mut self.bacs_debit_payments)),
                 "branding" => Ok(Deserialize::begin(&mut self.branding)),

@@ -54,6 +54,7 @@ const _: () = {
     impl MapBuilder for PaymentLinksResourceInvoiceSettingsBuilder {
         type Out = PaymentLinksResourceInvoiceSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "account_tax_ids" => Ok(Deserialize::begin(&mut self.account_tax_ids)),
                 "custom_fields" => Ok(Deserialize::begin(&mut self.custom_fields)),

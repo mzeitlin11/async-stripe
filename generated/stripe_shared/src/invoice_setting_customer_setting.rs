@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for InvoiceSettingCustomerSettingBuilder {
         type Out = InvoiceSettingCustomerSetting;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "custom_fields" => Ok(Deserialize::begin(&mut self.custom_fields)),
                 "default_payment_method" => Ok(Deserialize::begin(&mut self.default_payment_method)),

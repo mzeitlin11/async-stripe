@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for PaymentFlowsAutomaticPaymentMethodsSetupIntentBuilder {
         type Out = PaymentFlowsAutomaticPaymentMethodsSetupIntent;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "allow_redirects" => Ok(Deserialize::begin(&mut self.allow_redirects)),
                 "enabled" => Ok(Deserialize::begin(&mut self.enabled)),

@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for InvoicesResourceLineItemsProrationDetailsBuilder {
         type Out = InvoicesResourceLineItemsProrationDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "credited_items" => Ok(Deserialize::begin(&mut self.credited_items)),
 

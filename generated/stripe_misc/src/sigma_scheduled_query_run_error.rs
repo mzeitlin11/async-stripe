@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for SigmaScheduledQueryRunErrorBuilder {
         type Out = SigmaScheduledQueryRunError;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "message" => Ok(Deserialize::begin(&mut self.message)),
 

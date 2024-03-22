@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for CustomerBalanceResourceCashBalanceTransactionResourceUnappliedFromPaymentTransactionBuilder {
         type Out = CustomerBalanceResourceCashBalanceTransactionResourceUnappliedFromPaymentTransaction;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "payment_intent" => Ok(Deserialize::begin(&mut self.payment_intent)),
 

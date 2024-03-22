@@ -33,6 +33,7 @@ const _: () = {
     impl MapBuilder for CheckoutRevolutPayPaymentMethodOptionsBuilder {
         type Out = CheckoutRevolutPayPaymentMethodOptions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 _ => Ok(<dyn Visitor>::ignore()),
             }

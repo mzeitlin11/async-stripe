@@ -74,6 +74,7 @@ const _: () = {
     impl MapBuilder for DiscountBuilder {
         type Out = Discount;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "checkout_session" => Ok(Deserialize::begin(&mut self.checkout_session)),
                 "coupon" => Ok(Deserialize::begin(&mut self.coupon)),

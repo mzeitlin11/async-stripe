@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for NotificationEventRequestBuilder {
         type Out = NotificationEventRequest;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "id" => Ok(Deserialize::begin(&mut self.id)),
                 "idempotency_key" => Ok(Deserialize::begin(&mut self.idempotency_key)),

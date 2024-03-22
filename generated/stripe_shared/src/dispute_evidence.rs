@@ -126,6 +126,7 @@ const _: () = {
     impl MapBuilder for DisputeEvidenceBuilder {
         type Out = DisputeEvidence;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "access_activity_log" => Ok(Deserialize::begin(&mut self.access_activity_log)),
                 "billing_address" => Ok(Deserialize::begin(&mut self.billing_address)),

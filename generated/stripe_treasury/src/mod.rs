@@ -39,26 +39,10 @@ pub mod outbound_transfers_payment_method_details_us_bank_account;
 #[doc(inline)]
 pub use outbound_transfers_payment_method_details_us_bank_account::*;
 #[doc(hidden)]
-pub mod treasury_transactions_resource_flow_details;
-#[doc(inline)]
-pub use treasury_transactions_resource_flow_details::*;
-#[doc(hidden)]
 pub mod received_payment_method_details_financial_account;
 #[doc(inline)]
 pub use received_payment_method_details_financial_account::*;
-#[doc(hidden)]
-pub mod treasury_transactions_resource_balance_impact;
-#[doc(inline)]
-pub use treasury_transactions_resource_balance_impact::*;
-#[doc(hidden)]
-pub mod treasury_transactions_resource_abstract_transaction_resource_status_transitions;
-#[doc(inline)]
-pub use treasury_transactions_resource_abstract_transaction_resource_status_transitions::*;
-#[doc(hidden)]
-pub mod treasury_shared_resource_initiating_payment_method_details_us_bank_account;
 pub use treasury_credit_reversal::types::*;
-#[doc(inline)]
-pub use treasury_shared_resource_initiating_payment_method_details_us_bank_account::*;
 pub mod treasury_credit_reversal;
 pub use treasury_debit_reversal::types::*;
 pub mod treasury_debit_reversal;
@@ -210,3 +194,19 @@ pub use treasury_shared_resource_billing_details::*;
 pub mod treasury_shared_resource_initiating_payment_method_details_initiating_payment_method_details;
 #[doc(inline)]
 pub use treasury_shared_resource_initiating_payment_method_details_initiating_payment_method_details::*;
+#[doc(hidden)]
+pub mod treasury_shared_resource_initiating_payment_method_details_us_bank_account;
+#[doc(inline)]
+pub use treasury_shared_resource_initiating_payment_method_details_us_bank_account::*;
+#[doc(hidden)]
+pub mod treasury_transactions_resource_abstract_transaction_resource_status_transitions;
+#[doc(inline)]
+pub use treasury_transactions_resource_abstract_transaction_resource_status_transitions::*;
+#[doc(hidden)]
+pub mod treasury_transactions_resource_balance_impact;
+#[doc(inline)]
+pub use treasury_transactions_resource_balance_impact::*;
+#[doc(hidden)]
+pub mod treasury_transactions_resource_flow_details;
+#[doc(inline)]
+pub use treasury_transactions_resource_flow_details::*;

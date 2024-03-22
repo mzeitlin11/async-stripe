@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for TaxProductResourceLineItemTaxRateDetailsBuilder {
         type Out = TaxProductResourceLineItemTaxRateDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "display_name" => Ok(Deserialize::begin(&mut self.display_name)),
                 "percentage_decimal" => Ok(Deserialize::begin(&mut self.percentage_decimal)),

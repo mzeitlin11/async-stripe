@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodDetailsOxxoBuilder {
         type Out = PaymentMethodDetailsOxxo;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "number" => Ok(Deserialize::begin(&mut self.number)),
 

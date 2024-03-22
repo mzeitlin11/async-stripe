@@ -39,6 +39,7 @@ const _: () = {
     impl MapBuilder for SubscriptionsTrialsResourceEndBehaviorBuilder {
         type Out = SubscriptionsTrialsResourceEndBehavior;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "missing_payment_method" => Ok(Deserialize::begin(&mut self.missing_payment_method)),
 

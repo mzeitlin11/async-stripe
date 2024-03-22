@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for RuleBuilder {
         type Out = Rule;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "action" => Ok(Deserialize::begin(&mut self.action)),
                 "id" => Ok(Deserialize::begin(&mut self.id)),

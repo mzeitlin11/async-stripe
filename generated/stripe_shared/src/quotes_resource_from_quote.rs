@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for QuotesResourceFromQuoteBuilder {
         type Out = QuotesResourceFromQuote;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "is_revision" => Ok(Deserialize::begin(&mut self.is_revision)),
                 "quote" => Ok(Deserialize::begin(&mut self.quote)),

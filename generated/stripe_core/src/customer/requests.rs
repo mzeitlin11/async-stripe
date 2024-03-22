@@ -630,12 +630,74 @@ pub enum RetrieveCustomerReturned {
     Customer(stripe_shared::Customer),
     DeletedCustomer(stripe_shared::DeletedCustomer),
 }
+
 #[cfg(feature = "min-ser")]
-impl miniserde::Deserialize for RetrieveCustomerReturned {
-    fn begin(_out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
-        todo!()
-    }
+#[derive(Default)]
+pub struct RetrieveCustomerReturnedBuilder {
+    inner: stripe_types::miniserde_helpers::MaybeDeletedBuilderInner,
 }
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::json::{from_str, to_string};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::MapBuilder;
+
+    use super::*;
+
+    make_place!(Place);
+
+    struct Builder<'a> {
+        out: &'a mut Option<RetrieveCustomerReturned>,
+        builder: RetrieveCustomerReturnedBuilder,
+    }
+
+    impl Deserialize for RetrieveCustomerReturned {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    impl Visitor for Place<RetrieveCustomerReturned> {
+        fn map(&mut self) -> miniserde::Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: Default::default() }))
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl stripe_types::MapBuilder for RetrieveCustomerReturnedBuilder {
+        type Out = RetrieveCustomerReturned;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            self.inner.key_inner(k)
+        }
+
+        fn deser_default() -> Self {
+            Self::default()
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let (deleted, object) = self.inner.finish_inner()?;
+            let obj_str = to_string(&object);
+            Some(if deleted { RetrieveCustomerReturned::DeletedCustomer(from_str(&obj_str).ok()?) } else { RetrieveCustomerReturned::Customer(from_str(&obj_str).ok()?) })
+        }
+    }
+
+    impl stripe_types::ObjectDeser for RetrieveCustomerReturned {
+        type Builder = RetrieveCustomerReturnedBuilder;
+    }
+};
+
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct UpdateCustomer<'a> {
     /// The customer's address.

@@ -46,6 +46,7 @@ const _: () = {
     impl MapBuilder for AccountPayoutSettingsBuilder {
         type Out = AccountPayoutSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "debit_negative_balances" => Ok(Deserialize::begin(&mut self.debit_negative_balances)),
                 "schedule" => Ok(Deserialize::begin(&mut self.schedule)),

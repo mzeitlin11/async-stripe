@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for RefundNextActionBuilder {
         type Out = RefundNextAction;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "display_details" => Ok(Deserialize::begin(&mut self.display_details)),
                 "type" => Ok(Deserialize::begin(&mut self.type_)),

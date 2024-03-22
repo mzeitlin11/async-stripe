@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for BalanceAmountBySourceTypeBuilder {
         type Out = BalanceAmountBySourceType;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "bank_account" => Ok(Deserialize::begin(&mut self.bank_account)),
                 "card" => Ok(Deserialize::begin(&mut self.card)),

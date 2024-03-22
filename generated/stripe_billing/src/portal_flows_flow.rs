@@ -50,6 +50,7 @@ const _: () = {
     impl MapBuilder for PortalFlowsFlowBuilder {
         type Out = PortalFlowsFlow;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "after_completion" => Ok(Deserialize::begin(&mut self.after_completion)),
                 "subscription_cancel" => Ok(Deserialize::begin(&mut self.subscription_cancel)),

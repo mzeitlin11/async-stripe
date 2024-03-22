@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for CheckoutCustomerBalanceBankTransferPaymentMethodOptionsBuilder {
         type Out = CheckoutCustomerBalanceBankTransferPaymentMethodOptions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "eu_bank_transfer" => Ok(Deserialize::begin(&mut self.eu_bank_transfer)),
                 "requested_address_types" => Ok(Deserialize::begin(&mut self.requested_address_types)),

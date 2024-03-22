@@ -43,6 +43,7 @@ const _: () = {
     impl MapBuilder for DisputePaymentMethodDetailsCardBuilder {
         type Out = DisputePaymentMethodDetailsCard;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "brand" => Ok(Deserialize::begin(&mut self.brand)),
                 "network_reason_code" => Ok(Deserialize::begin(&mut self.network_reason_code)),

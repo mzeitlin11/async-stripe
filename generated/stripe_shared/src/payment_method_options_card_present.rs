@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodOptionsCardPresentBuilder {
         type Out = PaymentMethodOptionsCardPresent;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "request_extended_authorization" => Ok(Deserialize::begin(&mut self.request_extended_authorization)),
                 "request_incremental_authorization_support" => Ok(Deserialize::begin(&mut self.request_incremental_authorization_support)),

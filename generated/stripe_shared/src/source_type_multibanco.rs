@@ -55,6 +55,7 @@ const _: () = {
     impl MapBuilder for SourceTypeMultibancoBuilder {
         type Out = SourceTypeMultibanco;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "entity" => Ok(Deserialize::begin(&mut self.entity)),
                 "reference" => Ok(Deserialize::begin(&mut self.reference)),

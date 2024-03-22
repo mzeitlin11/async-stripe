@@ -1,10 +1,11 @@
 use std::path::Path;
 
+use anyhow::bail;
 use indexmap::IndexMap;
 
 use crate::components::Components;
 use crate::crates::Crate;
-use crate::rust_object::{ObjectKind, ObjectRef};
+use crate::rust_object::{EnumOfObjects, ObjectKind, ObjectRef};
 use crate::templates::ObjectWriter;
 use crate::types::{ComponentPath, RustIdent};
 use crate::utils::append_to_file;
@@ -70,23 +71,29 @@ fn write_event_object(components: &Components, out_path: &Path) -> anyhow::Resul
         let belonging_crate = component.krate_unwrapped().for_types();
         let obj_name = component.data.object_name.as_deref().expect("Component has no object name");
 
-        objects.insert(
-            obj_name,
-            ObjectRef {
-                path: comp_path,
-                feature_gate: if belonging_crate != Crate::SHARED {
-                    Some(belonging_crate.name().into())
-                } else {
-                    None
+        if objects
+            .insert(
+                obj_name.to_string(),
+                ObjectRef {
+                    path: comp_path,
+                    feature_gate: if belonging_crate != Crate::SHARED {
+                        Some(belonging_crate.name().into())
+                    } else {
+                        None
+                    },
+                    ident: component.ident().clone(),
                 },
-            },
-        );
+            )
+            .is_some()
+        {
+            bail!("webhook objects should not have duplicate object names");
+        }
     }
     let mut out = String::new();
     let ident = RustIdent::unchanged("EventObject");
     let mut writer = ObjectWriter::new(components, &ident, ObjectKind::Type);
     writer.provide_unknown_variant(true);
-    writer.write_enum_of_objects(&mut out, components, &objects);
+    writer.write_enum_of_objects(&mut out, components, &EnumOfObjects::ObjectUnion(objects));
     append_to_file(out, out_path.join("mod.rs"))?;
     Ok(())
 }

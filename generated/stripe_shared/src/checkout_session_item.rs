@@ -72,6 +72,7 @@ const _: () = {
     impl MapBuilder for CheckoutSessionItemBuilder {
         type Out = CheckoutSessionItem;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount_discount" => Ok(Deserialize::begin(&mut self.amount_discount)),
                 "amount_subtotal" => Ok(Deserialize::begin(&mut self.amount_subtotal)),

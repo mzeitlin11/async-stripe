@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentNextActionAlipayHandleRedirectBuilder {
         type Out = PaymentIntentNextActionAlipayHandleRedirect;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "native_data" => Ok(Deserialize::begin(&mut self.native_data)),
                 "native_url" => Ok(Deserialize::begin(&mut self.native_url)),

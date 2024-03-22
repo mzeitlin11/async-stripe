@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for FundingInstructionsBankTransferSpeiRecordBuilder {
         type Out = FundingInstructionsBankTransferSpeiRecord;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "bank_code" => Ok(Deserialize::begin(&mut self.bank_code)),
                 "bank_name" => Ok(Deserialize::begin(&mut self.bank_name)),

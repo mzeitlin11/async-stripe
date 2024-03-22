@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodLinkBuilder {
         type Out = PaymentMethodLink;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "email" => Ok(Deserialize::begin(&mut self.email)),
                 "persistent_token" => Ok(Deserialize::begin(&mut self.persistent_token)),

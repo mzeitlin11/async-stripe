@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodCashappBuilder {
         type Out = PaymentMethodCashapp;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "buyer_id" => Ok(Deserialize::begin(&mut self.buyer_id)),
                 "cashtag" => Ok(Deserialize::begin(&mut self.cashtag)),

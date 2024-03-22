@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for PortalFeaturesBuilder {
         type Out = PortalFeatures;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "customer_update" => Ok(Deserialize::begin(&mut self.customer_update)),
                 "invoice_history" => Ok(Deserialize::begin(&mut self.invoice_history)),

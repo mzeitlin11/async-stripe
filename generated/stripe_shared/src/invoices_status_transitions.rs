@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for InvoicesStatusTransitionsBuilder {
         type Out = InvoicesStatusTransitions;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "finalized_at" => Ok(Deserialize::begin(&mut self.finalized_at)),
                 "marked_uncollectible_at" => Ok(Deserialize::begin(&mut self.marked_uncollectible_at)),

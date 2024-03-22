@@ -39,6 +39,7 @@ const _: () = {
     impl MapBuilder for SourceTypeEpsBuilder {
         type Out = SourceTypeEps;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "reference" => Ok(Deserialize::begin(&mut self.reference)),
                 "statement_descriptor" => Ok(Deserialize::begin(&mut self.statement_descriptor)),

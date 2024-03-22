@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for PortalFlowsFlowAfterCompletionBuilder {
         type Out = PortalFlowsFlowAfterCompletion;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "hosted_confirmation" => Ok(Deserialize::begin(&mut self.hosted_confirmation)),
                 "redirect" => Ok(Deserialize::begin(&mut self.redirect)),

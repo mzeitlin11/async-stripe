@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for TerminalReaderReaderResourceProcessConfigBuilder {
         type Out = TerminalReaderReaderResourceProcessConfig;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "skip_tipping" => Ok(Deserialize::begin(&mut self.skip_tipping)),
                 "tipping" => Ok(Deserialize::begin(&mut self.tipping)),

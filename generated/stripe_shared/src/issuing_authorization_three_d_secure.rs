@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for IssuingAuthorizationThreeDSecureBuilder {
         type Out = IssuingAuthorizationThreeDSecure;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "result" => Ok(Deserialize::begin(&mut self.result)),
 

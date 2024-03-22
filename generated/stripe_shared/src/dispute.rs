@@ -94,6 +94,7 @@ const _: () = {
     impl MapBuilder for DisputeBuilder {
         type Out = Dispute;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount" => Ok(Deserialize::begin(&mut self.amount)),
                 "balance_transactions" => Ok(Deserialize::begin(&mut self.balance_transactions)),

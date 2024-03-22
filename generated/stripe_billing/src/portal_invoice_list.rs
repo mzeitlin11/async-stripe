@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for PortalInvoiceListBuilder {
         type Out = PortalInvoiceList;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "enabled" => Ok(Deserialize::begin(&mut self.enabled)),
 

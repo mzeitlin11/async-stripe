@@ -46,6 +46,7 @@ const _: () = {
     impl MapBuilder for PaymentPagesCheckoutSessionTotalDetailsBuilder {
         type Out = PaymentPagesCheckoutSessionTotalDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount_discount" => Ok(Deserialize::begin(&mut self.amount_discount)),
                 "amount_shipping" => Ok(Deserialize::begin(&mut self.amount_shipping)),

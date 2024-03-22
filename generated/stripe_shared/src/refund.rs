@@ -104,6 +104,7 @@ const _: () = {
     impl MapBuilder for RefundBuilder {
         type Out = Refund;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount" => Ok(Deserialize::begin(&mut self.amount)),
                 "balance_transaction" => Ok(Deserialize::begin(&mut self.balance_transaction)),

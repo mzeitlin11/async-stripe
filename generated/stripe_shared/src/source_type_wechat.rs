@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for SourceTypeWechatBuilder {
         type Out = SourceTypeWechat;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "prepay_id" => Ok(Deserialize::begin(&mut self.prepay_id)),
                 "qr_code_url" => Ok(Deserialize::begin(&mut self.qr_code_url)),

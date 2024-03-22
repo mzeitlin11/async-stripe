@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for SourceTransactionPaperCheckDataBuilder {
         type Out = SourceTransactionPaperCheckData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "available_at" => Ok(Deserialize::begin(&mut self.available_at)),
                 "invoices" => Ok(Deserialize::begin(&mut self.invoices)),

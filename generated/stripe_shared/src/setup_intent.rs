@@ -149,6 +149,7 @@ const _: () = {
     impl MapBuilder for SetupIntentBuilder {
         type Out = SetupIntent;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "application" => Ok(Deserialize::begin(&mut self.application)),
                 "attach_to_self" => Ok(Deserialize::begin(&mut self.attach_to_self)),

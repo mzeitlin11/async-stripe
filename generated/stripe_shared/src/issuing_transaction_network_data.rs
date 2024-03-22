@@ -49,6 +49,7 @@ const _: () = {
     impl MapBuilder for IssuingTransactionNetworkDataBuilder {
         type Out = IssuingTransactionNetworkData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "authorization_code" => Ok(Deserialize::begin(&mut self.authorization_code)),
                 "processing_date" => Ok(Deserialize::begin(&mut self.processing_date)),

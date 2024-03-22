@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentProcessingCustomerNotificationBuilder {
         type Out = PaymentIntentProcessingCustomerNotification;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "approval_requested" => Ok(Deserialize::begin(&mut self.approval_requested)),
                 "completes_at" => Ok(Deserialize::begin(&mut self.completes_at)),

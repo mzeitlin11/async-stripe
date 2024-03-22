@@ -57,6 +57,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodOptionsKonbiniBuilder {
         type Out = PaymentMethodOptionsKonbini;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "confirmation_number" => Ok(Deserialize::begin(&mut self.confirmation_number)),
                 "expires_after_days" => Ok(Deserialize::begin(&mut self.expires_after_days)),

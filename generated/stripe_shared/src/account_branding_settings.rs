@@ -49,6 +49,7 @@ const _: () = {
     impl MapBuilder for AccountBrandingSettingsBuilder {
         type Out = AccountBrandingSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "icon" => Ok(Deserialize::begin(&mut self.icon)),
                 "logo" => Ok(Deserialize::begin(&mut self.logo)),

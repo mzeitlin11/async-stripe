@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for PaymentPagesCheckoutSessionCustomTextBuilder {
         type Out = PaymentPagesCheckoutSessionCustomText;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "shipping_address" => Ok(Deserialize::begin(&mut self.shipping_address)),
                 "submit" => Ok(Deserialize::begin(&mut self.submit)),

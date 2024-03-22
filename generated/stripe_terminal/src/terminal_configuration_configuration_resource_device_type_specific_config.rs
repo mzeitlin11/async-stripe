@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for TerminalConfigurationConfigurationResourceDeviceTypeSpecificConfigBuilder {
         type Out = TerminalConfigurationConfigurationResourceDeviceTypeSpecificConfig;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "splashscreen" => Ok(Deserialize::begin(&mut self.splashscreen)),
 

@@ -56,6 +56,7 @@ const _: () = {
     impl MapBuilder for UsageRecordBuilder {
         type Out = UsageRecord;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "id" => Ok(Deserialize::begin(&mut self.id)),
                 "livemode" => Ok(Deserialize::begin(&mut self.livemode)),

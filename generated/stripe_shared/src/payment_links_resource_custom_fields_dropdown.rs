@@ -38,6 +38,7 @@ const _: () = {
     impl MapBuilder for PaymentLinksResourceCustomFieldsDropdownBuilder {
         type Out = PaymentLinksResourceCustomFieldsDropdown;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "options" => Ok(Deserialize::begin(&mut self.options)),
 

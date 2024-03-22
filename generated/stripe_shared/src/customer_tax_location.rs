@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for CustomerTaxLocationBuilder {
         type Out = CustomerTaxLocation;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "country" => Ok(Deserialize::begin(&mut self.country)),
                 "source" => Ok(Deserialize::begin(&mut self.source)),

@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for InvoiceItemThresholdReasonBuilder {
         type Out = InvoiceItemThresholdReason;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "line_item_ids" => Ok(Deserialize::begin(&mut self.line_item_ids)),
                 "usage_gte" => Ok(Deserialize::begin(&mut self.usage_gte)),

@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for AccountTosAcceptanceBuilder {
         type Out = AccountTosAcceptance;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "date" => Ok(Deserialize::begin(&mut self.date)),
                 "ip" => Ok(Deserialize::begin(&mut self.ip)),

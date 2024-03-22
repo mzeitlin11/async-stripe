@@ -39,6 +39,7 @@ const _: () = {
     impl MapBuilder for SetupIntentPaymentMethodOptionsPaypalBuilder {
         type Out = SetupIntentPaymentMethodOptionsPaypal;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "billing_agreement_id" => Ok(Deserialize::begin(&mut self.billing_agreement_id)),
 

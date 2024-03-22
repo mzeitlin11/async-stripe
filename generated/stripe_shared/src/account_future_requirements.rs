@@ -66,6 +66,7 @@ const _: () = {
     impl MapBuilder for AccountFutureRequirementsBuilder {
         type Out = AccountFutureRequirements;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "alternatives" => Ok(Deserialize::begin(&mut self.alternatives)),
                 "current_deadline" => Ok(Deserialize::begin(&mut self.current_deadline)),

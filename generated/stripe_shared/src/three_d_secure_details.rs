@@ -49,6 +49,7 @@ const _: () = {
     impl MapBuilder for ThreeDSecureDetailsBuilder {
         type Out = ThreeDSecureDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "authentication_flow" => Ok(Deserialize::begin(&mut self.authentication_flow)),
                 "result" => Ok(Deserialize::begin(&mut self.result)),

@@ -59,6 +59,7 @@ const _: () = {
     impl MapBuilder for CapabilityBuilder {
         type Out = Capability;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "account" => Ok(Deserialize::begin(&mut self.account)),
                 "future_requirements" => Ok(Deserialize::begin(&mut self.future_requirements)),

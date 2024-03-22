@@ -63,6 +63,7 @@ const _: () = {
     impl MapBuilder for TerminalConfigurationConfigurationResourceTippingBuilder {
         type Out = TerminalConfigurationConfigurationResourceTipping;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "aud" => Ok(Deserialize::begin(&mut self.aud)),
                 "cad" => Ok(Deserialize::begin(&mut self.cad)),

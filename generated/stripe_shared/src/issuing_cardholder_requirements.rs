@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for IssuingCardholderRequirementsBuilder {
         type Out = IssuingCardholderRequirements;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "disabled_reason" => Ok(Deserialize::begin(&mut self.disabled_reason)),
                 "past_due" => Ok(Deserialize::begin(&mut self.past_due)),

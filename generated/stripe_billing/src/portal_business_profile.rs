@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for PortalBusinessProfileBuilder {
         type Out = PortalBusinessProfile;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "headline" => Ok(Deserialize::begin(&mut self.headline)),
                 "privacy_policy_url" => Ok(Deserialize::begin(&mut self.privacy_policy_url)),

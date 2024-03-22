@@ -56,6 +56,7 @@ const _: () = {
     impl MapBuilder for IssuingAuthorizationVerificationDataBuilder {
         type Out = IssuingAuthorizationVerificationData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "address_line1_check" => Ok(Deserialize::begin(&mut self.address_line1_check)),
                 "address_postal_code_check" => Ok(Deserialize::begin(&mut self.address_postal_code_check)),

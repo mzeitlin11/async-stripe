@@ -52,6 +52,7 @@ const _: () = {
     impl MapBuilder for IssuingDisputeEvidenceBuilder {
         type Out = IssuingDisputeEvidence;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "canceled" => Ok(Deserialize::begin(&mut self.canceled)),
                 "duplicate" => Ok(Deserialize::begin(&mut self.duplicate)),

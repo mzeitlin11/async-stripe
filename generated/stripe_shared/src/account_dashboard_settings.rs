@@ -43,6 +43,7 @@ const _: () = {
     impl MapBuilder for AccountDashboardSettingsBuilder {
         type Out = AccountDashboardSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "display_name" => Ok(Deserialize::begin(&mut self.display_name)),
                 "timezone" => Ok(Deserialize::begin(&mut self.timezone)),

@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for InvoiceSettingCustomFieldBuilder {
         type Out = InvoiceSettingCustomField;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "name" => Ok(Deserialize::begin(&mut self.name)),
                 "value" => Ok(Deserialize::begin(&mut self.value)),

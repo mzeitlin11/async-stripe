@@ -203,6 +203,7 @@ const _: () = {
     impl MapBuilder for ChargeBuilder {
         type Out = Charge;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount" => Ok(Deserialize::begin(&mut self.amount)),
                 "amount_captured" => Ok(Deserialize::begin(&mut self.amount_captured)),

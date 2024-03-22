@@ -56,6 +56,7 @@ const _: () = {
     impl MapBuilder for SubscriptionsResourcePendingUpdateBuilder {
         type Out = SubscriptionsResourcePendingUpdate;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "billing_cycle_anchor" => Ok(Deserialize::begin(&mut self.billing_cycle_anchor)),
                 "expires_at" => Ok(Deserialize::begin(&mut self.expires_at)),

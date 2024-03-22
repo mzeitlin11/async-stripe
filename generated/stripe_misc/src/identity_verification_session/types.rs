@@ -99,6 +99,7 @@ const _: () = {
     impl MapBuilder for IdentityVerificationSessionBuilder {
         type Out = IdentityVerificationSession;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "client_secret" => Ok(Deserialize::begin(&mut self.client_secret)),
                 "created" => Ok(Deserialize::begin(&mut self.created)),

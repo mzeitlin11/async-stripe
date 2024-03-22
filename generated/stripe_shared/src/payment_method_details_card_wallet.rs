@@ -58,6 +58,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodDetailsCardWalletBuilder {
         type Out = PaymentMethodDetailsCardWallet;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amex_express_checkout" => Ok(Deserialize::begin(&mut self.amex_express_checkout)),
                 "apple_pay" => Ok(Deserialize::begin(&mut self.apple_pay)),

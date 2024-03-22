@@ -51,6 +51,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentPaymentMethodOptionsUsBankAccountBuilder {
         type Out = PaymentIntentPaymentMethodOptionsUsBankAccount;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "financial_connections" => Ok(Deserialize::begin(&mut self.financial_connections)),
                 "preferred_settlement_speed" => Ok(Deserialize::begin(&mut self.preferred_settlement_speed)),

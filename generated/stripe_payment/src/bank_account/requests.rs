@@ -265,12 +265,74 @@ pub enum DeleteCustomerBankAccountReturned {
     PaymentSource(stripe_shared::PaymentSource),
     DeletedPaymentSource(stripe_shared::DeletedPaymentSource),
 }
+
 #[cfg(feature = "min-ser")]
-impl miniserde::Deserialize for DeleteCustomerBankAccountReturned {
-    fn begin(_out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
-        todo!()
-    }
+#[derive(Default)]
+pub struct DeleteCustomerBankAccountReturnedBuilder {
+    inner: stripe_types::miniserde_helpers::MaybeDeletedBuilderInner,
 }
+
+#[cfg(feature = "min-ser")]
+const _: () = {
+    use miniserde::de::{Map, Visitor};
+    use miniserde::json::{from_str, to_string};
+    use miniserde::{make_place, Deserialize, Result};
+    use stripe_types::MapBuilder;
+
+    use super::*;
+
+    make_place!(Place);
+
+    struct Builder<'a> {
+        out: &'a mut Option<DeleteCustomerBankAccountReturned>,
+        builder: DeleteCustomerBankAccountReturnedBuilder,
+    }
+
+    impl Deserialize for DeleteCustomerBankAccountReturned {
+        fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
+            Place::new(out)
+        }
+    }
+
+    impl Visitor for Place<DeleteCustomerBankAccountReturned> {
+        fn map(&mut self) -> miniserde::Result<Box<dyn Map + '_>> {
+            Ok(Box::new(Builder { out: &mut self.out, builder: Default::default() }))
+        }
+    }
+
+    impl<'a> Map for Builder<'a> {
+        fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
+            self.builder.key(k)
+        }
+
+        fn finish(&mut self) -> Result<()> {
+            *self.out = self.builder.take_out();
+            Ok(())
+        }
+    }
+
+    impl stripe_types::MapBuilder for DeleteCustomerBankAccountReturnedBuilder {
+        type Out = DeleteCustomerBankAccountReturned;
+        fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            self.inner.key_inner(k)
+        }
+
+        fn deser_default() -> Self {
+            Self::default()
+        }
+
+        fn take_out(&mut self) -> Option<Self::Out> {
+            let (deleted, object) = self.inner.finish_inner()?;
+            let obj_str = to_string(&object);
+            Some(if deleted { DeleteCustomerBankAccountReturned::DeletedPaymentSource(from_str(&obj_str).ok()?) } else { DeleteCustomerBankAccountReturned::PaymentSource(from_str(&obj_str).ok()?) })
+        }
+    }
+
+    impl stripe_types::ObjectDeser for DeleteCustomerBankAccountReturned {
+        type Builder = DeleteCustomerBankAccountReturnedBuilder;
+    }
+};
+
 #[derive(Copy, Clone, Debug, Default, serde::Serialize)]
 pub struct VerifyBankAccount<'a> {
     /// Two positive integers, in *cents*, equal to the values of the microdeposits sent to the bank account.

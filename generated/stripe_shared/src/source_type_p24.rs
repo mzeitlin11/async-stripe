@@ -37,6 +37,7 @@ const _: () = {
     impl MapBuilder for SourceTypeP24Builder {
         type Out = SourceTypeP24;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "reference" => Ok(Deserialize::begin(&mut self.reference)),
 

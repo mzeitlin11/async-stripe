@@ -73,6 +73,7 @@ const _: () = {
     impl MapBuilder for TreasuryTransactionEntryBuilder {
         type Out = TreasuryTransactionEntry;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "balance_impact" => Ok(Deserialize::begin(&mut self.balance_impact)),
                 "created" => Ok(Deserialize::begin(&mut self.created)),

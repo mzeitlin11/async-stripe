@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for InvoicesResourceLineItemsCreditedItemsBuilder {
         type Out = InvoicesResourceLineItemsCreditedItems;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "invoice" => Ok(Deserialize::begin(&mut self.invoice)),
                 "invoice_line_items" => Ok(Deserialize::begin(&mut self.invoice_line_items)),

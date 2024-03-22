@@ -40,6 +40,7 @@ const _: () = {
     impl MapBuilder for TerminalReaderReaderResourceTippingConfigBuilder {
         type Out = TerminalReaderReaderResourceTippingConfig;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount_eligible" => Ok(Deserialize::begin(&mut self.amount_eligible)),
 

@@ -111,6 +111,7 @@ const _: () = {
     impl MapBuilder for IssuingCardBuilder {
         type Out = IssuingCard;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "brand" => Ok(Deserialize::begin(&mut self.brand)),
                 "cancellation_reason" => Ok(Deserialize::begin(&mut self.cancellation_reason)),

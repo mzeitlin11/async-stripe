@@ -40,6 +40,7 @@ const _: () = {
     impl MapBuilder for RefundNextActionDisplayDetailsBuilder {
         type Out = RefundNextActionDisplayDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "email_sent" => Ok(Deserialize::begin(&mut self.email_sent)),
                 "expires_at" => Ok(Deserialize::begin(&mut self.expires_at)),

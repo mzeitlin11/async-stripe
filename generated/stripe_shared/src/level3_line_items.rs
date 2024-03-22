@@ -47,6 +47,7 @@ const _: () = {
     impl MapBuilder for Level3LineItemsBuilder {
         type Out = Level3LineItems;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "discount_amount" => Ok(Deserialize::begin(&mut self.discount_amount)),
                 "product_code" => Ok(Deserialize::begin(&mut self.product_code)),

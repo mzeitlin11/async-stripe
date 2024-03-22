@@ -42,6 +42,7 @@ const _: () = {
     impl MapBuilder for IssuingAuthorizationAuthenticationExemptionBuilder {
         type Out = IssuingAuthorizationAuthenticationExemption;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "claimed_by" => Ok(Deserialize::begin(&mut self.claimed_by)),
                 "type" => Ok(Deserialize::begin(&mut self.type_)),

@@ -40,6 +40,7 @@ const _: () = {
     impl MapBuilder for PaymentPagesCheckoutSessionInvoiceCreationBuilder {
         type Out = PaymentPagesCheckoutSessionInvoiceCreation;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "enabled" => Ok(Deserialize::begin(&mut self.enabled)),
                 "invoice_data" => Ok(Deserialize::begin(&mut self.invoice_data)),

@@ -41,6 +41,7 @@ const _: () = {
     impl MapBuilder for AccountRequirementsAlternativeBuilder {
         type Out = AccountRequirementsAlternative;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "alternative_fields_due" => Ok(Deserialize::begin(&mut self.alternative_fields_due)),
                 "original_fields_due" => Ok(Deserialize::begin(&mut self.original_fields_due)),

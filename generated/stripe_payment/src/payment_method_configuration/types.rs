@@ -150,6 +150,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodConfigurationBuilder {
         type Out = PaymentMethodConfiguration;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "acss_debit" => Ok(Deserialize::begin(&mut self.acss_debit)),
                 "active" => Ok(Deserialize::begin(&mut self.active)),

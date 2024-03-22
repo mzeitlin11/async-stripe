@@ -55,6 +55,7 @@ const _: () = {
     impl MapBuilder for AccountPaymentsSettingsBuilder {
         type Out = AccountPaymentsSettings;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "statement_descriptor" => Ok(Deserialize::begin(&mut self.statement_descriptor)),
                 "statement_descriptor_kana" => Ok(Deserialize::begin(&mut self.statement_descriptor_kana)),

@@ -51,6 +51,7 @@ const _: () = {
     impl MapBuilder for SourceTypeAchCreditTransferBuilder {
         type Out = SourceTypeAchCreditTransfer;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "account_number" => Ok(Deserialize::begin(&mut self.account_number)),
                 "bank_name" => Ok(Deserialize::begin(&mut self.bank_name)),

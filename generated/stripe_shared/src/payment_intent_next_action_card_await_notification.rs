@@ -43,6 +43,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentNextActionCardAwaitNotificationBuilder {
         type Out = PaymentIntentNextActionCardAwaitNotification;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "charge_attempt_at" => Ok(Deserialize::begin(&mut self.charge_attempt_at)),
                 "customer_approval_required" => Ok(Deserialize::begin(&mut self.customer_approval_required)),

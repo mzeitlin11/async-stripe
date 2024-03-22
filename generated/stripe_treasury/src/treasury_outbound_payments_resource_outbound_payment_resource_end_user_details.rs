@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for TreasuryOutboundPaymentsResourceOutboundPaymentResourceEndUserDetailsBuilder {
         type Out = TreasuryOutboundPaymentsResourceOutboundPaymentResourceEndUserDetails;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "ip_address" => Ok(Deserialize::begin(&mut self.ip_address)),
                 "present" => Ok(Deserialize::begin(&mut self.present)),

@@ -51,6 +51,7 @@ const _: () = {
     impl MapBuilder for ConnectCollectionTransferBuilder {
         type Out = ConnectCollectionTransfer;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "amount" => Ok(Deserialize::begin(&mut self.amount)),
                 "currency" => Ok(Deserialize::begin(&mut self.currency)),

@@ -48,6 +48,7 @@ const _: () = {
     impl MapBuilder for PlatformTaxFeeBuilder {
         type Out = PlatformTaxFee;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "account" => Ok(Deserialize::begin(&mut self.account)),
                 "id" => Ok(Deserialize::begin(&mut self.id)),

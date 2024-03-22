@@ -65,6 +65,7 @@ const _: () = {
     impl MapBuilder for CountrySpecBuilder {
         type Out = CountrySpec;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "default_currency" => Ok(Deserialize::begin(&mut self.default_currency)),
                 "id" => Ok(Deserialize::begin(&mut self.id)),

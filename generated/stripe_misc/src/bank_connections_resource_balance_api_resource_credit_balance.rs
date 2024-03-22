@@ -44,6 +44,7 @@ const _: () = {
     impl MapBuilder for BankConnectionsResourceBalanceApiResourceCreditBalanceBuilder {
         type Out = BankConnectionsResourceBalanceApiResourceCreditBalance;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "used" => Ok(Deserialize::begin(&mut self.used)),
 

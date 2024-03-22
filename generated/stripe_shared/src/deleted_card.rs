@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for DeletedCardBuilder {
         type Out = DeletedCard;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "currency" => Ok(Deserialize::begin(&mut self.currency)),
                 "deleted" => Ok(Deserialize::begin(&mut self.deleted)),

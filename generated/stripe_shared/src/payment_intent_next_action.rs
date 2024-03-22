@@ -73,6 +73,7 @@ const _: () = {
     impl MapBuilder for PaymentIntentNextActionBuilder {
         type Out = PaymentIntentNextAction;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "alipay_handle_redirect" => Ok(Deserialize::begin(&mut self.alipay_handle_redirect)),
                 "boleto_display_details" => Ok(Deserialize::begin(&mut self.boleto_display_details)),

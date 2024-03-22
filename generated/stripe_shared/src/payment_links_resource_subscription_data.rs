@@ -45,6 +45,7 @@ const _: () = {
     impl MapBuilder for PaymentLinksResourceSubscriptionDataBuilder {
         type Out = PaymentLinksResourceSubscriptionData;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "description" => Ok(Deserialize::begin(&mut self.description)),
                 "metadata" => Ok(Deserialize::begin(&mut self.metadata)),

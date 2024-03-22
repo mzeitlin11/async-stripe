@@ -65,6 +65,7 @@ const _: () = {
     impl MapBuilder for MandateBuilder {
         type Out = Mandate;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "customer_acceptance" => Ok(Deserialize::begin(&mut self.customer_acceptance)),
                 "id" => Ok(Deserialize::begin(&mut self.id)),

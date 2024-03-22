@@ -55,6 +55,7 @@ const _: () = {
     impl MapBuilder for PaymentMethodCardWalletMasterpassBuilder {
         type Out = PaymentMethodCardWalletMasterpass;
         fn key(&mut self, k: &str) -> miniserde::Result<&mut dyn Visitor> {
+            #[allow(clippy::match_single_binding)]
             match k {
                 "billing_address" => Ok(Deserialize::begin(&mut self.billing_address)),
                 "email" => Ok(Deserialize::begin(&mut self.email)),

@@ -1,14 +1,13 @@
 use std::fmt::Write;
 
-use crate::components::Components;
-use crate::printable::{Lifetime, PrintableType};
+use crate::render::{DisplayType, Lifetime, RenderContext};
 use crate::rust_object::ObjectUsage;
 use crate::rust_type::RustType;
 use crate::types::RustIdent;
 
 #[derive(Copy, Clone)]
 pub struct ObjectWriter<'a> {
-    pub components: &'a Components,
+    pub context: RenderContext<'a>,
     pub lifetime: Option<Lifetime>,
     pub derives: Derives,
     pub ident: &'a RustIdent,
@@ -18,9 +17,9 @@ pub struct ObjectWriter<'a> {
 }
 
 impl<'a> ObjectWriter<'a> {
-    pub fn new(components: &'a Components, ident: &'a RustIdent, usage: ObjectUsage) -> Self {
+    pub fn new(context: RenderContext<'a>, ident: &'a RustIdent, usage: ObjectUsage) -> Self {
         Self {
-            components,
+            context,
             lifetime: None,
             derives: Derives::new(),
             ident,
@@ -55,8 +54,8 @@ impl<'a> ObjectWriter<'a> {
         self
     }
 
-    pub fn get_printable(&self, typ: &RustType) -> PrintableType {
-        self.components.construct_printable_type(typ)
+    pub fn display_type<'type_>(&self, typ: &'type_ RustType) -> DisplayType<'a, 'type_> {
+        self.context.display_type(typ)
     }
 
     pub fn lifetime_param(&self) -> &'static str {

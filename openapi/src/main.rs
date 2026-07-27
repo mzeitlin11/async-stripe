@@ -1,199 +1,232 @@
-use std::fmt::Debug;
-use std::fs;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-use anyhow::{Context, Result, bail};
-use clap::Parser;
-use petgraph::dot::{Config, Dot};
-use stripe_openapi_codegen::codegen::CodeGen;
+use anyhow::{Context, Result, bail, ensure};
+use clap::{Args, Parser, Subcommand, ValueEnum};
+use stripe_openapi_codegen::analysis::GraphDetail;
+use stripe_openapi_codegen::codegen::{CodeGen, CodeGenOptions, EdgePolicy};
 use stripe_openapi_codegen::crates::ALL_CRATES;
+use stripe_openapi_codegen::output::{
+    OutputInventory, compare_with_repository, install_to_repository, snapshot_files,
+};
 use stripe_openapi_codegen::spec::Spec;
 use stripe_openapi_codegen::spec_fetch;
 use stripe_openapi_codegen::spec_fetch::fetch_spec;
 use stripe_openapi_codegen::url_finder::{UrlFinder, update_api_doc_data};
-use stripe_openapi_codegen::utils::write_to_file;
 use tracing::info;
 
 #[derive(Debug, Parser)]
-struct Command {
-    /// Version of the library to generate. If not provided, uses the version found in the root
-    /// workspace.
+#[command(about = "Generate and analyze async-stripe's OpenAPI bindings")]
+struct Cli {
+    #[command(subcommand)]
+    command: Command,
+}
+
+#[derive(Debug, Subcommand)]
+enum Command {
+    /// Generate, format, and install bindings into the repository.
+    Generate(GenerateArgs),
+    /// Regenerate bindings and compare every generated artifact with the repository.
+    Check(CheckArgs),
+    /// Analyze the API model and write reports without installing generated files.
+    Analyze(AnalyzeArgs),
+    /// Refresh the Stripe documentation URL mapping.
+    UpdateApiDocs(UpdateApiDocsArgs),
+}
+
+#[derive(Debug, Clone, Args)]
+struct CommonArgs {
+    /// Version of the library to generate. Defaults to the root workspace version.
     #[arg(long)]
     version: Option<String>,
-    /// Input path for the OpenAPI spec, defaults to `spec3.sdk.json`
+    /// Input path for the OpenAPI spec.
     #[arg(default_value = "spec3.sdk.json")]
     spec_path: String,
-    /// Output directory for generated code, defaults to `out`
+    /// Staging directory for generated code.
     #[arg(long, default_value = "out")]
-    out: String,
-    /// If not passed, skips the step of fetching the spec. Otherwise, `latest` for the
-    /// newest spec release, `current` for the version used in the latest codegen update,
-    /// or a specific version, such as `v171`
+    out: PathBuf,
+    /// Fetch `latest`, `current`, or a specific Stripe OpenAPI release such as `v171`.
     #[arg(long, value_parser = spec_fetch::parse_spec_version)]
     fetch: Option<spec_fetch::SpecVersion>,
-    /// Instead of writing files, generate a graph of dependencies in `graphviz` `DOT` format. Writes
-    /// to `graph.txt`
+}
+
+#[derive(Debug, Args)]
+struct GenerateArgs {
+    #[command(flatten)]
+    common: CommonArgs,
+    /// Generate and format staging output without installing it into the repository.
+    #[arg(long, alias = "dry-run")]
+    no_install: bool,
+    /// Write detailed analysis reports to this directory.
     #[arg(long)]
-    graph: bool,
-    /// Update the Stripe API docs instead of using the existing data in the repo
+    report_dir: Option<PathBuf>,
+}
+
+#[derive(Debug, Args)]
+struct CheckArgs {
+    #[command(flatten)]
+    common: CommonArgs,
+}
+
+#[derive(Debug, Copy, Clone, Default, ValueEnum)]
+enum GraphSelection {
+    None,
+    #[default]
+    Default,
+    All,
+}
+
+#[derive(Debug, Args)]
+struct AnalyzeArgs {
+    #[command(flatten)]
+    common: CommonArgs,
+    /// Graph detail to include in the analysis bundle.
+    #[arg(long, value_enum, default_value_t)]
+    graphs: GraphSelection,
+    /// Analysis-only counterfactual: do not use Expandable<T> references for placement.
     #[arg(long)]
-    update_api_docs: bool,
-    /// The URL to target for the stripe docs.
+    without_expandables: bool,
+    /// Directory for reports. Defaults to `<out>/analysis`.
+    #[arg(long)]
+    report_dir: Option<PathBuf>,
+}
+
+#[derive(Debug, Args)]
+struct UpdateApiDocsArgs {
+    #[command(flatten)]
+    common: CommonArgs,
+    /// Stripe API documentation URL.
     #[arg(long, default_value = "https://stripe.com/docs/api")]
     api_docs_url: String,
-    /// Skip the step of copying the generated code from `out` to `generated/`.
-    #[arg(long)]
-    dry_run: bool,
-    /// Write a markdown report of any auto-resolved crate inference warnings to `out/crate_warnings.md`.
-    #[arg(long)]
-    emit_warnings: bool,
 }
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    let args = Command::parse();
-
-    let in_path = args.spec_path;
-    let out_path = Path::new(&args.out);
-    if out_path.exists() {
-        fs::remove_dir_all(out_path).context("could not remove out folder")?;
+    let cli = Cli::parse();
+    match cli.command {
+        Command::Generate(args) => run_generate(args),
+        Command::Check(args) => run_check(args),
+        Command::Analyze(args) => run_analyze(args),
+        Command::UpdateApiDocs(args) => run_update_api_docs(args),
     }
-    fs::create_dir_all(out_path).context("could not create out folder")?;
+}
 
-    info!("generating code for {in_path} to {}", out_path.display());
+fn run_generate(args: GenerateArgs) -> Result<()> {
+    let codegen = build_codegen(&args.common, EdgePolicy::current_layout())?;
+    let inventory = render_and_format(&codegen, &args.common.out)?;
+    print_summary(&codegen, &inventory);
 
-    let spec = if let Some(version) = args.fetch {
-        let raw = fetch_spec(version, &in_path)?;
-        Spec::new(serde_json::from_value(raw)?)
-    } else {
-        let raw = File::open(in_path).context("failed to load the specfile. does it exist?")?;
-        Spec::new(serde_json::from_reader(&raw).context("failed to read json from specfile")?)
-    };
-    info!("Finished parsing spec");
-
-    let url_finder = UrlFinder::new().context("couldn't initialize url finder")?;
-    let version =
-        if let Some(version) = args.version { version } else { parse_workspace_version()? };
-    info!("Generating with version {version}");
-    let codegen = CodeGen::new(spec, url_finder, version)?;
-
-    if args.emit_warnings && !codegen.crate_inference_warnings.is_empty() {
-        let mut body = String::from(
-            "## Crate Inference Warnings\n\n\
-             The following components could not have their crate automatically inferred \
-             and were auto-assigned. Consider adding explicit path entries in \
-             `openapi/gen_crates.toml` to make these assignments permanent.\n\n\
-             | Component | Assigned Crate | Depended On By | Candidate Crates |\n\
-             |-----------|---------------|----------------|------------------|\n",
-        );
-        for w in &codegen.crate_inference_warnings {
-            let deps =
-                w.depended_on_by.iter().map(|p| format!("`{p}`")).collect::<Vec<_>>().join(", ");
-            let crates = w
-                .candidate_crates
-                .iter()
-                .map(|c| format!("`{}`", c.base_name()))
-                .collect::<Vec<_>>()
-                .join(", ");
-            body.push_str(&format!(
-                "| `{}` | `{}` | {} | {} |\n",
-                w.component,
-                w.chosen_crate.base_name(),
-                deps,
-                crates,
-            ));
-        }
-        body.push_str("\n### Suggested `gen_crates.toml` entries\n\n");
-        body.push_str(
-            "Add the following paths to the appropriate crate's `paths` array:\n\n```toml\n",
-        );
-        for w in &codegen.crate_inference_warnings {
-            body.push_str(&format!(
-                "# currently auto-assigned to \"{}\"\n\"{}\",\n",
-                w.chosen_crate.base_name(),
-                w.component,
-            ));
-        }
-        body.push_str("```\n");
-        write_to_file(body, "crate_warnings.md")?;
+    if let Some(report_dir) = args.report_dir {
+        write_analysis(&codegen, &inventory, &report_dir, GraphSelection::Default)?;
     }
-
-    if args.update_api_docs {
-        update_api_doc_data(&args.api_docs_url, &codegen.components)?;
-        return Ok(());
-    }
-
-    if args.graph {
-        let comp_graph = codegen.components.gen_component_dep_graph();
-        let graph_txt = format!("{:?}", Dot::with_config(&comp_graph, &[Config::EdgeNoLabel]));
-        write_to_file(graph_txt, "graphs/components_graph.txt")?;
-
-        let crate_graph = codegen.components.gen_crate_dep_graph();
-        let graph_txt = format!("{:?}", Dot::with_config(&crate_graph, &[Config::EdgeNoLabel]));
-        write_to_file(graph_txt, "graphs/crate_graph.txt")?;
-        return Ok(());
-    }
-
-    codegen.write_files()?;
-
-    let mut fmt_cmd = std::process::Command::new("cargo");
-    fmt_cmd.arg("+nightly").arg("fmt").arg("--");
-    for krate in &*ALL_CRATES {
-        fmt_cmd.arg(format!("out/{}/src/mod.rs", krate.generated_out_path()));
-    }
-    fmt_cmd.arg("out/async-stripe-webhook/mod.rs");
-    fmt_cmd.arg("out/tests/mod.rs");
-
-    if !args.dry_run {
-        info!("Formatting generated files");
-
-        // in a rather bizarre turn of events, we actually need to run fmt _twice_
-        // to get it 'settled'. otherwise it will fail formatting checks
-        let _out = fmt_cmd.output()?;
-        let out = fmt_cmd.output()?;
-        if !out.status.success() {
-            bail!("Rustfmt failed with outputs {out:?}");
-        }
-
-        info!("Copying generated files");
-
-        let crate_paths = std::fs::read_dir("out/crates")?
-            .map(|dir| dir.map(|dir| dir.path()))
-            .collect::<Result<Vec<_>, _>>()?;
-
-        let crate_paths = crate_paths
-            .iter()
-            .map(|e| {
-                (
-                    e.as_path(),
-                    Path::new("../generated/")
-                        .join(format!("{}/", e.file_name().unwrap().to_str().unwrap())),
-                )
-            })
-            .chain([
-                (
-                    Path::new("out/async-stripe-webhook/"),
-                    Path::new("../async-stripe-webhook/src/generated/").to_owned(),
-                ),
-                (Path::new("out/tests/"), Path::new("../tests/tests/it/generated/").to_owned()),
-            ]);
-
-        // here, we need to copy over everything we generate, deleting previous versions
-        for (folder, dest) in crate_paths {
-            for path in std::fs::read_dir(folder)? {
-                let path = path?;
-                run_rsync(path.path().as_path(), &dest)?;
-            }
-        }
-
-        std::process::Command::new("cp")
-            .arg("out/crate_info.md")
-            .arg("../crate_info.md")
-            .output()?;
+    if !args.no_install {
+        install_to_repository(&args.common.out, Path::new(".."))?;
+        info!("Installed generated files into the repository");
     }
     Ok(())
+}
+
+fn run_check(args: CheckArgs) -> Result<()> {
+    let codegen = build_codegen(&args.common, EdgePolicy::current_layout())?;
+    let inventory = render_and_format(&codegen, &args.common.out)?;
+    print_summary(&codegen, &inventory);
+    compare_with_repository(&args.common.out, Path::new(".."))?;
+    println!("Generated output matches all checked-in artifacts.");
+    Ok(())
+}
+
+fn run_analyze(args: AnalyzeArgs) -> Result<()> {
+    let policy = if args.without_expandables {
+        EdgePolicy::without_expandables()
+    } else {
+        EdgePolicy::current_layout()
+    };
+    let codegen = build_codegen(&args.common, policy)?;
+    let inventory = render_and_format(&codegen, &args.common.out)?;
+    print_summary(&codegen, &inventory);
+    let report_dir = args.report_dir.unwrap_or_else(|| args.common.out.join("analysis"));
+    write_analysis(&codegen, &inventory, &report_dir, args.graphs)?;
+    println!("Analysis written to {}", report_dir.display());
+    Ok(())
+}
+
+fn run_update_api_docs(args: UpdateApiDocsArgs) -> Result<()> {
+    let codegen = build_codegen(&args.common, EdgePolicy::current_layout())?;
+    update_api_doc_data(&args.api_docs_url, &codegen.components)
+}
+
+fn build_codegen(args: &CommonArgs, edge_policy: EdgePolicy) -> Result<CodeGen> {
+    info!("Loading {}", args.spec_path);
+    let spec = if let Some(version) = args.fetch.clone() {
+        let raw = fetch_spec(version, &args.spec_path)?;
+        Spec::new(serde_json::from_value(raw)?)
+    } else {
+        let raw = File::open(&args.spec_path).context("failed to load the OpenAPI spec")?;
+        Spec::new(serde_json::from_reader(&raw).context("failed to parse the OpenAPI spec")?)
+    };
+    let url_finder = UrlFinder::new().context("could not initialize URL finder")?;
+    let version = args.version.clone().map_or_else(parse_workspace_version, Ok)?;
+    CodeGen::new_with_options(spec, url_finder, version, CodeGenOptions { edge_policy })
+}
+
+fn render_and_format(codegen: &CodeGen, out: &Path) -> Result<OutputInventory> {
+    let workspace = codegen.render_workspace()?;
+    info!(files = workspace.file_count(), output = %out.display(), "Materializing generated workspace");
+    workspace.materialize(out)?;
+    run_rustfmt(out)?;
+    OutputInventory::collect(out)
+}
+
+fn run_rustfmt(out: &Path) -> Result<()> {
+    let mut command = std::process::Command::new("cargo");
+    let rustfmt_config = Path::new("../.rustfmt.toml").canonicalize()?;
+    command.arg("+nightly").arg("fmt").arg("--").arg("--config-path").arg(rustfmt_config);
+    for krate in &*ALL_CRATES {
+        command.arg(out.join(krate.generated_out_path()).join("src/mod.rs"));
+    }
+    command.arg(out.join("async-stripe-webhook/mod.rs"));
+    command.arg(out.join("tests/mod.rs"));
+
+    let first = command.output().context("failed to invoke rustfmt")?;
+    if !first.status.success() {
+        bail!("rustfmt failed: {}", String::from_utf8_lossy(&first.stderr));
+    }
+    let once = snapshot_files(out)?;
+    let second = command.output().context("failed to invoke rustfmt a second time")?;
+    if !second.status.success() {
+        bail!("rustfmt failed: {}", String::from_utf8_lossy(&second.stderr));
+    }
+    ensure!(once == snapshot_files(out)?, "rustfmt did not reach a fixed point after one pass");
+    Ok(())
+}
+
+fn print_summary(codegen: &CodeGen, inventory: &OutputInventory) {
+    println!(
+        "Generated {} components ({} with requests) into {} files, {} lines, {} bytes.",
+        codegen.components.components.len(),
+        codegen.request_component_count(),
+        inventory.total.files,
+        inventory.total.lines,
+        inventory.total.bytes
+    );
+    if !codegen.crate_inference_warnings.is_empty() {
+        println!("Crate inference warnings: {}", codegen.crate_inference_warnings.len());
+    }
+}
+
+fn write_analysis(
+    codegen: &CodeGen,
+    inventory: &OutputInventory,
+    report_dir: &Path,
+    graphs: GraphSelection,
+) -> Result<()> {
+    let detail = match graphs {
+        GraphSelection::None => GraphDetail::None,
+        GraphSelection::Default => GraphDetail::Default,
+        GraphSelection::All => GraphDetail::All,
+    };
+    codegen.analysis_bundle(inventory, detail).write_to(report_dir)
 }
 
 fn parse_workspace_version() -> Result<String> {
@@ -202,26 +235,9 @@ fn parse_workspace_version() -> Result<String> {
         let line = line?;
         let line = line.trim_ascii();
         if line.starts_with("version") {
-            let version = line.split_once('=').unwrap().1.trim_ascii();
-            return Ok(version.replace('"', ""));
+            let (_, version) = line.split_once('=').context("invalid workspace version line")?;
+            return Ok(version.trim_ascii().replace('"', ""));
         }
     }
-    bail!("No version key found");
-}
-
-// --delete-during so that generated files don't stick around when not
-// generated anymore, see https://github.com/arlyon/async-stripe/issues/229
-fn run_rsync(src: &Path, dest: &Path) -> Result<()> {
-    tracing::debug!("sending {} to {}", src.display(), dest.display());
-    let out = std::process::Command::new("rsync")
-        .arg("-a")
-        .arg("--delete-during")
-        .arg(src)
-        .arg(dest)
-        .output()?;
-
-    if !out.status.success() {
-        bail!("rsync failed with outputs {out:?}");
-    }
-    Ok(())
+    bail!("No workspace version key found")
 }

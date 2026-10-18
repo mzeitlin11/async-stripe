@@ -1,7 +1,8 @@
 use std::fmt::Write;
 
 use crate::STRIPE_TYPES;
-use crate::item_catalog::{ItemId, ItemMetadata, ItemProperties, RustItem, TypeRoot};
+use crate::item_catalog::{ItemId, ItemMetadata, ItemProperties, RustItem};
+use crate::item_origin::TypeRoot;
 use crate::render::{Lifetime, RenderContext};
 use crate::request_model::RequestModel;
 use crate::rust_object::EnumOfObjects::ObjectUnion;

@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use anyhow::Context as _;
 
 use crate::components::Components;
-use crate::item_catalog::{CanonicalTypeRoot, ItemCatalog, TypeRoot};
+use crate::item_catalog::{CanonicalTypeRoot, ItemCatalog};
+use crate::item_origin::TypeRoot;
 use crate::operations::{OperationType, RequestSpec};
 use crate::rust_type::RustType;
 use crate::types::RustIdent;

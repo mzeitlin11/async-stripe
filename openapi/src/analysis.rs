@@ -10,7 +10,8 @@ use crate::components::Components;
 use crate::crates::{ALL_CRATES, Crate};
 use crate::dependencies::{Dependency, DependencySource, EdgePolicy};
 use crate::graph::{ComponentGraph, gen_crate_dep_graph};
-use crate::item_catalog::{ItemKind, ItemOrigin, RustItem, TypeRoot};
+use crate::item_catalog::{ItemKind, RustItem};
+use crate::item_origin::{ItemOrigin, TypeRoot};
 use crate::output::ArtifactSet;
 use crate::rust_object::{ObjectKind, RustObject};
 use crate::rust_type::{DeclarationRoot, RustType};
@@ -76,6 +77,7 @@ impl CodeGen {
         bundle.insert("summary.md", summary(self, &component_stats, &crate_stats));
         bundle.insert("components.csv", components_csv(self, &component_stats));
         bundle.insert("items.csv", items_csv(self));
+        bundle.insert("item-occurrences.csv", item_occurrences_csv(self));
         bundle.insert("dependencies.csv", dependencies_csv(&self.components));
         bundle.insert("crate-inference-warnings.csv", crate_warnings_csv(self));
 
@@ -302,7 +304,8 @@ fn summary(
 }
 
 fn items_csv(codegen: &CodeGen) -> String {
-    let mut out = String::from("item_id,origin,ident,kind,usage,has_lifetime,is_copy,is_eq\n");
+    let mut out =
+        String::from("item_id,origin,ident,kind,usage,has_lifetime,is_copy,is_eq,sharing_rule\n");
     let items = codegen.model.items();
     for (id, item) in items.iter() {
         let properties = items.properties(id);
@@ -315,9 +318,26 @@ fn items_csv(codegen: &CodeGen) -> String {
             properties.has_lifetime.to_string(),
             properties.is_copy.to_string(),
             properties.is_eq.to_string(),
+            item.sharing_rule.map(|rule| format!("{rule:?}")).unwrap_or_default(),
         ];
         let _ =
             writeln!(out, "{}", row.iter().map(|value| csv(value)).collect::<Vec<_>>().join(","));
+    }
+    out
+}
+
+fn item_occurrences_csv(codegen: &CodeGen) -> String {
+    let mut out = String::from("item_id,origin,usage\n");
+    for (id, item) in codegen.model.items().iter() {
+        for occurrence in &item.occurrences {
+            let _ = writeln!(
+                out,
+                "{},{},{}",
+                id.index(),
+                csv(&item_origin(codegen, &occurrence.origin)),
+                csv(&format!("{:?}", occurrence.usage)),
+            );
+        }
     }
     out
 }

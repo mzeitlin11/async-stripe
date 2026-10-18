@@ -2,7 +2,8 @@ use std::collections::{HashMap, HashSet};
 
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
-use crate::operations::OperationId;
+use crate::deduplication::SharingRule;
+use crate::item_origin::{ItemOccurrence, ItemOrigin, TypeRoot};
 use crate::rust_object::{
     EnumOfObjects, ObjectIdentity, ObjectMetadata, ObjectUsage, RustObject, as_enum_of_objects,
 };
@@ -26,21 +27,6 @@ impl ItemId {
     pub const fn index(self) -> usize {
         self.0 as usize
     }
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub enum TypeRoot {
-    Declaration(DeclarationRoot),
-    OperationPathParam { operation: OperationId, index: usize },
-    OperationParam(OperationId),
-    OperationReturn(OperationId),
-    Webhook(String),
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct ItemOrigin {
-    pub type_root: TypeRoot,
-    pub path: Vec<String>,
 }
 
 /// The canonical type at one inference root and the declaration structurally
@@ -119,7 +105,14 @@ pub enum RustItem {
 
 #[derive(Debug, Clone)]
 pub struct ItemRecord {
+    /// Canonical declaration origin, used for emission ownership. Original
+    /// inferred occurrences remain separate when a declaration is shared.
     pub origin: ItemOrigin,
+    pub occurrences: Vec<ItemOccurrence>,
+    /// The rule selecting this declaration for sharing. Nested declarations
+    /// can inherit several occurrences from a shared parent without having
+    /// been selected independently.
+    pub sharing_rule: Option<SharingRule>,
     pub metadata: ItemMetadata,
     /// Declarations structurally introduced by this item, in existing
     /// recursive emission order. Cross-item path references are not children.
@@ -208,7 +201,7 @@ impl ItemCatalog {
 
             for (ident, deduplicated) in &object.deduplicated_objects {
                 let metadata = ItemMetadata::new(ident.clone());
-                builder.collect_root_object(
+                let item = builder.collect_root_object(
                     TypeRoot::Declaration(DeclarationRoot::Deduplicated {
                         component,
                         ident: ident.clone(),
@@ -217,6 +210,8 @@ impl ItemCatalog {
                     metadata,
                     deduplicated.usage,
                 )?;
+                builder.set_shared_occurrences(item, &deduplicated.occurrences);
+                builder.item_mut(item).sharing_rule = Some(deduplicated.sharing_rule);
             }
         }
 
@@ -506,6 +501,22 @@ struct CatalogBuilder {
 }
 
 impl CatalogBuilder {
+    fn set_shared_occurrences(&mut self, item: ItemId, occurrences: &[ItemOccurrence]) {
+        let record = self.item_mut(item);
+        record.occurrences = occurrences
+            .iter()
+            .map(|source| {
+                let mut origin = source.origin.clone();
+                origin.path.extend(record.origin.path.iter().cloned());
+                ItemOccurrence { origin, usage: source.usage }
+            })
+            .collect();
+        let children = record.children.clone();
+        for child in children {
+            self.set_shared_occurrences(child, occurrences);
+        }
+    }
+
     fn reserve_item(&mut self, origin: ItemOrigin) -> anyhow::Result<ItemId> {
         let id = ItemId::from_index(self.items.len())?;
         anyhow::ensure!(
@@ -560,6 +571,8 @@ impl CatalogBuilder {
             id,
             ItemRecord {
                 origin,
+                occurrences: Vec::new(),
+                sharing_rule: None,
                 metadata: ItemMetadata::new(ident),
                 children: Vec::new(),
                 item: RustItem::IdNewtype,
@@ -639,7 +652,9 @@ impl CatalogBuilder {
         self.complete_item(
             id,
             ItemRecord {
+                occurrences: vec![ItemOccurrence { origin: origin.clone(), usage }],
                 origin,
+                sharing_rule: None,
                 metadata,
                 children,
                 item: RustItem::Object(Box::new(ObjectItem {
@@ -700,8 +715,10 @@ impl CatalogBuilder {
 
 #[cfg(test)]
 mod tests {
-    use super::{CatalogBuilder, ItemMetadata, RustItem, TypeRoot};
+    use super::{CatalogBuilder, ItemMetadata, RustItem};
     use crate::component_catalog::ComponentCatalog;
+    use crate::deduplication::SharingRule;
+    use crate::item_origin::{ItemOccurrence, ItemOrigin, TypeRoot};
     use crate::rust_object::{
         ObjectIdentity, ObjectMetadata, ObjectUsage, RustObject, Struct, StructField,
     };
@@ -737,6 +754,70 @@ mod tests {
         let Some(object) = catalog.get(root_id).object() else { panic!("expected root object") };
         let RustObject::Struct(root) = &object.definition else { panic!("expected root struct") };
         assert!(matches!(root.fields[0].rust_type, RustType::Item(item) if item.index() == 1));
+    }
+
+    #[test]
+    fn shared_parents_preserve_original_locations_for_nested_declarations() {
+        let components =
+            ComponentCatalog::from_names([ComponentName::new("customer".to_string())]).unwrap();
+        let component = components.id_str("customer").unwrap();
+        let root = TypeRoot::Declaration(DeclarationRoot::Deduplicated {
+            component,
+            ident: RustIdent::create("details"),
+        });
+        let nested = RustType::Object(
+            RustObject::Struct(Struct::new(vec![StructField::new(
+                "value",
+                RustType::Object(
+                    RustObject::Struct(Struct::new(vec![])),
+                    ObjectMetadata::new(RustIdent::create("value")),
+                ),
+            )])),
+            ObjectMetadata::new(RustIdent::create("entries")),
+        );
+        let object = RustObject::Struct(Struct::new(vec![StructField::new(
+            "entries",
+            RustType::vec(nested),
+        )]));
+        let occurrences = ["first", "second"].map(|field| ItemOccurrence {
+            origin: ItemOrigin {
+                type_root: TypeRoot::Declaration(DeclarationRoot::Component(component)),
+                path: vec![field.to_string()],
+            },
+            usage: ObjectUsage::type_def(),
+        });
+        let mut builder = CatalogBuilder::default();
+        let shared = builder
+            .collect_root_object(
+                root.clone(),
+                &object,
+                ItemMetadata::new(RustIdent::create("details")),
+                ObjectUsage::type_def(),
+            )
+            .unwrap();
+        builder.set_shared_occurrences(shared, &occurrences);
+        builder.item_mut(shared).sharing_rule = Some(SharingRule::CommonTitle);
+        let mut catalog = builder.finish().unwrap();
+        catalog.lower_named_references().unwrap();
+        catalog.validate_lowered_structure().unwrap();
+
+        assert_eq!(catalog.len(), 3);
+        assert_eq!(catalog.get(shared).occurrences, occurrences);
+        assert_eq!(catalog.get(shared).sharing_rule, Some(SharingRule::CommonTitle));
+        let grandchild = catalog.get(catalog.get(catalog.get(shared).children[0]).children[0]);
+        assert_eq!(grandchild.origin.type_root, root);
+        assert_eq!(grandchild.origin.path, ["entries", "value"]);
+        assert_eq!(
+            grandchild.occurrences,
+            ["first", "second"].map(|field| ItemOccurrence {
+                origin: ItemOrigin {
+                    type_root: TypeRoot::Declaration(DeclarationRoot::Component(component)),
+                    path: vec![field.to_string(), "entries".to_string(), "value".to_string()],
+                },
+                usage: ObjectUsage::type_def(),
+            })
+        );
+        assert!(grandchild.sharing_rule.is_none());
     }
 
     #[test]

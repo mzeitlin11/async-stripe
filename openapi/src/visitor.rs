@@ -1,7 +1,23 @@
-use crate::rust_object::{ObjectMetadata, ObjectUsage, RustObject};
+use crate::rust_object::{EnumVariant, ObjectMetadata, ObjectUsage, RustObject, StructField};
 use crate::rust_type::RustType;
 
 pub trait Visit<'a> {
+    fn visit_field(&mut self, field: &'a StructField, usage: ObjectUsage)
+    where
+        Self: Sized,
+    {
+        self.visit_typ(&field.rust_type, usage);
+    }
+
+    fn visit_variant(&mut self, variant: &'a EnumVariant, usage: ObjectUsage)
+    where
+        Self: Sized,
+    {
+        if let Some(typ) = &variant.rust_type {
+            self.visit_typ(typ, usage);
+        }
+    }
+
     fn visit_obj(
         &mut self,
         obj: &'a RustObject,

@@ -1,7 +1,8 @@
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
 use crate::crates::Crate;
-use crate::item_catalog::{ItemCatalog, ItemId, ItemOrigin, TypeRoot};
+use crate::item_catalog::{ItemCatalog, ItemId};
+use crate::item_origin::{ItemOrigin, TypeRoot};
 use crate::layout::ComponentLayout;
 use crate::rust_object::ObjectKind;
 use crate::rust_type::DeclarationRoot;

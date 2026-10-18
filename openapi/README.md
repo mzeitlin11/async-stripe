@@ -49,14 +49,16 @@ Code generation has explicit stages:
 1. **Inference** parses schemas and operations, allocates `ComponentId` and `OperationId` identities, resolves crate configuration, and records an immutable dependency fact table.
 2. **Retention** removes unreachable components without changing catalog identity.
 3. **Component layout** infers model and request crate placement in a mutable `ComponentLayoutDraft`, validates crate-graph invariants, then freezes a `ComponentLayout`.
-4. **Model rewrites** apply validated overrides and structural deduplication.
+4. **Model rewrites** apply validated overrides and component-local deduplication. Candidate matching, shared public naming, and usage compatibility are separate decisions. Each shared declaration retains the selected rule and the original locations and usages that contributed to it.
 5. **Rust-model lowering** allocates a post-dedup `ItemId` for every declaration, replaces nested declarations and named paths with item references, and computes lifetime/`Copy`/`Eq` properties over the resulting canonical graph. Each item is then assigned an explicit emission site and either local or crate-root addressability under the frozen component layout.
 6. **Rendering** combines an emission-site-scoped `RenderContext` with canonical items, their explicit placements, and semantic `RustType`s, then writes Rust syntax directly. Rendering does not infer placement from item provenance. The current path policy deliberately preserves absolute generated-crate aliases; path shortening is a separate output-changing decision.
 7. **Materialization** writes generated bindings to the staging tree, runs rustfmt directly to a checked fixed point, and installs them unless `--no-install` was requested. Analysis stops after model construction and writes only its report bundle.
 
 Keeping identity, dependency facts, layout, and rendering separate is deliberate. A future layout or `Expandable` experiment should be expressible as a different projection or policy rather than by rewriting component names or rendered Rust paths early in the pipeline.
 
-Item identities describe declarations produced by the existing component-local deduplication pass. They do not define structural equivalence or decide whether different usage contexts can share a declaration. Those decisions still precede item allocation. Item placement also preserves existing emission groups: ID newtypes follow their model components, and nested declarations stay with their parents. Context-aware deduplication and independent item placement remain follow-up work.
+Item identities describe declarations produced by component-local deduplication; they are allocated after sharing decisions. The current sharing policy preserves existing output. Fieldless enums are matched by their variants, independently of occurrence names and documentation. The model-field rule can combine model, request-parameter, and return usages: these enums have no field-level serialization or borrowing behavior to reconcile. Other candidates require identical usage. Shared names still use the existing field-name, schema-title, or description cues; equal representation alone does not imply shared public identity.
+
+Composite candidate matching remains conservative: field documentation and nested object metadata still participate in equality. Broader structural matching and more flexible usage compatibility need concrete cases and explicit rules for the resulting public API and documentation. Placement also preserves existing emission groups: ID newtypes follow their model components, and nested declarations stay with their parents. Independent item placement remains follow-up work.
 
 Operation declarations and their generated request specifications are owned together by the operation catalog and keyed by `OperationId`; component model objects contain only model data. This keeps request traversal and lookup independent of where model types are eventually placed.
 
@@ -70,7 +72,8 @@ Types supplied by dependencies are likewise symbolic in the model; only `RenderC
 
 - `summary.md`: totals for components, operations, requests, webhooks, objects, fields, variants, canonical item properties, dependency forms, and each crate.
 - `components.csv`: per-component placement, shape, request, and dependency counts.
-- `items.csv`: one row per post-dedup Rust declaration, with its run-local `ItemId`, descriptive origin, chosen identifier, kind, usage, and derived lifetime/`Copy`/`Eq` properties.
+- `items.csv`: one row per post-dedup Rust declaration, with its run-local `ItemId`, canonical declaration origin, chosen identifier, kind, usage, derived lifetime/`Copy`/`Eq` properties, and the sharing rule when selected directly by deduplication.
+- `item-occurrences.csv`: original object locations and usages contributing to each declaration, including nested declarations inside shared parents. These are distinct from canonical declaration origins used for emission. Synthetic ID newtypes have no inferred object occurrences. Locations describe the inferred model after overrides, rather than raw OpenAPI nodes.
 - `dependencies.csv`: one row per parsed dependency fact, including its source, use, representation, field or variant path, target, and whether each endpoint survived retention.
 - `crate-inference-warnings.csv`: every placement that required fallback resolution and its candidates.
 - `graphs/crate-dependencies.dot`: the generated crate dependency graph.

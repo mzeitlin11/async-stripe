@@ -10,6 +10,7 @@ mod dependencies;
 mod graph;
 mod item_catalog;
 mod item_layout;
+mod item_origin;
 mod item_properties;
 mod layout;
 mod object_writing;

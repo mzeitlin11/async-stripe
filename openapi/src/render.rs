@@ -4,9 +4,10 @@ use crate::STRIPE_TYPES;
 use crate::component_catalog::ComponentId;
 use crate::crates::Crate;
 use crate::item_catalog::{
-    CanonicalTypeRoot, ItemCatalog, ItemId, ItemProperties, ItemRecord, RustItem, TypeRoot,
+    CanonicalTypeRoot, ItemCatalog, ItemId, ItemProperties, ItemRecord, RustItem,
 };
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
+use crate::item_origin::TypeRoot;
 use crate::render_plan::{ParameterConversion, constructor_parameter_conversion};
 use crate::rust_object::RustObject;
 use crate::rust_type::{Container, ExternalType, MapKey, PrimitiveType, RustType};

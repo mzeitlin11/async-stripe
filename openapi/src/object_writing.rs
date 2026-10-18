@@ -1,29 +1,45 @@
 use std::fmt::Write;
 
 use crate::STRIPE_TYPES;
-use crate::components::Components;
-use crate::printable::Lifetime;
+use crate::item_catalog::{ItemId, ItemMetadata, ItemProperties, RustItem, TypeRoot};
+use crate::render::{Lifetime, RenderContext};
+use crate::request_model::RequestModel;
 use crate::rust_object::EnumOfObjects::ObjectUnion;
-use crate::rust_object::{ObjectMetadata, ObjectUsage, RustObject, as_enum_of_objects};
-use crate::rust_type::RustType;
-use crate::stripe_object::{RequestSpec, StripeObject};
+use crate::rust_object::{ObjectIdentity, ObjectUsage, RustObject};
+use crate::rust_type::DeclarationRoot;
 use crate::templates::ObjectWriter;
 use crate::templates::object_trait::{write_object_trait, write_object_trait_for_enum};
 use crate::templates::utils::write_doc_comment;
 
-impl Components {
-    fn write_rust_type_objs(&self, typ: &RustType, out: &mut String, usage: ObjectUsage) {
-        let Some((obj, meta)) = typ.extract_object() else {
-            return;
-        };
-        self.write_object(obj, meta, usage, out);
+impl RenderContext<'_> {
+    pub fn write_item(&self, item: ItemId, out: &mut String) {
+        self.assert_emits(item);
+        let record = self.item(item);
+        match &record.item {
+            RustItem::Object(object) => self.write_object_with_properties(
+                &object.definition,
+                &record.metadata,
+                object.usage,
+                self.item_properties(item),
+                object.enum_of_objects.as_ref(),
+                out,
+            ),
+            RustItem::IdNewtype => {
+                let _ = writeln!(out, "{STRIPE_TYPES}::def_id!({});", record.metadata.ident);
+            }
+        }
+        for &child in &record.children {
+            self.write_item(child, out);
+        }
     }
 
-    pub fn write_object(
+    fn write_object_with_properties(
         &self,
         obj: &RustObject,
-        metadata: &ObjectMetadata,
+        metadata: &ItemMetadata,
         usage: ObjectUsage,
+        properties: ItemProperties,
+        enum_of_objects: Option<&crate::rust_object::EnumOfObjects>,
         out: &mut String,
     ) {
         if let Some(doc) = &metadata.doc {
@@ -32,24 +48,17 @@ impl Components {
         }
 
         // If the object contains any references, we'll need to print with a lifetime
-        let has_ref = obj.has_reference(self);
-        let lifetime = if has_ref { Some(Lifetime) } else { None };
+        let lifetime = if properties.has_lifetime { Some(Lifetime) } else { None };
         let ident = &metadata.ident;
 
-        let mut writer = ObjectWriter::new(self, ident, usage);
-        writer.lifetime(lifetime).derive_copy(obj.is_copy(self)).derive_eq(obj.is_eq(self));
+        let mut writer = ObjectWriter::new(*self, ident, usage);
+        writer.lifetime(lifetime).derive_copy(properties.is_copy).derive_eq(properties.is_eq);
 
         match obj {
             RustObject::Struct(struct_) => {
                 writer.write_struct_definition(out, struct_);
                 if usage.used_as_request_param {
                     writer.write_struct_constructor(out, struct_);
-                }
-
-                for field in &struct_.fields {
-                    if let Some((obj, meta)) = field.rust_type.extract_object() {
-                        self.write_object(obj, meta, usage, out);
-                    }
                 }
             }
             RustObject::FieldlessEnum(variants) => {
@@ -58,77 +67,76 @@ impl Components {
                 writer.write_fieldless_enum_variants(out, variants);
             }
             RustObject::Enum(variants) => {
-                if let Some(objects) = as_enum_of_objects(self, variants) {
-                    writer.write_enum_of_objects(out, &objects);
+                if let Some(objects) = enum_of_objects {
+                    writer.write_enum_of_objects(out, objects);
                 } else {
                     writer.write_arbitrary_enum_variants(out, variants);
-                }
-                for variant in variants {
-                    if let Some(typ) = &variant.rust_type
-                        && let Some((obj, meta)) = typ.extract_object()
-                    {
-                        self.write_object(obj, meta, usage, out);
-                    }
                 }
             }
         }
     }
 }
 
-pub fn gen_obj(
-    obj: &RustObject,
-    meta: &ObjectMetadata,
-    comp: &StripeObject,
-    components: &Components,
-) -> String {
+pub fn gen_obj(item: ItemId, context: RenderContext<'_>) -> String {
     let mut out = String::with_capacity(128);
 
-    components.write_object(obj, meta, ObjectUsage::type_def(), &mut out);
+    context.write_item(item, &mut out);
+    let record = context.item(item);
+    let RustItem::Object(object) = &record.item else {
+        panic!("component root is not an object: {item:?}")
+    };
+    let TypeRoot::Declaration(DeclarationRoot::Component(component)) = &record.origin.type_root
+    else {
+        panic!("component root has a non-component origin: {:?}", record.origin)
+    };
 
-    let ident = &meta.ident;
-    if let Some(id_typ) = comp.id_type() {
-        let id_type = components.construct_printable_type(id_typ);
-        match &obj {
-            RustObject::Struct(_) => write_object_trait(&mut out, ident, &id_type),
-            RustObject::Enum(variants) => {
-                let Some(object_names) = as_enum_of_objects(components, variants) else {
-                    panic!("Object {ident} is an enum that is not a union of stripe objects");
-                };
-                let ObjectUnion(objects) = object_names else {
-                    panic!("Object {ident} is an enum that is not a union of stripe objects");
-                };
-                write_object_trait_for_enum(&mut out, ident, &objects)
-            }
-            RustObject::FieldlessEnum(_) => {
-                panic!("Did not expect enum to have an id");
+    let ident = &record.metadata.ident;
+    let obj = &object.definition;
+    match (obj, &object.identity) {
+        (_, None) => {}
+        (RustObject::Struct(_), Some(ObjectIdentity::IdType(id_typ))) => {
+            write_object_trait(&mut out, ident, context.display_type(id_typ));
+
+            // Only the component that owns an ID has an ID item. For example,
+            // `DeletedAccount` refers to the existing `AccountId` item instead of
+            // rendering a duplicate declaration.
+            if let Some(id_item) = context
+                .root(&TypeRoot::Declaration(DeclarationRoot::ObjectId(*component)))
+                .and_then(|root| root.declaration)
+            {
+                context.write_item(id_item, &mut out);
             }
         }
-
-        if let Some(path) = id_typ.as_id_or_opt_id_path() {
-            // Only generate the id definition if the paths match - e.g. if we're generating
-            // `DeletedAccount`, we don't want to duplicate `AccountId` since `DeletedAccount`
-            // uses that same id
-            if path == comp.path() {
-                let id_ident = comp.id_type_ident();
-                let _ = writeln!(out, "{STRIPE_TYPES}::def_id!({id_ident});");
-            }
+        (RustObject::Enum(_), Some(ObjectIdentity::ObjectUnion)) => {
+            let Some(object_names) = &object.enum_of_objects else {
+                panic!("Object {ident} is an enum that is not a union of stripe objects");
+            };
+            let ObjectUnion(objects) = object_names else {
+                panic!("Object {ident} is an enum that is not a union of stripe objects");
+            };
+            write_object_trait_for_enum(&mut out, ident, objects, context)
+        }
+        (kind, identity) => {
+            panic!("invalid object identity combination for {ident}: {kind:?} with {identity:?}")
         }
     }
     out
 }
 
-pub fn gen_requests(specs: &[RequestSpec], components: &Components) -> String {
+pub fn gen_requests(requests: &[RequestModel], context: RenderContext<'_>) -> String {
     let mut out = String::with_capacity(128);
 
-    for req in specs {
-        if let Some(params) = &req.params {
-            components.write_rust_type_objs(&params.typ, &mut out, ObjectUsage::request_param());
+    for request in requests {
+        if let Some(item) = request.params.as_ref().and_then(|params| params.declaration) {
+            context.write_item(item, &mut out);
         }
 
-        let req_body = req.generate(components);
+        let req_body = request.generate(context);
         let _ = write!(out, "{req_body}");
 
-        components.write_rust_type_objs(&req.returned, &mut out, ObjectUsage::return_type());
+        if let Some(item) = request.returned.declaration {
+            context.write_item(item, &mut out);
+        }
     }
     out
 }

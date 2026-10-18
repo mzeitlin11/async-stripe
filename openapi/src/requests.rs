@@ -5,12 +5,14 @@ use heck::ToSnakeCase;
 use openapiv3::{Parameter, ParameterData, ParameterSchemaOrContent, ReferenceOr, Schema};
 use tracing::debug;
 
+use crate::component_catalog::{ComponentCatalog, ComponentId};
+use crate::operations::OperationId;
+use crate::operations::{OperationType, PathParam, RequestParam, RequestSpec, StripeOperation};
 use crate::rust_object::{ObjectMetadata, RustObject, Struct, Visibility};
-use crate::rust_type::{RustType, SimpleType};
+use crate::rust_type::{PrimitiveType, RustType};
 use crate::spec::{Spec, get_ok_response_schema, get_request_form_parameters};
-use crate::spec_inference::Inference;
-use crate::stripe_object::{OperationType, PathParam, RequestParam, RequestSpec, StripeOperation};
-use crate::types::{ComponentPath, RustIdent};
+use crate::spec_inference::{Borrowing, Inference};
+use crate::types::RustIdent;
 
 /// Should we skip a currently unsupported request?
 fn should_skip_request(op: &StripeOperation) -> bool {
@@ -89,6 +91,7 @@ fn deduplicate_method_names<'a>(
 }
 
 fn get_req_details<'a>(
+    operation_id: OperationId,
     op: &'a StripeOperation,
     spec: &'a Spec,
 ) -> anyhow::Result<RequestDetails<'a>> {
@@ -130,6 +133,7 @@ fn get_req_details<'a>(
 
     let return_schema = get_ok_response_schema(operation).context("Expected schema")?;
     Ok(RequestDetails {
+        operation_id,
         returned: return_schema,
         path_params,
         params,
@@ -142,17 +146,23 @@ fn get_req_details<'a>(
 
 pub fn parse_requests(
     operations: Vec<StripeOperation>,
+    operation_ids: &[OperationId],
     spec: &Spec,
     ident: &RustIdent,
-    path_id_map: &HashMap<String, ComponentPath>,
+    path_id_map: &HashMap<String, ComponentId>,
+    catalog: &ComponentCatalog,
 ) -> anyhow::Result<Vec<RequestSpec>> {
+    anyhow::ensure!(
+        operations.len() == operation_ids.len(),
+        "operation catalog did not match the component's declarations"
+    );
     let mut req_details = Vec::with_capacity(operations.len());
-    for op in &operations {
+    for (operation_id, op) in operation_ids.iter().copied().zip(&operations) {
         if should_skip_request(op) {
             debug!("Skipping request at path {} with name {}", op.path, op.method_name);
             continue;
         }
-        req_details.push(get_req_details(op, spec)?);
+        req_details.push(get_req_details(operation_id, op, spec)?);
     }
 
     let method_names = infer_method_names(&req_details);
@@ -160,8 +170,14 @@ pub fn parse_requests(
     let mut requests = Vec::with_capacity(operations.len());
     for req in &req_details {
         requests.push(
-            build_request(req, ident, &method_names[&RequestKey::from_op(req)], path_id_map)
-                .with_context(|| format!("Error generating request operation {req:?}"))?,
+            build_request(
+                req,
+                ident,
+                &method_names[&RequestKey::from_op(req)],
+                path_id_map,
+                catalog,
+            )
+            .with_context(|| format!("Error generating request operation {req:?}"))?,
         );
     }
     Ok(requests)
@@ -175,6 +191,7 @@ enum RequestParams<'a> {
 
 #[derive(Clone, Debug)]
 struct RequestDetails<'a> {
+    operation_id: OperationId,
     returned: &'a ReferenceOr<Schema>,
     path_params: Vec<&'a ParameterData>,
     params: RequestParams<'a>,
@@ -188,15 +205,18 @@ fn build_request(
     req: &RequestDetails,
     parent_ident: &RustIdent,
     method_name: &str,
-    path_id_map: &HashMap<String, ComponentPath>,
+    path_id_map: &HashMap<String, ComponentId>,
+    catalog: &ComponentCatalog,
 ) -> anyhow::Result<RequestSpec> {
     let req_ident = RustIdent::joined(method_name, parent_ident);
     let return_ident = RustIdent::joined(&req_ident, "returned");
-    let return_type =
-        Inference::new(&return_ident).required(true).infer_schema_or_ref_type(req.returned);
+    let return_type = Inference::new(&return_ident, catalog)
+        .required(true)
+        .infer_schema_or_ref_type(req.returned);
 
     let builder_ident = RustIdent::joined(&req_ident, "Builder");
-    let param_inference = Inference::new(&req_ident).can_borrow(false).required(true);
+    let param_inference =
+        Inference::new(&req_ident, catalog).borrowing(Borrowing::Owned).required(true);
 
     let param_typ = match &req.params {
         RequestParams::Form(schema) => {
@@ -254,34 +274,34 @@ fn build_request(
         let ParameterSchemaOrContent::Schema(schema) = &param.format else {
             bail!("Expected path parameter to follow schema format");
         };
-        let base_param_typ = Inference::new(&req_ident)
-            .can_borrow(false)
+        let base_param_typ = Inference::new(&req_ident, catalog)
+            .borrowing(Borrowing::Owned)
             .required(param.required)
             .maybe_description(param.description.as_deref())
             .field_name(&param.name)
             .infer_schema_or_ref_type(schema);
 
-        if base_param_typ != RustType::Simple(SimpleType::String) {
+        if base_param_typ != RustType::Primitive(PrimitiveType::String) {
             bail!("Expected path parameter to be a string");
         }
 
         let rust_type = if let Some(id_typ) = infer_id_path(&param.name, req_path, path_id_map)? {
-            RustType::object_id(id_typ, false)
+            RustType::object_id(id_typ)
         } else {
             // NB: Assuming this is safe since we check earlier that this matches the path type.
-            RustType::Simple(SimpleType::String)
+            RustType::Primitive(PrimitiveType::String)
         };
 
         path_params.push(PathParam { name: param.name.clone(), rust_type })
     }
     Ok(RequestSpec {
+        operation_id: req.operation_id,
         ident: req_ident,
         path_params,
-        params: param_typ.map(|t| RequestParam { ident: builder_ident, typ: t }),
+        params: param_typ.map(|typ| RequestParam { typ }),
         doc_comment: req.description.map(|d| d.to_string()),
         req_path: req_path.to_string(),
         returned: return_type,
-        method_name: method_name.into(),
         method_type: req.operation_type,
     })
 }
@@ -290,8 +310,8 @@ fn build_request(
 fn infer_id_path(
     param_name: &str,
     req_path: &str,
-    path_id_map: &HashMap<String, ComponentPath>,
-) -> anyhow::Result<Option<ComponentPath>> {
+    path_id_map: &HashMap<String, ComponentId>,
+) -> anyhow::Result<Option<ComponentId>> {
     let pieces = req_path.trim_matches('/').split('/');
 
     // For now we only infer the first parametrized piece as an idea, so collect everything
@@ -326,7 +346,7 @@ fn infer_id_path(
     };
 
     if let Some(comp) = path_id_map.get(&obj_name) {
-        Ok(Some(comp.clone()))
+        Ok(Some(*comp))
     } else {
         debug!("No id type for {}", req_path);
         Ok(None)

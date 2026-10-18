@@ -2,10 +2,12 @@ use indexmap::IndexMap;
 use indexmap::map::Entry;
 use tracing::debug;
 
+use crate::component_catalog::ComponentId;
+use crate::operations::RequestSpec;
 use crate::rust_object::{ObjectKind, ObjectMetadata, ObjectUsage, RustObject};
-use crate::rust_type::{PathToType, RustType};
+use crate::rust_type::{DeclarationRoot, RustType};
 use crate::stripe_object::StripeObject;
-use crate::types::{ComponentPath, RustIdent};
+use crate::types::RustIdent;
 use crate::visitor::{Visit, VisitMut};
 
 #[derive(Debug, Default)]
@@ -37,19 +39,19 @@ pub struct DeduppedObjectInfo {
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct DeduppedObject {
-    pub info: DeduppedObjectInfo,
+    pub usage: ObjectUsage,
     pub object: RustObject,
 }
 
 #[derive(Debug)]
 struct DeduplicateObjects {
     objs: IndexMap<RustObject, DeduppedObjectInfo>,
-    component_path: ComponentPath,
+    component: ComponentId,
 }
 
 impl DeduplicateObjects {
-    pub fn new(path: ComponentPath) -> Self {
-        Self { objs: Default::default(), component_path: path }
+    pub fn new(component: ComponentId) -> Self {
+        Self { objs: Default::default(), component }
     }
 }
 
@@ -61,13 +63,10 @@ impl VisitMut for DeduplicateObjects {
         if let Some((obj, _)) = typ.as_object_mut()
             && let Some(dedup_spec) = self.objs.get(obj)
         {
-            *typ = RustType::Path {
-                path: PathToType::Deduplicated {
-                    path: self.component_path.clone(),
-                    ident: dedup_spec.ident.clone(),
-                },
-                is_ref: false,
-            }
+            *typ = RustType::Path(DeclarationRoot::Deduplicated {
+                component: self.component,
+                ident: dedup_spec.ident.clone(),
+            })
         }
         typ.visit_mut(self, usage);
     }
@@ -148,17 +147,23 @@ fn infer_dedupped_object_for(
 }
 
 #[tracing::instrument(level = "debug", skip(comp), fields(path = %comp.path()))]
-pub fn deduplicate_types(comp: &mut StripeObject) -> IndexMap<RustIdent, DeduppedObject> {
+pub fn deduplicate_types(
+    comp: &mut StripeObject,
+    requests: &mut [RequestSpec],
+    component: ComponentId,
+) -> IndexMap<RustIdent, DeduppedObject> {
     let mut objs = IndexMap::new();
-    let comp_path = comp.path().clone();
 
     // We run deduplication passes until there are no further changes since one round
     // of deduplicating can enable another
     loop {
         let mut collector = CollectDuplicateObjects::default();
         comp.visit(&mut collector);
+        for request in requests.iter() {
+            request.visit(&mut collector);
+        }
 
-        let mut dedupper = DeduplicateObjects::new(comp_path.clone());
+        let mut dedupper = DeduplicateObjects::new(component);
         for (obj, meta) in collector.objs {
             // Nothing to deduplicate
             if meta.len() < 2 {
@@ -178,10 +183,14 @@ pub fn deduplicate_types(comp: &mut StripeObject) -> IndexMap<RustIdent, Deduppe
         }
 
         comp.visit_mut(&mut dedupper);
+        for request in requests.iter_mut() {
+            request.visit_mut(&mut dedupper);
+        }
         for (obj, info) in dedupper.objs {
             let ident = info.ident.clone();
-            if let Some(dup) = objs.insert(ident, DeduppedObject { info, object: obj }) {
-                panic!("Tried to add duplicate ident {}", dup.info.ident);
+            let usage = info.usage;
+            if objs.insert(ident.clone(), DeduppedObject { usage, object: obj }).is_some() {
+                panic!("Tried to add duplicate ident {ident}");
             }
         }
     }

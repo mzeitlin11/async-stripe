@@ -49,16 +49,11 @@ impl Display for RustIdent {
     }
 }
 #[derive(Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
-pub struct ComponentPath(String);
+pub struct ComponentName(String);
 
-impl ComponentPath {
+impl ComponentName {
     pub const fn new(path: String) -> Self {
         Self(path)
-    }
-
-    pub fn from_reference(reference: &str) -> Self {
-        let root_obj = reference.trim_start_matches("#/components/schemas/");
-        Self::new(root_obj.into())
     }
 
     pub fn as_not_deleted(&self) -> Self {
@@ -70,27 +65,51 @@ impl ComponentPath {
     }
 }
 
-// This is a bit silly...just done because `petgraph` prints graph labels using `Debug` so this
-// is a hack to have the labels print more concisely while still using our `ComponentPath` newtype
-impl Debug for ComponentPath {
+/// A validated JSON Reference to a top-level OpenAPI component schema.
+#[derive(Debug, Copy, Clone)]
+pub struct ComponentSchemaRef<'a>(&'a str);
+
+impl<'a> ComponentSchemaRef<'a> {
+    const PREFIX: &'static str = "#/components/schemas/";
+
+    pub fn parse(reference: &'a str) -> anyhow::Result<Self> {
+        let name = reference.strip_prefix(Self::PREFIX).ok_or_else(|| {
+            anyhow::anyhow!("expected component schema reference, got {reference}")
+        })?;
+        anyhow::ensure!(!name.is_empty(), "component schema reference had an empty name");
+        anyhow::ensure!(
+            !name.contains('/'),
+            "component schema reference had nested path: {reference}"
+        );
+        Ok(Self(name))
+    }
+
+    pub const fn name(self) -> &'a str {
+        self.0
+    }
+}
+
+// Petgraph uses `Debug` for DOT node labels. Print only the OpenAPI component name so generated
+// graphs contain `charge` rather than the newtype's structural debug representation.
+impl Debug for ComponentName {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl Display for ComponentPath {
+impl Display for ComponentName {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl AsRef<str> for ComponentPath {
+impl AsRef<str> for ComponentName {
     fn as_ref(&self) -> &str {
         &self.0
     }
 }
 
-impl Deref for ComponentPath {
+impl Deref for ComponentName {
     type Target = str;
 
     fn deref(&self) -> &Self::Target {
@@ -98,8 +117,26 @@ impl Deref for ComponentPath {
     }
 }
 
-impl Borrow<str> for ComponentPath {
+impl Borrow<str> for ComponentName {
     fn borrow(&self) -> &str {
         &self.0
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::ComponentSchemaRef;
+
+    #[test]
+    fn parses_component_schema_reference() {
+        let parsed = ComponentSchemaRef::parse("#/components/schemas/charge").unwrap();
+        assert_eq!(parsed.name(), "charge");
+    }
+
+    #[test]
+    fn rejects_non_component_reference() {
+        assert!(ComponentSchemaRef::parse("#/paths/charges").is_err());
+        assert!(ComponentSchemaRef::parse("#/components/schemas/").is_err());
+        assert!(ComponentSchemaRef::parse("charge").is_err());
     }
 }

@@ -6,6 +6,7 @@ pub mod crates;
 mod deduplication;
 mod graph;
 mod object_writing;
+pub mod output;
 mod overrides;
 mod printable;
 mod requests;
@@ -18,7 +19,6 @@ mod stripe_object;
 mod templates;
 mod types;
 pub mod url_finder;
-pub mod utils;
 mod visitor;
 mod webhook;
 

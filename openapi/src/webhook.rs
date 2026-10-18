@@ -7,6 +7,7 @@ use openapiv3::Schema;
 
 use crate::components::Components;
 use crate::crates::Crate;
+use crate::output::OutputDirectory;
 use crate::printable::PrintableType;
 use crate::rust_object::{ObjectUsage, RustObject, as_enum_of_objects};
 use crate::rust_type::RustType;
@@ -15,15 +16,21 @@ use crate::templates::ObjectWriter;
 use crate::templates::object_writer::{write_derives_line, write_redacted_debug_impl};
 use crate::templates::utils::write_doc_comment;
 use crate::types::RustIdent;
-use crate::utils::append_to_file;
 
-pub fn write_generated_for_webhooks(components: &Components) -> anyhow::Result<()> {
+pub fn write_generated_for_webhooks(
+    components: &Components,
+    output: &OutputDirectory,
+) -> anyhow::Result<()> {
     let base = Path::new("async-stripe-webhook");
-    write_event_object(components, base)?;
+    write_event_object(components, base, output)?;
     Ok(())
 }
 
-fn write_event_object(components: &Components, out_path: &Path) -> anyhow::Result<()> {
+fn write_event_object(
+    components: &Components,
+    out_path: &Path,
+    output: &OutputDirectory,
+) -> anyhow::Result<()> {
     let mut out = String::new();
     let mut enum_body = String::new();
     let mut match_inner = String::new();
@@ -147,7 +154,7 @@ fn write_event_object(components: &Components, out_path: &Path) -> anyhow::Resul
     }}
     "#};
 
-    append_to_file(out, out_path.join("mod.rs"))?;
+    output.append(out, out_path.join("mod.rs"))?;
     Ok(())
 }
 

@@ -28,9 +28,9 @@ Commands use the release pinned in `openapi/version.json`. A matching local spec
 |-------------------|-------------|
 | `generate` | Regenerates and installs bindings using the pinned release. |
 | `generate --update-spec <VERSION>` | Updates to `latest` or an exact release such as `v171`. The pin advances after both the spec and fixtures are available. |
-| `generate --no-install` | Generates staging output without installing it. `--dry-run` is an alias. |
-| `generate --out <DIR>` | Selects the output directory; defaults to `out`. |
-| `generate --emit-warnings` | Writes crate inference warnings to `out/crate_warnings.md`. |
+| `generate --no-install` | Generates and formats staging output without installing it. `--dry-run` is an alias. |
+| `generate --out <DIR>` | Selects the output directory; defaults to `out`. Custom directories must be empty or belong to an earlier generator run. |
+| `generate --emit-warnings` | Writes crate inference warnings to `<out>/crate_warnings.md`. |
 | `graph` | Writes `out/graphs/crate_graph.txt` and `out/graphs/components_graph.txt`. |
 | `update-api-docs` | Refreshes the Stripe documentation URL mapping. |
 

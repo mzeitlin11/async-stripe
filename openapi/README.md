@@ -16,9 +16,11 @@ To advance the pin and regenerate:
 cargo run --release -- generate --update-spec latest
 ```
 
-An exact release such as `v2343` can be selected instead of `latest`. The pin advances after both the spec and fixtures are available. `generate --no-install` (also `--dry-run`) generates staging output without installing it. Add `--emit-warnings` to write any crate inference warnings to `out/crate_warnings.md`.
+An exact release such as `v2343` can be selected instead of `latest`. The pin advances after both the spec and fixtures are available. `generate --no-install` (also `--dry-run`) generates and formats staging output without installing it. Add `--emit-warnings` to write any crate inference warnings to `out/crate_warnings.md`.
 
 `graph` writes the existing crate and component dependency graphs to `out/graphs/crate_graph.txt` and `out/graphs/components_graph.txt`. `update-api-docs` refreshes the Stripe documentation URL mapping. Both commands use the pinned spec.
+
+Generated files are staged in `out` by default. Use `generate --out <DIR>` to choose another directory. Custom output directories must be empty or belong to a previous generator run; stale generated files are cleared before regeneration. Formatting must succeed before any files are installed.
 
 Run `cargo run -- --help` or a subcommand's `--help` for all options.
 

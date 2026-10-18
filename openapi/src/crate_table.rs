@@ -2,11 +2,11 @@ use tabled::settings::Style;
 use tabled::{Table, Tabled};
 
 use crate::components::Components;
+use crate::output::OutputDirectory;
 use crate::stripe_object::StripeObject;
-use crate::utils::write_to_file;
 
 /// Write a table describing where all generated requests live
-pub fn write_crate_table(components: &Components) -> anyhow::Result<()> {
+pub fn write_crate_table(components: &Components, output: &OutputDirectory) -> anyhow::Result<()> {
     #[derive(Tabled)]
     struct CrateDisplay {
         #[tabled(rename = "Name")]
@@ -33,7 +33,7 @@ pub fn write_crate_table(components: &Components) -> anyhow::Result<()> {
     let mut table = Table::new(comps);
     table.with(Style::markdown());
     let display = table.to_string();
-    write_to_file(display, "crate_info.md")?;
+    output.write(display, "crate_info.md")?;
     Ok(())
 }
 

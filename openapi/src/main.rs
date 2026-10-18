@@ -6,10 +6,10 @@ use clap::{Args, Parser, Subcommand};
 use petgraph::dot::{Config, Dot};
 use stripe_openapi_codegen::codegen::CodeGen;
 use stripe_openapi_codegen::crates::ALL_CRATES;
+use stripe_openapi_codegen::output::{OutputDirectory, install_to_repository};
 use stripe_openapi_codegen::spec::Spec;
 use stripe_openapi_codegen::spec_fetch::{self, SpecUpdate};
 use stripe_openapi_codegen::url_finder::{UrlFinder, update_api_doc_data};
-use stripe_openapi_codegen::utils::write_to_file;
 use tracing::info;
 
 #[derive(Debug, Parser)]
@@ -46,10 +46,10 @@ struct GenerateArgs {
     /// Update the pinned spec to `latest` or a release such as `v171`.
     #[arg(long, value_parser = spec_fetch::parse_spec_update)]
     update_spec: Option<SpecUpdate>,
-    /// Generate staging output without installing it into the repository.
+    /// Generate and format staging output without installing it into the repository.
     #[arg(long, alias = "dry-run")]
     no_install: bool,
-    /// Write crate inference warnings to out/crate_warnings.md.
+    /// Write crate inference warnings to <out>/crate_warnings.md.
     #[arg(long)]
     emit_warnings: bool,
 }
@@ -68,14 +68,14 @@ fn main() -> Result<()> {
         Command::Graph(args) => {
             let spec = Spec::new(spec_fetch::load_pinned_spec()?);
             let codegen = build_codegen(args.version, spec)?;
-            prepare_output(Path::new("out"))?;
+            let output = OutputDirectory::prepare(Path::new("out"))?;
             let components = codegen.components.gen_component_dep_graph();
-            write_to_file(
+            output.write(
                 format!("{:?}", Dot::with_config(&components, &[Config::EdgeNoLabel])),
                 "graphs/components_graph.txt",
             )?;
             let crates = codegen.components.gen_crate_dep_graph();
-            write_to_file(
+            output.write(
                 format!("{:?}", Dot::with_config(&crates, &[Config::EdgeNoLabel])),
                 "graphs/crate_graph.txt",
             )
@@ -94,14 +94,7 @@ fn build_codegen(version: Option<String>, spec: Spec) -> Result<CodeGen> {
     CodeGen::new(spec, url_finder, version)
 }
 
-fn prepare_output(out: &Path) -> Result<()> {
-    if out.exists() {
-        fs::remove_dir_all(out).context("Could not remove output folder")?;
-    }
-    fs::create_dir_all(out).context("Could not create output folder")
-}
-
-fn write_crate_inference_warnings(codegen: &CodeGen) -> Result<()> {
+fn write_crate_inference_warnings(codegen: &CodeGen, output: &OutputDirectory) -> Result<()> {
     if !codegen.crate_inference_warnings.is_empty() {
         let mut body = String::from(
             "## Crate Inference Warnings\n\n\
@@ -140,7 +133,7 @@ fn write_crate_inference_warnings(codegen: &CodeGen) -> Result<()> {
             ));
         }
         body.push_str("```\n");
-        write_to_file(body, "crate_warnings.md")?;
+        output.write(body, "crate_warnings.md")?;
     }
 
     Ok(())
@@ -149,66 +142,44 @@ fn write_crate_inference_warnings(codegen: &CodeGen) -> Result<()> {
 fn run_generate(args: GenerateArgs) -> Result<()> {
     let spec = Spec::new(spec_fetch::load_generation_spec(args.update_spec)?);
     let codegen = build_codegen(args.version.version, spec)?;
-    prepare_output(&args.out)?;
+    let output = OutputDirectory::prepare(&args.out)?;
     if args.emit_warnings {
-        write_crate_inference_warnings(&codegen)?;
+        write_crate_inference_warnings(&codegen, &output)?;
     }
-    codegen.write_files()?;
-
-    let mut fmt_cmd = std::process::Command::new("cargo");
-    fmt_cmd.arg("+nightly").arg("fmt").arg("--");
-    for krate in &*ALL_CRATES {
-        fmt_cmd.arg(format!("out/{}/src/mod.rs", krate.generated_out_path()));
-    }
-    fmt_cmd.arg("out/async-stripe-webhook/mod.rs");
-    fmt_cmd.arg("out/tests/mod.rs");
-
+    codegen.write_files(&output)?;
+    run_rustfmt(output.root())?;
     if !args.no_install {
-        info!("Formatting generated files");
+        install_to_repository(output.root(), Path::new(".."))?;
+        info!("Installed generated files into the repository");
+    }
+    Ok(())
+}
 
-        // in a rather bizarre turn of events, we actually need to run fmt _twice_
-        // to get it 'settled'. otherwise it will fail formatting checks
-        let _out = fmt_cmd.output()?;
-        let out = fmt_cmd.output()?;
-        if !out.status.success() {
-            bail!("Rustfmt failed with outputs {out:?}");
-        }
+fn run_rustfmt(out: &Path) -> Result<()> {
+    let mut command = std::process::Command::new("rustfmt");
+    let config = Path::new("../.rustfmt.toml").canonicalize()?;
+    command.arg("+nightly").arg("--edition").arg("2024").arg("--config-path").arg(config);
+    for krate in &*ALL_CRATES {
+        command.arg(out.join(krate.generated_out_path()).join("src/mod.rs"));
+    }
+    command.arg(out.join("async-stripe-webhook/mod.rs"));
+    command.arg(out.join("tests/mod.rs"));
 
-        info!("Copying generated files");
-
-        let crate_paths = std::fs::read_dir("out/crates")?
-            .map(|dir| dir.map(|dir| dir.path()))
-            .collect::<Result<Vec<_>, _>>()?;
-
-        let crate_paths = crate_paths
-            .iter()
-            .map(|e| {
-                (
-                    e.as_path(),
-                    Path::new("../generated/")
-                        .join(format!("{}/", e.file_name().unwrap().to_str().unwrap())),
-                )
-            })
-            .chain([
-                (
-                    Path::new("out/async-stripe-webhook/"),
-                    Path::new("../async-stripe-webhook/src/generated/").to_owned(),
-                ),
-                (Path::new("out/tests/"), Path::new("../tests/tests/it/generated/").to_owned()),
-            ]);
-
-        // here, we need to copy over everything we generate, deleting previous versions
-        for (folder, dest) in crate_paths {
-            for path in std::fs::read_dir(folder)? {
-                let path = path?;
-                run_rsync(path.path().as_path(), &dest)?;
-            }
-        }
-
-        std::process::Command::new("cp")
-            .arg("out/crate_info.md")
-            .arg("../crate_info.md")
-            .output()?;
+    let formatted = command.output().context("failed to invoke rustfmt")?;
+    if !formatted.status.success() {
+        bail!(
+            "rustfmt failed:\n{}{}",
+            String::from_utf8_lossy(&formatted.stdout),
+            String::from_utf8_lossy(&formatted.stderr)
+        );
+    }
+    let checked = command.arg("--check").output().context("failed to verify rustfmt output")?;
+    if !checked.status.success() {
+        bail!(
+            "rustfmt did not reach a fixed point after one pass:\n{}{}",
+            String::from_utf8_lossy(&checked.stdout),
+            String::from_utf8_lossy(&checked.stderr)
+        );
     }
     Ok(())
 }
@@ -228,21 +199,4 @@ fn parse_workspace_version() -> Result<String> {
     }
     let manifest = fs::read_to_string("../Cargo.toml")?;
     Ok(toml::from_str::<Manifest>(&manifest)?.workspace.package.version)
-}
-
-// --delete-during so that generated files don't stick around when not
-// generated anymore, see https://github.com/arlyon/async-stripe/issues/229
-fn run_rsync(src: &Path, dest: &Path) -> Result<()> {
-    tracing::debug!("sending {} to {}", src.display(), dest.display());
-    let out = std::process::Command::new("rsync")
-        .arg("-a")
-        .arg("--delete-during")
-        .arg(src)
-        .arg(dest)
-        .output()?;
-
-    if !out.status.success() {
-        bail!("rsync failed with outputs {out:?}");
-    }
-    Ok(())
 }

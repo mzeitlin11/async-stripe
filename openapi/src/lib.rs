@@ -2,6 +2,7 @@ pub mod analysis;
 pub mod codegen;
 mod component_catalog;
 mod components;
+mod crate_dependencies;
 pub mod crate_inference;
 mod crate_table;
 pub mod crates;

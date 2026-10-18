@@ -20,7 +20,7 @@ pub(crate) enum EmissionSite {
 }
 
 impl EmissionSite {
-    fn krate(self, component_layout: &ComponentLayout) -> Option<Crate> {
+    pub(crate) fn krate(self, component_layout: &ComponentLayout) -> Option<Crate> {
         match self {
             Self::ComponentTypes(component) => {
                 Some(component_layout.placement(component).types_crate())
@@ -71,6 +71,16 @@ pub(crate) struct ItemLayout {
 }
 
 impl ItemLayout {
+    #[cfg(test)]
+    pub(crate) fn for_test(placements: Vec<(EmissionSite, ItemAddress)>) -> Self {
+        Self {
+            placements: placements
+                .into_iter()
+                .map(|(emission_site, address)| ItemPlacement { emission_site, address })
+                .collect(),
+        }
+    }
+
     pub(crate) fn from_component_layout(
         components: &Components,
         items: &ItemCatalog,

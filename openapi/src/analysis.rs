@@ -9,7 +9,7 @@ use crate::component_catalog::ComponentId;
 use crate::components::Components;
 use crate::crates::{ALL_CRATES, Crate};
 use crate::dependencies::{Dependency, DependencySource, EdgePolicy};
-use crate::graph::{ComponentGraph, gen_crate_dep_graph};
+use crate::graph::{ComponentGraph, gen_inferred_crate_dep_graph};
 use crate::item_catalog::{ItemKind, RustItem};
 use crate::item_origin::{ItemOrigin, TypeRoot};
 use crate::output::ArtifactSet;
@@ -82,9 +82,11 @@ impl CodeGen {
         bundle.insert("crate-inference-warnings.csv", crate_warnings_csv(self));
 
         if graph_detail != GraphDetail::None {
+            bundle
+                .insert("graphs/crate-dependencies.dot", crate_graph_dot(&self.crate_dependencies));
             bundle.insert(
-                "graphs/crate-dependencies.dot",
-                crate_graph_dot(&gen_crate_dep_graph(
+                "graphs/inferred-crate-dependencies.dot",
+                crate_graph_dot(&gen_inferred_crate_dep_graph(
                     &self.components,
                     self.edge_policy(),
                     |component| locations.placement(component),
@@ -276,6 +278,11 @@ fn summary(
     );
     let _ =
         writeln!(out, "- ID-only edges used for layout: {}", codegen.edge_policy().keeps_id_only());
+    let _ = writeln!(
+        out,
+        "- Lowered Rust crate dependencies contain cycles: {}",
+        petgraph::algo::is_cyclic_directed(&codegen.crate_dependencies)
+    );
     let _ = writeln!(out, "- Crate inference warnings: {}", codegen.crate_inference_warnings.len());
     out.push_str("\n## Dependency facts\n\n### By representation\n\n");
     for (form, count) in forms {

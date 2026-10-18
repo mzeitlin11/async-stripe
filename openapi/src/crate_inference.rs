@@ -11,7 +11,7 @@ use crate::component_catalog::ComponentId;
 use crate::components::Components;
 use crate::crates::Crate;
 use crate::dependencies::EdgePolicy;
-use crate::graph::{ComponentGraph, gen_crate_dep_graph};
+use crate::graph::{ComponentGraph, gen_inferred_crate_dep_graph};
 use crate::layout::ComponentLayoutDraft;
 use crate::types::ComponentName;
 
@@ -181,7 +181,7 @@ impl Components {
         layout: &ComponentLayoutDraft,
         policy: EdgePolicy,
     ) -> anyhow::Result<()> {
-        let graph = gen_crate_dep_graph(self, policy, |component| {
+        let graph = gen_inferred_crate_dep_graph(self, policy, |component| {
             layout.placement(component).expect("component had no crate assignment")
         });
         let deps_for_shared_crate = graph.neighbors(Crate::SHARED).collect::<Vec<_>>();

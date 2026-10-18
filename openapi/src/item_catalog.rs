@@ -714,6 +714,9 @@ impl CatalogBuilder {
 }
 
 #[cfg(test)]
+mod dependency_tests;
+
+#[cfg(test)]
 mod tests {
     use super::{CatalogBuilder, ItemMetadata, RustItem};
     use crate::component_catalog::ComponentCatalog;

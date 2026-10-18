@@ -3,14 +3,15 @@ use std::path::PathBuf;
 
 use anyhow::Context;
 use indoc::formatdoc;
+use petgraph::prelude::DiGraphMap;
 
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
+use crate::crate_dependencies::{crate_dependencies, validate_crate_dependencies};
 use crate::crate_inference::CrateInferenceWarning;
 use crate::crate_table::generate_crate_table;
 use crate::crates::{ALL_CRATES, Crate, get_crate_doc_comment};
 pub use crate::dependencies::EdgePolicy;
-use crate::graph::gen_crate_dep_graph;
 use crate::item_catalog::{ItemId, ItemMetadata};
 use crate::item_layout::{EmissionSite, ItemLayout};
 use crate::item_origin::TypeRoot;
@@ -35,6 +36,7 @@ pub struct CodeGen {
     pub(crate) model: RustModel,
     component_layout: ComponentLayout,
     item_layout: ItemLayout,
+    pub(crate) crate_dependencies: DiGraphMap<Crate, ()>,
     pub spec: Spec,
     pub version: String,
     pub crate_inference_warnings: Vec<CrateInferenceWarning>,
@@ -77,12 +79,15 @@ impl CodeGen {
         })?;
         let item_layout =
             ItemLayout::from_component_layout(&components, model.items(), &component_layout)?;
+        let crate_dependencies =
+            crate_dependencies(model.items(), model.requests(), &component_layout, &item_layout)?;
 
         Ok(Self {
             components,
             model,
             component_layout,
             item_layout,
+            crate_dependencies,
             spec,
             version,
             crate_inference_warnings,
@@ -158,6 +163,7 @@ impl CodeGen {
     }
 
     pub fn render_workspace(&self) -> anyhow::Result<GeneratedWorkspace> {
+        validate_crate_dependencies(&self.crate_dependencies)?;
         let mut output = GeneratedWorkspace::default();
         self.write_crate_base(&mut output)?;
         self.write_components(&mut output)?;
@@ -172,12 +178,9 @@ impl CodeGen {
 
     fn write_crate_base(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
         let locations = self.output_locations();
-        let crate_graph = gen_crate_dep_graph(&self.components, self.edge_policy, |component| {
-            locations.placement(component)
-        });
-
         for krate in &*ALL_CRATES {
-            let neighbors = crate_graph.neighbors(*krate);
+            let mut dependencies = self.crate_dependencies.neighbors(*krate).collect::<Vec<_>>();
+            dependencies.sort_unstable();
             let base_path = PathBuf::from(krate.generated_out_path());
             let request_features = locations
                 .crate_members(*krate)
@@ -186,7 +189,7 @@ impl CodeGen {
                 .map(|c| locations.components.get_by_id(c).mod_path())
                 .collect();
 
-            let toml = gen_crate_toml(*krate, neighbors.collect(), request_features, &self.version);
+            let toml = gen_crate_toml(*krate, dependencies, request_features, &self.version);
             output.write(base_path.join("Cargo.toml"), toml)?;
 
             let lib_name = krate.lib_name();

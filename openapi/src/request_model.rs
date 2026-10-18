@@ -34,6 +34,12 @@ pub struct RequestCatalog {
 }
 
 impl RequestCatalog {
+    pub(crate) fn iter(
+        &self,
+    ) -> impl Iterator<Item = (crate::component_catalog::ComponentId, &[RequestModel])> {
+        self.by_component.iter().map(|(&component, requests)| (component, requests.as_slice()))
+    }
+
     pub fn build(components: &Components, items: &ItemCatalog) -> anyhow::Result<Self> {
         let mut catalog = Self::default();
         for &component_id in components.components.keys() {

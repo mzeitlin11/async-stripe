@@ -119,14 +119,12 @@ impl RustObject {
         match self {
             Self::Struct(struct_) => {
                 for field in &struct_.fields {
-                    visitor.visit_typ(&field.rust_type, usage);
+                    visitor.visit_field(field, usage);
                 }
             }
             Self::Enum(variants) => {
                 for variant in variants {
-                    if let Some(typ) = &variant.rust_type {
-                        visitor.visit_typ(typ, usage);
-                    }
+                    visitor.visit_variant(variant, usage);
                 }
             }
             Self::FieldlessEnum(_) => {}

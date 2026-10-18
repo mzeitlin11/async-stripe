@@ -1,4 +1,5 @@
-use crate::item_catalog::{ItemProperties, ItemRecord, RustItem, TypeRoot};
+use crate::item_catalog::{ItemProperties, ItemRecord, RustItem};
+use crate::item_origin::TypeRoot;
 use crate::rust_object::RustObject;
 use crate::rust_type::{Container, DeclarationRoot, RustType};
 

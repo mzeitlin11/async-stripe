@@ -7,7 +7,7 @@ use openapiv3::Schema;
 
 use crate::component_catalog::ComponentCatalog;
 use crate::crates::Crate;
-use crate::item_catalog::TypeRoot;
+use crate::item_origin::TypeRoot;
 use crate::output::GeneratedWorkspace;
 use crate::render::RenderContext;
 use crate::rust_object::{ObjectUsage, RustObject};

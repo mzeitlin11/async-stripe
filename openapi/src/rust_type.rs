@@ -40,6 +40,16 @@ pub enum RustType {
 }
 
 impl RustType {
+    /// The canonical item inside a named type or a chain of type wrappers.
+    pub(crate) fn item_id(&self) -> Option<ItemId> {
+        match self {
+            Self::Item(item) => Some(*item),
+            Self::Container(container) => container.value_typ().item_id(),
+            Self::Reference(inner) => inner.item_id(),
+            _ => None,
+        }
+    }
+
     pub const fn bool() -> Self {
         Self::Primitive(PrimitiveType::Bool)
     }

@@ -7,13 +7,13 @@ use openapiv3::Schema;
 
 use crate::component_catalog::ComponentCatalog;
 use crate::crates::Crate;
+use crate::item_layout::ItemAddress;
 use crate::item_origin::TypeRoot;
 use crate::output::GeneratedWorkspace;
 use crate::render::RenderContext;
-use crate::rust_object::{ObjectUsage, RustObject};
+use crate::rust_object::RustObject;
 use crate::rust_type::RustType;
 use crate::spec_inference::Inference;
-use crate::templates::ObjectWriter;
 use crate::templates::object_writer::{write_derives_line, write_redacted_debug_impl};
 use crate::templates::utils::write_doc_comment;
 use crate::types::RustIdent;
@@ -49,26 +49,13 @@ fn write_event_object(
             .map(|item| context.item(item).metadata.ident.clone())
             .unwrap_or_else(|| RustIdent::create(&webhook_obj.event_type));
 
-        let (printable, feature_gate) = if let Some(enum_objs) = item
-            .and_then(|item| context.item(item).object())
-            .and_then(|object| object.enum_of_objects.as_ref())
-        {
-            ObjectWriter::new(context, &ident, ObjectUsage::type_def())
-                .write_enum_of_objects(&mut out, enum_objs);
-            (ident.to_string(), None)
-        } else {
-            let component = context
-                .component_for_type(payload)
-                .context("expected webhook data type to be enum of objects or component path")?;
-            let belonging_crate = context.types_crate(component);
-            (
-                context.display_type(payload).to_string(),
-                if belonging_crate != Crate::SHARED {
-                    Some(belonging_crate.crate_name())
-                } else {
-                    None
-                },
-            )
+        // Both component payloads and inline unions follow the actual item
+        // address. Their declarations have already been emitted through ItemLayout.
+        let payload_item = payload.item_id().context("expected a lowered webhook payload item")?;
+        let printable = context.display_type(payload).to_string();
+        let feature_gate = match context.item_address(payload_item) {
+            ItemAddress::CrateRoot(krate) if krate != Crate::SHARED => Some(krate.crate_name()),
+            ItemAddress::CrateRoot(_) | ItemAddress::Local => None,
         };
 
         let comment = write_doc_comment(&webhook_obj.doc, 1);

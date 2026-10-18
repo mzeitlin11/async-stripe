@@ -4,18 +4,22 @@ use crate::crates::Crate;
 use crate::item_catalog::{ItemCatalog, ItemId};
 use crate::item_origin::{ItemOrigin, TypeRoot};
 use crate::layout::ComponentLayout;
-use crate::rust_object::ObjectKind;
+use crate::rust_object::{ObjectKind, RustObject};
 use crate::rust_type::DeclarationRoot;
 
 /// The source file or module group in which an item is emitted.
 ///
 /// This is deliberately distinct from a crate. Component models and requests
 /// can share a crate while still requiring separate local namespaces.
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub(crate) enum EmissionSite {
     ComponentTypes(ComponentId),
     ComponentRequests(ComponentId),
-    SharedType(ItemId),
+    /// A public owner and any local children in their own module.
+    Standalone {
+        item: ItemId,
+        krate: Crate,
+    },
     Webhooks,
 }
 
@@ -28,7 +32,7 @@ impl EmissionSite {
             Self::ComponentRequests(component) => {
                 Some(component_layout.placement(component).request_crate())
             }
-            Self::SharedType(_) => Some(Crate::SHARED),
+            Self::Standalone { krate, .. } => Some(krate),
             Self::Webhooks => None,
         }
     }
@@ -105,7 +109,7 @@ impl ItemLayout {
         self.placements[item.index()]
     }
 
-    fn validate(
+    pub(crate) fn validate(
         &self,
         items: &ItemCatalog,
         component_layout: &ComponentLayout,
@@ -114,23 +118,59 @@ impl ItemLayout {
             self.placements.len() == items.len(),
             "item layout and canonical item counts differed"
         );
+        let mut local_names = std::collections::HashSet::new();
+        let mut public_names = std::collections::HashSet::new();
         for (item, record) in items.iter() {
             let placement = self.placement(item);
+            anyhow::ensure!(
+                local_names.insert((placement.emission_site, &record.metadata.ident)),
+                "duplicate item name in emission site: {}",
+                record.metadata.ident
+            );
             if let ItemAddress::CrateRoot(krate) = placement.address {
                 anyhow::ensure!(
-                    record.origin.path.is_empty(),
-                    "nested item unexpectedly had crate-root addressability: {item:?}"
+                    public_names.insert((krate, &record.metadata.ident)),
+                    "duplicate public item name in {}: {}",
+                    krate.crate_name(),
+                    record.metadata.ident
+                );
+                if let Some(object) = record.object()
+                    && let RustObject::Struct(strukt) = &object.definition
+                {
+                    anyhow::ensure!(
+                        strukt.vis.is_public(),
+                        "private declaration cannot have crate-root addressability: {}",
+                        record.metadata.ident
+                    );
+                }
+                anyhow::ensure!(
+                    !matches!(
+                        placement.emission_site,
+                        EmissionSite::ComponentRequests(_) | EmissionSite::Webhooks
+                    ),
+                    "item has crate-root addressability in a local-only module: {item:?}"
                 );
                 anyhow::ensure!(
                     placement.emission_site.krate(component_layout) == Some(krate),
                     "item crate differed from its emission site: {item:?}"
                 );
             }
-            for child in &record.children {
+            if let EmissionSite::Standalone { item: owner, .. } = placement.emission_site {
                 anyhow::ensure!(
-                    self.placement(*child).emission_site == placement.emission_site,
-                    "child item had a different emission site from its parent: {item:?} -> {child:?}"
+                    owner.index() < items.len()
+                        && self.placement(owner).emission_site == placement.emission_site,
+                    "standalone module owner had a different emission site: {item:?}"
                 );
+                anyhow::ensure!(
+                    matches!(self.placement(owner).address, ItemAddress::CrateRoot(_)),
+                    "standalone module owner must be exported: {owner:?}"
+                );
+                if matches!(placement.address, ItemAddress::CrateRoot(_)) {
+                    anyhow::ensure!(
+                        item == owner,
+                        "standalone module only exports its owner: {owner:?}, not {item:?}"
+                    );
+                }
             }
         }
         Ok(())
@@ -172,7 +212,7 @@ fn emission_site(
                 .root(root)
                 .and_then(|root| root.declaration)
                 .ok_or_else(|| anyhow::anyhow!("shared root had no declaration: {root:?}"))?;
-            EmissionSite::SharedType(declaration)
+            EmissionSite::Standalone { item: declaration, krate: Crate::SHARED }
         }
         TypeRoot::Webhook(_) => EmissionSite::Webhooks,
     };
@@ -191,7 +231,7 @@ fn item_address(
         EmissionSite::ComponentTypes(component) => {
             ItemAddress::CrateRoot(component_layout.placement(component).types_crate())
         }
-        EmissionSite::SharedType(_) => ItemAddress::CrateRoot(Crate::SHARED),
+        EmissionSite::Standalone { krate, .. } => ItemAddress::CrateRoot(krate),
         EmissionSite::ComponentRequests(_) | EmissionSite::Webhooks => ItemAddress::Local,
     }
 }

@@ -3,9 +3,7 @@ use std::fmt::{Display, Formatter, Write as _};
 use crate::STRIPE_TYPES;
 use crate::component_catalog::ComponentId;
 use crate::crates::Crate;
-use crate::item_catalog::{
-    CanonicalTypeRoot, ItemCatalog, ItemId, ItemProperties, ItemRecord, RustItem,
-};
+use crate::item_catalog::{CanonicalTypeRoot, ItemCatalog, ItemId, ItemProperties, ItemRecord};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::item_origin::TypeRoot;
 use crate::render_plan::{ParameterConversion, constructor_parameter_conversion};
@@ -133,14 +131,8 @@ impl<'model> RenderContext<'model> {
         Self { item_layout, items, emission_site }
     }
 
-    pub fn types_crate(self, component: ComponentId) -> Crate {
-        let item = self.items.component_root(component);
-        match self.item_layout.placement(item).address() {
-            ItemAddress::CrateRoot(krate) => krate,
-            ItemAddress::Local => {
-                panic!("component root unexpectedly had local addressability: {component:?}")
-            }
-        }
+    pub(crate) fn item_address(self, item: ItemId) -> ItemAddress {
+        self.item_layout.placement(item).address()
     }
 
     pub fn display_type<'type_>(self, typ: &'type_ RustType) -> DisplayType<'model, 'type_> {
@@ -176,15 +168,7 @@ impl<'model> RenderContext<'model> {
     }
 
     pub(crate) fn item_object_for_type(self, typ: &RustType) -> Option<&'model RustObject> {
-        match typ {
-            RustType::Item(item) => match &self.item(*item).item {
-                RustItem::Object(object) => Some(&object.definition),
-                RustItem::IdNewtype => None,
-            },
-            RustType::Container(container) => self.item_object_for_type(container.value_typ()),
-            RustType::Reference(inner) => self.item_object_for_type(inner),
-            _ => None,
-        }
+        self.items.object_for_type(typ)
     }
 
     pub(crate) fn type_has_lifetime(self, typ: &RustType) -> bool {
@@ -192,10 +176,6 @@ impl<'model> RenderContext<'model> {
             .properties_for_type(typ)
             .unwrap_or_else(|error| panic!("could not resolve canonical type properties: {error}"))
             .has_lifetime
-    }
-
-    pub(crate) fn component_for_type(self, typ: &RustType) -> Option<ComponentId> {
-        self.items.component_for_type(typ)
     }
 
     pub(crate) fn type_is_copy(self, typ: &RustType) -> bool {

@@ -5,18 +5,17 @@ use anyhow::Context;
 use indoc::formatdoc;
 use petgraph::prelude::DiGraphMap;
 
-use crate::component_catalog::ComponentId;
 use crate::components::Components;
 use crate::crate_dependencies::{crate_dependencies, validate_crate_dependencies};
 use crate::crate_inference::CrateInferenceWarning;
 use crate::crate_table::generate_crate_table;
 use crate::crates::{ALL_CRATES, Crate, get_crate_doc_comment};
 pub use crate::dependencies::EdgePolicy;
-use crate::item_catalog::{ItemId, ItemMetadata};
+use crate::item_catalog::ItemMetadata;
 use crate::item_layout::{EmissionSite, ItemLayout};
 use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
-use crate::object_writing::{gen_obj, gen_requests};
+use crate::object_writing::ItemEmitter;
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
 use crate::pipeline::run_pipeline;
@@ -25,7 +24,6 @@ use crate::rust_model::RustModel;
 use crate::rust_type::DeclarationRoot;
 use crate::spec::Spec;
 use crate::spec_inference::infer_doc_comment;
-use crate::stripe_object::StripeObject;
 use crate::templates::cargo_toml::gen_crate_toml;
 use crate::templates::utils::write_top_level_doc_comment;
 use crate::url_finder::UrlFinder;
@@ -35,7 +33,7 @@ pub struct CodeGen {
     pub components: Components,
     pub(crate) model: RustModel,
     component_layout: ComponentLayout,
-    item_layout: ItemLayout,
+    pub(crate) item_layout: ItemLayout,
     pub(crate) crate_dependencies: DiGraphMap<Crate, ()>,
     pub spec: Spec,
     pub version: String,
@@ -112,10 +110,6 @@ impl CodeGen {
         RenderContext::new(&self.item_layout, self.model.items(), emission_site)
     }
 
-    fn render_context_for_item(&self, item: ItemId) -> RenderContext<'_> {
-        self.render_context(self.item_layout.placement(item).emission_site())
-    }
-
     pub(crate) fn output_locations(&self) -> OutputLocations<'_> {
         OutputLocations::new(&self.components, &self.component_layout)
     }
@@ -136,37 +130,53 @@ impl CodeGen {
         output.append(mod_rs_path, mod_rs_contents)
     }
 
-    fn write_components(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
+    fn write_declarations(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
+        let items = self.model.items();
+        let mut emitter = ItemEmitter::new(items, &self.item_layout, self.output_locations());
+        // This traversal preserves source order. Every declaration, including
+        // recursively introduced children, is routed by its own item placement.
         for (&component, object) in &self.components.components {
-            self.write_component(component, object, output)?;
+            emitter.emit(items.component_root(component), output)?;
+            if let Some(item) = items.component_id_item(component) {
+                emitter.emit(item, output)?;
+            }
+            emitter.requests(component, self.model.requests_for_component(component), output)?;
+            emitter.component_reexports(component, output)?;
+            for ident in object.deduplicated_objects.keys() {
+                let root = TypeRoot::Declaration(DeclarationRoot::Deduplicated {
+                    component,
+                    ident: ident.clone(),
+                });
+                let item = items
+                    .root(&root)
+                    .and_then(|root| root.declaration)
+                    .expect("deduplicated item declaration was not cataloged");
+                emitter.emit(item, output)?;
+            }
         }
-
-        let crate_path = Crate::SHARED.get_path();
-        let crate_mod_path = crate_path.join("mod.rs");
-        for (ident, typ_info) in &self.components.extra_types {
-            let mut out = String::new();
-            let item = self
-                .model
-                .items()
-                .root(&TypeRoot::Declaration(DeclarationRoot::Shared(ident.clone())))
+        for ident in self.components.extra_types.keys() {
+            let root = TypeRoot::Declaration(DeclarationRoot::Shared(ident.clone()));
+            let item = items
+                .root(&root)
                 .and_then(|root| root.declaration)
                 .expect("shared item declaration was not cataloged");
-            let context = self.render_context_for_item(item);
-            context.write_item(item, &mut out);
-            output.write(crate_path.join(format!("{}.rs", typ_info.mod_path)), out)?;
-            output.append(
-                &crate_mod_path,
-                format!("pub mod {0}; pub use {0}::{1};", typ_info.mod_path, ident),
-            )?;
+            emitter.emit(item, output)?;
+            emitter.reexport(item, Crate::SHARED, output)?;
         }
-        Ok(())
+        for webhook in &self.components.webhook_objs {
+            let root = TypeRoot::Webhook(webhook.event_type.clone());
+            if let Some(item) = items.root(&root).and_then(|root| root.declaration) {
+                emitter.emit(item, output)?;
+            }
+        }
+        emitter.finish()
     }
 
     pub fn render_workspace(&self) -> anyhow::Result<GeneratedWorkspace> {
         validate_crate_dependencies(&self.crate_dependencies)?;
         let mut output = GeneratedWorkspace::default();
         self.write_crate_base(&mut output)?;
-        self.write_components(&mut output)?;
+        self.write_declarations(&mut output)?;
         self.write_api_version_file(&mut output)?;
         let context = self.render_context(EmissionSite::Webhooks);
         write_generated_for_webhooks(context, &self.components.webhook_objs, &mut output)
@@ -222,117 +232,6 @@ impl CodeGen {
             // type names causing `rustfmt` errors (https://github.com/rust-lang/rustfmt/issues/5315)
         }
         Ok(())
-    }
-
-    fn write_component_requests(
-        &self,
-        component: ComponentId,
-        comp: &StripeObject,
-        output: &mut GeneratedWorkspace,
-    ) -> anyhow::Result<()> {
-        let locations = self.output_locations();
-        let context = self.render_context(EmissionSite::ComponentRequests(component));
-        let req_content = gen_requests(self.model.requests_for_component(component), context);
-
-        let req_file_content = formatdoc! {
-            r#"
-            use stripe_client_core::{{StripeClient, StripeBlockingClient, StripeRequest, RequestBuilder, StripeMethod}};
-
-            {req_content}
-            "#
-        };
-        output.write(locations.requests_content_path(component), req_file_content)?;
-        let feature_gate = comp.mod_path();
-        let new_mod_file_content = formatdoc! {
-            r#"
-            #[cfg(feature = "{feature_gate}")]
-            mod requests;
-            #[cfg(feature = "{feature_gate}")]
-            pub use requests::*;
-            "#
-        };
-        output.append(locations.requests_module_path(component), new_mod_file_content)
-    }
-
-    #[tracing::instrument(level = "debug", skip_all, fields(path = %comp.path()))]
-    fn write_component(
-        &self,
-        component: ComponentId,
-        comp: &StripeObject,
-        output: &mut GeneratedWorkspace,
-    ) -> anyhow::Result<()> {
-        let locations = self.output_locations();
-        let struct_defs = self.gen_struct_definitions_for_component(component);
-        if !self.components.has_requests(component)
-            || locations.types_split_from_requests(component)
-        {
-            output.write(locations.types_content_path(component), struct_defs)?;
-            output.append(
-                locations.types_crate(component).get_path_to_mod(),
-                format!(
-                    // NB: we add doc(hidden) and doc(inline) to hide the implementation details
-                    // of these being public modules so that other generated crates can import them. It
-                    // just keeps the already giant rustdoc page a bit cleaner
-                    "#[doc(hidden)]\npub mod {0};#[doc(inline)]\npub use {0}::*;",
-                    comp.mod_path()
-                ),
-            )?;
-        } else {
-            output.write(locations.types_content_path(component), struct_defs)?;
-            output.append(locations.requests_module_path(component), "pub(crate) mod types;")?;
-            output.append(
-                locations.request_crate(component).get_path_to_mod(),
-                format!("pub use {0}::types::*;", comp.mod_path()),
-            )?;
-        }
-
-        if self.components.has_requests(component) {
-            output.append(
-                locations.request_crate(component).get_path_to_mod(),
-                format!("pub mod {};", comp.mod_path()),
-            )?;
-            self.write_component_requests(component, comp, output)?;
-        }
-
-        // Reexport in this crate if we wrote types to `stripe_shared` instead of the
-        // component's base crate.
-        if locations.types_split_from_requests(component) {
-            output.append(
-                locations.request_crate(component).get_path_to_mod(),
-                format!("pub use {}::{}::*;", Crate::SHARED.lib_name(), comp.mod_path()),
-            )?;
-        }
-
-        for ident in comp.deduplicated_objects.keys() {
-            let mut out = String::new();
-            let item = self
-                .model
-                .items()
-                .root(&TypeRoot::Declaration(DeclarationRoot::Deduplicated {
-                    component,
-                    ident: ident.clone(),
-                }))
-                .and_then(|root| root.declaration)
-                .expect("deduplicated item declaration was not cataloged");
-            let context = self.render_context_for_item(item);
-            context.write_item(item, &mut out);
-            let dst_file = match self.item_layout.placement(item).emission_site() {
-                EmissionSite::ComponentTypes(owner) => locations.types_content_path(owner),
-                EmissionSite::ComponentRequests(owner) => locations.requests_content_path(owner),
-                EmissionSite::SharedType(_) | EmissionSite::Webhooks => {
-                    panic!("deduplicated item had an invalid emission site: {item:?}")
-                }
-            };
-            output.append(dst_file, out)?;
-        }
-
-        Ok(())
-    }
-
-    fn gen_struct_definitions_for_component(&self, component: ComponentId) -> String {
-        let base_item = self.model.items().component_root(component);
-        let context = self.render_context_for_item(base_item);
-        gen_obj(base_item, context)
     }
 
     fn write_object_info_for_testing(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {

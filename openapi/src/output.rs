@@ -13,6 +13,11 @@ pub struct ArtifactSet {
 }
 
 impl ArtifactSet {
+    #[cfg(test)]
+    pub(crate) fn contents(&self, path: impl AsRef<Path>) -> Option<&[u8]> {
+        self.files.get(path.as_ref()).map(Vec::as_slice)
+    }
+
     pub fn write<C: AsRef<[u8]>, P: AsRef<Path>>(
         &mut self,
         path: P,

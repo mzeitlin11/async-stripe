@@ -6,12 +6,13 @@ use crate::component_catalog::ComponentId;
 use crate::crates::{ALL_CRATES, Crate};
 use crate::item_catalog::ItemCatalog;
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
+use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
 use crate::request_model::RequestModel;
 use crate::rust_object::{ObjectIdentity, RustObject};
-use crate::rust_type::RustType;
+use crate::rust_type::{DeclarationRoot, RustType};
 
-/// Dependencies required by the lowered Rust declarations and request signatures.
+/// Dependencies required by lowered declarations, request APIs, and public facades.
 /// Unlike the spec graph used to choose placement, this includes ID references
 /// and references introduced by model rewrites, without applying an edge policy.
 pub(crate) fn crate_dependencies<'a>(
@@ -31,6 +32,25 @@ pub(crate) fn crate_dependencies<'a>(
     }
 
     for (item, record) in items.iter() {
+        // Public facades are consumers too, including IDs emitted separately
+        // from their models and shared overrides such as ApiVersion.
+        let facade = if record.origin.path.is_empty() {
+            match &record.origin.type_root {
+                TypeRoot::Declaration(
+                    DeclarationRoot::Component(component) | DeclarationRoot::ObjectId(component),
+                ) => Some(component_layout.placement(*component).request_crate()),
+                TypeRoot::Declaration(DeclarationRoot::Shared(_)) => Some(Crate::SHARED),
+                _ => None,
+            }
+        } else {
+            None
+        };
+        if let Some(source) = facade
+            && let ItemAddress::CrateRoot(target) = item_layout.placement(item).address()
+            && source != target
+        {
+            graph.add_edge(source, target, ());
+        }
         let Some(object) = record.object() else { continue };
         let source = item_layout.placement(item).emission_site();
         let mut add_type = |typ: &RustType| {
@@ -73,6 +93,33 @@ pub(crate) fn crate_dependencies<'a>(
                     .with_context(|| {
                         format!("invalid dependencies for request {}", request.ident)
                     })?;
+            }
+            // The request builder exposes parameter fields in its constructor
+            // and setters even when their containing declaration lives elsewhere.
+            if let Some(params_root) = &request.params
+                && let Some(RustObject::Struct(params)) = items.object_for_type(&params_root.typ)
+            {
+                let param_site = item_layout
+                    .placement(params_root.typ.item_id().expect("parameter struct has no item"))
+                    .emission_site();
+                for field in &params.fields {
+                    anyhow::ensure!(
+                        param_site == source || field.required || field.vis.is_public(),
+                        "request {} cannot set private parameter field {} in another emission site",
+                        request.ident,
+                        field.field_name
+                    );
+                    add_type_dependencies(
+                        &mut graph,
+                        source,
+                        &field.rust_type,
+                        component_layout,
+                        item_layout,
+                    )
+                    .with_context(|| {
+                        format!("invalid constructor dependencies for request {}", request.ident)
+                    })?;
+                }
             }
         }
     }

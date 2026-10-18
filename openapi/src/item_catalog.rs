@@ -105,7 +105,7 @@ pub enum RustItem {
 
 #[derive(Debug, Clone)]
 pub struct ItemRecord {
-    /// Canonical declaration origin, used for emission ownership. Original
+    /// Canonical declaration origin, used by the default placement policy. Original
     /// inferred occurrences remain separate when a declaration is shared.
     pub origin: ItemOrigin,
     pub occurrences: Vec<ItemOccurrence>,
@@ -115,7 +115,8 @@ pub struct ItemRecord {
     pub sharing_rule: Option<SharingRule>,
     pub metadata: ItemMetadata,
     /// Declarations structurally introduced by this item, in existing
-    /// recursive emission order. Cross-item path references are not children.
+    /// recursive emission order. Each child has its own placement; cross-item
+    /// path references are not children.
     pub children: Vec<ItemId>,
     /// Canonical declaration with nested declarations replaced by `ItemId`
     /// references into this catalog.
@@ -276,8 +277,13 @@ impl ItemCatalog {
         self.roots.get(root)
     }
 
-    pub fn component_for_type(&self, typ: &RustType) -> Option<ComponentId> {
-        component_for_type(&self.items, typ)
+    pub(crate) fn component_id_item(&self, component: ComponentId) -> Option<ItemId> {
+        self.root(&TypeRoot::Declaration(DeclarationRoot::ObjectId(component)))
+            .and_then(|root| root.declaration)
+    }
+
+    pub(crate) fn object_for_type(&self, typ: &RustType) -> Option<&RustObject> {
+        self.get(typ.item_id()?).object().map(|object| &object.definition)
     }
 
     pub fn properties_for_type(&self, typ: &RustType) -> anyhow::Result<ItemProperties> {
@@ -715,6 +721,9 @@ impl CatalogBuilder {
 
 #[cfg(test)]
 mod dependency_tests;
+
+#[cfg(test)]
+mod emission_tests;
 
 #[cfg(test)]
 mod tests {

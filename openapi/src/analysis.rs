@@ -11,6 +11,7 @@ use crate::crates::{ALL_CRATES, Crate};
 use crate::dependencies::{Dependency, DependencySource, EdgePolicy};
 use crate::graph::{ComponentGraph, gen_inferred_crate_dep_graph};
 use crate::item_catalog::{ItemKind, RustItem};
+use crate::item_layout::ItemAddress;
 use crate::item_origin::{ItemOrigin, TypeRoot};
 use crate::output::ArtifactSet;
 use crate::rust_object::{ObjectKind, RustObject};
@@ -311,11 +312,13 @@ fn summary(
 }
 
 fn items_csv(codegen: &CodeGen) -> String {
-    let mut out =
-        String::from("item_id,origin,ident,kind,usage,has_lifetime,is_copy,is_eq,sharing_rule\n");
+    let mut out = String::from(
+        "item_id,origin,ident,kind,usage,has_lifetime,is_copy,is_eq,sharing_rule,emission_path,public_crate\n",
+    );
     let items = codegen.model.items();
     for (id, item) in items.iter() {
         let properties = items.properties(id);
+        let placement = codegen.item_layout.placement(id);
         let row = [
             id.index().to_string(),
             item_origin(codegen, &item.origin),
@@ -326,6 +329,15 @@ fn items_csv(codegen: &CodeGen) -> String {
             properties.is_copy.to_string(),
             properties.is_eq.to_string(),
             item.sharing_rule.map(|rule| format!("{rule:?}")).unwrap_or_default(),
+            codegen
+                .output_locations()
+                .emission_path(placement.emission_site(), items)
+                .display()
+                .to_string(),
+            match placement.address() {
+                ItemAddress::Local => String::new(),
+                ItemAddress::CrateRoot(krate) => krate.crate_name(),
+            },
         ];
         let _ =
             writeln!(out, "{}", row.iter().map(|value| csv(value)).collect::<Vec<_>>().join(","));

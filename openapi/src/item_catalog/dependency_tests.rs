@@ -200,6 +200,31 @@ fn local_items_must_be_visible_from_the_emission_site_even_within_one_crate() {
 }
 
 #[test]
+fn relocating_a_shared_override_includes_its_public_facade_dependency() {
+    let core = krate("core");
+    let mut builder = CatalogBuilder::default();
+    let item = builder
+        .collect_root_object(
+            TypeRoot::Declaration(DeclarationRoot::Shared(RustIdent::create("api_version"))),
+            &RustObject::Struct(Struct::new(vec![])),
+            ItemMetadata::new(RustIdent::create("api_version")),
+            ObjectUsage::type_def(),
+        )
+        .unwrap();
+    let items = finish(builder);
+    let component_layout = ComponentLayout::for_test(&[]);
+    let layout = ItemLayout::for_test(vec![(
+        EmissionSite::Standalone { item, krate: core },
+        ItemAddress::CrateRoot(core),
+    )]);
+    let graph = crate_dependencies(&items, [], &component_layout, &layout).unwrap();
+    assert!(graph.contains_edge(Crate::SHARED, core));
+    // Domain facades already require shared, so this placement must fail before
+    // writing manifests or the VERSION constant that uses shared's ApiVersion.
+    assert!(validate_crate_dependencies(&graph).is_err());
+}
+
+#[test]
 fn counterfactual_cycles_are_reportable_but_rejected_before_generation() {
     let (charge, customer, _) = components();
     let core = krate("core");

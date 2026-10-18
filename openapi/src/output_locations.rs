@@ -1,10 +1,13 @@
 use std::path::PathBuf;
 
+use heck::ToSnakeCase;
 use indexmap::IndexSet;
 
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
 use crate::crates::Crate;
+use crate::item_catalog::{ItemCatalog, ItemId};
+use crate::item_layout::EmissionSite;
 use crate::layout::{ComponentLayout, ComponentPlacement};
 
 /// Resolves frozen component placement into crate and file destinations.
@@ -56,6 +59,26 @@ impl<'a> OutputLocations<'a> {
 
     pub(crate) fn requests_content_path(self, component: ComponentId) -> PathBuf {
         self.requests_folder_path(component).join("requests.rs")
+    }
+
+    pub(crate) fn standalone_module(self, item: ItemId, items: &ItemCatalog) -> String {
+        let ident = &items.get(item).metadata.ident;
+        self.components
+            .extra_types
+            .get(ident)
+            .map_or_else(|| ident.to_snake_case(), |typ| typ.mod_path.clone())
+    }
+
+    /// Resolve the selected emission site rather than the declaration's origin.
+    pub(crate) fn emission_path(self, site: EmissionSite, items: &ItemCatalog) -> PathBuf {
+        match site {
+            EmissionSite::ComponentTypes(component) => self.types_content_path(component),
+            EmissionSite::ComponentRequests(component) => self.requests_content_path(component),
+            EmissionSite::Standalone { item, krate } => {
+                krate.get_path().join(format!("{}.rs", self.standalone_module(item, items)))
+            }
+            EmissionSite::Webhooks => PathBuf::from("async-stripe-webhook/mod.rs"),
+        }
     }
 
     pub(crate) fn types_content_path(self, component: ComponentId) -> PathBuf {

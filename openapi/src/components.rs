@@ -47,6 +47,22 @@ struct ParsedComponent {
 }
 
 impl Components {
+    #[cfg(test)]
+    pub(crate) fn for_test(
+        catalog: ComponentCatalog,
+        components: IndexMap<ComponentId, StripeObject>,
+        operation_catalog: OperationCatalog,
+    ) -> Self {
+        Self {
+            catalog,
+            components,
+            operation_catalog,
+            dependency_index: DependencyIndex::default(),
+            webhook_objs: Vec::new(),
+            extra_types: IndexMap::new(),
+        }
+    }
+
     pub fn parsed_component_count(&self) -> usize {
         self.catalog.len()
     }

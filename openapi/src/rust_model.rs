@@ -30,4 +30,8 @@ impl RustModel {
     pub(crate) fn requests_for_component(&self, component: ComponentId) -> &[RequestModel] {
         self.requests.for_component(component)
     }
+
+    pub(crate) fn requests(&self) -> impl Iterator<Item = (ComponentId, &[RequestModel])> {
+        self.requests.iter()
+    }
 }

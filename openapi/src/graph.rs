@@ -50,8 +50,8 @@ impl Components {
 }
 
 /// Project component dependencies through a placement into workspace crate
-/// dependencies. Both inference validation and rendering use this projection.
-pub(crate) fn gen_crate_dep_graph(
+/// dependencies for layout inference. Emission uses lowered Rust dependencies.
+pub(crate) fn gen_inferred_crate_dep_graph(
     components: &Components,
     policy: EdgePolicy,
     placement: impl Fn(ComponentId) -> ComponentPlacement,

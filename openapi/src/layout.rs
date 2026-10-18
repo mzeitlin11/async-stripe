@@ -63,6 +63,18 @@ impl ComponentLayoutDraft {
 }
 
 impl ComponentLayout {
+    #[cfg(test)]
+    pub(crate) fn for_test(placements: &[(ComponentId, Crate, Crate)]) -> Self {
+        Self {
+            placements: placements
+                .iter()
+                .map(|&(component, request_crate, types_crate)| {
+                    (component, ComponentPlacement { request_crate, types_crate })
+                })
+                .collect(),
+        }
+    }
+
     pub(crate) fn from_draft(
         components: &Components,
         draft: &ComponentLayoutDraft,

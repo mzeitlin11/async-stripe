@@ -2,7 +2,6 @@ use std::fmt::Write as _;
 
 use indoc::writedoc;
 
-use crate::printable::PrintableWithLifetime;
 use crate::rust_object::{EnumOfObjects, EnumVariant, FieldlessVariant};
 use crate::templates::miniserde::gen_enum_of_objects_miniserde;
 use crate::templates::object_writer::{
@@ -27,8 +26,7 @@ impl ObjectWriter<'_> {
         variants.sort_by_key(|v| v.rust_type.is_some());
         for EnumVariant { variant, rust_type } in variants {
             if let Some(typ) = rust_type {
-                let printable = self.components.construct_printable_type(typ);
-                let typ = PrintableWithLifetime::new(&printable, self.lifetime);
+                let typ = self.context.display_type(typ).with_lifetime(self.lifetime);
                 let _ = writeln!(enum_body, "#[serde(untagged)]");
                 let _ = writeln!(enum_body, "{variant}({typ}),");
             } else {
@@ -66,16 +64,16 @@ impl ObjectWriter<'_> {
         let mut enum_body = String::with_capacity(64);
         match objects {
             EnumOfObjects::MaybeDeleted(maybe_deleted) => {
-                for item in [&maybe_deleted.base, &maybe_deleted.deleted] {
-                    let name = &item.ident;
-                    let printable = self.components.construct_printable_type_from_path(&item.path);
+                for component in [maybe_deleted.base, maybe_deleted.deleted] {
+                    let name = self.context.component_ident(component);
+                    let printable = self.context.display_component(component);
                     let _ = writeln!(enum_body, "{name}({printable}),");
                 }
             }
             EnumOfObjects::ObjectUnion(objects) => {
-                for (obj_name, obj) in objects {
-                    let name = &obj.ident;
-                    let printable = self.components.construct_printable_type_from_path(&obj.path);
+                for (obj_name, component) in objects {
+                    let name = self.context.component_ident(*component);
+                    let printable = self.context.display_component(*component);
                     serde_derive.maybe_write_rename(&mut enum_body, obj_name);
                     let _ = writeln!(enum_body, "{name}({printable}),");
                 }
@@ -106,7 +104,7 @@ impl ObjectWriter<'_> {
             EnumOfObjects::ObjectUnion(_) => serde_derive.maybe_write_tag(out, r#"tag = "object""#),
         }
 
-        let miniserde_impl = gen_enum_of_objects_miniserde(enum_name, objects);
+        let miniserde_impl = gen_enum_of_objects_miniserde(enum_name, objects, self.context);
         let _ = writedoc!(
             out,
             r#"

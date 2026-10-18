@@ -51,7 +51,8 @@ pub fn update_api_doc_data(api_url: &str, components: &Components) -> Result<()>
     let flattened = fetch_flattened_api_data(api_url)?;
 
     let mut new_doc_data: HashMap<String, String> = HashMap::new();
-    for path in components.components.keys() {
+    for &component in components.components.keys() {
+        let path = components.component_name(component);
         if let Some(doc_url) = url_for_object(path.as_ref(), &flattened) {
             new_doc_data.insert(path.to_string(), doc_url);
         } else {

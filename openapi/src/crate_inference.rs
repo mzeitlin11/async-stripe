@@ -7,18 +7,21 @@ use petgraph::Direction;
 use petgraph::algo::is_cyclic_directed;
 use tracing::{debug, trace, warn};
 
+use crate::component_catalog::ComponentId;
 use crate::components::Components;
-use crate::crates::{CRATE_INFO, Crate};
-use crate::graph::ComponentGraph;
-use crate::types::ComponentPath;
+use crate::crates::Crate;
+use crate::dependencies::EdgePolicy;
+use crate::graph::{ComponentGraph, gen_inferred_crate_dep_graph};
+use crate::layout::ComponentLayoutDraft;
+use crate::types::ComponentName;
 
 /// A warning emitted when a component's crate had to be auto-resolved
 /// because normal inference couldn't determine a unique crate.
 #[derive(Debug, Clone)]
 pub struct CrateInferenceWarning {
-    pub component: ComponentPath,
+    pub component: ComponentName,
     pub chosen_crate: Crate,
-    pub depended_on_by: Vec<ComponentPath>,
+    pub depended_on_by: Vec<ComponentName>,
     pub candidate_crates: Vec<Crate>,
 }
 
@@ -39,90 +42,96 @@ impl fmt::Display for CrateInferenceWarning {
     }
 }
 
-/// Do some easy work to sanity check `gen_crates.toml` does not have any spurious or
-/// misspelled entries.
-pub fn validate_crate_info(components: &Components) -> anyhow::Result<()> {
-    for krate in &CRATE_INFO.crates {
-        for name in &krate.paths {
-            if !components.components.contains_key(name.as_str()) {
-                bail!("Crate info includes unrecognized {name}. Maybe it is misspelled?");
-            }
-        }
-    }
-    Ok(())
-}
-
 impl Components {
     #[tracing::instrument(skip_all)]
-    pub fn infer_all_crate_assignments(&mut self) -> anyhow::Result<Vec<CrateInferenceWarning>> {
+    pub(crate) fn infer_all_crate_assignments(
+        &self,
+        layout: &mut ComponentLayoutDraft,
+        policy: EdgePolicy,
+    ) -> anyhow::Result<Vec<CrateInferenceWarning>> {
         // If a component includes requests that have URLs building off another component,
         // place with that component. This automates determinations like `external_account`
         // ending up in the same crate as `account` since all its requests start with `/account`.
-        let mut new_assignments: IndexMap<ComponentPath, Crate> = IndexMap::new();
-        for (path, component) in &self.components {
-            let krate = component.krate();
+        let mut new_assignments: IndexMap<ComponentId, Crate> = IndexMap::new();
+        for &component_id in self.components.keys() {
+            let path = self.component_name(component_id);
+            let krate = layout.placement(component_id);
             if krate.is_some() {
                 continue;
             }
-            let this_obj = self.get(path);
             let words = path.split('_');
             let first_two = words.take(2).collect::<Vec<_>>().join("_");
             let first_word = path.split_once('_').map(|f| f.0);
-            for (other_path, other_component) in &self.components {
-                let Some(krate) = other_component.krate() else {
+            for &other_id in self.components.keys() {
+                let other_path = self.component_name(other_id);
+                let Some(placement) = layout.placement(other_id) else {
                     continue;
                 };
-                if this_obj.is_nested_resource_of(other_component) {
-                    new_assignments.insert(path.clone(), krate.base());
+                if self.is_nested_resource_of(component_id, other_id) {
+                    new_assignments.insert(component_id, placement.request_crate());
                     break;
                 }
 
                 if other_path.as_ref() == first_two {
-                    new_assignments.insert(path.clone(), krate.base());
+                    new_assignments.insert(component_id, placement.request_crate());
                     break;
                 }
                 if first_word == Some(other_path.as_ref()) {
-                    new_assignments.insert(path.clone(), krate.base());
+                    new_assignments.insert(component_id, placement.request_crate());
                     break;
                 }
             }
         }
         debug!("Inferred based on naming: {new_assignments:#?} ");
-        for (path, krate) in new_assignments {
-            self.get_mut(&path).assign_crate(krate);
+        for (component, krate) in new_assignments {
+            layout.assign(component, krate);
         }
 
-        infer_crates_using_deps(self, Self::maybe_infer_crate_by_what_depends_on_it);
-        infer_crates_using_deps(self, Self::maybe_infer_crate_by_deps);
-        let warnings = self.resolve_missing_crates();
-        self.assign_paths_required_to_share_types();
-        self.validate_crate_assignment()?;
+        let component_graph = self.gen_component_dep_graph(policy);
+        infer_crates_using_deps(
+            self,
+            layout,
+            &component_graph,
+            Self::maybe_infer_crate_by_what_depends_on_it,
+        );
+        infer_crates_using_deps(self, layout, &component_graph, Self::maybe_infer_crate_by_deps);
+        let warnings = self.resolve_missing_crates(layout, &component_graph);
+        self.assign_paths_required_to_share_types(layout, &component_graph);
+        self.validate_crate_assignment(layout, policy)?;
         Ok(warnings)
     }
 
     /// For components with no assigned crate, auto-resolve by picking the most
-    /// common crate among dependents. Returns warnings for each auto-resolved component.
     #[tracing::instrument(skip_all)]
-    fn resolve_missing_crates(&mut self) -> Vec<CrateInferenceWarning> {
-        let components_without_crates: Vec<ComponentPath> = self
+    fn resolve_missing_crates(
+        &self,
+        layout: &mut ComponentLayoutDraft,
+        graph: &ComponentGraph,
+    ) -> Vec<CrateInferenceWarning> {
+        let components_without_crates: Vec<ComponentId> = self
             .components
-            .iter()
-            .filter(|(_, comp)| comp.krate().is_none())
-            .map(|(p, _)| p.clone())
+            .keys()
+            .copied()
+            .filter(|component| layout.placement(*component).is_none())
             .collect();
 
         if components_without_crates.is_empty() {
             return Vec::new();
         }
 
-        let graph = self.gen_component_dep_graph();
-        let mut warnings = Vec::new();
+        let mut resolutions = Vec::new();
 
-        for missing in &components_without_crates {
-            let depended_on: Vec<ComponentPath> =
-                graph.neighbors_directed(missing, Direction::Incoming).cloned().collect();
-            let candidate_crates: Vec<Crate> =
-                depended_on.iter().filter_map(|m| self.get(m).krate().map(|k| k.base())).collect();
+        for missing_id in &components_without_crates {
+            let depended_on_ids =
+                graph.neighbors_directed(*missing_id, Direction::Incoming).collect::<Vec<_>>();
+            let depended_on = depended_on_ids
+                .iter()
+                .map(|id| self.component_name(*id).clone())
+                .collect::<Vec<_>>();
+            let candidate_crates: Vec<Crate> = depended_on_ids
+                .iter()
+                .filter_map(|id| layout.placement(*id).map(|placement| placement.request_crate()))
+                .collect();
 
             // Pick the most common crate, breaking ties alphabetically
             let chosen = if candidate_crates.is_empty() {
@@ -142,29 +151,39 @@ impl Components {
             let unique_crates: Vec<Crate> =
                 candidate_crates.iter().copied().collect::<IndexSet<_>>().into_iter().collect();
 
+            let missing = self.component_name(*missing_id);
             warn!(
                 "Auto-assigning component {missing} to crate {} (depended on by {depended_on:?}, \
                  candidate crates: {unique_crates:?}). Consider adding a path entry in gen_crates.toml.",
                 chosen.base_name()
             );
 
-            warnings.push(CrateInferenceWarning {
-                component: missing.clone(),
-                chosen_crate: chosen,
-                depended_on_by: depended_on,
-                candidate_crates: unique_crates,
-            });
+            resolutions.push((
+                *missing_id,
+                CrateInferenceWarning {
+                    component: missing.clone(),
+                    chosen_crate: chosen,
+                    depended_on_by: depended_on,
+                    candidate_crates: unique_crates,
+                },
+            ));
         }
 
-        for warning in &warnings {
-            self.get_mut(&warning.component).assign_crate(warning.chosen_crate);
+        for (component, warning) in &resolutions {
+            layout.assign(*component, warning.chosen_crate);
         }
 
-        warnings
+        resolutions.into_iter().map(|(_, warning)| warning).collect()
     }
 
-    fn validate_crate_assignment(&self) -> anyhow::Result<()> {
-        let graph = self.gen_crate_dep_graph();
+    fn validate_crate_assignment(
+        &self,
+        layout: &ComponentLayoutDraft,
+        policy: EdgePolicy,
+    ) -> anyhow::Result<()> {
+        let graph = gen_inferred_crate_dep_graph(self, policy, |component| {
+            layout.placement(component).expect("component had no crate assignment")
+        });
         let deps_for_shared_crate = graph.neighbors(Crate::SHARED).collect::<Vec<_>>();
         if !deps_for_shared_crate.is_empty() {
             bail!(
@@ -177,10 +196,11 @@ impl Components {
         let requests_in_types = self
             .components
             .iter()
-            .filter(|(_, comp)| {
-                comp.krate_unwrapped().base() == Crate::SHARED && !comp.requests.is_empty()
+            .filter(|(component, _)| {
+                layout.placement(**component).unwrap().request_crate() == Crate::SHARED
+                    && self.has_requests(**component)
             })
-            .map(|(path, _)| path)
+            .map(|(component, _)| self.component_name(*component))
             .collect::<Vec<_>>();
         if !requests_in_types.is_empty() {
             bail!("Components have requests, not allowed in types crate: {requests_in_types:#?}");
@@ -188,34 +208,37 @@ impl Components {
         Ok(())
     }
 
-    fn assign_paths_required_to_share_types(&mut self) {
+    fn assign_paths_required_to_share_types(
+        &self,
+        layout: &mut ComponentLayoutDraft,
+        graph: &ComponentGraph,
+    ) {
         // Paths for components required to live in the `async-stripe-shared` crate. Adding `event` is
         // used for webhooks
         const PATHS_IN_TYPES: &[&str] = &["event"];
 
         loop {
-            let mut required = vec![];
-            let graph = self.gen_component_dep_graph();
-            for (path, component) in &self.components {
-                if component.krate_unwrapped().are_type_defs_shared() {
+            let mut required: Vec<ComponentId> = vec![];
+            for &component_id in self.components.keys() {
+                let path = self.component_name(component_id);
+                let placement = layout.placement(component_id).unwrap();
+                if placement.types_crate() == Crate::SHARED {
                     continue;
                 }
                 if PATHS_IN_TYPES.contains(&path.as_ref()) {
-                    required.push(path.clone());
+                    required.push(component_id);
                     continue;
                 }
-                let my_crate = component.krate_unwrapped().base();
+                let my_crate = placement.request_crate();
                 let depended_on =
-                    graph.neighbors_directed(path, Direction::Incoming).collect::<Vec<_>>();
+                    graph.neighbors_directed(component_id, Direction::Incoming).collect::<Vec<_>>();
                 let depended_crates = depended_on
                     .iter()
-                    .map(|m| self.get(m).krate_unwrapped().for_types())
+                    .map(|id| layout.placement(*id).unwrap().types_crate())
                     .filter(|c| *c != my_crate)
                     .collect::<IndexSet<_>>();
-                if !depended_crates.is_empty()
-                    || depended_crates.iter().any(|d| *d == Crate::SHARED)
-                {
-                    required.push(path.clone());
+                if !depended_crates.is_empty() {
+                    required.push(component_id);
                 }
             }
 
@@ -224,19 +247,20 @@ impl Components {
                 break;
             }
             for req in required {
-                self.get_mut(&req).krate_unwrapped_mut().set_share_type_defs();
+                layout.share_types(req);
             }
         }
     }
 
     fn maybe_infer_crate_by_what_depends_on_it(
         &self,
-        path: &ComponentPath,
+        layout: &ComponentLayoutDraft,
+        component: ComponentId,
         graph: &ComponentGraph,
     ) -> Option<Crate> {
         let depended_on_by = graph
-            .neighbors_directed(path, Direction::Incoming)
-            .map(|n| self.get(n).krate().map(|krate| krate.base()))
+            .neighbors_directed(component, Direction::Incoming)
+            .map(|id| layout.placement(id).map(|placement| placement.request_crate()))
             .collect::<Option<Vec<_>>>()?;
 
         let first = depended_on_by.first()?;
@@ -245,12 +269,13 @@ impl Components {
 
     fn maybe_infer_crate_by_deps(
         &self,
-        path: &ComponentPath,
+        layout: &ComponentLayoutDraft,
+        component: ComponentId,
         graph: &ComponentGraph,
     ) -> Option<Crate> {
         let known_dependents = graph
-            .neighbors(path)
-            .map(|n| self.get(n).krate().map(|krate| krate.base()))
+            .neighbors(component)
+            .map(|id| layout.placement(id).map(|placement| placement.request_crate()))
             .collect::<Option<IndexSet<_>>>()?;
 
         let first = known_dependents.first()?;
@@ -259,25 +284,31 @@ impl Components {
 }
 
 fn infer_crates_using_deps(
-    components: &mut Components,
-    infer_test: fn(&Components, &ComponentPath, &ComponentGraph) -> Option<Crate>,
+    components: &Components,
+    layout: &mut ComponentLayoutDraft,
+    graph: &ComponentGraph,
+    infer_test: fn(
+        &Components,
+        &ComponentLayoutDraft,
+        ComponentId,
+        &ComponentGraph,
+    ) -> Option<Crate>,
 ) {
     loop {
-        let mut new_assignments: IndexMap<ComponentPath, Crate> = IndexMap::new();
-        let graph = components.gen_component_dep_graph();
-        for (path, component) in &components.components {
-            if component.krate().is_some() {
+        let mut new_assignments: IndexMap<ComponentId, Crate> = IndexMap::new();
+        for &component in components.components.keys() {
+            if layout.placement(component).is_some() {
                 continue;
             }
-            if let Some(assignment) = infer_test(components, path, &graph) {
-                new_assignments.insert(path.clone(), assignment);
+            if let Some(assignment) = infer_test(components, layout, component, graph) {
+                new_assignments.insert(component, assignment);
             }
         }
         let no_new_assignments = new_assignments.is_empty();
 
         trace!("Inferred {new_assignments:#?}");
-        for (mod_name, krate) in new_assignments {
-            components.get_mut(&mod_name).assign_crate(krate);
+        for (component, krate) in new_assignments {
+            layout.assign(component, krate);
         }
         if no_new_assignments {
             break;

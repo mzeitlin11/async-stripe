@@ -1,8 +1,23 @@
-use crate::rust_object::{ObjectMetadata, ObjectUsage, RustObject};
+use crate::rust_object::{EnumVariant, ObjectMetadata, ObjectUsage, RustObject, StructField};
 use crate::rust_type::RustType;
-use crate::stripe_object::{RequestSpec, StripeObject};
 
 pub trait Visit<'a> {
+    fn visit_field(&mut self, field: &'a StructField, usage: ObjectUsage)
+    where
+        Self: Sized,
+    {
+        self.visit_typ(&field.rust_type, usage);
+    }
+
+    fn visit_variant(&mut self, variant: &'a EnumVariant, usage: ObjectUsage)
+    where
+        Self: Sized,
+    {
+        if let Some(typ) = &variant.rust_type {
+            self.visit_typ(typ, usage);
+        }
+    }
+
     fn visit_obj(
         &mut self,
         obj: &'a RustObject,
@@ -19,20 +34,6 @@ pub trait Visit<'a> {
         Self: Sized,
     {
         typ.visit(self, usage);
-    }
-
-    fn visit_req(&mut self, req: &'a RequestSpec)
-    where
-        Self: Sized,
-    {
-        req.visit(self);
-    }
-
-    fn visit_stripe_object(&mut self, obj: &'a StripeObject)
-    where
-        Self: Sized,
-    {
-        obj.visit(self)
     }
 }
 
@@ -53,19 +54,5 @@ pub trait VisitMut {
         Self: Sized,
     {
         typ.visit_mut(self, usage);
-    }
-
-    fn visit_req_mut(&mut self, req: &mut RequestSpec)
-    where
-        Self: Sized,
-    {
-        req.visit_mut(self);
-    }
-
-    fn visit_stripe_object_mut(&mut self, obj: &mut StripeObject)
-    where
-        Self: Sized,
-    {
-        obj.visit_mut(self)
     }
 }

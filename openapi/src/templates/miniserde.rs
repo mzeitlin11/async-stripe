@@ -2,18 +2,22 @@ use std::fmt::Write;
 
 use indoc::{formatdoc, writedoc};
 
-use crate::components::Components;
+use crate::render::RenderContext;
 use crate::rust_object::{EnumOfObjects, StructField};
 use crate::templates::ObjectWriter;
 use crate::types::RustIdent;
 
-pub fn gen_enum_of_objects_miniserde(ident: &RustIdent, objects: &EnumOfObjects) -> String {
+pub fn gen_enum_of_objects_miniserde(
+    ident: &RustIdent,
+    objects: &EnumOfObjects,
+    context: RenderContext<'_>,
+) -> String {
     let builder_name = RustIdent::joined(ident, "Builder");
     let inner_builder_type = match objects {
         EnumOfObjects::MaybeDeleted(_) => "MaybeDeletedBuilderInner",
         EnumOfObjects::ObjectUnion(_) => "ObjectBuilderInner",
     };
-    let inner = build_inner(ident, &builder_name, objects);
+    let inner = build_inner(ident, &builder_name, objects, context);
     formatdoc! {
         r#"
         #[derive(Default)]
@@ -37,11 +41,15 @@ pub fn gen_enum_of_objects_miniserde(ident: &RustIdent, objects: &EnumOfObjects)
     }
 }
 
-fn take_out_inner(ident: &RustIdent, objects: &EnumOfObjects) -> String {
+fn take_out_inner(
+    ident: &RustIdent,
+    objects: &EnumOfObjects,
+    context: RenderContext<'_>,
+) -> String {
     match objects {
         EnumOfObjects::MaybeDeleted(items) => {
-            let deleted_name = &items.deleted.ident;
-            let base_name = &items.base.ident;
+            let deleted_name = context.component_ident(items.deleted);
+            let base_name = context.component_ident(items.base);
             formatdoc! {r#"
             let (deleted, o) = self.inner.finish_inner()?;
             Some(if deleted {{
@@ -62,8 +70,13 @@ fn take_out_inner(ident: &RustIdent, objects: &EnumOfObjects) -> String {
     }
 }
 
-fn build_inner(ident: &RustIdent, builder_name: &RustIdent, objects: &EnumOfObjects) -> String {
-    let take_out_func_inner = take_out_inner(ident, objects);
+fn build_inner(
+    ident: &RustIdent,
+    builder_name: &RustIdent,
+    objects: &EnumOfObjects,
+    context: RenderContext<'_>,
+) -> String {
+    let take_out_func_inner = take_out_inner(ident, objects, context);
     let mut out = formatdoc! {r#"
     struct Builder<'a> {{
         out: &'a mut Option<{ident}>,
@@ -119,8 +132,8 @@ fn build_inner(ident: &RustIdent, builder_name: &RustIdent, objects: &EnumOfObje
     };
     if let EnumOfObjects::ObjectUnion(objects) = objects {
         let mut cons_inner = String::new();
-        for (obj_discr, obj) in objects {
-            let name = &obj.ident;
+        for (obj_discr, component) in objects {
+            let name = context.component_ident(*component);
             let _ = writeln!(
                 cons_inner,
                 r#""{obj_discr}" => Self::{name}(FromValueOpt::from_value(Value::Object(o))?),"#
@@ -160,11 +173,11 @@ impl ObjectWriter<'_> {
         let mut builder_inner = String::new();
         for field in fields {
             let f_name = &field.variable_name();
-            let printable = self.components.construct_printable_type(&field.rust_type);
+            let printable = self.context.display_type(&field.rust_type);
             let _ = writeln!(builder_inner, "{f_name}: Option<{printable}>,");
         }
 
-        let inner = miniserde_struct_inner(ident, &builder_name, fields, self.components);
+        let inner = miniserde_struct_inner(ident, &builder_name, fields, self.context);
         let _ = writedoc! {
             out,
             r#"
@@ -194,7 +207,7 @@ fn miniserde_struct_inner(
     ident: &RustIdent,
     builder_name: &RustIdent,
     fields: &[StructField],
-    components: &Components,
+    context: RenderContext<'_>,
 ) -> String {
     let mut key_inner = String::new();
     let mut builder_new_inner = String::new();
@@ -216,7 +229,7 @@ fn miniserde_struct_inner(
             r#"
             "{wire_name}" => b.{f_name} = FromValueOpt::from_value(v),"#
         );
-        let is_copy = field.rust_type.is_copy(components);
+        let is_copy = context.type_is_copy(&field.rust_type);
 
         let _ = writeln!(take_out_left, "Some({f_name}),");
         // For types which implement `Copy`, we don't need to call `.take()`. Does not affect

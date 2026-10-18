@@ -4,8 +4,8 @@ use openapiv3::{
     SchemaKind, StatusCode, Type,
 };
 
-use crate::stripe_object::OperationType;
-use crate::types::ComponentPath;
+use crate::operations::OperationType;
+use crate::types::ComponentName;
 
 #[derive(Debug, Clone)]
 pub struct Spec(OpenAPI);
@@ -23,7 +23,7 @@ impl Spec {
         self.0.components.as_ref().expect("Spec did not contain `components`!")
     }
 
-    pub fn get_component_schema(&self, path: &ComponentPath) -> &Schema {
+    pub fn get_component_schema(&self, path: &ComponentName) -> &Schema {
         let schema_or_ref =
             &self.components().schemas.get(path.as_ref()).expect("Schema not found");
         schema_or_ref.as_item().expect("Expected top level component to be an item")

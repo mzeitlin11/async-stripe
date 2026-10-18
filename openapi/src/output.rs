@@ -1,76 +1,147 @@
-use std::fs::{self, OpenOptions};
-use std::io::Write;
+use std::collections::BTreeMap;
+use std::fs;
 use std::path::{Component, Path, PathBuf};
 
-use anyhow::{Context, ensure};
+use anyhow::{Context, bail, ensure};
 
 use crate::crates::ALL_CRATES;
 
-const MANAGED_MARKER: &str = ".async-stripe-codegen-output";
-
-/// A filesystem writer rooted at one prepared staging directory.
-pub struct OutputDirectory {
-    root: PathBuf,
+/// A complete, filesystem-independent set of files produced by one operation.
+#[derive(Debug, Default)]
+pub struct ArtifactSet {
+    files: BTreeMap<PathBuf, Vec<u8>>,
 }
 
-impl OutputDirectory {
-    pub fn prepare(root: &Path) -> anyhow::Result<Self> {
-        ensure!(!root.as_os_str().is_empty(), "output directory cannot be empty");
-        ensure!(root != Path::new("/"), "refusing to clear the filesystem root");
-        if root.exists() {
-            let managed = root == Path::new("out") || root.join(MANAGED_MARKER).is_file();
-            let empty = fs::read_dir(root)?.next().is_none();
-            ensure!(
-                managed || empty,
-                "refusing to clear unmanaged non-empty output directory {}; choose an empty directory",
-                root.display()
-            );
-            fs::remove_dir_all(root)
-                .with_context(|| format!("could not clear output directory {}", root.display()))?;
-        }
-        fs::create_dir_all(root)?;
-        fs::write(root.join(MANAGED_MARKER), "async-stripe codegen staging directory\n")?;
-        Ok(Self { root: root.to_owned() })
+impl ArtifactSet {
+    #[cfg(test)]
+    pub(crate) fn contents(&self, path: impl AsRef<Path>) -> Option<&[u8]> {
+        self.files.get(path.as_ref()).map(Vec::as_slice)
     }
 
-    pub fn root(&self) -> &Path {
-        &self.root
-    }
-
-    pub fn write(&self, content: impl AsRef<[u8]>, path: impl AsRef<Path>) -> anyhow::Result<()> {
-        let mut options = OpenOptions::new();
-        options.truncate(true);
-        self.write_or_append(content.as_ref(), path.as_ref(), options)
-    }
-
-    pub fn append(&self, content: impl AsRef<[u8]>, path: impl AsRef<Path>) -> anyhow::Result<()> {
-        let mut options = OpenOptions::new();
-        options.append(true);
-        self.write_or_append(content.as_ref(), path.as_ref(), options)
-    }
-
-    fn write_or_append(
-        &self,
-        content: &[u8],
-        path: &Path,
-        mut options: OpenOptions,
+    pub fn write<C: AsRef<[u8]>, P: AsRef<Path>>(
+        &mut self,
+        path: P,
+        content: C,
     ) -> anyhow::Result<()> {
+        let path = normalized_relative_path(path.as_ref())?;
+        if self.files.insert(path.clone(), content.as_ref().to_vec()).is_some() {
+            bail!("generated file was written more than once: {}", path.display());
+        }
+        Ok(())
+    }
+
+    pub fn append<C: AsRef<[u8]>, P: AsRef<Path>>(
+        &mut self,
+        path: P,
+        content: C,
+    ) -> anyhow::Result<()> {
+        let path = normalized_relative_path(path.as_ref())?;
+        self.files.entry(path).or_default().extend_from_slice(content.as_ref());
+        Ok(())
+    }
+
+    pub fn materialize(&self, root: &Path) -> anyhow::Result<()> {
+        prepare_staging_root(root)?;
+        fs::write(root.join(MANAGED_MARKER), "async-stripe codegen staging directory\n")?;
+        self.write_files(root)
+    }
+
+    /// Materialize a file set without taking ownership of the entire root.
+    ///
+    /// The manifest records exactly which paths belonged to the preceding run,
+    /// allowing stale owned files to be removed without touching unrelated files
+    /// in a user-selected report directory.
+    pub fn materialize_owned(&self, root: &Path, manifest_name: &str) -> anyhow::Result<()> {
+        ensure!(!root.as_os_str().is_empty(), "output root cannot be empty");
+        ensure!(root != Path::new("/"), "refusing to use the filesystem root as output");
+        let manifest_path = normalized_relative_path(Path::new(manifest_name))?;
         ensure!(
-            !path.as_os_str().is_empty()
-                && path.components().all(|component| matches!(component, Component::Normal(_))),
-            "generated path must be relative and stay within the output directory: {}",
+            !self.files.contains_key(&manifest_path),
+            "artifact set contains its ownership manifest: {}",
+            manifest_path.display()
+        );
+        fs::create_dir_all(root)
+            .with_context(|| format!("could not create output directory {}", root.display()))?;
+
+        let previous_manifest = root.join(&manifest_path);
+        if previous_manifest.exists() {
+            let previous: Vec<String> = serde_json::from_slice(&fs::read(&previous_manifest)?)
+                .with_context(|| {
+                    format!("could not parse ownership manifest {}", previous_manifest.display())
+                })?;
+            for previous in previous {
+                let previous = normalized_relative_path(Path::new(&previous))?;
+                if self.files.contains_key(&previous) {
+                    continue;
+                }
+                let destination = root.join(previous);
+                if destination.symlink_metadata().is_ok() {
+                    fs::remove_file(&destination).with_context(|| {
+                        format!("could not remove stale artifact {}", destination.display())
+                    })?;
+                }
+            }
+        }
+
+        self.write_files(root)?;
+        let owned_paths =
+            self.files.keys().map(|path| path.to_string_lossy().into_owned()).collect::<Vec<_>>();
+        fs::write(previous_manifest, serde_json::to_vec_pretty(&owned_paths)?)?;
+        Ok(())
+    }
+
+    fn write_files(&self, root: &Path) -> anyhow::Result<()> {
+        for (path, content) in &self.files {
+            let destination = root.join(path);
+            let parent = destination
+                .parent()
+                .context("generated file unexpectedly had no parent directory")?;
+            fs::create_dir_all(parent)
+                .with_context(|| format!("could not create {}", parent.display()))?;
+            fs::write(&destination, content)
+                .with_context(|| format!("could not write {}", destination.display()))?;
+        }
+        Ok(())
+    }
+}
+
+/// Generated bindings are one use of the general artifact-set abstraction.
+pub type GeneratedWorkspace = ArtifactSet;
+
+const MANAGED_MARKER: &str = ".async-stripe-codegen-output";
+
+fn normalized_relative_path(path: &Path) -> anyhow::Result<PathBuf> {
+    ensure!(!path.as_os_str().is_empty(), "generated path cannot be empty");
+    ensure!(!path.is_absolute(), "generated path must be relative: {}", path.display());
+    for component in path.components() {
+        ensure!(
+            matches!(component, Component::Normal(_)),
+            "generated path must not escape its output root: {}",
             path.display()
         );
-        let destination = self.root.join(path);
-        fs::create_dir_all(destination.parent().context("generated file has no parent")?)?;
-        options
-            .create(true)
-            .write(true)
-            .open(&destination)
-            .with_context(|| format!("could not open {}", destination.display()))?
-            .write_all(content)
-            .with_context(|| format!("could not write {}", destination.display()))
     }
+    Ok(path.to_owned())
+}
+
+fn prepare_staging_root(root: &Path) -> anyhow::Result<()> {
+    ensure!(!root.as_os_str().is_empty(), "output root cannot be empty");
+    ensure!(root != Path::new("/"), "refusing to use the filesystem root as output");
+
+    if root.exists() {
+        // `out` is the CLI's fixed staging directory. Custom paths need a marker before we can
+        // safely assume their contents belong to codegen.
+        let is_managed = root == Path::new("out") || root.join(MANAGED_MARKER).is_file();
+        let is_empty = fs::read_dir(root)?.next().is_none();
+        ensure!(
+            is_managed || is_empty,
+            "refusing to clear unmanaged non-empty output directory {}; choose an empty directory",
+            root.display()
+        );
+        fs::remove_dir_all(root)
+            .with_context(|| format!("could not clear output directory {}", root.display()))?;
+    }
+    fs::create_dir_all(root)
+        .with_context(|| format!("could not create output directory {}", root.display()))
 }
 
 pub fn install_to_repository(staging_root: &Path, repo_root: &Path) -> anyhow::Result<()> {
@@ -105,6 +176,7 @@ fn require_file(path: &Path) -> anyhow::Result<()> {
 }
 
 fn replace_directory(source: &Path, destination: &Path) -> anyhow::Result<()> {
+    ensure!(source.is_dir(), "missing generated directory {}", source.display());
     if destination.exists() {
         fs::remove_dir_all(destination)
             .with_context(|| format!("could not replace {}", destination.display()))?;
@@ -116,11 +188,11 @@ fn copy_directory(source: &Path, destination: &Path) -> anyhow::Result<()> {
     fs::create_dir_all(destination)?;
     for entry in fs::read_dir(source)? {
         let entry = entry?;
-        let destination = destination.join(entry.file_name());
+        let target = destination.join(entry.file_name());
         if entry.file_type()?.is_dir() {
-            copy_directory(&entry.path(), &destination)?;
+            copy_directory(&entry.path(), &target)?;
         } else {
-            fs::copy(entry.path(), destination)?;
+            fs::copy(entry.path(), target)?;
         }
     }
     Ok(())
@@ -157,32 +229,47 @@ mod tests {
     #[test]
     fn writes_within_custom_output_and_clears_stale_managed_files() {
         let root = TestDirectory::new();
-        let output = OutputDirectory::prepare(&root.0).unwrap();
-        output.write("first", "nested/file.rs").unwrap();
-        output.append(" second", "nested/file.rs").unwrap();
+        let mut output = ArtifactSet::default();
+        output.write("nested/file.rs", "first").unwrap();
+        output.append("nested/file.rs", " second").unwrap();
+        output.materialize(&root.0).unwrap();
         assert_eq!(fs::read_to_string(root.0.join("nested/file.rs")).unwrap(), "first second");
-        OutputDirectory::prepare(&root.0).unwrap();
+        ArtifactSet::default().materialize(&root.0).unwrap();
         assert!(!root.0.join("nested/file.rs").exists());
         assert!(root.0.join(MANAGED_MARKER).is_file());
+    }
+
+    #[test]
+    fn failed_materialization_leaves_custom_output_managed_for_retry() {
+        let root = TestDirectory::new();
+        let mut output = ArtifactSet::default();
+        output.write("conflict", "file blocks a directory").unwrap();
+        output.write("conflict/nested.rs", "cannot write here").unwrap();
+
+        assert!(output.materialize(&root.0).is_err());
+        assert!(root.0.join("conflict").is_file());
+        assert!(root.0.join(MANAGED_MARKER).is_file());
+
+        ArtifactSet::default().materialize(&root.0).unwrap();
+        assert!(!root.0.join("conflict").exists());
     }
 
     #[test]
     fn refuses_to_clear_unmanaged_nonempty_directories() {
         let root = TestDirectory::new();
         fs::write(root.0.join("unrelated.txt"), "keep").unwrap();
-        assert!(OutputDirectory::prepare(&root.0).is_err());
+        assert!(ArtifactSet::default().materialize(&root.0).is_err());
         assert_eq!(fs::read_to_string(root.0.join("unrelated.txt")).unwrap(), "keep");
-        assert!(OutputDirectory::prepare(Path::new("")).is_err());
-        assert!(OutputDirectory::prepare(Path::new("/")).is_err());
+        assert!(ArtifactSet::default().materialize(Path::new("")).is_err());
+        assert!(ArtifactSet::default().materialize(Path::new("/")).is_err());
     }
 
     #[test]
     fn rejects_generated_paths_outside_the_staging_root() {
-        let root = TestDirectory::new();
-        let output = OutputDirectory::prepare(&root.0).unwrap();
+        let mut output = ArtifactSet::default();
         for path in ["", "../outside.rs", "nested/../../outside.rs", "/outside.rs"] {
-            assert!(output.write("content", path).is_err(), "{path}");
-            assert!(output.append("content", path).is_err(), "{path}");
+            assert!(output.write(path, "content").is_err(), "{path}");
+            assert!(output.append(path, "content").is_err(), "{path}");
         }
     }
 
@@ -238,5 +325,25 @@ mod tests {
         fs::write(first.join("src/mod.rs"), "// existing").unwrap();
         assert!(install_to_repository(&staging, &repository).is_err());
         assert_eq!(fs::read_to_string(first.join("src/mod.rs")).unwrap(), "// existing");
+    }
+
+    #[test]
+    fn owned_materialization_removes_only_stale_owned_files() {
+        let directory = TestDirectory::new();
+        let root = &directory.0;
+        fs::write(root.join("unrelated.txt"), "keep me").unwrap();
+
+        let mut first = ArtifactSet::default();
+        first.write("summary.md", "first").unwrap();
+        first.write("graphs/full.dot", "graph").unwrap();
+        first.materialize_owned(root, ".manifest.json").unwrap();
+
+        let mut second = ArtifactSet::default();
+        second.write("summary.md", "second").unwrap();
+        second.materialize_owned(root, ".manifest.json").unwrap();
+
+        assert_eq!(fs::read_to_string(root.join("summary.md")).unwrap(), "second");
+        assert!(!root.join("graphs/full.dot").exists());
+        assert_eq!(fs::read_to_string(root.join("unrelated.txt")).unwrap(), "keep me");
     }
 }

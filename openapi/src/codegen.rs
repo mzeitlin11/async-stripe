@@ -9,6 +9,7 @@ use crate::crate_inference::CrateInferenceWarning;
 use crate::crate_table::write_crate_table;
 use crate::crates::{ALL_CRATES, Crate, get_crate_doc_comment};
 use crate::object_writing::{gen_obj, gen_requests};
+use crate::output::OutputDirectory;
 use crate::rust_object::{ObjectKind, ObjectMetadata};
 use crate::spec::Spec;
 use crate::spec_inference::infer_doc_comment;
@@ -16,7 +17,6 @@ use crate::stripe_object::StripeObject;
 use crate::templates::cargo_toml::gen_crate_toml;
 use crate::templates::utils::write_top_level_doc_comment;
 use crate::url_finder::UrlFinder;
-use crate::utils::{append_to_file, write_to_file};
 use crate::webhook::write_generated_for_webhooks;
 
 pub struct CodeGen {
@@ -40,7 +40,7 @@ impl CodeGen {
         Ok(Self { components, spec, version, crate_inference_warnings })
     }
 
-    fn write_api_version_file(&self) -> anyhow::Result<()> {
+    fn write_api_version_file(&self, output: &OutputDirectory) -> anyhow::Result<()> {
         let base_path = Crate::SHARED.get_path();
         let mut mod_rs_contents = String::new();
         let mod_rs_path = base_path.join("mod.rs");
@@ -50,15 +50,15 @@ impl CodeGen {
             "pub const VERSION: crate::ApiVersion = crate::ApiVersion::V{};",
             self.spec.version().replace(['-', '.'], "_")
         );
-        write_to_file(version_file_content, base_path.join("version.rs"))?;
+        output.write(version_file_content, base_path.join("version.rs"))?;
         let _ = writeln!(mod_rs_contents, "pub mod version;");
 
-        append_to_file(mod_rs_contents, mod_rs_path)
+        output.append(mod_rs_contents, mod_rs_path)
     }
 
-    fn write_components(&self) -> anyhow::Result<()> {
+    fn write_components(&self, output: &OutputDirectory) -> anyhow::Result<()> {
         for component in self.components.components.values() {
-            self.write_component(component)?;
+            self.write_component(component, output)?;
         }
 
         let crate_path = Crate::SHARED.get_path();
@@ -67,8 +67,8 @@ impl CodeGen {
             let mut out = String::new();
             let metadata = ObjectMetadata::new(ident.clone());
             self.components.write_object(&typ_info.obj, &metadata, typ_info.usage, &mut out);
-            write_to_file(out, crate_path.join(format!("{}.rs", typ_info.mod_path)))?;
-            append_to_file(
+            output.write(out, crate_path.join(format!("{}.rs", typ_info.mod_path)))?;
+            output.append(
                 format!("pub mod {0}; pub use {0}::{1};", typ_info.mod_path, ident),
                 &crate_mod_path,
             )?;
@@ -76,17 +76,17 @@ impl CodeGen {
         Ok(())
     }
 
-    pub fn write_files(&self) -> anyhow::Result<()> {
-        self.write_crate_base()?;
-        self.write_components()?;
-        self.write_api_version_file()?;
-        write_generated_for_webhooks(&self.components)
+    pub fn write_files(&self, output: &OutputDirectory) -> anyhow::Result<()> {
+        self.write_crate_base(output)?;
+        self.write_components(output)?;
+        self.write_api_version_file(output)?;
+        write_generated_for_webhooks(&self.components, output)
             .context("Could not write webhook generated code")?;
-        write_crate_table(&self.components)?;
-        self.write_object_info_for_testing()
+        write_crate_table(&self.components, output)?;
+        self.write_object_info_for_testing(output)
     }
 
-    fn write_crate_base(&self) -> anyhow::Result<()> {
+    fn write_crate_base(&self, output: &OutputDirectory) -> anyhow::Result<()> {
         let crate_graph = self.components.gen_crate_dep_graph();
 
         for krate in &*ALL_CRATES {
@@ -101,7 +101,7 @@ impl CodeGen {
                 .collect();
 
             let toml = gen_crate_toml(*krate, neighbors.collect(), request_features, &self.version);
-            write_to_file(toml, base_path.join("Cargo.toml"))?;
+            output.write(toml, base_path.join("Cargo.toml"))?;
 
             let lib_name = krate.lib_name();
             let doc_comment = write_top_level_doc_comment(get_crate_doc_comment(*krate));
@@ -127,7 +127,7 @@ impl CodeGen {
             };
 
             let mod_path = base_path.join("src/mod.rs");
-            write_to_file(mod_rs, &mod_path)?;
+            output.write(mod_rs, &mod_path)?;
 
             // NB: a hack to avoid the insanely long lines generated because of _very_ long
             // type names causing `rustfmt` errors (https://github.com/rust-lang/rustfmt/issues/5315)
@@ -135,7 +135,11 @@ impl CodeGen {
         Ok(())
     }
 
-    fn write_component_requests(&self, comp: &StripeObject) -> anyhow::Result<()> {
+    fn write_component_requests(
+        &self,
+        comp: &StripeObject,
+        output: &OutputDirectory,
+    ) -> anyhow::Result<()> {
         let req_content = gen_requests(&comp.requests, &self.components);
 
         let req_file_content = formatdoc! {
@@ -145,7 +149,7 @@ impl CodeGen {
             {req_content}
             "#
         };
-        write_to_file(req_file_content, comp.get_requests_content_path())?;
+        output.write(req_file_content, comp.get_requests_content_path())?;
         let feature_gate = comp.mod_path();
         let new_mod_file_content = formatdoc! {
             r#"
@@ -155,15 +159,15 @@ impl CodeGen {
             pub use requests::*;
             "#
         };
-        append_to_file(new_mod_file_content, comp.get_requests_module_path())
+        output.append(new_mod_file_content, comp.get_requests_module_path())
     }
 
     #[tracing::instrument(level = "debug", skip_all, fields(path = %comp.path()))]
-    fn write_component(&self, comp: &StripeObject) -> anyhow::Result<()> {
+    fn write_component(&self, comp: &StripeObject, output: &OutputDirectory) -> anyhow::Result<()> {
         let struct_defs = self.gen_struct_definitions_for_component(comp);
         if !comp.has_requests() || comp.types_split_from_requests() {
-            write_to_file(struct_defs, comp.get_types_content_path())?;
-            append_to_file(
+            output.write(struct_defs, comp.get_types_content_path())?;
+            output.append(
                 format!(
                     // NB: we add doc(hidden) and doc(inline) to hide the implementation details
                     // of these being public modules so that other generated crates can import them. It
@@ -174,26 +178,26 @@ impl CodeGen {
                 comp.types_crate().get_path_to_mod(),
             )?;
         } else {
-            write_to_file(struct_defs, comp.get_types_content_path())?;
-            append_to_file("pub(crate) mod types;", comp.get_requests_module_path())?;
-            append_to_file(
+            output.write(struct_defs, comp.get_types_content_path())?;
+            output.append("pub(crate) mod types;", comp.get_requests_module_path())?;
+            output.append(
                 format!("pub use {0}::types::*;", comp.mod_path()),
                 comp.req_crate().get_path_to_mod(),
             )?;
         }
 
         if !comp.requests.is_empty() {
-            append_to_file(
+            output.append(
                 format!("pub mod {};", comp.mod_path()),
                 comp.req_crate().get_path_to_mod(),
             )?;
-            self.write_component_requests(comp)?;
+            self.write_component_requests(comp, output)?;
         }
 
         // Reexport in this crate if we wrote types to `stripe_shared` instead of the
         // component's base crate.
         if comp.types_split_from_requests() {
-            append_to_file(
+            output.append(
                 format!("pub use {}::{}::*;", Crate::SHARED.lib_name(), comp.mod_path()),
                 comp.req_crate().get_path_to_mod(),
             )?;
@@ -209,7 +213,7 @@ impl CodeGen {
                 }
                 ObjectKind::Type => comp.get_types_content_path(),
             };
-            append_to_file(out, dst_file)?;
+            output.append(out, dst_file)?;
         }
 
         Ok(())
@@ -224,7 +228,7 @@ impl CodeGen {
         gen_obj(base_obj, &meta, comp, &self.components)
     }
 
-    fn write_object_info_for_testing(&self) -> anyhow::Result<()> {
+    fn write_object_info_for_testing(&self, output: &OutputDirectory) -> anyhow::Result<()> {
         let mut checks = String::new();
         for (path, obj) in &self.components.components {
             if obj.object_name().is_none() {
@@ -244,6 +248,6 @@ impl CodeGen {
             "#
         };
 
-        write_to_file(content, "tests/mod.rs")
+        output.write(content, "tests/mod.rs")
     }
 }

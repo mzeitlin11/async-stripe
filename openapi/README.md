@@ -1,78 +1,105 @@
-# Code Generation
-The `openapi` crates handles code generation based on the [Stripe OpenAPI spec](https://github.com/stripe/openapi)
+# OpenAPI code generation
 
-## Running the Binary
-Run commands from this directory. Generation uses the Stripe OpenAPI release pinned in `version.json`:
+This crate generates async-stripe from Stripe's [OpenAPI specification](https://github.com/stripe/openapi). Run commands from this directory. Use Rust 1.89 or newer; generated Rust is formatted with nightly rustfmt.
+
+## Common commands
+
+Generate, format, and install the result into the repository:
 
 ```console
 cargo run --release -- generate
 ```
 
-The managed `spec3.sdk.json` cache is downloaded automatically when missing, malformed, or tagged with a different release. Generation also synchronizes `fixtures.json`. Cache hits require no network requests.
+Generate without installing:
 
-To advance the pin and regenerate:
+```console
+cargo run --release -- generate --no-install
+```
+
+Generated files are staged in `out` by default. Use `generate --out <DIR>` to choose another directory. Custom directories must be empty or belong to an earlier generator run; stale generated files are cleared before regeneration. Formatting must succeed before installation.
+
+Advance to the latest Stripe OpenAPI release and regenerate:
 
 ```console
 cargo run --release -- generate --update-spec latest
 ```
 
-An exact release such as `v2343` can be selected instead of `latest`. The pin advances after both the spec and fixtures are available. `generate --no-install` (also `--dry-run`) generates and formats staging output without installing it. Add `--emit-warnings` to write any crate inference warnings to `out/crate_warnings.md`.
+An exact release such as `v2343` can be selected instead of `latest`.
 
-`graph` writes the existing crate and component dependency graphs to `out/graphs/crate_graph.txt` and `out/graphs/components_graph.txt`. `update-api-docs` refreshes the Stripe documentation URL mapping. Both commands use the pinned spec.
+Write the default analysis bundle to `out/analysis`:
 
-Generated files are staged in `out` by default. Use `generate --out <DIR>` to choose another directory. Custom output directories must be empty or belong to a previous generator run; stale generated files are cleared before regeneration. Formatting must succeed before any files are installed.
-
-Run `cargo run -- --help` or a subcommand's `--help` for all options.
-
-## Generated Files
-- `generated/*`: Crates including both type definitions and API requests
-- `async-stripe-types/generated/*`: Type definitions which are required by `generated/*` crates
-- `async-stripe-webhook/generated/*`: Type definitions related to Stripe webhook event deserialization
-- `crate_info.md`: A Markdown table explaining which crate contains each Stripe API object
-
-## Generated Crate Organization
-This section is not necessary for development, but explains the rationale behind the generated crate
-structure. The main annoyance in splitting the generated code into crates is that the Stripe OpenAPI
-specification easily creates cyclic dependencies.
-For example, a simplified definition of `BalanceTransactionSource` is 
-```rust
-pub enum BalanceTransactionSource {
-  // Many more fields
-  IssuingAuthorization(IssuingAuthorization),
-  // Many more fields
-}
+```console
+cargo run --release -- analyze
 ```
-`IssuingAuthorization` then completes the cycle:
-```rust
-pub struct IssuingAuthorization {
-    // Many fields
-    pub balance_transactions: Vec<BalanceTransaction>,
-    // Many fields
-}
+
+Write every graph projection, including the expandable counterfactuals:
+
+```console
+cargo run --release -- analyze --graphs all
 ```
-where `BalanceTransaction` is a struct containing a `BalanceTransactionSource` field.
 
-So the only way to avoid a cyclic dependency is for `BalanceTransactionSource` and `IssuingAuthorization`
-to live in the same crate.
+Commands use the OpenAPI release pinned in `version.json`. The managed `spec3.sdk.json` cache is downloaded automatically when it is missing, malformed, or tagged with another release. Generation also synchronizes `fixtures.json`. `generate --update-spec latest` or `generate --update-spec v2343` advances the pin after both inputs are available. Use `cargo run -- --help` or a subcommand's `--help` for the complete interface.
 
-The solution to avoiding one giant crate was to separate the OpenAPI type definitions from the request
-definitions. Every type definition that would result in a cyclic dependency is contained in the
-`async-stripe-types` crate, which contains only type definitions (which also allows it to start 
-much earlier in a compilation pipeline since it does not depend on the client)
+CI verifies output compatibility by running `generate` and requiring the entire Git worktree to remain clean. This exercises the same input synchronization, formatting, and installation path used to update generated code.
 
-Each of the crates in `generated/*` depends on `async-stripe-types`. Request definitions do not
-depend on each other, so each request can live behind its own feature gate, avoiding compilation 
-time scaling with the size of the OpenAPI spec.
+## Pipeline
 
-For a concrete example with `Account`:
-- The type definition for `Account` is part of many cycles, so it is defined in `async-stripe-types`.
-- The requests related to `Account` (`CreateAccount`, `UpdateAccount`, etc.) are defined in `generated/async-stripe-connect` and gated by the feature `account`.
-  - Users not needing those requests can just skip that feature or skip the entire crate if they need nothing from it.
-  - `Account` is also reexported in `async-stripe-connect` so that a user does not need to know about crate
-  structure, they just need to know everything related to `Account` lives in `async-stripe-connect`
+Code generation has explicit stages:
 
-### Special Files
-Where possible, keeping hardcoded logic in configuration files read by the code instead of the code
-itself is preferred. Currently, these files are:
-- `gen_crates.toml`: Specifications for the crates we generate, including which core parts of the 
-OpenAPI spec belong in each crate. Modifying this file is how you would change which items are included in which crate, or add additional crate splitting.
+1. **Inference** parses schemas and operations, allocates `ComponentId` and `OperationId` identities, resolves crate configuration, and records an immutable dependency fact table.
+2. **Retention** removes unreachable components without changing catalog identity.
+3. **Component layout** infers model and request crate placement in a mutable `ComponentLayoutDraft`, validates crate-graph invariants, then freezes a `ComponentLayout`.
+4. **Model rewrites** apply validated overrides and structural deduplication.
+5. **Rust-model lowering** allocates a post-dedup `ItemId` for every declaration, replaces nested declarations and named paths with item references, and computes lifetime/`Copy`/`Eq` properties over the resulting canonical graph. Each item is then assigned an explicit emission site and either local or crate-root addressability under the frozen component layout.
+6. **Rendering** combines an emission-site-scoped `RenderContext` with canonical items, their explicit placements, and semantic `RustType`s, then writes Rust syntax directly. Rendering does not infer placement from item provenance. The current path policy deliberately preserves absolute generated-crate aliases; path shortening is a separate output-changing decision.
+7. **Materialization** writes generated bindings to the staging tree, runs rustfmt directly to a checked fixed point, and installs them unless `--no-install` was requested. Analysis stops after model construction and writes only its report bundle.
+
+Keeping identity, dependency facts, layout, and rendering separate is deliberate. A future layout or `Expandable` experiment should be expressible as a different projection or policy rather than by rewriting component names or rendered Rust paths early in the pipeline.
+
+Item identities describe declarations produced by the existing component-local deduplication pass. They do not define structural equivalence or decide whether different usage contexts can share a declaration. Those decisions still precede item allocation. Item placement also preserves existing emission groups: ID newtypes follow their model components, and nested declarations stay with their parents. Context-aware deduplication and independent item placement remain follow-up work.
+
+Operation declarations and their generated request specifications are owned together by the operation catalog and keyed by `OperationId`; component model objects contain only model data. This keeps request traversal and lookup independent of where model types are eventually placed.
+
+Inference also carries an explicit borrowing policy. Borrowed strings, slices, maps, and named items all use the same `RustType::Reference` representation; borrowing is not encoded independently in each type variant. The production pipeline currently selects owned request fields.
+
+Types supplied by dependencies are likewise symbolic in the model; only `RenderContext` maps them to source paths such as `stripe_types::Timestamp`. Constructor conversions and field-level serde behavior are selected by small render plans before their syntax is formatted.
+
+## Analysis output
+
+`analyze` writes deterministic, diffable files:
+
+- `summary.md`: totals for components, operations, requests, webhooks, objects, fields, variants, canonical item properties, dependency forms, and each crate.
+- `components.csv`: per-component placement, shape, request, and dependency counts.
+- `items.csv`: one row per post-dedup Rust declaration, with its run-local `ItemId`, descriptive origin, chosen identifier, kind, usage, and derived lifetime/`Copy`/`Eq` properties.
+- `dependencies.csv`: one row per parsed dependency fact, including its source, use, representation, field or variant path, target, and whether each endpoint survived retention.
+- `crate-inference-warnings.csv`: every placement that required fallback resolution and its candidates.
+- `graphs/crate-dependencies.dot`: the generated crate dependency graph.
+- `graphs/component-dependencies.dot`: all component dependencies under the selected expandable policy.
+- `graphs/component-model-dependencies.dot`: model-field dependencies under the selected expandable policy.
+
+`--graphs all` additionally emits explicit `with-expandables` and `without-expandables` versions of both component graphs. The latter is an analysis counterfactual: it asks what placement pressure remains if expandable references become opaque. It does not alter generated API types.
+
+Dependency facts distinguish direct fields, container references, expandable references, union members, and references to ID newtypes. They also distinguish model fields, request parameters, request returns, and webhook payloads. ID-only facts are visible in reports but remain opaque to current layout; `--graphs all` emits a `with-id-only` counterfactual. Graphs are projections of this fact table; the fact table itself records what was inferred from the specification and is not rewritten by layout.
+
+Analysis directories contain an ownership manifest. Subsequent runs remove only stale files listed in that manifest, preserving unrelated files in a custom report directory.
+
+## Generated artifacts
+
+The staging workspace contains:
+
+- `crates/async-stripe-*/`: generated domain and shared crates.
+- `async-stripe-webhook/mod.rs`: webhook event deserialization.
+- `tests/mod.rs`: generated API-shape tests.
+- `crate_info.md`: the component-to-crate table.
+
+The facade re-exports model types from their generated placement, so consumers generally do not need to know whether a type is physically emitted in a domain crate or `async-stripe-shared`.
+
+## Crate organization
+
+Stripe model types contain many cross-resource references. Direct containment and polymorphic unions can form cycles, so the current layout promotes types as needed into `async-stripe-shared`; request definitions remain in domain crates and can be feature-gated per resource.
+
+Expandable references are recorded separately because an ID-typed, opaque representation could remove those model edges. `analyze --graphs all` makes that counterfactual visible before generated API behavior changes. Similar lazy treatment of API errors and other polymorphic payloads can later be evaluated using the same dependency index.
+
+`gen_crates.toml` declares generated crates and the explicit package or component assignments that seed inference. It is resolved once against the full component catalog. Duplicate crate names, package owners, component owners, missing `shared`, and unknown component names are errors; unknown names include nearby candidates. This file should state only intentional seed assignments—the remaining placement is derived from the dependency graph.
+
+Rare model exceptions live in `src/overrides.rs`. Each override selects one generated operation and request field, declares its output name, and includes a reason. Selectors, fields, and output names are validated before any rewrite is applied.

@@ -2,18 +2,18 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result, bail};
-use clap::{Args, Parser, Subcommand};
-use petgraph::dot::{Config, Dot};
-use stripe_openapi_codegen::codegen::CodeGen;
+use clap::{Args, Parser, Subcommand, ValueEnum};
+use stripe_openapi_codegen::analysis::GraphDetail;
+use stripe_openapi_codegen::codegen::{CodeGen, CodeGenOptions, EdgePolicy};
 use stripe_openapi_codegen::crates::ALL_CRATES;
-use stripe_openapi_codegen::output::{OutputDirectory, install_to_repository};
+use stripe_openapi_codegen::output::{GeneratedWorkspace, install_to_repository};
 use stripe_openapi_codegen::spec::Spec;
-use stripe_openapi_codegen::spec_fetch::{self, SpecUpdate};
+use stripe_openapi_codegen::spec_fetch;
 use stripe_openapi_codegen::url_finder::{UrlFinder, update_api_doc_data};
 use tracing::info;
 
 #[derive(Debug, Parser)]
-#[command(about = "Generate async-stripe's OpenAPI bindings and dependency graphs")]
+#[command(about = "Generate and analyze async-stripe's OpenAPI bindings")]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -21,17 +21,17 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Command {
-    /// Generate bindings and install them into the repository.
+    /// Generate, format, and install bindings into the repository.
     Generate(GenerateArgs),
-    /// Write component and crate dependency graphs to out/graphs.
-    Graph(VersionArgs),
+    /// Analyze the API model and write reports without installing generated files.
+    Analyze(AnalyzeArgs),
     /// Refresh the Stripe documentation URL mapping.
     UpdateApiDocs(UpdateApiDocsArgs),
 }
 
 #[derive(Debug, Args)]
 struct VersionArgs {
-    /// Library version to generate. Defaults to the root workspace version.
+    /// Version of the library to generate. Defaults to the root workspace version.
     #[arg(long)]
     version: Option<String>,
 }
@@ -40,18 +40,41 @@ struct VersionArgs {
 struct GenerateArgs {
     #[command(flatten)]
     version: VersionArgs,
-    /// Output directory for generated code.
+    /// Staging directory for generated code.
     #[arg(long, default_value = "out")]
     out: PathBuf,
-    /// Update the pinned spec to `latest` or a release such as `v171`.
+    /// Update the pinned Stripe OpenAPI spec to `latest` or a release such as `v171`.
     #[arg(long, value_parser = spec_fetch::parse_spec_update)]
-    update_spec: Option<SpecUpdate>,
+    update_spec: Option<spec_fetch::SpecUpdate>,
     /// Generate and format staging output without installing it into the repository.
     #[arg(long, alias = "dry-run")]
     no_install: bool,
-    /// Write crate inference warnings to <out>/crate_warnings.md.
+    /// Write detailed analysis reports to this directory.
     #[arg(long)]
-    emit_warnings: bool,
+    report_dir: Option<PathBuf>,
+}
+
+#[derive(Debug, Copy, Clone, Default, ValueEnum)]
+enum GraphSelection {
+    None,
+    #[default]
+    Default,
+    All,
+}
+
+#[derive(Debug, Args)]
+struct AnalyzeArgs {
+    #[command(flatten)]
+    version: VersionArgs,
+    /// Graph detail to include in the analysis bundle.
+    #[arg(long, value_enum, default_value_t)]
+    graphs: GraphSelection,
+    /// Analysis-only counterfactual: do not use Expandable<T> references for placement.
+    #[arg(long)]
+    without_expandables: bool,
+    /// Directory for reports.
+    #[arg(long, default_value = "out/analysis")]
+    report_dir: PathBuf,
 }
 
 #[derive(Debug, Args)]
@@ -63,96 +86,62 @@ struct UpdateApiDocsArgs {
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
-    match Cli::parse().command {
+    let cli = Cli::parse();
+    match cli.command {
         Command::Generate(args) => run_generate(args),
-        Command::Graph(args) => {
-            let spec = Spec::new(spec_fetch::load_pinned_spec()?);
-            let codegen = build_codegen(args.version, spec)?;
-            let output = OutputDirectory::prepare(Path::new("out"))?;
-            let components = codegen.components.gen_component_dep_graph();
-            output.write(
-                format!("{:?}", Dot::with_config(&components, &[Config::EdgeNoLabel])),
-                "graphs/components_graph.txt",
-            )?;
-            let crates = codegen.components.gen_crate_dep_graph();
-            output.write(
-                format!("{:?}", Dot::with_config(&crates, &[Config::EdgeNoLabel])),
-                "graphs/crate_graph.txt",
-            )
-        }
-        Command::UpdateApiDocs(args) => {
-            let spec = Spec::new(spec_fetch::load_pinned_spec()?);
-            let codegen = build_codegen(None, spec)?;
-            update_api_doc_data(&args.api_docs_url, &codegen.components)
-        }
+        Command::Analyze(args) => run_analyze(args),
+        Command::UpdateApiDocs(args) => run_update_api_docs(args),
     }
-}
-
-fn build_codegen(version: Option<String>, spec: Spec) -> Result<CodeGen> {
-    let url_finder = UrlFinder::new().context("Could not initialize URL finder")?;
-    let version = version.map_or_else(parse_workspace_version, Ok)?;
-    CodeGen::new(spec, url_finder, version)
-}
-
-fn write_crate_inference_warnings(codegen: &CodeGen, output: &OutputDirectory) -> Result<()> {
-    if !codegen.crate_inference_warnings.is_empty() {
-        let mut body = String::from(
-            "## Crate Inference Warnings\n\n\
-             The following components could not have their crate automatically inferred \
-             and were auto-assigned. Consider adding explicit path entries in \
-             `openapi/gen_crates.toml` to make these assignments permanent.\n\n\
-             | Component | Assigned Crate | Depended On By | Candidate Crates |\n\
-             |-----------|---------------|----------------|------------------|\n",
-        );
-        for w in &codegen.crate_inference_warnings {
-            let deps =
-                w.depended_on_by.iter().map(|p| format!("`{p}`")).collect::<Vec<_>>().join(", ");
-            let crates = w
-                .candidate_crates
-                .iter()
-                .map(|c| format!("`{}`", c.base_name()))
-                .collect::<Vec<_>>()
-                .join(", ");
-            body.push_str(&format!(
-                "| `{}` | `{}` | {} | {} |\n",
-                w.component,
-                w.chosen_crate.base_name(),
-                deps,
-                crates,
-            ));
-        }
-        body.push_str("\n### Suggested `gen_crates.toml` entries\n\n");
-        body.push_str(
-            "Add the following paths to the appropriate crate's `paths` array:\n\n```toml\n",
-        );
-        for w in &codegen.crate_inference_warnings {
-            body.push_str(&format!(
-                "# currently auto-assigned to \"{}\"\n\"{}\",\n",
-                w.chosen_crate.base_name(),
-                w.component,
-            ));
-        }
-        body.push_str("```\n");
-        output.write(body, "crate_warnings.md")?;
-    }
-
-    Ok(())
 }
 
 fn run_generate(args: GenerateArgs) -> Result<()> {
     let spec = Spec::new(spec_fetch::load_generation_spec(args.update_spec)?);
-    let codegen = build_codegen(args.version.version, spec)?;
-    let output = OutputDirectory::prepare(&args.out)?;
-    if args.emit_warnings {
-        write_crate_inference_warnings(&codegen, &output)?;
+    let codegen = build_codegen(args.version.version, EdgePolicy::current_layout(), spec)?;
+    let workspace = codegen.render_workspace()?;
+    print_summary(&codegen);
+
+    materialize_and_format(&workspace, &args.out)?;
+
+    if let Some(report_dir) = args.report_dir {
+        write_analysis(&codegen, &report_dir, GraphSelection::Default)?;
     }
-    codegen.write_files(&output)?;
-    run_rustfmt(output.root())?;
     if !args.no_install {
-        install_to_repository(output.root(), Path::new(".."))?;
+        install_to_repository(&args.out, Path::new(".."))?;
         info!("Installed generated files into the repository");
     }
     Ok(())
+}
+
+fn run_analyze(args: AnalyzeArgs) -> Result<()> {
+    let policy = if args.without_expandables {
+        EdgePolicy::without_expandables()
+    } else {
+        EdgePolicy::current_layout()
+    };
+    let spec = Spec::new(spec_fetch::load_pinned_spec()?);
+    let codegen = build_codegen(args.version.version, policy, spec)?;
+    print_summary(&codegen);
+    write_analysis(&codegen, &args.report_dir, args.graphs)?;
+    println!("Analysis written to {}", args.report_dir.display());
+    Ok(())
+}
+
+fn run_update_api_docs(args: UpdateApiDocsArgs) -> Result<()> {
+    let spec = Spec::new(spec_fetch::load_pinned_spec()?);
+    let codegen = build_codegen(None, EdgePolicy::current_layout(), spec)?;
+    update_api_doc_data(&args.api_docs_url, &codegen.components)
+}
+
+fn build_codegen(version: Option<String>, edge_policy: EdgePolicy, spec: Spec) -> Result<CodeGen> {
+    let url_finder = UrlFinder::new().context("could not initialize URL finder")?;
+    let version = version.map_or_else(parse_workspace_version, Ok)?;
+    CodeGen::new_with_options(spec, url_finder, version, CodeGenOptions { edge_policy })
+}
+
+fn materialize_and_format(workspace: &GeneratedWorkspace, out: &Path) -> Result<()> {
+    info!(output = %out.display(), "Materializing generated workspace");
+    workspace.materialize(out)?;
+    run_rustfmt(out)
 }
 
 fn run_rustfmt(out: &Path) -> Result<()> {
@@ -184,19 +173,42 @@ fn run_rustfmt(out: &Path) -> Result<()> {
     Ok(())
 }
 
+fn print_summary(codegen: &CodeGen) {
+    println!(
+        "Modeled {} components ({} with requests).",
+        codegen.components.components.len(),
+        codegen.request_component_count()
+    );
+    if !codegen.crate_inference_warnings.is_empty() {
+        println!("Crate inference warnings: {}", codegen.crate_inference_warnings.len());
+    }
+}
+
+fn write_analysis(codegen: &CodeGen, report_dir: &Path, graphs: GraphSelection) -> Result<()> {
+    let detail = match graphs {
+        GraphSelection::None => GraphDetail::None,
+        GraphSelection::Default => GraphDetail::Default,
+        GraphSelection::All => GraphDetail::All,
+    };
+    codegen.analysis_bundle(detail).write_to(report_dir)
+}
+
 fn parse_workspace_version() -> Result<String> {
     #[derive(serde::Deserialize)]
     struct Manifest {
         workspace: Workspace,
     }
+
     #[derive(serde::Deserialize)]
     struct Workspace {
         package: WorkspacePackage,
     }
+
     #[derive(serde::Deserialize)]
     struct WorkspacePackage {
         version: String,
     }
+
     let manifest = fs::read_to_string("../Cargo.toml")?;
     Ok(toml::from_str::<Manifest>(&manifest)?.workspace.package.version)
 }

@@ -30,8 +30,10 @@ Commands use the release pinned in `openapi/version.json`. A matching local spec
 | `generate --update-spec <VERSION>` | Updates to `latest` or an exact release such as `v171`. The pin advances after both the spec and fixtures are available. |
 | `generate --no-install` | Generates and formats staging output without installing it. `--dry-run` is an alias. |
 | `generate --out <DIR>` | Selects the output directory; defaults to `out`. Custom directories must be empty or belong to an earlier generator run. |
-| `generate --emit-warnings` | Writes crate inference warnings to `<out>/crate_warnings.md`. |
-| `graph` | Writes `out/graphs/crate_graph.txt` and `out/graphs/components_graph.txt`. |
+| `generate --report-dir <DIR>` | Writes analysis reports alongside generation, including crate inference warnings. |
+| `analyze` | Writes dependency, placement, and item reports to `out/analysis` without generating bindings. |
+| `analyze --graphs all` | Includes graph projections for expandable and ID-only references. |
+| `analyze --without-expandables` | Computes placement without expandable references as an analysis-only counterfactual. |
 | `update-api-docs` | Refreshes the Stripe documentation URL mapping. |
 
 Run `cargo run -- --help` or a subcommand's `--help` for its options.
@@ -40,11 +42,13 @@ Run `cargo run -- --help` or a subcommand's `--help` for its options.
 
 To manage the complexity of the Stripe API, the generator performs several optimization passes:
 
-1. **Fetching & Parsing**: Downloads `spec3.sdk.json` and parses thousands of schema definitions.
-2. **Dependency Analysis**: Builds a directed graph of all Stripe objects to identify dependencies between resources.
-3. **Crate Splitting**: Uses `gen_crates.toml` configuration to group resources into modular crates (e.g., `stripe-billing`, `stripe-connect`).
-4. **Cycle Breaking**: Identifies cyclic dependencies (e.g., a Customer has a Subscription, a Subscription has a Customer) and extracts shared types into the `async-stripe-types` crate to resolve them.
-5. **Rendering**: Outputs strongly-typed Rust structs, enums, and builder methods using `miniserde` for fast compilation.
+1. **Inference**: Parses schemas and operations, assigns their identities, and records dependency facts with their source and reference kind.
+2. **Retention & Layout**: Retains reachable components, uses `gen_crates.toml` to seed crate placement, and promotes model definitions into `async-stripe-shared` when required by cross-crate dependencies. The validated layout is then frozen.
+3. **Model Rewrites**: Applies overrides and the existing component-local deduplication rules.
+4. **Rust-model Lowering**: Assigns identities to generated declarations, resolves their references, and computes type properties separately from their names and locations.
+5. **Rendering & Installation**: Renders bindings into staging, formats them with nightly rustfmt, and installs them unless `--no-install` was requested.
+
+`analyze` stops after model construction and writes reports. Its expandable counterfactual changes placement analysis without changing generated API representations. See [`openapi/README.md`](https://github.com/arlyon/async-stripe/blob/master/openapi/README.md) for the pipeline and report formats.
 
 ### Configuration (gen_crates.toml)
 

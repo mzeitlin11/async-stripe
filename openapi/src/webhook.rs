@@ -5,11 +5,12 @@ use anyhow::{Context, bail, ensure};
 use indoc::writedoc;
 use openapiv3::Schema;
 
-use crate::components::Components;
+use crate::component_catalog::ComponentCatalog;
 use crate::crates::Crate;
-use crate::output::OutputDirectory;
-use crate::printable::PrintableType;
-use crate::rust_object::{ObjectUsage, RustObject, as_enum_of_objects};
+use crate::item_catalog::TypeRoot;
+use crate::output::GeneratedWorkspace;
+use crate::render::RenderContext;
+use crate::rust_object::{ObjectUsage, RustObject};
 use crate::rust_type::RustType;
 use crate::spec_inference::Inference;
 use crate::templates::ObjectWriter;
@@ -18,56 +19,57 @@ use crate::templates::utils::write_doc_comment;
 use crate::types::RustIdent;
 
 pub fn write_generated_for_webhooks(
-    components: &Components,
-    output: &OutputDirectory,
+    context: RenderContext<'_>,
+    webhooks: &[WebhookObject],
+    output: &mut GeneratedWorkspace,
 ) -> anyhow::Result<()> {
     let base = Path::new("async-stripe-webhook");
-    write_event_object(components, base, output)?;
+    write_event_object(context, webhooks, base, output)?;
     Ok(())
 }
 
 fn write_event_object(
-    components: &Components,
+    context: RenderContext<'_>,
+    webhooks: &[WebhookObject],
     out_path: &Path,
-    output: &OutputDirectory,
+    output: &mut GeneratedWorkspace,
 ) -> anyhow::Result<()> {
     let mut out = String::new();
     let mut enum_body = String::new();
     let mut match_inner = String::new();
     let mut match_inner_serde = String::new();
-    for webhook_obj in &components.webhook_objs {
-        let ident = RustIdent::create(&webhook_obj.event_type);
+    for webhook_obj in webhooks {
+        let root = TypeRoot::Webhook(webhook_obj.event_type.clone());
+        let payload_root = context
+            .root(&root)
+            .with_context(|| format!("webhook payload root was not lowered: {root:?}"))?;
+        let payload = &payload_root.typ;
+        let item = payload_root.declaration;
+        let ident = item
+            .map(|item| context.item(item).metadata.ident.clone())
+            .unwrap_or_else(|| RustIdent::create(&webhook_obj.event_type));
 
-        let (printable, feature_gate) =
-            if let Some(enum_objs) = webhook_obj.typ.as_rust_object().and_then(|o| match o {
-                RustObject::Enum(variants) => as_enum_of_objects(components, variants),
-                _ => None,
-            }) {
-                ObjectWriter::new(components, &ident, ObjectUsage::type_def())
-                    .write_enum_of_objects(&mut out, &enum_objs);
-                (
-                    PrintableType::QualifiedPath {
-                        path: None,
-                        ident: ident.clone(),
-                        has_ref: false,
-                        is_ref: false,
-                    },
-                    None,
-                )
-            } else {
-                let path = webhook_obj.typ.as_component_path().context(
-                    "expected webhook data type to be enum of objects or component path",
-                )?;
-                let belonging_crate = components.get(path).krate_unwrapped().for_types();
-                (
-                    components.construct_printable_type_from_path(path),
-                    if belonging_crate != Crate::SHARED {
-                        Some(belonging_crate.crate_name())
-                    } else {
-                        None
-                    },
-                )
-            };
+        let (printable, feature_gate) = if let Some(enum_objs) = item
+            .and_then(|item| context.item(item).object())
+            .and_then(|object| object.enum_of_objects.as_ref())
+        {
+            ObjectWriter::new(context, &ident, ObjectUsage::type_def())
+                .write_enum_of_objects(&mut out, enum_objs);
+            (ident.to_string(), None)
+        } else {
+            let component = context
+                .component_for_type(payload)
+                .context("expected webhook data type to be enum of objects or component path")?;
+            let belonging_crate = context.types_crate(component);
+            (
+                context.display_type(payload).to_string(),
+                if belonging_crate != Crate::SHARED {
+                    Some(belonging_crate.crate_name())
+                } else {
+                    None
+                },
+            )
+        };
 
         let comment = write_doc_comment(&webhook_obj.doc, 1);
         let _ = write!(enum_body, "{comment}");
@@ -154,7 +156,7 @@ fn write_event_object(
     }}
     "#};
 
-    output.append(out, out_path.join("mod.rs"))?;
+    output.append(out_path.join("mod.rs"), out)?;
     Ok(())
 }
 
@@ -166,7 +168,14 @@ pub struct WebhookObject {
 }
 
 impl WebhookObject {
-    pub fn from_schema(schema: &Schema) -> anyhow::Result<Option<Self>> {
+    pub fn is_webhook_schema(schema: &Schema) -> bool {
+        schema.schema_data.extensions.contains_key("x-stripeEvent")
+    }
+
+    pub fn from_schema(
+        schema: &Schema,
+        catalog: &ComponentCatalog,
+    ) -> anyhow::Result<Option<Self>> {
         let Some(event_info) = schema.schema_data.extensions.get("x-stripeEvent") else {
             return Ok(None);
         };
@@ -175,7 +184,7 @@ impl WebhookObject {
         let desc = schema.schema_data.description.as_ref().context("expected description")?;
 
         let ident = RustIdent::create(event_type);
-        let infer_ctx = Inference::new(&ident);
+        let infer_ctx = Inference::new(&ident, catalog);
         let typ = infer_ctx.required(true).infer_schema_type(schema);
 
         Ok(Some(Self {

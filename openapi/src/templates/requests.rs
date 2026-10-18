@@ -2,15 +2,15 @@ use std::fmt::Write;
 
 use indoc::{formatdoc, writedoc};
 
-use crate::components::Components;
-use crate::printable::{Lifetime, PrintableType, PrintableWithLifetime};
-use crate::rust_object::{ObjectUsage, Struct, StructField, Visibility};
+use crate::operations::OperationType;
+use crate::render::{Lifetime, RenderContext};
+use crate::request_model::RequestModel;
+use crate::rust_object::{ObjectUsage, RustObject, Struct, StructField, Visibility};
 use crate::rust_type::{Container, RustType};
-use crate::stripe_object::{OperationType, RequestSpec};
 use crate::templates::ObjectWriter;
 use crate::templates::utils::{write_default_impl, write_doc_comment};
 
-impl RequestSpec {
+impl RequestModel {
     fn gen_path_arg(&self) -> String {
         let req_path = &self.req_path;
 
@@ -23,24 +23,22 @@ impl RequestSpec {
         }
     }
 
-    pub fn generate(&self, components: &Components) -> String {
+    pub fn generate(&self, context: RenderContext<'_>) -> String {
         let build_inner = self.write_build_inner();
 
-        let lifetime_str = if self.has_reference(components) { "<'_>" } else { "" };
+        let has_lifetime = request_has_lifetime(self, context);
+        let lifetime_str = if has_lifetime { "<'_>" } else { "" };
         let impl_for = &self.ident;
         let impl_for_str = format!("{impl_for}{lifetime_str}");
 
-        let return_type = components.construct_printable_type(&self.returned);
+        let returned = &self.returned.typ;
+        let return_type = context.display_type(returned);
         let mut paginate_str = String::new();
-        if let Some(pagination_kind) = as_pagination_kind(&self.returned) {
-            self.gen_paginate(
-                components.construct_printable_type(&self.returned),
-                pagination_kind,
-                &mut paginate_str,
-            )
+        if let Some(pagination_kind) = as_pagination_kind(returned) {
+            self.gen_paginate(context, returned, pagination_kind, &mut paginate_str)
         }
 
-        let mut out = self.write_builder_struct(components);
+        let mut out = self.write_builder_struct(context, has_lifetime);
         let _ = writedoc!(
             out,
             r#"
@@ -106,8 +104,15 @@ impl RequestSpec {
         )
     }
 
-    fn gen_paginate(&self, pagination_typ: PrintableType, kind: PaginationKind, out: &mut String) {
+    fn gen_paginate(
+        &self,
+        context: RenderContext<'_>,
+        returned: &RustType,
+        kind: PaginationKind,
+        out: &mut String,
+    ) {
         let path = self.gen_path_arg();
+        let pagination_typ = context.display_type(returned);
 
         let paginate_method_name = match kind {
             PaginationKind::List => "new_list",
@@ -127,52 +132,47 @@ impl RequestSpec {
         );
     }
 
-    fn write_builder_struct(&self, components: &Components) -> String {
+    fn write_builder_struct(&self, context: RenderContext<'_>, has_lifetime: bool) -> String {
         let name = &self.ident;
         let mut out = String::new();
-        let (lifetime, lifetime_str) = if self.has_reference(components) {
-            (Some(Lifetime), Lifetime.as_param())
-        } else {
-            (None, "")
-        };
+        let (lifetime, lifetime_str) =
+            if has_lifetime { (Some(Lifetime), Lifetime.as_param()) } else { (None, "") };
         if let Some(doc) = &self.doc_comment {
             let _ = writeln!(out, "{}", write_doc_comment(doc, 1).trim_end());
         }
 
         let mut fields = vec![];
 
-        if let Some(req_param) = &self.params {
-            fields.push(StructField::new("inner", req_param.typ.clone()).vis(Visibility::Private));
+        if let Some(params) = &self.params {
+            fields.push(StructField::new("inner", params.typ.clone()).vis(Visibility::Private));
         }
 
         for arg in &self.path_params {
-            fields
-                .push(StructField::new(&arg.name, arg.rust_type.clone()).vis(Visibility::Private));
+            fields.push(StructField::new(&arg.name, arg.typ.clone()).vis(Visibility::Private));
         }
 
-        ObjectWriter::new(components, &self.ident, ObjectUsage::request_param())
+        ObjectWriter::new(context, &self.ident, ObjectUsage::request_param())
             .lifetime(lifetime)
             .write_struct_definition(&mut out, &Struct::new(fields));
 
         let mut required_args = self
             .path_params
             .iter()
-            .map(|p| {
+            .map(|param| {
                 format!(
                     "{}:{}",
-                    p.name,
-                    PrintableWithLifetime::new(
-                        &components.construct_printable_type(&p.rust_type),
-                        lifetime
-                    )
-                    .impl_into()
+                    param.name,
+                    context.display_type(&param.typ).constructor_parameter(lifetime)
                 )
             })
             .collect::<Vec<_>>();
 
         let mut required_struct_fields = vec![];
         let mut optional_struct_fields = vec![];
-        if let Some(fields) = self.param_struct_fields() {
+        if let Some(RustObject::Struct(struct_)) =
+            self.params.as_ref().and_then(|params| context.item_object_for_type(&params.typ))
+        {
+            let fields = &struct_.fields;
             for field in fields {
                 if field.required {
                     required_struct_fields.push((field.variable_name(), &field.rust_type));
@@ -186,8 +186,7 @@ impl RequestSpec {
             }
         }
         for (f_name, typ) in &required_struct_fields {
-            let typ = components.construct_printable_type(typ);
-            let printable = PrintableWithLifetime::new(&typ, lifetime).impl_into();
+            let printable = context.display_type(typ).constructor_parameter(lifetime);
             required_args.push(format!("{f_name}:{printable}"))
         }
         let required_arg_str = required_args.join(",");
@@ -197,8 +196,8 @@ impl RequestSpec {
             let _ = write!(cons_inner, "{}: {}.into(),", path.name, path.name);
         }
 
-        if let Some(req_param) = &self.params {
-            let builder_name = components.construct_printable_type(&req_param.typ);
+        if let Some(params) = &self.params {
+            let builder_name = context.display_type(&params.typ);
             let mut builder_params = String::new();
             for (f_name, _) in &required_struct_fields {
                 let _ = write!(builder_params, "{f_name}.into(),");
@@ -218,12 +217,11 @@ impl RequestSpec {
         };
 
         for (f_name, typ, doc_comment) in &optional_struct_fields {
-            let typ = match typ {
-                RustType::Container(Container::Option(inner)) => inner,
+            let typ = match *typ {
+                RustType::Container(Container::Option(inner)) => inner.as_ref(),
                 _ => panic!("expected `Option`, found {typ:?}"),
             };
-            let typ = components.construct_printable_type(typ);
-            let typ = PrintableWithLifetime::new(&typ, lifetime).impl_into();
+            let typ = context.display_type(typ).constructor_parameter(lifetime);
 
             if let Some(doc_comment) = doc_comment {
                 let _ = writeln!(cons_body, "{}", write_doc_comment(doc_comment, 1).trim_end());
@@ -253,6 +251,11 @@ impl RequestSpec {
         }
         out
     }
+}
+
+fn request_has_lifetime(request: &RequestModel, context: RenderContext<'_>) -> bool {
+    request.path_params.iter().any(|param| context.type_has_lifetime(&param.typ))
+        || request.params.as_ref().is_some_and(|params| context.type_has_lifetime(&params.typ))
 }
 
 #[derive(Copy, Clone)]

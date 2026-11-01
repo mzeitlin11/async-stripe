@@ -36,7 +36,7 @@ pub struct TaxProductRegistrationsResourceCountryOptions {
     pub ec: Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsSimplified>,
     pub ee: Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsEurope>,
     pub eg: Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsSimplified>,
-    pub es: Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsEurope>,
+    pub es: Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsSpain>,
     pub et: Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsDefault>,
     pub fi: Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsEurope>,
     pub fr: Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsEurope>,
@@ -153,7 +153,7 @@ pub struct TaxProductRegistrationsResourceCountryOptionsBuilder {
     ec: Option<Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsSimplified>>,
     ee: Option<Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsEurope>>,
     eg: Option<Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsSimplified>>,
-    es: Option<Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsEurope>>,
+    es: Option<Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsSpain>>,
     et: Option<Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsDefault>>,
     fi: Option<Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsEurope>>,
     fr: Option<Option<stripe_misc::TaxProductRegistrationsResourceCountryOptionsEurope>>,
@@ -805,7 +805,7 @@ const _: () = {
         }
 
         fn finish(&mut self) -> Result<()> {
-            *self.out = self.builder.take_out();
+            *self.out = Some(self.builder.take_out().ok_or(miniserde::Error)?);
             Ok(())
         }
     }

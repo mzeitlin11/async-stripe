@@ -140,7 +140,7 @@ self.version.take(),
         }
 
         fn finish(&mut self) -> Result<()> {
-            *self.out = self.builder.take_out();
+            *self.out = Some(self.builder.take_out().ok_or(miniserde::Error)?);
             Ok(())
         }
     }
@@ -667,6 +667,8 @@ pub enum PaymentsPrimitivesPaymentRecordsResourcePaymentMethodCardDetailsResourc
     V1_0_2,
     V2_1_0,
     V2_2_0,
+    V2_3_0,
+    V2_3_1,
     /// An unrecognized value from Stripe. Should not be used as a request parameter.
     Unknown(String),
 }
@@ -677,6 +679,8 @@ impl PaymentsPrimitivesPaymentRecordsResourcePaymentMethodCardDetailsResourceThr
             V1_0_2 => "1.0.2",
             V2_1_0 => "2.1.0",
             V2_2_0 => "2.2.0",
+            V2_3_0 => "2.3.0",
+            V2_3_1 => "2.3.1",
             Unknown(v) => v,
         }
     }
@@ -692,6 +696,8 @@ impl std::str::FromStr
             "1.0.2" => Ok(V1_0_2),
             "2.1.0" => Ok(V2_1_0),
             "2.2.0" => Ok(V2_2_0),
+            "2.3.0" => Ok(V2_3_0),
+            "2.3.1" => Ok(V2_3_1),
             v => {
                 tracing::warn!(
                     "Unknown value '{}' for enum '{}'",

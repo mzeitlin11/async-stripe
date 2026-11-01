@@ -2,21 +2,21 @@
 #[cfg_attr(not(feature = "redact-generated-debug"), derive(Debug))]
 #[cfg_attr(feature = "serialize", derive(serde::Serialize))]
 #[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
-pub struct TaxProductRegistrationsResourceCountryOptionsIgic {
-    /// Place of supply scheme used in an IGIC registration.
-    pub place_of_supply_scheme:
-        TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme,
+pub struct SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThrough {
+    /// The type of outstanding usage billing behavior.
+    #[cfg_attr(any(feature = "deserialize", feature = "serialize"), serde(rename = "type"))]
+    pub type_: SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType,
 }
 #[cfg(feature = "redact-generated-debug")]
-impl std::fmt::Debug for TaxProductRegistrationsResourceCountryOptionsIgic {
+impl std::fmt::Debug for SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThrough {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.debug_struct("TaxProductRegistrationsResourceCountryOptionsIgic").finish_non_exhaustive()
+        f.debug_struct("SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThrough")
+            .finish_non_exhaustive()
     }
 }
 #[doc(hidden)]
-pub struct TaxProductRegistrationsResourceCountryOptionsIgicBuilder {
-    place_of_supply_scheme:
-        Option<TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme>,
+pub struct SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughBuilder {
+    type_: Option<SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType>,
 }
 
 #[allow(
@@ -35,44 +35,44 @@ const _: () = {
 
     make_place!(Place);
 
-    impl Deserialize for TaxProductRegistrationsResourceCountryOptionsIgic {
+    impl Deserialize for SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThrough {
         fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
             Place::new(out)
         }
     }
 
     struct Builder<'a> {
-        out: &'a mut Option<TaxProductRegistrationsResourceCountryOptionsIgic>,
-        builder: TaxProductRegistrationsResourceCountryOptionsIgicBuilder,
+        out: &'a mut Option<SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThrough>,
+        builder: SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughBuilder,
     }
 
-    impl Visitor for Place<TaxProductRegistrationsResourceCountryOptionsIgic> {
+    impl Visitor for Place<SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThrough> {
         fn map(&mut self) -> Result<Box<dyn Map + '_>> {
             Ok(Box::new(Builder {
-                out: &mut self.out,
-                builder: TaxProductRegistrationsResourceCountryOptionsIgicBuilder::deser_default(),
-            }))
+            out: &mut self.out,
+            builder: SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughBuilder::deser_default(),
+        }))
         }
     }
 
-    impl MapBuilder for TaxProductRegistrationsResourceCountryOptionsIgicBuilder {
-        type Out = TaxProductRegistrationsResourceCountryOptionsIgic;
+    impl MapBuilder for SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughBuilder {
+        type Out = SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThrough;
         fn key(&mut self, k: &str) -> Result<&mut dyn Visitor> {
             Ok(match k {
-                "place_of_supply_scheme" => Deserialize::begin(&mut self.place_of_supply_scheme),
+                "type" => Deserialize::begin(&mut self.type_),
                 _ => <dyn Visitor>::ignore(),
             })
         }
 
         fn deser_default() -> Self {
-            Self { place_of_supply_scheme: None }
+            Self { type_: None }
         }
 
         fn take_out(&mut self) -> Option<Self::Out> {
-            let (Some(place_of_supply_scheme),) = (self.place_of_supply_scheme.take(),) else {
+            let (Some(type_),) = (self.type_.take(),) else {
                 return None;
             };
-            Some(Self::Out { place_of_supply_scheme })
+            Some(Self::Out { type_ })
         }
     }
 
@@ -82,26 +82,24 @@ const _: () = {
         }
 
         fn finish(&mut self) -> Result<()> {
-            *self.out = self.builder.take_out();
+            *self.out = Some(self.builder.take_out().ok_or(miniserde::Error)?);
             Ok(())
         }
     }
 
-    impl ObjectDeser for TaxProductRegistrationsResourceCountryOptionsIgic {
-        type Builder = TaxProductRegistrationsResourceCountryOptionsIgicBuilder;
+    impl ObjectDeser for SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThrough {
+        type Builder = SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughBuilder;
     }
 
-    impl FromValueOpt for TaxProductRegistrationsResourceCountryOptionsIgic {
+    impl FromValueOpt for SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThrough {
         fn from_value(v: Value) -> Option<Self> {
             let Value::Object(obj) = v else {
                 return None;
             };
-            let mut b = TaxProductRegistrationsResourceCountryOptionsIgicBuilder::deser_default();
+            let mut b = SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughBuilder::deser_default();
             for (k, v) in obj {
                 match k.as_str() {
-                    "place_of_supply_scheme" => {
-                        b.place_of_supply_scheme = FromValueOpt::from_value(v)
-                    }
+                    "type" => b.type_ = FromValueOpt::from_value(v),
                     _ => {}
                 }
             }
@@ -109,67 +107,67 @@ const _: () = {
         }
     }
 };
-/// Place of supply scheme used in an IGIC registration.
+/// The type of outstanding usage billing behavior.
 #[derive(Clone, Eq, PartialEq)]
 #[non_exhaustive]
-pub enum TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme {
-    InboundGoods,
-    Standard,
+pub enum SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType {
+    None,
+    PauseAt,
     /// An unrecognized value from Stripe. Should not be used as a request parameter.
     Unknown(String),
 }
-impl TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme {
+impl SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType {
     pub fn as_str(&self) -> &str {
-        use TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme::*;
+        use SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType::*;
         match self {
-            InboundGoods => "inbound_goods",
-            Standard => "standard",
+            None => "none",
+            PauseAt => "pause_at",
             Unknown(v) => v,
         }
     }
 }
 
-impl std::str::FromStr for TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme {
+impl std::str::FromStr for SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType {
     type Err = std::convert::Infallible;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        use TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme::*;
+        use SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType::*;
         match s {
-            "inbound_goods" => Ok(InboundGoods),
-            "standard" => Ok(Standard),
+            "none" => Ok(None),
+            "pause_at" => Ok(PauseAt),
             v => {
                 tracing::warn!(
                     "Unknown value '{}' for enum '{}'",
                     v,
-                    "TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme"
+                    "SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType"
                 );
                 Ok(Unknown(v.to_owned()))
             }
         }
     }
 }
-impl std::fmt::Display for TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme {
+impl std::fmt::Display for SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
 #[cfg(not(feature = "redact-generated-debug"))]
-impl std::fmt::Debug for TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme {
+impl std::fmt::Debug for SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.write_str(self.as_str())
     }
 }
 #[cfg(feature = "redact-generated-debug")]
-impl std::fmt::Debug for TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme {
+impl std::fmt::Debug for SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.debug_struct(stringify!(
-            TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme
+            SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType
         ))
         .finish_non_exhaustive()
     }
 }
 #[cfg(feature = "serialize")]
-impl serde::Serialize for TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme {
+impl serde::Serialize for SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -178,7 +176,7 @@ impl serde::Serialize for TaxProductRegistrationsResourceCountryOptionsIgicPlace
     }
 }
 impl miniserde::Deserialize
-    for TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme
+    for SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType
 {
     fn begin(out: &mut Option<Self>) -> &mut dyn miniserde::de::Visitor {
         crate::Place::new(out)
@@ -186,12 +184,12 @@ impl miniserde::Deserialize
 }
 
 impl miniserde::de::Visitor
-    for crate::Place<TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme>
+    for crate::Place<SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType>
 {
     fn string(&mut self, s: &str) -> miniserde::Result<()> {
         use std::str::FromStr;
         self.out = Some(
-            TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme::from_str(s)
+            SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType::from_str(s)
                 .expect("infallible"),
         );
         Ok(())
@@ -199,11 +197,11 @@ impl miniserde::de::Visitor
 }
 
 stripe_types::impl_from_val_with_from_str!(
-    TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme
+    SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType
 );
 #[cfg(feature = "deserialize")]
 impl<'de> serde::Deserialize<'de>
-    for TaxProductRegistrationsResourceCountryOptionsIgicPlaceOfSupplyScheme
+    for SubscriptionSchedulesResourcePauseScheduleOutstandingUsageThroughType
 {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use std::str::FromStr;

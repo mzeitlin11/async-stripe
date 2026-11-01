@@ -1,5 +1,5 @@
 /// Prices define the unit cost, currency, and (optional) billing cycle for both recurring and one-time purchases of products.
-/// [Products](https://api.stripe.com#products) help you track inventory or provisioning, and prices help you track payment terms.
+/// [Products](https://docs.stripe.com/api#products) help you track inventory or provisioning, and prices help you track payment terms.
 /// Different physical goods or levels of service should be represented by products, and pricing options should be represented by prices.
 /// This approach lets you change prices without having to change your provisioning scheme.
 ///
@@ -269,7 +269,7 @@ const _: () = {
         }
 
         fn finish(&mut self) -> Result<()> {
-            *self.out = self.builder.take_out();
+            *self.out = Some(self.builder.take_out().ok_or(miniserde::Error)?);
             Ok(())
         }
     }

@@ -769,7 +769,7 @@ impl Default for CreateAccountSessionComponentsPaymentsFeatures {
         Self::new()
     }
 }
-/// Creates a AccountSession object that includes a single-use token that the platform can use on their front-end to grant client-side API access.
+/// Creates an AccountSession object that includes a single-use token that the platform can use on their front-end to grant client-side API access.
 #[derive(Clone)]
 #[cfg_attr(not(feature = "redact-generated-debug"), derive(Debug))]
 #[derive(serde::Serialize)]
@@ -862,7 +862,7 @@ pub struct BaseConfigParam {
     pub enabled: bool,
     /// An empty list, because this embedded component has no features.
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(with = "stripe_types::with_serde_json_opt")]
+    #[serde(default, with = "stripe_types::with_serde_json_opt")]
     pub features: Option<miniserde::json::Value>,
 }
 #[cfg(feature = "redact-generated-debug")]

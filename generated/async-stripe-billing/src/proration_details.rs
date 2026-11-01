@@ -6,6 +6,7 @@ pub struct ProrationDetails {
     /// For a credit proration, links to the debit invoice line items or invoice item that the credit applies to.
     pub credited_items: Option<stripe_billing::InvoiceItemProrationCreditedItems>,
     /// Discount amounts applied when the proration was created.
+    /// This field is only populated for prorations created from subscriptions with `billing_mode=flexible`.
     pub discount_amounts: Vec<stripe_shared::DiscountsResourceDiscountAmount>,
 }
 #[cfg(feature = "redact-generated-debug")]
@@ -86,7 +87,7 @@ const _: () = {
         }
 
         fn finish(&mut self) -> Result<()> {
-            *self.out = self.builder.take_out();
+            *self.out = Some(self.builder.take_out().ok_or(miniserde::Error)?);
             Ok(())
         }
     }

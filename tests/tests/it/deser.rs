@@ -77,6 +77,68 @@ fn deserialize_customer_with_card() {
 }
 
 #[test]
+fn deserialize_null_for_optional_generated_fields() {
+    let mut example = mock_customer_with_card();
+    example["default_source"] = Value::Null;
+    example["tax_exempt"] = Value::Null;
+    let result: Customer = from_str(&example.to_string()).expect("deserialization failed");
+    assert!(result.discount.is_none());
+    assert!(result.default_source.is_none());
+    assert!(result.tax_exempt.is_none());
+}
+
+#[test]
+fn deserialize_null_for_required_generated_fields_fails() {
+    let mut file = mock_file();
+    file["purpose"] = Value::Null;
+    assert!(from_str::<File>(&file.to_string()).is_err());
+
+    let link = json!({
+      "created": FILE_CREATED,
+      "expired": false,
+      "expires_at": null,
+      "file": null,
+      "id": "link_123",
+      "livemode": false,
+      "metadata": {},
+      "object": "file_link",
+      "url": null
+    });
+    assert!(from_str::<FileLink>(&link.to_string()).is_err());
+    let mut link = link;
+    link["file"] = json!("file_123");
+    assert!(from_str::<FileLink>(&link.to_string()).is_ok());
+}
+
+#[test]
+fn deserialize_null_inside_generated_values_fails() {
+    let mut example = mock_customer_with_card();
+    example["discount"] = json!({
+      "id": "di_123",
+      "object": "discount",
+      "source": null,
+      "start": 1542631579
+    });
+    assert!(from_str::<Customer>(&example.to_string()).is_err());
+
+    let mut example = mock_customer_with_card();
+    example["invoice_settings"] = json!({
+      "custom_fields": [null],
+      "default_payment_method": null,
+      "footer": null,
+      "rendering_options": null
+    });
+    assert!(from_str::<Customer>(&example.to_string()).is_err());
+}
+
+#[test]
+fn deserialize_invalid_error_body_fails() {
+    for body in [r#"{"error":null}"#, r#"{"error":{"type":null}}"#, r#"{"error":{}}"#] {
+        assert!(from_str::<stripe_shared::Error>(body).is_err(), "{body}");
+    }
+}
+
+#[test]
 fn deserialize_customer_with_source() {
     let example = json!({
       "id": "cus_5678",
@@ -409,4 +471,65 @@ fn deserialize_customer_deleted_or_not() {
     };
     assert_eq!(cust.id.as_str(), "cus_1234");
     assert_eq!(cust.sources.unwrap().data.len(), 1);
+}
+
+#[test]
+fn deserialize_nullable_generated_fields_reject_invalid_json_kinds() {
+    let cases = [
+        ("address", vec![json!(true), json!(12), json!(1.5), json!("bad"), json!([])]),
+        ("tax_exempt", vec![json!(true), json!(12), json!(1.5), json!({}), json!([])]),
+        ("default_source", vec![json!(true), json!(12), json!(1.5), json!([]), json!({})]),
+    ];
+    for (field, invalids) in cases {
+        for invalid in invalids {
+            let mut input = mock_customer_with_card();
+            input[field] = invalid;
+            assert!(from_str::<Customer>(&input.to_string()).is_err(), "{field}: {input}");
+        }
+    }
+}
+
+#[test]
+fn deserialize_nullable_generated_fields_use_last_duplicate_value() {
+    fn customer(fields: &str) -> Customer {
+        from_str(&format!(r#"{{"id":"cus_1234","created":1542631579,"livemode":false,{fields}}}"#))
+            .unwrap()
+    }
+    let absent = customer(
+        r#""address":{"city":"first"},"address":null,"tax_exempt":"exempt","tax_exempt":null,"default_source":"card_FIRST","default_source":null"#,
+    );
+    assert!(absent.address.is_none());
+    assert!(absent.tax_exempt.is_none());
+    assert!(absent.default_source.is_none());
+    let present = customer(
+        r#""address":null,"address":{"city":"last"},"tax_exempt":null,"tax_exempt":"future_value","default_source":null,"default_source":"card_LAST""#,
+    );
+    assert_eq!(present.address.unwrap().city.as_deref(), Some("last"));
+    assert_eq!(present.tax_exempt.unwrap().as_str(), "future_value");
+    assert_eq!(present.default_source.unwrap().id().to_string(), "card_LAST");
+}
+
+#[test]
+fn deserialize_other_optional_field_kinds_remain_supported() {
+    let mut input = mock_customer_with_card();
+    input["balance"] = json!(-7);
+    input["delinquent"] = json!(true);
+    input["name"] = json!("test");
+    input["metadata"] = json!({"key":"value"});
+    input["preferred_locales"] = json!(["en", "fr"]);
+    let result: Customer = from_str(&input.to_string()).unwrap();
+    assert_eq!(result.balance, Some(-7));
+    assert_eq!(result.delinquent, Some(true));
+    assert_eq!(result.name.as_deref(), Some("test"));
+    assert_eq!(result.metadata.unwrap().get("key").map(String::as_str), Some("value"));
+    assert_eq!(result.preferred_locales.unwrap(), ["en", "fr"]);
+    for field in ["balance", "delinquent", "name", "metadata", "preferred_locales"] {
+        input[field] = Value::Null;
+    }
+    let result: Customer = from_str(&input.to_string()).unwrap();
+    assert!(result.balance.is_none());
+    assert!(result.delinquent.is_none());
+    assert!(result.name.is_none());
+    assert!(result.metadata.is_none());
+    assert!(result.preferred_locales.is_none());
 }

@@ -179,6 +179,7 @@ fn malformed_opaque_objects_are_rejected_by_both_entry_points() {
         "[]",
         "123",
         r#"{"object":"charge"}"#,
+        r#"{"id":null,"object":"charge"}"#,
         r#"{"id":123,"object":"charge"}"#,
         r#"{"id":"ch_123"}"#,
         r#"{"id":"ch_123","object":123}"#,
@@ -187,6 +188,106 @@ fn malformed_opaque_objects_are_rejected_by_both_entry_points() {
         assert!(miniserde::json::from_str::<ObjectValue>(json).is_err(), "{json}");
         assert!(miniserde::json::from_str::<ExpandableValue<TestId>>(json).is_err(), "{json}");
     }
+}
+
+#[test]
+fn optional_ids_preserve_missing_null_and_present_wire_values() {
+    for json in [
+        r#"{"object":"invoice","future":{"number":18446744073709551615}}"#,
+        r#"{"id":null,"object":"invoice","future":{"number":18446744073709551615}}"#,
+        r#"{"id":"in_123","object":"invoice","future":{"number":18446744073709551615}}"#,
+    ] {
+        let expected = serde_json::from_str::<serde_json::Value>(json).unwrap();
+        let expected_id = expected.get("id").and_then(|id| id.as_str());
+        let reference: ExpandableValue<Option<TestId>> = miniserde::json::from_str(json).unwrap();
+        assert_eq!(reference.id().as_ref().map(TestId::as_str), expected_id);
+        assert!(reference.is_object());
+        assert_eq!(reference.as_object().unwrap().id(), reference.id());
+        assert_eq!(reference.clone().into_id(), *reference.id());
+        assert_eq!(serde_json::to_value(&reference).unwrap(), expected);
+        let object: ObjectValue<Option<TestId>> = reference.into_object().unwrap();
+        assert_eq!(object.id().as_ref().map(TestId::as_str), expected_id);
+        assert_eq!(serde_json::to_value(&object).unwrap(), expected);
+
+        let direct: ObjectValue<Option<TestId>> = miniserde::json::from_str(json).unwrap();
+        assert_eq!(direct.id(), object.id());
+        if expected_id.is_none() {
+            assert!(ObjectValue::try_from_value(value(json)).is_err());
+            assert!(miniserde::json::from_str::<ExpandableValue<TestId>>(json).is_err());
+        }
+
+        #[cfg(feature = "deserialize")]
+        {
+            let reference: ExpandableValue<Option<TestId>> = serde_json::from_str(json).unwrap();
+            let direct: ObjectValue<Option<TestId>> = serde_json::from_str(json).unwrap();
+            assert_eq!(reference.id(), object.id());
+            assert_eq!(direct.id(), object.id());
+            assert_eq!(serde_json::to_value(&reference).unwrap(), expected);
+            assert_eq!(serde_json::to_value(&direct).unwrap(), expected);
+            if expected_id.is_none() {
+                assert!(serde_json::from_str::<ObjectValue>(json).is_err());
+                assert!(serde_json::from_str::<ExpandableValue<TestId>>(json).is_err());
+            }
+        }
+    }
+}
+
+#[test]
+fn optional_ids_reject_malformed_ids_and_still_require_object_tags() {
+    for json in [
+        r#"{"id":123,"object":"invoice"}"#,
+        r#"{"id":false,"object":"invoice"}"#,
+        r#"{"id":[],"object":"invoice"}"#,
+        r#"{"id":{},"object":"invoice"}"#,
+        r#"{}"#,
+        r#"{"id":null}"#,
+        r#"{"object":null}"#,
+        r#"{"object":123}"#,
+        r#"{"id":"in_123","object":false}"#,
+        "null",
+        "[]",
+    ] {
+        assert!(ObjectValue::<Option<TestId>>::from_value(value(json)).is_none(), "{json}");
+        assert!(ExpandableValue::<Option<TestId>>::try_from_value(value(json)).is_err(), "{json}");
+        assert!(miniserde::json::from_str::<ObjectValue<Option<TestId>>>(json).is_err(), "{json}");
+        assert!(
+            miniserde::json::from_str::<ExpandableValue<Option<TestId>>>(json).is_err(),
+            "{json}"
+        );
+        #[cfg(feature = "deserialize")]
+        {
+            assert!(serde_json::from_str::<ObjectValue<Option<TestId>>>(json).is_err(), "{json}");
+            assert!(
+                serde_json::from_str::<ExpandableValue<Option<TestId>>>(json).is_err(),
+                "{json}"
+            );
+        }
+    }
+}
+
+#[test]
+fn cached_ids_can_be_borrowed_and_moved_without_clone_or_cursor_bounds() {
+    struct PlainId(u32);
+    let reference = ExpandableValue::from_id(PlainId(17));
+    assert_eq!(reference.id().0, 17);
+    assert_eq!(reference.into_id().0, 17);
+
+    struct NonCloneId(String);
+    impl FromCursor for NonCloneId {
+        fn from_cursor(value: &str) -> Option<Self> {
+            Some(Self(value.to_string()))
+        }
+    }
+    let reference = ExpandableValue::from_id(NonCloneId("in_123".to_string()));
+    assert_eq!(reference.id().0, "in_123");
+    assert_eq!(reference.into_id().0, "in_123");
+    let reference = ExpandableValue::<NonCloneId>::try_from_value(value(
+        r#"{"id":"in_123","object":"invoice"}"#,
+    ))
+    .unwrap();
+    assert_eq!(reference.id().0, "in_123");
+    assert_eq!(reference.as_object().unwrap().id().0, "in_123");
+    assert_eq!(reference.into_id().0, "in_123");
 }
 
 #[test]

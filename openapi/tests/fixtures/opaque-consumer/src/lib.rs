@@ -407,3 +407,79 @@ mod standalone_card_decoder_tests {
         assert_eq!(card.last4.as_deref(), Some("4242"));
     }
 }
+#[cfg(all(test, feature = "invoice"))]
+mod optional_invoice_id_tests {
+    use serde_json::{Value, json};
+
+    type InvoiceReference = stripe::ExpandableValue<Option<stripe::InvoiceId>>;
+
+    fn invoice() -> Value {
+        serde_json::from_str(include_str!("../invoice.json")).unwrap()
+    }
+
+    #[test]
+    fn optional_ids_match_the_eager_invoice_decoder_and_preserve_the_payload() {
+        for id in [None, Some(Value::Null), Some(json!("in_example"))] {
+            let mut value = invoice();
+            match id {
+                Some(id) => {
+                    value["id"] = id;
+                }
+                None => {
+                    value.as_object_mut().unwrap().remove("id");
+                }
+            }
+            value["future"] = json!({"nested":[true,null,u64::MAX]});
+            let json = value.to_string();
+            let eager: stripe::Invoice = miniserde::json::from_str(&json).unwrap();
+            let deferred: InvoiceReference = miniserde::json::from_str(&json).unwrap();
+            assert!(deferred.is_object());
+            assert_eq!(deferred.id(), &eager.id);
+            assert_eq!(deferred.as_object().unwrap().id(), &eager.id);
+            assert_eq!(serde_json::to_value(&deferred).unwrap(), value);
+            let decoded = deferred.into_expanded_as::<stripe::Invoice>().unwrap().unwrap();
+            assert_eq!(decoded.id, eager.id);
+            assert_eq!(decoded.amount_due, eager.amount_due);
+            #[cfg(feature = "serialize")]
+            assert_eq!(
+                serde_json::to_value(&decoded).unwrap(),
+                serde_json::to_value(&eager).unwrap()
+            );
+
+            #[cfg(feature = "deserialize")]
+            {
+                let eager: stripe::Invoice = serde_json::from_str(&json).unwrap();
+                let deferred: InvoiceReference = serde_json::from_str(&json).unwrap();
+                assert_eq!(deferred.id(), &eager.id);
+                assert_eq!(serde_json::to_value(&deferred).unwrap(), value);
+                let decoded = deferred.into_expanded_as::<stripe::Invoice>().unwrap().unwrap();
+                assert_eq!(decoded.id, eager.id);
+                assert_eq!(decoded.amount_due, eager.amount_due);
+            }
+        }
+    }
+
+    #[test]
+    fn optional_invoice_ids_reject_invalid_nonstring_values() {
+        for id in [json!(123), json!(false), json!([]), json!({})] {
+            let mut value = invoice();
+            value["id"] = id;
+            let json = value.to_string();
+            assert!(miniserde::json::from_str::<stripe::Invoice>(&json).is_err());
+            assert!(miniserde::json::from_str::<InvoiceReference>(&json).is_err());
+            #[cfg(feature = "deserialize")]
+            {
+                assert!(serde_json::from_str::<stripe::Invoice>(&json).is_err());
+                assert!(serde_json::from_str::<InvoiceReference>(&json).is_err());
+            }
+        }
+    }
+
+    #[test]
+    fn unexpanded_invoice_ids_remain_typed() {
+        let reference: InvoiceReference = miniserde::json::from_str(r#""in_example""#).unwrap();
+        assert_eq!(reference.id().as_ref().unwrap().as_str(), "in_example");
+        assert!(!reference.is_object());
+        assert!(reference.into_expanded_as::<stripe::Invoice>().unwrap().is_none());
+    }
+}

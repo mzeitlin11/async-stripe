@@ -66,12 +66,14 @@ impl std::error::Error for ObjectDecodeError {}
 
 /// A Stripe object whose full payload is retained for optional typed decoding.
 ///
-/// Parsing validates only the string `id` and `object` properties. Unknown
-/// discriminators and fields remain available even when no model is enabled.
+/// Parsing validates the string `object` property and converts the ID to `I`.
+/// The default identity requires a string `id`; optional identities also allow
+/// an absent or null ID. Unknown discriminators and fields remain available
+/// even when no model is enabled.
 /// The JSON tree is parsed eagerly; construction of a concrete model is deferred.
 #[derive(Clone)]
-pub struct ObjectValue {
-    id: SmolStr,
+pub struct ObjectValue<I = SmolStr> {
+    id: I,
     object_type: SmolStr,
     value: Value,
 }
@@ -83,18 +85,28 @@ impl ObjectValue {
     /// Returns an error if the value is not an object with string `id` and
     /// `object` properties.
     pub fn try_from_value(value: Value) -> Result<Self, ObjectDecodeError> {
+        Self::parse(value)
+    }
+}
+
+impl<I: FromCursor> ObjectValue<I> {
+    fn parse(value: Value) -> Result<Self, ObjectDecodeError> {
         let Value::Object(object) = &value else { return Err(ObjectDecodeError::NotObject) };
-        let Some(Value::String(id)) = object.get("id") else {
-            return Err(ObjectDecodeError::MissingId);
+        let id = match object.get("id") {
+            Some(Value::String(id)) => I::from_cursor(id).ok_or(ObjectDecodeError::InvalidId)?,
+            None | Some(Value::Null) => I::from_missing_id().ok_or(ObjectDecodeError::MissingId)?,
+            Some(_) => return Err(ObjectDecodeError::MissingId),
         };
         let Some(Value::String(object_type)) = object.get("object") else {
             return Err(ObjectDecodeError::MissingObjectType);
         };
-        Ok(Self { id: SmolStr::from(id), object_type: SmolStr::from(object_type), value })
+        Ok(Self { id, object_type: SmolStr::from(object_type), value })
     }
+}
 
+impl<I> ObjectValue<I> {
     /// The object's ID, without constructing its model.
-    pub fn id(&self) -> &SmolStr {
+    pub fn id(&self) -> &I {
         &self.id
     }
 
@@ -132,7 +144,7 @@ impl ObjectValue {
     }
 }
 
-impl fmt::Debug for ObjectValue {
+impl<I: fmt::Debug> fmt::Debug for ObjectValue<I> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut out = f.debug_struct("ObjectValue");
         #[cfg(not(feature = "redact-generated-debug"))]
@@ -143,14 +155,14 @@ impl fmt::Debug for ObjectValue {
     }
 }
 
-impl Serialize for ObjectValue {
+impl<I> Serialize for ObjectValue<I> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         crate::with_serde_json::serialize(&self.value, serializer)
     }
 }
 
-impl crate::Object for ObjectValue {
-    type Id = SmolStr;
+impl<I: crate::AsCursorOpt + FromCursor> crate::Object for ObjectValue<I> {
+    type Id = I;
 
     fn id(&self) -> &Self::Id {
         &self.id
@@ -161,16 +173,16 @@ impl crate::Object for ObjectValue {
     }
 }
 
-impl FromValueOpt for ObjectValue {
+impl<I: FromCursor> FromValueOpt for ObjectValue<I> {
     fn from_value(value: Value) -> Option<Self> {
-        Self::try_from_value(value).ok()
+        Self::parse(value).ok()
     }
 }
 
 #[cfg(feature = "deserialize")]
-impl<'de> serde::Deserialize<'de> for ObjectValue {
+impl<'de, I: FromCursor> serde::Deserialize<'de> for ObjectValue<I> {
     fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Self::try_from_value(crate::with_serde_json::deserialize(deserializer)?)
+        Self::parse(crate::with_serde_json::deserialize(deserializer)?)
             .map_err(serde::de::Error::custom)
     }
 }
@@ -182,15 +194,20 @@ impl<'de> serde::Deserialize<'de> for ObjectValue {
 /// models use different ID newtypes to share the same representation.
 #[derive(Clone)]
 pub struct ExpandableValue<I> {
-    id: I,
-    object: Option<ObjectValue>,
+    value: ExpandableState<I>,
+}
+
+#[derive(Clone)]
+enum ExpandableState<I> {
+    Id(I),
+    Object(ObjectValue<I>),
 }
 
 impl<I: fmt::Debug> fmt::Debug for ExpandableValue<I> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut out = f.debug_struct("ExpandableValue");
         #[cfg(not(feature = "redact-generated-debug"))]
-        out.field("id", &self.id).field("object", &self.object);
+        out.field("id", self.id()).field("object", &self.as_object());
         out.finish_non_exhaustive()
     }
 }
@@ -198,32 +215,44 @@ impl<I: fmt::Debug> fmt::Debug for ExpandableValue<I> {
 impl<I> ExpandableValue<I> {
     /// Construct an unexpanded reference from an ID.
     pub fn from_id(id: I) -> Self {
-        Self { id, object: None }
+        Self { value: ExpandableState::Id(id) }
     }
 
     /// Borrow the ID without decoding a model.
     pub fn id(&self) -> &I {
-        &self.id
+        match &self.value {
+            ExpandableState::Id(id) => id,
+            ExpandableState::Object(object) => &object.id,
+        }
     }
 
     /// Take ownership of the ID without decoding a model.
     pub fn into_id(self) -> I {
-        self.id
+        match self.value {
+            ExpandableState::Id(id) => id,
+            ExpandableState::Object(object) => object.id,
+        }
     }
 
     /// Whether Stripe supplied an expanded object rather than only an ID.
     pub fn is_object(&self) -> bool {
-        self.object.is_some()
+        matches!(&self.value, ExpandableState::Object(_))
     }
 
     /// Borrow the retained object, if Stripe supplied one.
-    pub fn as_object(&self) -> Option<&ObjectValue> {
-        self.object.as_ref()
+    pub fn as_object(&self) -> Option<&ObjectValue<I>> {
+        match &self.value {
+            ExpandableState::Id(_) => None,
+            ExpandableState::Object(object) => Some(object),
+        }
     }
 
     /// Take the retained object, if Stripe supplied one.
-    pub fn into_object(self) -> Option<ObjectValue> {
-        self.object
+    pub fn into_object(self) -> Option<ObjectValue<I>> {
+        match self.value {
+            ExpandableState::Id(_) => None,
+            ExpandableState::Object(object) => Some(object),
+        }
     }
 
     /// Decode an expanded payload, returning `None` when only an ID was supplied.
@@ -234,7 +263,10 @@ impl<I> ExpandableValue<I> {
     pub fn into_expanded_as<T: ObjectType + FromValueOpt>(
         self,
     ) -> Result<Option<T>, ObjectDecodeError> {
-        self.object.map(ObjectValue::into_typed).transpose()
+        match self.value {
+            ExpandableState::Id(_) => Ok(None),
+            ExpandableState::Object(object) => object.into_typed().map(Some),
+        }
     }
 }
 
@@ -248,9 +280,7 @@ impl<I: FromCursor> ExpandableValue<I> {
         if let Value::String(id) = value {
             return I::from_cursor(&id).map(Self::from_id).ok_or(ObjectDecodeError::InvalidId);
         }
-        let object = ObjectValue::try_from_value(value)?;
-        let id = I::from_cursor(object.id()).ok_or(ObjectDecodeError::InvalidId)?;
-        Ok(Self { id, object: Some(object) })
+        Ok(Self { value: ExpandableState::Object(ObjectValue::parse(value)?) })
     }
 }
 
@@ -262,9 +292,9 @@ impl<I: Default> Default for ExpandableValue<I> {
 
 impl<I: Serialize> Serialize for ExpandableValue<I> {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        match &self.object {
-            Some(object) => object.serialize(serializer),
-            None => self.id.serialize(serializer),
+        match &self.value {
+            ExpandableState::Object(object) => object.serialize(serializer),
+            ExpandableState::Id(id) => id.serialize(serializer),
         }
     }
 }
@@ -293,13 +323,13 @@ mod miniserde_impl {
 
     make_place!(Place);
 
-    impl Deserialize for ObjectValue {
+    impl<I: FromCursor> Deserialize for ObjectValue<I> {
         fn begin(out: &mut Option<Self>) -> &mut dyn Visitor {
             Place::new(out)
         }
     }
 
-    impl Visitor for Place<ObjectValue> {
+    impl<I: FromCursor> Visitor for Place<ObjectValue<I>> {
         fn map(&mut self) -> miniserde::Result<Box<dyn Map + '_>> {
             Ok(object_value_map(&mut self.out))
         }

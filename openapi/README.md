@@ -109,3 +109,27 @@ Expandable references are recorded separately because an ID-typed, opaque repres
 `gen_crates.toml` declares generated crates and the explicit package or component assignments that seed inference. It is resolved once against the full component catalog. Duplicate crate names, package owners, component owners, missing `shared`, and unknown component names are errors; unknown names include nearby candidates. This file should state only intentional seed assignments—the remaining placement is derived from the dependency graph.
 
 Rare model exceptions live in `src/overrides.rs`. Each override selects one generated operation and request field, declares its output name, and includes a reason. Selectors, fields, and output names are validated before any rewrite is applied.
+
+## Experimental opaque model groups
+
+The v1 model-group experiment exercises representation, dependency closure, module availability, and facade exports together. Normal `generate` retains the existing concrete types and output. Run the isolated consumer check from this directory:
+
+```console
+python3 tests/verify_opaque_groups.py
+```
+
+The check generates `balance_transaction` and `charge` groups, builds a private workspace, and tests real generated retrieval through a mock client. It verifies that the base group preserves source IDs and unknown expanded objects without compiling `Charge`, that enabling `charge` adds typed decoding, and that the same two groups drive Cargo forwarding and root `stripe` exports. Logs and compiled-source lists are retained; disposable generated workspaces and build caches are removed after success. Explicit `--target-dir` and `--generator-target-dir` caches are retained for reuse.
+
+For inspecting the unformatted output and analysis directly:
+
+```console
+cargo run --example opaque_model_groups -- /tmp/stripe-opaque-output balance_transaction charge
+```
+
+`analysis/model-availability.csv` records each canonical item's emission path and availability (`always`, `disabled`, or its enabling groups). Availability closes actual represented dependencies at source-module granularity: sibling declarations in the same file compile together. The crate dependency and availability passes share their definition of type consumers.
+
+Representation changes occur after sharing and canonical allocation. `ExpandableValue<I>` stores an ID or a complete JSON object without naming its concrete model. Named polymorphic families use distinct opaque wrappers; their typed conversion checks the wire discriminator. IDs and component-level opaque families are lightweight unconditional support. Error scalars remain typed, while resource objects embedded as diagnostic context become `ObjectValue`. The original semantic relationships and occurrence provenance are retained.
+
+The JSON tree is parsed eagerly; concrete model construction is deferred. A consuming decode such as `source.into_expanded_as::<stripe::Charge>()` distinguishes an ID-only value from invalid expanded data. Enabling a model does not change base parsing or discard unknown payloads.
+
+This is an isolated v1 SDK slice, not a completed organization policy for the whole SDK. It keeps the current crate map and gates heavy model modules within it. Existing webhook, parser, and generated API-fixture integrations still need their own availability work; they are outside the isolated consumer check. Repository installation of this experimental output is rejected because the normal installer does not yet handle its facade changes and sibling packages. The group selection is a generator development API/example, with no new normal-generation CLI flag.

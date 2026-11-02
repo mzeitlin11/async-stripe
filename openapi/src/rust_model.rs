@@ -27,6 +27,15 @@ impl RustModel {
         &self.items
     }
 
+    pub(crate) fn use_opaque_relationships(
+        &mut self,
+        components: &Components,
+    ) -> anyhow::Result<()> {
+        self.items.use_opaque_relationships(components)?;
+        self.requests = RequestCatalog::build(components, &self.items)?;
+        Ok(())
+    }
+
     pub(crate) fn requests_for_component(&self, component: ComponentId) -> &[RequestModel] {
         self.requests.for_component(component)
     }

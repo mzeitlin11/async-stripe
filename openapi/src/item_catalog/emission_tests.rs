@@ -420,3 +420,72 @@ fn a_standalone_model_cannot_shadow_its_request_directory() {
     let layout = fixture.layout(&[(model, krate("core"))]);
     assert!(fixture.emit(&layout).unwrap_err().to_string().contains("conflicting owners"));
 }
+
+#[test]
+fn facade_requires_the_lightweight_reference_foundation_to_be_placed_first() {
+    let fixture = Fixture::new();
+    let layout = fixture.layout(&[]);
+    let error = crate::facade::write_facade(
+        OutputLocations::new(&fixture.components, &fixture.component_layout),
+        &fixture.items,
+        &layout,
+        &[("customer".to_string(), fixture.customer)],
+        "1.0.0",
+        &mut GeneratedWorkspace::default(),
+    )
+    .unwrap_err();
+    assert!(error.to_string().contains("reference foundation"));
+}
+
+#[test]
+fn facade_exports_same_crate_models_from_the_root_of_the_private_types_module() {
+    let fixture = Fixture::new();
+    let ids = [fixture.customer, fixture.charge]
+        .map(|component| (fixture.items.component_id_item(component).unwrap(), Crate::SHARED));
+    let layout = fixture.layout(&ids);
+    let mut output = GeneratedWorkspace::default();
+    crate::facade::write_facade(
+        OutputLocations::new(&fixture.components, &fixture.component_layout),
+        &fixture.items,
+        &layout,
+        &[("customer".to_string(), fixture.customer)],
+        "1.0.0",
+        &mut output,
+    )
+    .unwrap();
+    let exports = contents(&output, "async-stripe/src/generated/mod.rs");
+    assert!(exports.contains("pub use stripe_core::Customer;"));
+    assert_eq!(exports.matches("pub use stripe_core::customer::*;").count(), 1);
+    assert!(!exports.contains("customer::types"));
+}
+
+#[test]
+fn facade_exports_a_moved_model_from_its_selected_standalone_crate() {
+    let fixture = Fixture::new();
+    let model = fixture.items.component_root(fixture.customer);
+    let ids = [fixture.customer, fixture.charge]
+        .map(|component| (fixture.items.component_id_item(component).unwrap(), Crate::SHARED));
+    let layout = fixture.layout(&[(model, Crate::SHARED), ids[0], ids[1]]);
+    let mut output = GeneratedWorkspace::default();
+    crate::facade::write_facade(
+        OutputLocations::new(&fixture.components, &fixture.component_layout),
+        &fixture.items,
+        &layout,
+        &[("customer".to_string(), fixture.customer)],
+        "1.0.0",
+        &mut output,
+    )
+    .unwrap();
+    let exports = contents(&output, "async-stripe/src/generated/mod.rs");
+    assert!(exports.contains("pub use stripe_shared::Customer;"));
+    assert!(!exports.contains("pub use stripe_shared::customer::*;"));
+    let manifest: toml::Value =
+        toml::from_str(contents(&output, "async-stripe/Cargo.toml")).unwrap();
+    assert!(
+        manifest["features"]["customer"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|entry| { entry.as_str() == Some("async-stripe-shared/customer") })
+    );
+}

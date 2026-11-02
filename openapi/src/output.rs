@@ -145,6 +145,10 @@ fn prepare_staging_root(root: &Path) -> anyhow::Result<()> {
 }
 
 pub fn install_to_repository(staging_root: &Path, repo_root: &Path) -> anyhow::Result<()> {
+    ensure!(
+        !staging_root.join("async-stripe/Cargo.toml").exists(),
+        "experimental model-group output must be validated in an isolated consumer; repository installation is not supported"
+    );
     // Check the complete staging tree before replacing any repository directory.
     for krate in &*ALL_CRATES {
         let source = staging_root.join("crates").join(krate.crate_name());
@@ -311,6 +315,22 @@ mod tests {
             fs::read_to_string(repository.join("crate_info.md")).unwrap(),
             "generated table"
         );
+    }
+
+    #[test]
+    fn experimental_facade_output_is_rejected_before_installation() {
+        let root = TestDirectory::new();
+        let staging = root.0.join("staging");
+        let repository = root.0.join("repository");
+        staging_fixture(&staging);
+        fs::create_dir_all(staging.join("async-stripe")).unwrap();
+        fs::write(staging.join("async-stripe/Cargo.toml"), "experimental facade").unwrap();
+        fs::create_dir_all(&repository).unwrap();
+        fs::write(repository.join("crate_info.md"), "existing table").unwrap();
+        let error = install_to_repository(&staging, &repository).unwrap_err();
+        assert!(error.to_string().contains("experimental model-group"));
+        assert_eq!(fs::read_to_string(repository.join("crate_info.md")).unwrap(), "existing table");
+        assert!(!repository.join("generated").exists());
     }
 
     #[test]

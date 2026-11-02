@@ -1,0 +1,17 @@
+{
+  "object": "charge",
+  "id": "ch_example",
+  "amount": 1000,
+  "amount_captured": 1000,
+  "amount_refunded": 0,
+  "billing_details": {},
+  "captured": true,
+  "created": 1700000000,
+  "currency": "usd",
+  "disputed": false,
+  "livemode": false,
+  "metadata": {},
+  "paid": true,
+  "refunded": false,
+  "status": "succeeded"
+}

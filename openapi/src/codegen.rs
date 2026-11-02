@@ -5,16 +5,18 @@ use anyhow::Context;
 use indoc::formatdoc;
 use petgraph::prelude::DiGraphMap;
 
+use crate::component_catalog::ComponentId;
 use crate::components::Components;
 use crate::crate_dependencies::{crate_dependencies, validate_crate_dependencies};
 use crate::crate_inference::CrateInferenceWarning;
 use crate::crate_table::generate_crate_table;
 use crate::crates::{ALL_CRATES, Crate, get_crate_doc_comment};
 pub use crate::dependencies::EdgePolicy;
-use crate::item_catalog::ItemMetadata;
+use crate::item_catalog::{ItemMetadata, RustItem};
 use crate::item_layout::{EmissionSite, ItemLayout};
 use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
+use crate::model_availability::{ModelAvailability, ModelFeature};
 use crate::object_writing::ItemEmitter;
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
@@ -39,6 +41,8 @@ pub struct CodeGen {
     pub version: String,
     pub crate_inference_warnings: Vec<CrateInferenceWarning>,
     edge_policy: EdgePolicy,
+    pub(crate) availability: Option<ModelAvailability>,
+    model_groups: Vec<(String, ComponentId)>,
 }
 
 #[derive(Debug, Copy, Clone, Default)]
@@ -90,7 +94,80 @@ impl CodeGen {
             version,
             crate_inference_warnings,
             edge_policy: options.edge_policy,
+            availability: None,
+            model_groups: Vec::new(),
         })
+    }
+
+    /// Build an experimental set of independently compiled v1 resource groups.
+    /// Normal generation retains its existing concrete representations.
+    pub fn new_opaque_model_groups(
+        spec: Spec,
+        url_finder: UrlFinder,
+        version: String,
+        groups: &[&str],
+    ) -> anyhow::Result<Self> {
+        let mut generated = Self::new(spec, url_finder, version)?;
+        anyhow::ensure!(!groups.is_empty(), "at least one model group is required");
+        generated.model.use_opaque_relationships(&generated.components)?;
+        let items = generated.model.items();
+        generated.item_layout.separate_reference_types(items);
+        generated.item_layout.validate(items, &generated.component_layout)?;
+        let mut features = Vec::new();
+        for name in groups {
+            let (&component, object) = generated
+                .components
+                .components
+                .iter()
+                .find(|(_, object)| object.mod_path() == *name)
+                .with_context(|| format!("unknown model group {name}"))?;
+            generated.model_groups.push((object.mod_path(), component));
+            features.push(ModelFeature {
+                name: object.mod_path(),
+                items: vec![items.component_root(component)],
+                requests: generated
+                    .components
+                    .has_requests(component)
+                    .then_some(component)
+                    .into_iter()
+                    .collect(),
+            });
+        }
+        let unconditional = items
+            .iter()
+            .filter_map(|(item, record)| {
+                let support = matches!(record.item, RustItem::IdNewtype)
+                    || (matches!(record.item, RustItem::OpaqueObject)
+                        && record.origin.path.is_empty()
+                        && matches!(
+                            record.origin.type_root,
+                            TypeRoot::Declaration(DeclarationRoot::Component(_))
+                        ))
+                    || matches!(
+                        &record.origin.type_root,
+                        TypeRoot::Declaration(DeclarationRoot::Shared(_))
+                    )
+                    || (record.origin.path.is_empty()
+                        && matches!(record.origin.type_root,
+                            TypeRoot::Declaration(DeclarationRoot::Component(component))
+                            if generated.components.component_name(component).as_ref() == "error"));
+                support.then_some(item)
+            })
+            .collect::<Vec<_>>();
+        generated.availability = Some(ModelAvailability::build(
+            items,
+            generated.model.requests(),
+            &generated.item_layout,
+            &unconditional,
+            &features,
+        )?);
+        generated.crate_dependencies = crate_dependencies(
+            items,
+            generated.model.requests(),
+            &generated.component_layout,
+            &generated.item_layout,
+        )?;
+        Ok(generated)
     }
 
     pub fn canonical_item_count(&self) -> usize {
@@ -133,6 +210,9 @@ impl CodeGen {
     fn write_declarations(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
         let items = self.model.items();
         let mut emitter = ItemEmitter::new(items, &self.item_layout, self.output_locations());
+        if let Some(plan) = &self.availability {
+            emitter = emitter.with_availability(plan);
+        }
         // This traversal preserves source order. Every declaration, including
         // recursively introduced children, is routed by its own item placement.
         for (&component, object) in &self.components.components {
@@ -183,6 +263,16 @@ impl CodeGen {
             .context("Could not write webhook generated code")?;
         output.write("crate_info.md", generate_crate_table(self.output_locations()))?;
         self.write_object_info_for_testing(&mut output)?;
+        if self.availability.is_some() {
+            crate::facade::write_facade(
+                self.output_locations(),
+                self.model.items(),
+                &self.item_layout,
+                &self.model_groups,
+                &self.version,
+                &mut output,
+            )?;
+        }
         Ok(output)
     }
 
@@ -199,7 +289,30 @@ impl CodeGen {
                 .map(|c| locations.components.get_by_id(c).mod_path())
                 .collect();
 
-            let toml = gen_crate_toml(*krate, dependencies, request_features, &self.version);
+            let mut toml =
+                gen_crate_toml(*krate, dependencies.clone(), request_features, &self.version);
+            if let Some(plan) = &self.availability {
+                let mut document: toml::Value = toml::from_str(&toml)?;
+                let section =
+                    document["features"].as_table_mut().expect("generated features table");
+                section.retain(|name, _| {
+                    matches!(name, "serialize" | "deserialize" | "redact-generated-debug")
+                });
+                for feature in plan.features() {
+                    let forwarded = dependencies
+                        .iter()
+                        .map(|dep| toml::Value::String(format!("{}/{feature}", dep.crate_name())))
+                        .collect();
+                    section.insert(feature.clone(), toml::Value::Array(forwarded));
+                }
+                section.insert(
+                    "full".to_string(),
+                    toml::Value::Array(
+                        plan.features().iter().cloned().map(toml::Value::String).collect(),
+                    ),
+                );
+                toml = toml::to_string(&document)?;
+            }
             output.write(base_path.join("Cargo.toml"), toml)?;
 
             let lib_name = krate.lib_name();

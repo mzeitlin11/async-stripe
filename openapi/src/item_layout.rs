@@ -75,6 +75,24 @@ pub(crate) struct ItemLayout {
 }
 
 impl ItemLayout {
+    pub(crate) fn separate_reference_types(&mut self, items: &ItemCatalog) {
+        for (item, record) in items.iter() {
+            let reference = matches!(record.item, crate::item_catalog::RustItem::IdNewtype)
+                || (matches!(record.item, crate::item_catalog::RustItem::OpaqueObject)
+                    && record.origin.path.is_empty()
+                    && matches!(
+                        record.origin.type_root,
+                        TypeRoot::Declaration(DeclarationRoot::Component(_))
+                    ));
+            if reference {
+                self.placements[item.index()] = ItemPlacement {
+                    emission_site: EmissionSite::Standalone { item, krate: Crate::SHARED },
+                    address: ItemAddress::CrateRoot(Crate::SHARED),
+                };
+            }
+        }
+    }
+
     #[cfg(test)]
     pub(crate) fn for_test(placements: Vec<(EmissionSite, ItemAddress)>) -> Self {
         Self {

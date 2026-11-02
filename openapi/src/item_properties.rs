@@ -22,6 +22,9 @@ pub(crate) fn infer(items: &[ItemRecord]) -> anyhow::Result<(Vec<ItemProperties>
                 RustItem::IdNewtype => {
                     Ok(ItemProperties { has_lifetime: false, is_copy: false, is_eq: true })
                 }
+                RustItem::OpaqueObject => {
+                    Ok(ItemProperties { has_lifetime: false, is_copy: false, is_eq: false })
+                }
             })
             .collect::<anyhow::Result<Vec<_>>>()?;
         if next == properties {
@@ -126,7 +129,7 @@ where
                 }
                 Container::Vec(_) => result.is_copy = false,
                 Container::Slice(_) => result.is_copy = true,
-                Container::Expandable(_) => {
+                Container::Expandable(_) | Container::OpaqueExpandable(_) => {
                     result.is_copy = false;
                     result.is_eq = false;
                 }

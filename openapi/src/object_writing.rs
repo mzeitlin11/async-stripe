@@ -10,6 +10,7 @@ use crate::component_catalog::ComponentId;
 use crate::crates::Crate;
 use crate::item_catalog::{ItemCatalog, ItemId, ItemMetadata, ItemProperties, RustItem};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
+use crate::model_availability::ModelAvailability;
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
 use crate::render::{Lifetime, RenderContext};
@@ -35,6 +36,10 @@ impl RenderContext<'_> {
             ),
             RustItem::IdNewtype => {
                 let _ = writeln!(out, "{STRIPE_TYPES}::def_id!({});", record.metadata.ident);
+            }
+            RustItem::OpaqueObject => {
+                let _ =
+                    writeln!(out, "{STRIPE_TYPES}::def_object_value!({});", record.metadata.ident);
             }
         }
     }
@@ -82,12 +87,21 @@ impl RenderContext<'_> {
         }
     }
 
-    fn write_item_impls(&self, item: ItemId, out: &mut String) {
+    fn write_item_impls(&self, item: ItemId, out: &mut String, opaque: bool) {
         let record = self.item(item);
         let Some(object) = record.object() else { return };
 
         let ident = &record.metadata.ident;
         let obj = &object.definition;
+        if opaque
+            && let RustObject::Struct(strukt) = obj
+            && let Some(tag) = &strukt.object_field
+        {
+            let _ = writeln!(
+                out,
+                "impl {STRIPE_TYPES}::ObjectType for {ident} {{ const OBJECT_TYPE: &'static str = {tag:?}; }}"
+            );
+        }
         match (obj, &object.identity) {
             (_, None) => {}
             (RustObject::Struct(_), Some(ObjectIdentity::IdType(id_typ))) => {
@@ -121,6 +135,7 @@ pub(crate) struct ItemEmitter<'a> {
     emitted: Vec<bool>,
     files: HashMap<PathBuf, EmissionSite>,
     modules: HashMap<(Crate, String), EmissionSite>,
+    availability: Option<&'a ModelAvailability>,
 }
 
 impl<'a> ItemEmitter<'a> {
@@ -136,7 +151,17 @@ impl<'a> ItemEmitter<'a> {
             emitted: vec![false; items.len()],
             files: HashMap::new(),
             modules: HashMap::new(),
+            availability: None,
         }
+    }
+
+    pub(crate) fn with_availability(mut self, availability: &'a ModelAvailability) -> Self {
+        self.availability = Some(availability);
+        self
+    }
+
+    fn cfg(&self, site: EmissionSite) -> String {
+        self.availability.map(|plan| plan.site(site).cfg_attribute()).unwrap_or_default()
     }
 
     pub(crate) fn emit(
@@ -156,7 +181,7 @@ impl<'a> ItemEmitter<'a> {
             self.emit(child, output)?;
         }
         let mut text = String::new();
-        context.write_item_impls(item, &mut text);
+        context.write_item_impls(item, &mut text, self.availability.is_some());
         output.append(path, text)
     }
 
@@ -202,7 +227,11 @@ impl<'a> ItemEmitter<'a> {
             let module = self.locations.components.get_by_id(component).mod_path();
             output.append(
                 facade.get_path_to_mod(),
-                format!("pub use {}::{module}::*;", krate.lib_name()),
+                format!(
+                    "{}pub use {}::{module}::*;",
+                    self.cfg(placement.emission_site()),
+                    krate.lib_name()
+                ),
             )?;
             wildcard_site = Some(placement.emission_site());
         }
@@ -231,7 +260,12 @@ impl<'a> ItemEmitter<'a> {
         if krate != facade {
             output.append(
                 facade.get_path_to_mod(),
-                format!("pub use {}::{};", krate.lib_name(), self.items.get(item).metadata.ident),
+                format!(
+                    "{}pub use {}::{};",
+                    self.cfg(self.layout.placement(item).emission_site()),
+                    krate.lib_name(),
+                    self.items.get(item).metadata.ident
+                ),
             )?;
         }
         Ok(())
@@ -263,6 +297,7 @@ impl<'a> ItemEmitter<'a> {
             return Ok(path);
         }
         self.files.insert(path.clone(), site);
+        let cfg = self.cfg(site);
         let module = match site {
             EmissionSite::ComponentTypes(component)
             | EmissionSite::ComponentRequests(component) => {
@@ -305,32 +340,49 @@ impl<'a> ItemEmitter<'a> {
                     output.append(
                         krate.get_path_to_mod(),
                         format!(
-                            "#[doc(hidden)]\npub mod {module};#[doc(inline)]\npub use {module}::*;"
+                            "{cfg}#[doc(hidden)]\npub mod {module};{cfg}#[doc(inline)]\npub use {module}::*;"
                         ),
                     )?;
                 } else {
                     output.append(
                         self.locations.requests_module_path(component),
-                        "pub(crate) mod types;",
+                        format!("{cfg}pub(crate) mod types;"),
                     )?;
-                    output
-                        .append(krate.get_path_to_mod(), format!("pub use {module}::types::*;"))?;
+                    output.append(
+                        krate.get_path_to_mod(),
+                        format!("{cfg}pub use {module}::types::*;"),
+                    )?;
                 }
             }
             EmissionSite::ComponentRequests(component) => {
                 let module = self.locations.components.get_by_id(component).mod_path();
+                let outer_cfg = self
+                    .availability
+                    .map(|plan| {
+                        if self.locations.types_split_from_requests(component) {
+                            plan.site(site).cfg_attribute()
+                        } else {
+                            plan.site(site)
+                                .union(plan.site(EmissionSite::ComponentTypes(component)))
+                                .cfg_attribute()
+                        }
+                    })
+                    .unwrap_or_default();
                 output.append(
                     self.locations.request_crate(component).get_path_to_mod(),
-                    format!("pub mod {module};"),
+                    format!("{outer_cfg}pub mod {module};"),
                 )?;
+                let request_cfg = if self.availability.is_some() {
+                    cfg
+                } else {
+                    format!("#[cfg(feature = {module:?})]\n")
+                };
                 output.append(
                     self.locations.requests_module_path(component),
                     formatdoc! {
                         r#"
-                    #[cfg(feature = "{module}")]
-                    mod requests;
-                    #[cfg(feature = "{module}")]
-                    pub use requests::*;
+                    {request_cfg}mod requests;
+                    {request_cfg}pub use requests::*;
                     "#
                     },
                 )?;
@@ -341,7 +393,7 @@ impl<'a> ItemEmitter<'a> {
                 let ident = &self.items.get(item).metadata.ident;
                 output.append(
                     krate.get_path_to_mod(),
-                    format!("pub mod {module}; pub use {module}::{ident};"),
+                    format!("{cfg}pub mod {module}; {cfg}pub use {module}::{ident};"),
                 )?;
             }
             EmissionSite::Webhooks => {}

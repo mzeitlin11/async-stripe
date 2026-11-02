@@ -248,6 +248,8 @@ pub enum Container {
     Slice(Box<RustType>),
     /// Expandable<{typ}>
     Expandable(Box<RustType>),
+    /// An ID or preserved JSON object; the inner type is the ID, not the model.
+    OpaqueExpandable(Box<RustType>),
     /// Option<{typ}>
     Option(Box<RustType>),
     /// Box<{typ}>
@@ -271,6 +273,7 @@ impl Container {
             Vec(typ) => typ,
             Slice(typ) => typ,
             Expandable(typ) => typ,
+            OpaqueExpandable(typ) => typ,
             Option(typ) => typ,
             Box(typ) => typ,
             Map { value, .. } => value,
@@ -286,6 +289,7 @@ impl Container {
             Vec(typ) => typ,
             Slice(typ) => typ,
             Expandable(typ) => typ,
+            OpaqueExpandable(typ) => typ,
             Option(typ) => typ,
             Box(typ) => typ,
             Map { value, .. } => value,
@@ -371,6 +375,8 @@ impl Display for IntType {
 /// A symbolic type defined outside of codegen.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ExternalType {
+    SmolStr,
+    ObjectValue,
     Currency,
     RangeQueryTs,
     Timestamp,
@@ -384,6 +390,8 @@ impl ExternalType {
     /// deliberately owned by the rendering layer.
     pub const fn display_name(self) -> &'static str {
         match self {
+            Self::SmolStr => "SmolStr",
+            Self::ObjectValue => "ObjectValue",
             Self::Currency => "Currency",
             Self::RangeQueryTs => "RangeQueryTs",
             Self::Timestamp => "Timestamp",
@@ -393,10 +401,10 @@ impl ExternalType {
     }
 
     pub const fn is_copy(self) -> bool {
-        !matches!(self, Self::Value | Self::Currency)
+        !matches!(self, Self::Value | Self::Currency | Self::SmolStr | Self::ObjectValue)
     }
 
     pub const fn is_eq(self) -> bool {
-        !matches!(self, Self::Value)
+        !matches!(self, Self::Value | Self::ObjectValue)
     }
 }

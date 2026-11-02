@@ -205,6 +205,8 @@ impl<'model> RenderContext<'model> {
 
     fn resolve_external(self, typ: ExternalType) -> ResolvedTypeItem<'static> {
         match typ {
+            ExternalType::SmolStr => ResolvedTypeItem::external("smol_str", "SmolStr"),
+            ExternalType::ObjectValue => ResolvedTypeItem::external(STRIPE_TYPES, "ObjectValue"),
             ExternalType::Currency => ResolvedTypeItem::external(STRIPE_TYPES, "Currency"),
             ExternalType::RangeQueryTs => ResolvedTypeItem::external(STRIPE_TYPES, "RangeQueryTs"),
             ExternalType::Timestamp => ResolvedTypeItem::external(STRIPE_TYPES, "Timestamp"),
@@ -346,6 +348,11 @@ fn fmt_container(
         }
         Container::Expandable(inner) => {
             write!(f, "{STRIPE_TYPES}::Expandable<")?;
+            fmt_type(f, context, inner, nested_use)?;
+            f.write_char('>')?;
+        }
+        Container::OpaqueExpandable(inner) => {
+            write!(f, "{STRIPE_TYPES}::ExpandableValue<")?;
             fmt_type(f, context, inner, nested_use)?;
             f.write_char('>')?;
         }

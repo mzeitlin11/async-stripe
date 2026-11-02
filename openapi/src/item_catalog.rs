@@ -69,6 +69,7 @@ impl From<&ObjectMetadata> for ItemMetadata {
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum ItemKind {
+    OpaqueObject,
     Struct,
     Enum,
     FieldlessEnum,
@@ -84,6 +85,7 @@ impl ItemKind {
                 RustObject::FieldlessEnum(_) => Self::FieldlessEnum,
             },
             RustItem::IdNewtype => Self::IdNewtype,
+            RustItem::OpaqueObject => Self::OpaqueObject,
         }
     }
 }
@@ -101,6 +103,8 @@ pub struct ObjectItem {
 pub enum RustItem {
     Object(Box<ObjectItem>),
     IdNewtype,
+    /// A nominal object family whose payload is preserved until typed decoding.
+    OpaqueObject,
 }
 
 #[derive(Debug, Clone)]
@@ -127,8 +131,35 @@ impl ItemRecord {
     pub fn object(&self) -> Option<&ObjectItem> {
         match &self.item {
             RustItem::Object(object) => Some(object),
-            RustItem::IdNewtype => None,
+            RustItem::IdNewtype | RustItem::OpaqueObject => None,
         }
+    }
+
+    /// Visit the represented type uses in this declaration and its Object impl.
+    /// Structural children describe emission order; only actual references
+    /// create dependencies on declarations in other source modules.
+    pub(crate) fn visit_type_uses(
+        &self,
+        mut visit: impl FnMut(&RustType) -> anyhow::Result<()>,
+    ) -> anyhow::Result<()> {
+        let Some(object) = self.object() else { return Ok(()) };
+        match &object.definition {
+            RustObject::Struct(strukt) => {
+                for field in &strukt.fields {
+                    visit(&field.rust_type)?;
+                }
+            }
+            RustObject::Enum(variants) => {
+                for typ in variants.iter().filter_map(|variant| variant.rust_type.as_ref()) {
+                    visit(typ)?;
+                }
+            }
+            RustObject::FieldlessEnum(_) => {}
+        }
+        if let Some(ObjectIdentity::IdType(typ)) = &object.identity {
+            visit(typ)?;
+        }
+        Ok(())
     }
 }
 
@@ -305,6 +336,76 @@ impl ItemCatalog {
         self.property_analysis_rounds
     }
 
+    /// Select wire storage after sharing and allocation, preserving item IDs and
+    /// occurrence provenance. Only represented types change; the parsed
+    /// dependency facts remain available on Components.
+    pub(crate) fn use_opaque_relationships(
+        &mut self,
+        components: &Components,
+    ) -> anyhow::Result<()> {
+        use crate::rust_object::EnumOfObjects;
+        use crate::rust_type::ExternalType;
+
+        let mut ids = HashMap::new();
+        for (item, record) in self.iter() {
+            let Some(object) = record.object() else { continue };
+            let id = match &object.identity {
+                Some(ObjectIdentity::IdType(id)) => Some(id.clone()),
+                Some(ObjectIdentity::ObjectUnion) => {
+                    Some(RustType::External(ExternalType::SmolStr))
+                }
+                None => match &object.enum_of_objects {
+                    Some(EnumOfObjects::ObjectUnion(_)) => {
+                        Some(RustType::External(ExternalType::SmolStr))
+                    }
+                    Some(EnumOfObjects::MaybeDeleted(maybe)) => self
+                        .get(self.component_root(maybe.base))
+                        .object()
+                        .and_then(|base| base.identity.as_ref())
+                        .and_then(ObjectIdentity::id_type)
+                        .cloned(),
+                    None => None,
+                },
+            };
+            if let Some(id) = id {
+                ids.insert(item, id);
+            }
+        }
+        for record in &mut self.items {
+            let diagnostic = matches!(&record.origin.type_root,
+                TypeRoot::Declaration(DeclarationRoot::Component(component))
+                if components.component_name(*component).as_ref() == "api_errors");
+            let RustItem::Object(object) = &mut record.item else { continue };
+            if matches!(object.enum_of_objects, Some(EnumOfObjects::ObjectUnion(_))) {
+                anyhow::ensure!(
+                    record.children.is_empty(),
+                    "object union unexpectedly owns inline declarations"
+                );
+                record.item = RustItem::OpaqueObject;
+                continue;
+            }
+            match &mut object.definition {
+                RustObject::Struct(strukt) => {
+                    for field in &mut strukt.fields {
+                        lower_opaque_type(&mut field.rust_type, &ids, diagnostic)?;
+                    }
+                }
+                RustObject::Enum(variants) => {
+                    for typ in variants.iter_mut().filter_map(|variant| variant.rust_type.as_mut())
+                    {
+                        lower_opaque_type(typ, &ids, false)?;
+                    }
+                }
+                RustObject::FieldlessEnum(_) => {}
+            }
+        }
+        for root in self.roots.values_mut() {
+            lower_opaque_type(&mut root.typ, &ids, false)?;
+        }
+        self.validate_lowered_structure()?;
+        self.analyze_properties()
+    }
+
     fn lower_named_references(&mut self) -> anyhow::Result<()> {
         let declarations = self
             .roots
@@ -326,7 +427,7 @@ impl ItemCatalog {
         Ok(())
     }
 
-    fn analyze_properties(&mut self) -> anyhow::Result<()> {
+    pub(crate) fn analyze_properties(&mut self) -> anyhow::Result<()> {
         let (inferred, rounds) = crate::item_properties::infer(&self.items)?;
         self.properties = inferred;
         self.property_analysis_rounds = rounds;
@@ -389,7 +490,7 @@ impl ItemCatalog {
                     }),
                     RustObject::Struct(_) | RustObject::FieldlessEnum(_) => None,
                 },
-                RustItem::IdNewtype => None,
+                RustItem::IdNewtype | RustItem::OpaqueObject => None,
             })
             .collect::<Vec<_>>();
         for (item, classification) in self.items.iter_mut().zip(classifications) {
@@ -398,6 +499,39 @@ impl ItemCatalog {
             }
         }
     }
+}
+
+fn lower_opaque_type(
+    typ: &mut RustType,
+    ids: &HashMap<ItemId, RustType>,
+    diagnostic: bool,
+) -> anyhow::Result<()> {
+    use crate::rust_type::{Container, ExternalType};
+    match typ {
+        RustType::Container(Container::Expandable(target)) => {
+            let item = target.item_id().ok_or_else(|| {
+                anyhow::anyhow!("expandable target has no canonical item: {target:?}")
+            })?;
+            let id = ids
+                .get(&item)
+                .ok_or_else(|| {
+                    anyhow::anyhow!("expandable target has no ID representation: {item:?}")
+                })?
+                .clone();
+            *typ = RustType::Container(Container::OpaqueExpandable(Box::new(id)));
+        }
+        RustType::Item(item) if diagnostic && ids.contains_key(item) => {
+            // Error context can contain resources from many API families. Keep
+            // the error's scalar fields typed without requiring every model.
+            *typ = RustType::External(ExternalType::ObjectValue);
+        }
+        RustType::Container(container) => {
+            lower_opaque_type(container.value_typ_mut(), ids, diagnostic)?
+        }
+        RustType::Reference(inner) => lower_opaque_type(inner, ids, diagnostic)?,
+        _ => {}
+    }
+    Ok(())
 }
 
 fn validate_lowered_object(object: &RustObject, item_count: usize) -> anyhow::Result<()> {
@@ -724,6 +858,9 @@ mod dependency_tests;
 
 #[cfg(test)]
 mod emission_tests;
+
+#[cfg(test)]
+mod opaque_tests;
 
 #[cfg(test)]
 mod tests {

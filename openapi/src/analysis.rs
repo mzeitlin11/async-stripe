@@ -13,6 +13,7 @@ use crate::graph::{ComponentGraph, gen_inferred_crate_dep_graph};
 use crate::item_catalog::{ItemKind, RustItem};
 use crate::item_layout::ItemAddress;
 use crate::item_origin::{ItemOrigin, TypeRoot};
+use crate::model_availability::Availability;
 use crate::output::ArtifactSet;
 use crate::rust_object::{ObjectKind, RustObject};
 use crate::rust_type::{DeclarationRoot, RustType};
@@ -81,6 +82,34 @@ impl CodeGen {
         bundle.insert("item-occurrences.csv", item_occurrences_csv(self));
         bundle.insert("dependencies.csv", dependencies_csv(&self.components));
         bundle.insert("crate-inference-warnings.csv", crate_warnings_csv(self));
+        if let Some(plan) = &self.availability {
+            let mut report = String::from("item_id,ident,emission_path,availability\n");
+            for (item, record) in self.model.items().iter() {
+                let site = self.item_layout.placement(item).emission_site();
+                let availability = match plan.site(site) {
+                    Availability::Always => "always".to_string(),
+                    Availability::Disabled => "disabled".to_string(),
+                    Availability::Features(features) => {
+                        features.iter().cloned().collect::<Vec<_>>().join("|")
+                    }
+                };
+                let row = [
+                    item.index().to_string(),
+                    record.metadata.ident.to_string(),
+                    self.output_locations()
+                        .emission_path(site, self.model.items())
+                        .display()
+                        .to_string(),
+                    availability,
+                ];
+                let _ = writeln!(
+                    report,
+                    "{}",
+                    row.iter().map(|value| csv(value)).collect::<Vec<_>>().join(",")
+                );
+            }
+            bundle.insert("model-availability.csv", report);
+        }
 
         if graph_detail != GraphDetail::None {
             bundle
@@ -222,8 +251,10 @@ fn summary(
         shape.add(shape_for_type(&webhook.typ));
     }
     let items = codegen.model.items();
-    let canonical_objects =
-        items.iter().filter(|(_, item)| matches!(item.item, RustItem::Object(_))).count();
+    let canonical_objects = items
+        .iter()
+        .filter(|(_, item)| matches!(item.item, RustItem::Object(_) | RustItem::OpaqueObject))
+        .count();
     assert_eq!(
         shape.objects, canonical_objects,
         "canonical item catalog did not match the independently counted Rust objects"

@@ -57,6 +57,11 @@
 #![forbid(unsafe_code)]
 
 mod error;
+mod generated;
+
+// The default generator does not yet select facade model groups.
+#[allow(unused_imports)]
+pub use generated::*;
 
 #[cfg(feature = "async-std-surf")]
 pub mod async_std;

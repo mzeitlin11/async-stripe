@@ -220,6 +220,47 @@ fn diagnostic_context_becomes_opaque_without_changing_scalar_fields() {
 }
 
 #[test]
+fn tagless_expandable_and_diagnostic_targets_keep_their_concrete_representation() {
+    let mut fixture = Fixture::new();
+    let customer = fixture.items.component_root(fixture.customer);
+    let RustItem::Object(object) = &mut fixture.items.items[customer.index()].item else {
+        panic!()
+    };
+    let RustObject::Struct(strukt) = &mut object.definition else { panic!() };
+    // The guard must use the canonical model, which may have been rewritten,
+    // rather than the immutable inference-side component.
+    strukt.object_field = None;
+    assert!(fixture.components.get_by_id(fixture.customer).object_name().is_some());
+    fixture.items.use_opaque_relationships(&fixture.components).unwrap();
+    let charge = fixture.items.get(fixture.items.component_root(fixture.charge)).object().unwrap();
+    assert_eq!(
+        charge.definition.get_struct_field("customer"),
+        Some(&RustType::option(RustType::expandable(RustType::Item(customer))))
+    );
+    let errors = fixture.items.get(fixture.items.component_root(fixture.errors)).object().unwrap();
+    assert_eq!(
+        errors.definition.get_struct_field("customer"),
+        Some(&RustType::option(RustType::boxed(RustType::Item(customer))))
+    );
+    // A tagged resource in the same diagnostic record still becomes raw.
+    assert_eq!(
+        errors.definition.get_struct_field("charge"),
+        Some(&RustType::option(RustType::External(ExternalType::ObjectValue)))
+    );
+    let layout = fixture.layout(true);
+    let groups = [ModelFeature {
+        name: "charge".into(),
+        items: vec![fixture.items.component_root(fixture.charge)],
+        requests: vec![],
+    }];
+    let plan = ModelAvailability::build(&fixture.items, [], &layout, &[], &groups).unwrap();
+    assert_eq!(
+        plan.site(layout.placement(customer).emission_site()),
+        &Availability::Features(["charge".into()].into_iter().collect())
+    );
+}
+
+#[test]
 fn nominal_object_families_emit_without_importing_their_concrete_variants() {
     let mut fixture = Fixture::new();
     fixture.items.use_opaque_relationships(&fixture.components).unwrap();

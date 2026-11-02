@@ -121,6 +121,35 @@ mod tests {
 #[cfg(all(test, feature = "charge"))]
 mod charge_tests {
     #[test]
+    fn an_untagged_expanded_rule_preserves_its_existing_concrete_decoder() {
+        use serde_json::json;
+        for value in [
+            json!("rule_example"),
+            json!({"id":"rule_example","action":"allow","predicate":":is_test:"}),
+        ] {
+            let expanded = value.is_object();
+            let mut payload: serde_json::Value =
+                serde_json::from_str(include_str!("../charge.json")).unwrap();
+            payload["outcome"] = json!({"type":"authorized","advice_code":null,"network_advice_code":null,"network_decline_code":null,"network_status":"approved_by_network","reason":null,"risk_level":"normal","seller_message":"Payment complete.","rule":value});
+            let charge: stripe::Charge = miniserde::json::from_str(&payload.to_string()).unwrap();
+            let rule = charge.outcome.unwrap().rule.unwrap();
+            assert_eq!(rule.id().as_str(), "rule_example");
+            assert_eq!(rule.as_object().is_some(), expanded);
+            if let Some(rule) = rule.as_object() {
+                assert_eq!(rule.action, "allow");
+                assert_eq!(rule.predicate, ":is_test:");
+            }
+            #[cfg(feature = "deserialize")]
+            {
+                let charge: stripe::Charge = serde_json::from_value(payload).unwrap();
+                let rule = charge.outcome.unwrap().rule.unwrap();
+                assert_eq!(rule.id().as_str(), "rule_example");
+                assert_eq!(rule.as_object().is_some(), expanded);
+            }
+        }
+    }
+
+    #[test]
     fn the_facade_supports_request_construction_without_another_model_group() {
         let _request = stripe::CreateCharge::new().amount(1000).currency(stripe::Currency::USD);
         let _address = stripe::charge::OptionalFieldsAddress::new();

@@ -402,6 +402,22 @@ impl ItemCatalog {
         let mut ids = HashMap::new();
         for (item, record) in self.iter() {
             let Some(object) = record.object() else { continue };
+            // Value-backed objects require the tagged Stripe envelope. Some
+            // expandable resources have an ID but no `object` discriminator.
+            let tagged = match &object.enum_of_objects {
+                Some(EnumOfObjects::ObjectUnion(_)) => true,
+                Some(EnumOfObjects::MaybeDeleted(maybe)) => {
+                    self.get(self.component_root(maybe.base)).object().is_some_and(|base| {
+                        matches!(&base.definition,
+                        RustObject::Struct(strukt) if strukt.object_field.is_some())
+                    })
+                }
+                None => matches!(&object.definition,
+                    RustObject::Struct(strukt) if strukt.object_field.is_some()),
+            };
+            if !tagged {
+                continue;
+            }
             let id = match &object.identity {
                 Some(ObjectIdentity::IdType(id)) => Some(id.clone()),
                 Some(ObjectIdentity::ObjectUnion) => {
@@ -615,13 +631,9 @@ fn lower_opaque_type(
             let item = target.item_id().ok_or_else(|| {
                 anyhow::anyhow!("expandable target has no canonical item: {target:?}")
             })?;
-            let id = ids
-                .get(&item)
-                .ok_or_else(|| {
-                    anyhow::anyhow!("expandable target has no ID representation: {item:?}")
-                })?
-                .clone();
-            *typ = RustType::Container(Container::OpaqueExpandable(Box::new(id)));
+            if let Some(id) = ids.get(&item) {
+                *typ = RustType::Container(Container::OpaqueExpandable(Box::new(id.clone())));
+            }
         }
         RustType::Item(item) if diagnostic && ids.contains_key(item) => {
             // Error context can contain resources from many API families. Keep

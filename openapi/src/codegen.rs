@@ -42,7 +42,7 @@ pub struct CodeGen {
     pub crate_inference_warnings: Vec<CrateInferenceWarning>,
     edge_policy: EdgePolicy,
     pub(crate) availability: Option<ModelAvailability>,
-    model_groups: Vec<(String, ComponentId)>,
+    model_groups: Vec<ModelFeature>,
 }
 
 #[derive(Debug, Copy, Clone, Default)]
@@ -129,10 +129,7 @@ impl CodeGen {
             .iter()
             .filter(|(component, object)| {
                 object.object_name().is_some()
-                    || matches!(
-                        object.identity(),
-                        Some(crate::rust_object::ObjectIdentity::ObjectUnion)
-                    )
+                    || object.identity().is_some()
                     || self.components.has_requests(**component)
             })
             .map(|(&component, object)| (object.mod_path(), component))
@@ -153,38 +150,87 @@ impl CodeGen {
                 .iter()
                 .find(|(_, object)| object.mod_path() == *name)
                 .with_context(|| format!("unknown model group {name}"))?;
-            generated.model_groups.push((object.mod_path(), component));
+            generated.model_groups.push(ModelFeature {
+                name: object.mod_path(),
+                items: vec![items.component_root(component)],
+                requests: generated
+                    .components
+                    .has_requests(component)
+                    .then_some(component)
+                    .into_iter()
+                    .collect(),
+                consumer_crate: generated.component_layout.placement(component).request_crate(),
+            });
         }
         let mut availability = generated.model_availability()?;
-        let mut selected = generated
-            .model_groups
-            .iter()
-            .map(|(name, _)| name.clone())
-            .collect::<std::collections::BTreeSet<_>>();
-        for accessor in items.record_accessors() {
-            if *availability.site(generated.item_layout.placement(accessor.owner).emission_site())
-                == crate::model_availability::Availability::Disabled
-            {
-                continue;
+        let mut registered_decoders = std::collections::HashSet::new();
+        loop {
+            let before = registered_decoders.len();
+            for accessor in items.record_accessors() {
+                if registered_decoders.contains(&accessor.payload)
+                    || *availability
+                        .site(generated.item_layout.placement(accessor.owner).emission_site())
+                        == crate::model_availability::Availability::Disabled
+                {
+                    continue;
+                }
+                let TypeRoot::Declaration(DeclarationRoot::Component(component)) =
+                    items.get(accessor.payload).origin.type_root
+                else {
+                    anyhow::bail!("record decoder has no component root: {:?}", accessor.payload);
+                };
+                let consumer_crate =
+                    generated.component_layout.placement(component).request_crate();
+                let owner = items.get(accessor.owner);
+                let individual = owner.origin.path.is_empty()
+                    && matches!(owner.origin.type_root,
+                        TypeRoot::Declaration(DeclarationRoot::Component(owner))
+                        if generated.components.component_name(owner).as_ref() == "payment_method_details");
+                let name = if individual {
+                    generated.components.get_by_id(component).mod_path()
+                } else {
+                    format!("{}_decoders", consumer_crate.base_name())
+                };
+                if let Some(group) =
+                    generated.model_groups.iter_mut().find(|group| group.name == name)
+                {
+                    anyhow::ensure!(
+                        group.consumer_crate == consumer_crate && group.requests.is_empty(),
+                        "decoder group conflicts with an existing resource group: {name}"
+                    );
+                    if !group.items.contains(&accessor.payload) {
+                        group.items.push(accessor.payload);
+                    }
+                } else {
+                    generated.model_groups.push(ModelFeature {
+                        name,
+                        items: vec![accessor.payload],
+                        requests: vec![],
+                        consumer_crate,
+                    });
+                }
+                registered_decoders.insert(accessor.payload);
             }
-            let TypeRoot::Declaration(DeclarationRoot::Component(component)) =
-                items.get(accessor.payload).origin.type_root
-            else {
-                anyhow::bail!("record decoder has no component root: {:?}", accessor.payload);
-            };
-            let name = generated.components.get_by_id(component).mod_path();
-            if selected.insert(name.clone()) {
-                anyhow::ensure!(
-                    !generated.components.has_requests(component),
-                    "record decoder unexpectedly implements requests: {name}"
-                );
-                generated.model_groups.push((name.clone(), component));
+            if registered_decoders.len() == before {
+                break;
             }
-        }
-        if generated.model_groups.len() != groups.len() {
+            // Enabling one payload can reveal another lazy record whose own
+            // optional decoders were unavailable in the previous closure.
             availability = generated.model_availability()?;
         }
-        generated.availability = Some(availability);
+        generated.component_layout = generated.component_layout.with_record_decoder_colocation(
+            items,
+            &generated.item_layout,
+            &availability,
+        );
+        generated.item_layout = ItemLayout::from_component_layout(
+            &generated.components,
+            items,
+            &generated.component_layout,
+        )?;
+        generated.item_layout.separate_reference_types(items);
+        generated.item_layout.validate(items, &generated.component_layout)?;
+        generated.availability = Some(generated.model_availability()?);
         generated.crate_dependencies = crate_dependencies(
             items,
             generated.model.requests(),
@@ -196,20 +242,6 @@ impl CodeGen {
 
     fn model_availability(&self) -> anyhow::Result<ModelAvailability> {
         let items = self.model.items();
-        let features = self
-            .model_groups
-            .iter()
-            .map(|(name, component)| ModelFeature {
-                name: name.clone(),
-                items: vec![items.component_root(*component)],
-                requests: self
-                    .components
-                    .has_requests(*component)
-                    .then_some(*component)
-                    .into_iter()
-                    .collect(),
-            })
-            .collect::<Vec<_>>();
         let unconditional = items.iter().filter_map(|(item, record)| {
             let support = record.is_reference_foundation()
                 || matches!(&record.origin.type_root, TypeRoot::Declaration(DeclarationRoot::Shared(_)))
@@ -224,7 +256,7 @@ impl CodeGen {
             self.model.requests(),
             &self.item_layout,
             &unconditional,
-            &features,
+            &self.model_groups,
         )
     }
 
@@ -238,21 +270,19 @@ impl CodeGen {
             .availability
             .as_ref()
             .context("consumer model layout requires opaque v1 generation")?;
-        let selected = self
-            .model_groups
-            .iter()
-            .map(|(_, component)| *component)
-            .collect::<std::collections::HashSet<_>>();
         anyhow::ensure!(
-            self.resource_model_groups().iter().all(|(_, component)| selected.contains(component)),
+            self.resource_model_groups().iter().all(|(name, component)| {
+                self.model_groups.iter().any(|group| {
+                    group.name == *name
+                        && group.items.contains(&self.model.items().component_root(*component))
+                })
+            }),
             "consumer model layout requires every v1 resource group; use --all"
         );
         let feature_crates = self
             .model_groups
             .iter()
-            .map(|(name, component)| {
-                (name.clone(), self.component_layout.placement(*component).request_crate())
-            })
+            .map(|group| (group.name.clone(), group.consumer_crate))
             .collect();
         self.component_layout = self.component_layout.with_consumer_model_crates(
             &self.components,
@@ -379,12 +409,19 @@ impl CodeGen {
         output.write("crate_info.md", generate_crate_table(self.output_locations()))?;
         self.write_object_info_for_testing(&mut output)?;
         if self.availability.is_some() {
+            let request_groups = self
+                .model_groups
+                .iter()
+                .flat_map(|group| {
+                    group.requests.iter().map(|&component| (group.name.clone(), component))
+                })
+                .collect::<Vec<_>>();
             crate::facade::write_facade(
                 self.output_locations(),
                 self.model.items(),
                 &self.item_layout,
                 self.availability.as_ref().expect("opaque model availability"),
-                &self.model_groups,
+                &request_groups,
                 &self.version,
                 &mut output,
             )?;

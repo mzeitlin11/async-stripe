@@ -1,6 +1,8 @@
+#[cfg(not(feature = "opaque-models"))]
+use stripe_core::customer::RetrieveCustomerReturned;
 use stripe_core::{
     CustomerId,
-    customer::{CreateCustomer, DeleteCustomer, RetrieveCustomer, RetrieveCustomerReturned},
+    customer::{CreateCustomer, DeleteCustomer, RetrieveCustomer},
 };
 
 use super::{get_base_test_config, get_client};
@@ -33,12 +35,14 @@ fn retrieve_customer() {
     let client = get_client();
     let id = CustomerId::from("cus_123");
     let ret = RetrieveCustomer::new(&id).send_blocking(&client).unwrap();
-    match ret {
-        RetrieveCustomerReturned::Customer(cust) => {
-            assert_eq!(cust.id, id);
-            assert_eq!(cust.invoice_prefix, Some("7FE1103".into()));
-            assert_eq!(cust.created, 1234567890);
-        }
+    #[cfg(feature = "opaque-models")]
+    let cust = ret.into_typed::<stripe_core::Customer>().unwrap();
+    #[cfg(not(feature = "opaque-models"))]
+    let cust = match ret {
+        RetrieveCustomerReturned::Customer(cust) => cust,
         RetrieveCustomerReturned::DeletedCustomer(_) => panic!("expected non-deleted response"),
-    }
+    };
+    assert_eq!(cust.id, id);
+    assert_eq!(cust.invoice_prefix, Some("7FE1103".into()));
+    assert_eq!(cust.created, 1234567890);
 }

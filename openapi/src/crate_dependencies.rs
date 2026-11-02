@@ -65,8 +65,12 @@ pub(crate) fn crate_dependencies<'a>(
         anyhow::ensure!(
             matches!(owner.address(), ItemAddress::CrateRoot(_))
                 && owner.address() == payload.address(),
-            "lazy record accessor {} requires its owner and payload in the same public crate",
-            accessor.field.field_name
+            "lazy record accessor {} requires its owner {} ({:?}) and payload {} ({:?}) in the same public crate",
+            accessor.field.field_name,
+            items.get(accessor.owner).metadata.ident,
+            owner.address(),
+            items.get(accessor.payload).metadata.ident,
+            payload.address()
         );
         accessor.visit_type_uses(|typ| {
             add_type_dependencies(

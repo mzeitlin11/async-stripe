@@ -27,6 +27,14 @@ impl RenderContext<'_> {
         self.assert_emits(item);
         let record = self.item(item);
         match &record.item {
+            RustItem::Object(object) if !object.deferred_fields.is_empty() => {
+                if let Some(doc) = &record.metadata.doc {
+                    out.push_str(&write_doc_comment(doc, 0));
+                }
+                let RustObject::Struct(strukt) = &object.definition else { unreachable!() };
+                let writer = ObjectWriter::new(*self, &record.metadata.ident, object.usage);
+                writer.write_polymorphic_struct(out, strukt);
+            }
             RustItem::Object(object) => self.write_object_with_properties(
                 &object.definition,
                 &record.metadata,
@@ -38,9 +46,16 @@ impl RenderContext<'_> {
             RustItem::IdNewtype => {
                 let _ = writeln!(out, "{STRIPE_TYPES}::def_id!({});", record.metadata.ident);
             }
-            RustItem::OpaqueObject => {
+            RustItem::OpaqueObject(tag) => {
                 let _ =
                     writeln!(out, "{STRIPE_TYPES}::def_object_value!({});", record.metadata.ident);
+                if let Some(tag) = tag {
+                    let _ = writeln!(
+                        out,
+                        "impl {STRIPE_TYPES}::ObjectType for {} {{ const OBJECT_TYPE: &'static str = {tag:?}; }}",
+                        record.metadata.ident
+                    );
+                }
             }
             RustItem::OpaqueRecord(_) => {
                 if let Some(doc) = &record.metadata.doc {

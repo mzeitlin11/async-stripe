@@ -360,6 +360,11 @@ fn fmt_container(
             fmt_type(f, context, inner, nested_use)?;
             f.write_char('>')?;
         }
+        Container::UntaggedExpandable(inner) => {
+            write!(f, "{STRIPE_TYPES}::ExpandedValue<")?;
+            fmt_type(f, context, inner, nested_use)?;
+            f.write_char('>')?;
+        }
         Container::Option(inner) => {
             f.write_str("Option<")?;
             fmt_type(f, context, inner, nested_use)?;

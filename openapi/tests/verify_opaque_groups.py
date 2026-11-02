@@ -104,7 +104,7 @@ def main():
     target = (args.target_dir or work / "consumer-target").resolve()
     before = source_snapshot()
     env = dict(os.environ, CARGO_TARGET_DIR=str(generator_target))
-    groups = ["--all"] if args.full_v1 else ["balance_transaction", "charge", "invoice", "balance_transaction_source", "application", "deleted_customer", "customer"]
+    groups = ["--all"] if args.full_v1 else ["balance_transaction", "charge", "invoice", "balance_transaction_source", "application", "deleted_customer", "customer", "rule", "payment_method", "payment_intent", "source", "treasury_transaction"]
     if args.consumer_layout:
         groups.append("--consumer-layout")
     run(work, "generation", ["cargo", f"+{args.toolchain}", "run", "--locked", "--offline", "--example", "opaque_model_groups", "--", str(output), *groups], REPO / "openapi", env)
@@ -189,6 +189,17 @@ def main():
     run(work, "shared-tag-models", cargo + ["test", "--offline", "--no-default-features", "--features", "application,deleted_customer,customer,deserialize"], fixture, env)
     run(work, "optional-invoice-identity", cargo + ["test", "--offline", "--no-default-features", "--features", "invoice,serialize,deserialize"], fixture, env)
     run(work, "combined-groups", cargo + ["test", "--offline", "--no-default-features", "--features", "charge,invoice"], fixture, env)
+    extra_sources = {}
+    for feature in ["payment_method", "customer", "payment_intent", "treasury_transaction"]:
+        result = run(work, feature + "-only", cargo + ["test", "--offline", "--no-default-features", "--features", feature, "--message-format=json"], fixture, env)
+        sources = compiled_generated_sources(result.stdout, workspace)
+        extra_sources[feature] = sources
+        (work / f"{feature}-compiled-sources.json").write_text(json.dumps(sources, indent=2) + "\n")
+    assert model_paths["PaymentMethodCard"] not in extra_sources["payment_method"], "PaymentMethod compiled its optional card decoder"
+    assert model_paths["PaymentIntentPaymentMethodOptionsCard"] not in extra_sources["payment_intent"], "PaymentIntent compiled its optional card settings decoder"
+    assert model_paths["IssuingCard"] not in extra_sources["treasury_transaction"], "Treasury transaction compiled Issuing card through opaque flow details"
+    run(work, "mixed-record-decoders", cargo + ["test", "--offline", "--no-default-features", "--features", "payment_method,payment_intent,source,payment_decoders,core_decoders,serialize,deserialize"], fixture, env)
+    run(work, "treasury-record-decoders", cargo + ["test", "--offline", "--no-default-features", "--features", "treasury_transaction,issuing_decoders,serialize,deserialize"], fixture, env)
     run(work, "all-features", cargo + ["test", "--offline", "--all-features"], fixture, env)
     run(work, "http-client", cargo + ["check", "--offline", "--features", "stripe/default-tls"], fixture, env)
     bare = run(work, "bare-serialize", cargo + ["check", "--offline", "--manifest-path", str(workspace / "async-stripe/Cargo.toml"), "--no-default-features", "--features", "serialize", "--message-format=json"], workspace, env)
@@ -221,6 +232,7 @@ def main():
         run(work, "parser", cargo + ["test", "--offline", "-p", "async-stripe-parser"], workspace, env)
     assert source_snapshot() == before, "verification modified product source"
     source_sets = {"base": base_sources, "charge": charge_sources, "charge_only": charge_only_sources, "card_decoder": card_sources, "ideal_decoder": ideal_sources, "webhook_base": webhook_base_sources, "webhook_charge": webhook_charge_sources}
+    source_sets.update(extra_sources)
     summary = {"full_v1": args.full_v1, "consumer_layout": args.consumer_layout, "workspace_retained": args.keep_workspace, "maximum_published_feature_count": max(feature_counts.values()), "charge_absent_from_base": True, "detail_decoders_compile_independently": True, "webhook_charge_does_not_compile_requests_or_client_interfaces": True, "source_unchanged": True}
     for name, sources in source_sets.items():
         summary[f"{name}_generated_source_files"] = len(sources)

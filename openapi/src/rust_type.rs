@@ -250,6 +250,8 @@ pub enum Container {
     Expandable(Box<RustType>),
     /// An ID or preserved JSON object; the inner type is the ID, not the model.
     OpaqueExpandable(Box<RustType>),
+    /// An ID or preserved untagged object; the inner type is its identity.
+    UntaggedExpandable(Box<RustType>),
     /// Option<{typ}>
     Option(Box<RustType>),
     /// Box<{typ}>
@@ -274,6 +276,7 @@ impl Container {
             Slice(typ) => typ,
             Expandable(typ) => typ,
             OpaqueExpandable(typ) => typ,
+            UntaggedExpandable(typ) => typ,
             Option(typ) => typ,
             Box(typ) => typ,
             Map { value, .. } => value,
@@ -290,6 +293,7 @@ impl Container {
             Slice(typ) => typ,
             Expandable(typ) => typ,
             OpaqueExpandable(typ) => typ,
+            UntaggedExpandable(typ) => typ,
             Option(typ) => typ,
             Box(typ) => typ,
             Map { value, .. } => value,

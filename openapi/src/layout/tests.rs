@@ -136,11 +136,13 @@ impl Fixture {
             .collect::<Vec<_>>();
         let mut features = vec![
             ModelFeature {
+                consumer_crate: crate::crates::Crate::SHARED,
                 name: "charge".into(),
                 items: vec![items.component_root(ids["charge"])],
                 requests: vec![],
             },
             ModelFeature {
+                consumer_crate: crate::crates::Crate::SHARED,
                 name: "card".into(),
                 items: vec![items.component_root(ids["payment_method_details_card"])],
                 requests: vec![],
@@ -270,4 +272,35 @@ fn a_feature_without_a_service_owner_is_rejected() {
         )
         .unwrap_err();
     assert!(error.to_string().contains("card"));
+}
+
+#[test]
+fn baseline_decoder_colocation_shares_payload_children_independently_of_features() {
+    let fixture = Fixture::new(false);
+    let placements = fixture
+        .components
+        .components
+        .keys()
+        .map(|&component| {
+            let request = fixture.initial.placement(component).request_crate();
+            let types = match fixture.components.component_name(component).as_ref() {
+                "payment_method_details" => krate("core"),
+                "payment_method_details_card" | "card_wallet" => krate("payment"),
+                _ => fixture.initial.placement(component).types_crate(),
+            };
+            (component, request, types)
+        })
+        .collect::<Vec<_>>();
+    let initial = ComponentLayout::for_test(&placements);
+    let mut layout =
+        ItemLayout::from_component_layout(&fixture.components, &fixture.items, &initial).unwrap();
+    layout.separate_reference_types(&fixture.items);
+    let placed =
+        initial.with_record_decoder_colocation(&fixture.items, &layout, &fixture.availability);
+    for name in ["payment_method_details", "payment_method_details_card", "card_wallet"] {
+        assert_eq!(fixture.types(&placed, name), Crate::SHARED);
+    }
+    let empty = ModelAvailability::build(&fixture.items, [], &layout, &[], &[]).unwrap();
+    let without_features = initial.with_record_decoder_colocation(&fixture.items, &layout, &empty);
+    assert_eq!(fixture.by_name(&placed), fixture.by_name(&without_features));
 }

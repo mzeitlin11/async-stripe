@@ -177,6 +177,7 @@ impl Fixture {
         let features = groups
             .iter()
             .map(|(name, component)| ModelFeature {
+                consumer_crate: crate::crates::Crate::SHARED,
                 name: name.clone(),
                 items: vec![self.items.component_root(*component)],
                 requests: self
@@ -541,7 +542,7 @@ fn facade_exports_same_crate_models_from_the_root_of_the_private_types_module() 
 fn facade_exports_a_selected_opaque_family_only_once() {
     let mut fixture = Fixture::new();
     let model = fixture.items.component_root(fixture.charge);
-    fixture.items.items[model.index()].item = RustItem::OpaqueObject;
+    fixture.items.items[model.index()].item = RustItem::OpaqueObject(None);
     let ids = [fixture.customer, fixture.charge]
         .map(|component| (fixture.items.component_id_item(component).unwrap(), Crate::SHARED));
     let layout = fixture.layout(&[(model, Crate::SHARED), ids[0], ids[1]]);

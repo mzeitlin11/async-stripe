@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod mixed_records;
+
 #[cfg(all(test, feature = "balance_transaction"))]
 mod tests {
     use bytes::Bytes;
@@ -121,7 +124,7 @@ mod tests {
 #[cfg(all(test, feature = "charge"))]
 mod charge_tests {
     #[test]
-    fn an_untagged_expanded_rule_preserves_its_existing_concrete_decoder() {
+    fn an_untagged_expanded_rule_preserves_raw_data_without_its_model() {
         use serde_json::json;
         for value in [
             json!("rule_example"),
@@ -135,9 +138,18 @@ mod charge_tests {
             let rule = charge.outcome.unwrap().rule.unwrap();
             assert_eq!(rule.id().as_str(), "rule_example");
             assert_eq!(rule.as_object().is_some(), expanded);
-            if let Some(rule) = rule.as_object() {
-                assert_eq!(rule.action, "allow");
-                assert_eq!(rule.predicate, ":is_test:");
+            if let Some(miniserde::json::Value::Object(object)) = rule.as_object() {
+                assert!(
+                    matches!(object.get("action"), Some(miniserde::json::Value::String(action)) if action == "allow")
+                );
+            }
+            #[cfg(feature = "rule")]
+            {
+                let decoded = rule.into_expanded_as::<stripe::Rule>().unwrap();
+                assert_eq!(decoded.is_some(), expanded);
+                if let Some(rule) = decoded {
+                    assert_eq!(rule.predicate, ":is_test:");
+                }
             }
             #[cfg(feature = "deserialize")]
             {
@@ -258,64 +270,47 @@ mod maybe_deleted_tests {
     use stripe::customer::RetrieveCustomerReturned;
 
     #[test]
-    fn deferred_customer_union_decoding_uses_the_existing_deleted_flag() {
-        for (json, expected_deleted) in [
+    fn opaque_live_deleted_families_preserve_both_shapes() {
+        for (json, deleted) in [
             (r#"{"id":"cus_example","object":"customer","created":1,"livemode":false}"#, false),
             (r#"{"id":"cus_example","object":"customer","deleted":true}"#, true),
-            (
-                r#"{"id":"cus_example","object":"customer","created":1,"livemode":false,"deleted":true}"#,
-                true,
-            ),
-            (
-                r#"{"id":"cus_example","object":"customer","created":1,"livemode":false,"deleted":false}"#,
-                false,
-            ),
         ] {
-            let eager: RetrieveCustomerReturned = miniserde::json::from_str(json).unwrap();
-            let object: stripe::ObjectValue = miniserde::json::from_str(json).unwrap();
-            let deferred = object.into_typed::<RetrieveCustomerReturned>().unwrap();
-            for model in [eager, deferred] {
-                match model {
-                    RetrieveCustomerReturned::Customer(customer) => {
-                        assert!(!expected_deleted, "{json}");
-                        assert_eq!(customer.id.as_str(), "cus_example");
-                    }
-                    RetrieveCustomerReturned::DeletedCustomer(customer) => {
-                        assert!(expected_deleted, "{json}");
-                        assert_eq!(customer.id.as_str(), "cus_example");
-                    }
-                }
+            let family: RetrieveCustomerReturned = miniserde::json::from_str(json).unwrap();
+            assert_eq!(family.id(), "cus_example");
+            assert_eq!(family.object_type(), "customer");
+            let wire: serde_json::Value =
+                serde_json::from_str(&miniserde::json::to_string(family.as_value())).unwrap();
+            assert_eq!(
+                wire.get("deleted").and_then(serde_json::Value::as_bool).unwrap_or(false),
+                deleted
+            );
+            if !deleted {
+                assert_eq!(family.into_typed::<stripe::Customer>().unwrap().created, 1);
             }
         }
     }
 
     #[test]
-    fn an_expanded_customer_keeps_its_typed_id_and_deleted_union_view() {
+    fn an_expanded_customer_keeps_its_typed_id_and_opaque_union_view() {
         let object: stripe::ExpandableValue<stripe::CustomerId> =
             miniserde::json::from_str(r#"{"id":"cus_example","object":"customer","deleted":true}"#)
                 .unwrap();
         let id: &stripe::CustomerId = object.id();
         assert_eq!(id.as_str(), "cus_example");
-        assert!(matches!(
-            object.into_expanded_as::<RetrieveCustomerReturned>().unwrap(),
-            Some(RetrieveCustomerReturned::DeletedCustomer(_))
-        ));
+        let family = object.into_expanded_as::<RetrieveCustomerReturned>().unwrap().unwrap();
+        assert_eq!(family.id(), "cus_example");
+        #[cfg(feature = "deleted_customer")]
+        assert_eq!(
+            family.into_typed::<stripe::DeletedCustomer>().unwrap().id.as_str(),
+            "cus_example"
+        );
     }
 
     #[test]
-    fn a_matching_family_tag_still_requires_a_valid_union_branch() {
-        for json in [
-            r#"{"id":"cus_example","object":"customer"}"#,
-            r#"{"id":"cus_example","object":"customer","deleted":false}"#,
-            r#"{"id":"cus_example","object":"customer","created":"invalid","livemode":false}"#,
-        ] {
-            assert!(miniserde::json::from_str::<RetrieveCustomerReturned>(json).is_err());
-            let object: stripe::ObjectValue = miniserde::json::from_str(json).unwrap();
-            assert!(matches!(
-                object.into_typed::<RetrieveCustomerReturned>(),
-                Err(stripe::ObjectDecodeError::InvalidObject { object_type: "customer" })
-            ));
-        }
+    fn opaque_family_defers_concrete_required_field_validation() {
+        let family: RetrieveCustomerReturned =
+            miniserde::json::from_str(r#"{"id":"cus_example","object":"customer"}"#).unwrap();
+        assert!(family.into_typed::<stripe::Customer>().is_err());
     }
 
     #[test]

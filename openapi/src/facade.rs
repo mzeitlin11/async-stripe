@@ -83,7 +83,7 @@ pub(crate) fn write_facade(
                                         RustObject::Enum(_) | RustObject::FieldlessEnum(_) => true,
                                     },
                                     RustItem::IdNewtype
-                                    | RustItem::OpaqueObject
+                                    | RustItem::OpaqueObject(_)
                                     | RustItem::OpaqueRecord(_) => true,
                                 }
                         })

@@ -16,13 +16,20 @@ pub(crate) fn infer(items: &[ItemRecord]) -> anyhow::Result<(Vec<ItemProperties>
         let next = items
             .iter()
             .map(|item| match &item.item {
-                RustItem::Object(object) => object_properties(&object.definition, items, &|id| {
-                    properties.get(id.index()).copied()
-                }),
+                RustItem::Object(object) => {
+                    let mut result = object_properties(&object.definition, items, &|id| {
+                        properties.get(id.index()).copied()
+                    })?;
+                    if !object.deferred_fields.is_empty() {
+                        result.is_copy = false;
+                        result.is_eq = false;
+                    }
+                    Ok(result)
+                }
                 RustItem::IdNewtype => {
                     Ok(ItemProperties { has_lifetime: false, is_copy: false, is_eq: true })
                 }
-                RustItem::OpaqueObject | RustItem::OpaqueRecord(_) => {
+                RustItem::OpaqueObject(_) | RustItem::OpaqueRecord(_) => {
                     Ok(ItemProperties { has_lifetime: false, is_copy: false, is_eq: false })
                 }
             })
@@ -129,7 +136,9 @@ where
                 }
                 Container::Vec(_) => result.is_copy = false,
                 Container::Slice(_) => result.is_copy = true,
-                Container::Expandable(_) | Container::OpaqueExpandable(_) => {
+                Container::Expandable(_)
+                | Container::OpaqueExpandable(_)
+                | Container::UntaggedExpandable(_) => {
                     result.is_copy = false;
                     result.is_eq = false;
                 }

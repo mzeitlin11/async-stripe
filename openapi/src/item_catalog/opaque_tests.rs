@@ -163,7 +163,7 @@ fn representation_preserves_item_ids_names_and_occurrence_history() {
     assert!(matches!(fixture.components.get_by_id(fixture.source).rust_obj(), RustObject::Enum(_)));
     assert!(matches!(
         fixture.items.get(fixture.items.component_root(fixture.source)).item,
-        RustItem::OpaqueObject
+        RustItem::OpaqueObject(_)
     ));
 }
 
@@ -220,7 +220,7 @@ fn diagnostic_context_becomes_opaque_without_changing_scalar_fields() {
 }
 
 #[test]
-fn tagless_expandable_and_diagnostic_targets_keep_their_concrete_representation() {
+fn tagless_expandables_defer_models_while_diagnostic_objects_keep_tagged_contract() {
     let mut fixture = Fixture::new();
     let customer = fixture.items.component_root(fixture.customer);
     let RustItem::Object(object) = &mut fixture.items.items[customer.index()].item else {
@@ -235,7 +235,9 @@ fn tagless_expandable_and_diagnostic_targets_keep_their_concrete_representation(
     let charge = fixture.items.get(fixture.items.component_root(fixture.charge)).object().unwrap();
     assert_eq!(
         charge.definition.get_struct_field("customer"),
-        Some(&RustType::option(RustType::expandable(RustType::Item(customer))))
+        Some(&RustType::option(RustType::Container(Container::UntaggedExpandable(Box::new(
+            RustType::Item(fixture.items.component_id_item(fixture.customer).unwrap())
+        )))))
     );
     let errors = fixture.items.get(fixture.items.component_root(fixture.errors)).object().unwrap();
     assert_eq!(
@@ -249,15 +251,15 @@ fn tagless_expandable_and_diagnostic_targets_keep_their_concrete_representation(
     );
     let layout = fixture.layout(true);
     let groups = [ModelFeature {
+        consumer_crate: crate::crates::Crate::SHARED,
         name: "charge".into(),
         items: vec![fixture.items.component_root(fixture.charge)],
         requests: vec![],
     }];
     let plan = ModelAvailability::build(&fixture.items, [], &layout, &[], &groups).unwrap();
-    assert_eq!(
-        plan.site(layout.placement(customer).emission_site()),
-        &Availability::Features(["charge".into()].into_iter().collect())
-    );
+    // Charge no longer requires its expandable target model. The diagnostic
+    // record is not enabled by this feature either.
+    assert_eq!(plan.site(layout.placement(customer).emission_site()), &Availability::Disabled);
 }
 
 #[test]
@@ -291,12 +293,13 @@ fn availability_uses_representations_instead_of_semantic_relationships() {
         .items
         .iter()
         .filter_map(|(item, record)| {
-            (matches!(record.item, RustItem::IdNewtype | RustItem::OpaqueObject)
+            (matches!(record.item, RustItem::IdNewtype | RustItem::OpaqueObject(_))
                 || item == fixture.items.component_root(fixture.errors))
             .then_some(item)
         })
         .collect::<Vec<_>>();
     let groups = [ModelFeature {
+        consumer_crate: crate::crates::Crate::SHARED,
         name: "charge".to_string(),
         items: vec![fixture.items.component_root(fixture.charge)],
         requests: vec![],
@@ -381,7 +384,12 @@ fn erased_reference_does_not_enable_a_structural_child_moved_to_another_module()
             .collect(),
     );
     layout.validate(&items, &component_layout).unwrap();
-    let group = ModelFeature { name: "charge".to_string(), items: vec![root], requests: vec![] };
+    let group = ModelFeature {
+        consumer_crate: crate::crates::Crate::SHARED,
+        name: "charge".to_string(),
+        items: vec![root],
+        requests: vec![],
+    };
     let plan = ModelAvailability::build(&items, [], &layout, &[], &[group]).unwrap();
     assert_eq!(plan.site(layout.placement(child).emission_site()), &Availability::Disabled);
     assert_eq!(plan.site(EmissionSite::ComponentTypes(customer)), &Availability::Disabled);
@@ -510,8 +518,18 @@ fn lazy_record_decoders_follow_payload_sites_without_enabling_other_payloads() {
     );
     layout.validate(&fixture.items, &placement).unwrap();
     let features = [
-        ModelFeature { name: "details".into(), items: vec![owner], requests: vec![] },
-        ModelFeature { name: "card".into(), items: vec![card], requests: vec![] },
+        ModelFeature {
+            consumer_crate: crate::crates::Crate::SHARED,
+            name: "details".into(),
+            items: vec![owner],
+            requests: vec![],
+        },
+        ModelFeature {
+            consumer_crate: crate::crates::Crate::SHARED,
+            name: "card".into(),
+            items: vec![card],
+            requests: vec![],
+        },
     ];
     let plan = ModelAvailability::build(&fixture.items, [], &layout, &[], &features).unwrap();
     assert_eq!(
@@ -570,13 +588,15 @@ fn lazy_record_decoder_rejects_cross_crate_inherent_impls() {
 }
 
 #[test]
-fn lazy_record_rejects_unexpected_detail_field_shapes() {
+fn ambiguous_open_records_keep_their_fields_typed() {
     let mut fixture = RecordFixture::new();
     let owner = fixture.items.component_root(fixture.owner);
     let RustItem::Object(object) = &mut fixture.items.items[owner.index()].item else { panic!() };
     let RustObject::Struct(strukt) = &mut object.definition else { panic!() };
     let field = strukt.fields.iter_mut().find(|field| field.field_name == "card").unwrap();
     field.rust_type = RustType::string();
-    let error = fixture.items.use_opaque_relationships(&fixture.components).unwrap_err();
-    assert!(error.to_string().contains("optional public item field"));
+    fixture.items.use_opaque_relationships(&fixture.components).unwrap();
+    let object = fixture.items.get(owner).object().unwrap();
+    assert!(object.deferred_fields.is_empty());
+    assert_eq!(object.definition.get_struct_field("card"), Some(&RustType::string()));
 }

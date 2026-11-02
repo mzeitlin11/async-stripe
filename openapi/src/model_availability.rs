@@ -16,6 +16,7 @@ pub(crate) struct ModelFeature {
     pub name: String,
     pub items: Vec<ItemId>,
     pub requests: Vec<ComponentId>,
+    pub consumer_crate: crate::crates::Crate,
 }
 
 /// Internal flags enable model declarations without their HTTP request builders.
@@ -345,6 +346,7 @@ mod tests {
 
         fn feature(&self, name: &str, component: ComponentId) -> ModelFeature {
             ModelFeature {
+                consumer_crate: crate::crates::Crate::SHARED,
                 name: name.to_string(),
                 items: vec![self.items.component_root(component)],
                 requests: vec![],
@@ -424,8 +426,12 @@ mod tests {
         let fixture = Fixture::new(false);
         let charge = fixture.items.component_root(fixture.charge);
         let details = fixture.items.get(charge).children[0];
-        let group =
-            ModelFeature { name: "details".to_string(), items: vec![details], requests: vec![] };
+        let group = ModelFeature {
+            consumer_crate: crate::crates::Crate::SHARED,
+            name: "details".to_string(),
+            items: vec![details],
+            requests: vec![],
+        };
         let plan = fixture.build(&[], &[group]);
         // The selected nested details struct has no Customer field, but its
         // enclosing source file contains Charge, which does reference Customer.
@@ -458,6 +464,7 @@ mod tests {
             req_path: "/charges".to_string(),
         };
         let group = ModelFeature {
+            consumer_crate: crate::crates::Crate::SHARED,
             name: "retrieve".to_string(),
             items: vec![],
             requests: vec![fixture.charge],

@@ -16,6 +16,7 @@ futures-util = { version = "0.3.21" }
 bytes = "1.6.0"
 tokio = { version = "1.24.1", features = ["rt", "macros"] }
 async-stripe-types = { path = "../async-stripe-types", features = ["serialize"] }
+async-stripe-shared = { path = "../generated/async-stripe-shared", features = ["serialize"] }
 async-stripe-client-core = { path = "../async-stripe-client-core" }
 async-stripe-connect = { path = "../generated/async-stripe-connect", features = ["account", "transfer_reversal", "serialize", "deserialize"] }
 async-stripe-billing = { path = "../generated/async-stripe-billing", features = ["invoice", "plan", "subscription", "subscription_item", "serialize"] }
@@ -41,3 +42,7 @@ rustls-tls-webpki-roots = ["async-stripe/rustls-tls-webpki-roots"]
 rustls-tls-native = ["async-stripe/rustls-tls-native"]
 rustls-ring = ["async-stripe/rustls-ring"]
 rustls-aws-lc-rs = ["async-stripe/rustls-aws-lc-rs"]
+
+[lints.rust]
+# Experimental generation declares this feature when it emits opaque models.
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(feature, values("opaque-models"))'] }

@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 
@@ -11,9 +11,9 @@ use crate::crates::{ALL_CRATES, Crate};
 use crate::dependencies::{Dependency, DependencySource, EdgePolicy};
 use crate::graph::{ComponentGraph, gen_inferred_crate_dep_graph};
 use crate::item_catalog::{ItemKind, RustItem};
-use crate::item_layout::ItemAddress;
+use crate::item_layout::{EmissionSite, ItemAddress};
 use crate::item_origin::{ItemOrigin, TypeRoot};
-use crate::model_availability::Availability;
+use crate::model_availability::{Availability, ModelAvailability};
 use crate::output::ArtifactSet;
 use crate::rust_object::{ObjectKind, RustObject};
 use crate::rust_type::{DeclarationRoot, RustType};
@@ -70,29 +70,243 @@ struct ComponentStats {
     requests: ShapeStats,
 }
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+enum ModuleKind {
+    Model,
+    Requests,
+    References,
+    Webhooks,
+}
+
+struct ModuleInfo<'a> {
+    availability: &'a Availability,
+    kind: ModuleKind,
+    items: usize,
+}
+
+#[derive(Default)]
+struct ModuleCounts {
+    modules: usize,
+    items: usize,
+    models: usize,
+    requests: usize,
+    references: usize,
+    webhooks: usize,
+}
+
+/// A sorted report view of the exact graph used for feature closure.
+struct ModelModuleAnalysis<'a> {
+    modules: BTreeMap<String, ModuleInfo<'a>>,
+    dependencies: BTreeSet<(String, String)>,
+}
+
+impl<'a> ModelModuleAnalysis<'a> {
+    fn new(codegen: &CodeGen, plan: &'a ModelAvailability) -> Self {
+        let items = codegen.model.items();
+        let locations = codegen.output_locations();
+        let path = |site| locations.emission_path(site, items).display().to_string();
+        let mut declarations: HashMap<EmissionSite, (usize, bool)> = HashMap::new();
+        for (item, record) in items.iter() {
+            let entry = declarations
+                .entry(codegen.item_layout.placement(item).emission_site())
+                .or_default();
+            entry.0 += 1;
+            entry.1 |= !record.is_reference_foundation();
+        }
+        let modules = plan
+            .dependencies()
+            .keys()
+            .map(|&site| {
+                let (items, has_models) = declarations.get(&site).copied().unwrap_or_default();
+                let kind = match site {
+                    EmissionSite::ComponentRequests(_) => ModuleKind::Requests,
+                    EmissionSite::Webhooks => ModuleKind::Webhooks,
+                    _ if has_models => ModuleKind::Model,
+                    _ => ModuleKind::References,
+                };
+                (path(site), ModuleInfo { availability: plan.site(site), kind, items })
+            })
+            .collect();
+        let dependencies = plan
+            .dependencies()
+            .iter()
+            .flat_map(|(&source, targets)| {
+                targets.iter().map(move |&target| (path(source), path(target)))
+            })
+            .collect();
+        Self { modules, dependencies }
+    }
+
+    fn dependencies_csv(&self) -> String {
+        let mut out = String::from(
+            "source_emission_path,target_emission_path,source_availability,target_availability\n",
+        );
+        for (source, target) in &self.dependencies {
+            let _ = writeln!(
+                out,
+                "{},{},{},{}",
+                csv(source),
+                csv(target),
+                csv(&availability_label(self.modules[source].availability)),
+                csv(&availability_label(self.modules[target].availability))
+            );
+        }
+        out
+    }
+
+    /// Request modules, reference-only modules, disabled modules, and references
+    /// within one module do not constrain boundaries between active models.
+    fn model_graph(&self) -> DiGraphMap<&str, ()> {
+        let mut graph = DiGraphMap::new();
+        for (path, module) in &self.modules {
+            if module.kind == ModuleKind::Model && *module.availability != Availability::Disabled {
+                graph.add_node(path.as_str());
+            }
+        }
+        for (source, target) in &self.dependencies {
+            if source != target
+                && graph.contains_node(source.as_str())
+                && graph.contains_node(target.as_str())
+            {
+                graph.add_edge(source.as_str(), target.as_str(), ());
+            }
+        }
+        graph
+    }
+
+    fn sccs(&self) -> Vec<Vec<&str>> {
+        let mut groups = petgraph::algo::kosaraju_scc(&self.model_graph());
+        for group in &mut groups {
+            group.sort();
+        }
+        groups.sort();
+        groups
+    }
+
+    fn sccs_csv(&self) -> String {
+        let mut out = String::from("scc_id,module_count,cross_module_cycle,emission_path\n");
+        for (index, group) in self.sccs().iter().enumerate() {
+            for path in group {
+                let _ = writeln!(out, "{index},{},{},{}", group.len(), group.len() > 1, csv(path));
+            }
+        }
+        out
+    }
+
+    fn graph_dot(&self) -> String {
+        let graph = self.model_graph();
+        let mut out = String::from(
+            "// Active represented model modules; requests, reference-only modules, and intra-module edges omitted.\n// edge direction: source module depends on target module\ndigraph model_module_dependencies {\n",
+        );
+        let mut nodes = graph.nodes().collect::<Vec<_>>();
+        nodes.sort();
+        let mut edges =
+            graph.all_edges().map(|(source, target, _)| (source, target)).collect::<Vec<_>>();
+        edges.sort();
+        for path in nodes {
+            let _ = writeln!(out, "  \"{}\";", dot(path));
+        }
+        for (source, target) in edges {
+            let _ = writeln!(out, "  \"{}\" -> \"{}\";", dot(source), dot(target));
+        }
+        out.push_str("}\n");
+        out
+    }
+
+    fn group_closures_csv(&self, features: &BTreeSet<String>) -> String {
+        // Conditional rows may overlap with each other; Always sites are counted
+        // once in their own row, not repeatedly as feature-specific overhead.
+        let mut counts = BTreeMap::from([(None, ModuleCounts::default())]);
+        for feature in features {
+            counts.insert(Some(feature.as_str()), ModuleCounts::default());
+        }
+        for module in self.modules.values() {
+            let groups = match module.availability {
+                Availability::Always => vec![None],
+                Availability::Features(features) => {
+                    features.iter().map(|feature| Some(feature.as_str())).collect()
+                }
+                Availability::Disabled => continue,
+            };
+            for group in groups {
+                let row = counts.get_mut(&group).expect("module feature is registered");
+                row.modules += 1;
+                row.items += module.items;
+                match module.kind {
+                    ModuleKind::Model => row.models += 1,
+                    ModuleKind::Requests => row.requests += 1,
+                    ModuleKind::References => row.references += 1,
+                    ModuleKind::Webhooks => row.webhooks += 1,
+                }
+            }
+        }
+        let mut out = String::from(
+            "scope,group,modules,items,model_modules,request_modules,reference_modules,webhook_modules\n",
+        );
+        for (group, counts) in counts {
+            let (scope, name) = group.map_or(("always", ""), |group| ("feature", group));
+            let _ = writeln!(
+                out,
+                "{scope},{},{},{},{},{},{},{}",
+                csv(name),
+                counts.modules,
+                counts.items,
+                counts.models,
+                counts.requests,
+                counts.references,
+                counts.webhooks
+            );
+        }
+        out
+    }
+
+    fn summary(&self) -> String {
+        let graph = self.model_graph();
+        let groups = self.sccs();
+        format!(
+            "\n## Represented model modules\n\n- Active model modules: {}\n- Cross-module model dependencies: {}\n- Strongly connected components: {}\n- Components containing cross-module cycles: {}\n- Largest component: {} modules\n\nThese use the same module dependencies as feature availability, after representation and placement. Request modules, reference-only modules, disabled modules, and intra-module references are excluded from the model graph. Singleton components are retained.\n\n`model-module-dependencies.csv` includes the complete availability graph. `model-group-closures.csv` reports always-on modules separately from conditional feature closures; shared conditional modules occur in every requiring group and must not be summed. Counts cover declaration/request emission modules, not handwritten files or module index files.\n",
+            graph.node_count(),
+            graph.edge_count(),
+            groups.len(),
+            groups.iter().filter(|group| group.len() > 1).count(),
+            groups.iter().map(Vec::len).max().unwrap_or(0)
+        )
+    }
+}
+
+fn availability_label(availability: &Availability) -> String {
+    match availability {
+        Availability::Always => "always".to_string(),
+        Availability::Disabled => "disabled".to_string(),
+        Availability::Features(features) => features.iter().cloned().collect::<Vec<_>>().join("|"),
+    }
+}
+
 impl CodeGen {
     pub fn analysis_bundle(&self, graph_detail: GraphDetail) -> AnalysisBundle {
         let locations = self.output_locations();
         let component_stats = component_stats(&self.components);
         let crate_stats = crate_stats(self, &component_stats);
         let mut bundle = AnalysisBundle::default();
-        bundle.insert("summary.md", summary(self, &component_stats, &crate_stats));
+        let mut summary = summary(self, &component_stats, &crate_stats);
         bundle.insert("components.csv", components_csv(self, &component_stats));
         bundle.insert("items.csv", items_csv(self));
         bundle.insert("item-occurrences.csv", item_occurrences_csv(self));
         bundle.insert("dependencies.csv", dependencies_csv(&self.components));
         bundle.insert("crate-inference-warnings.csv", crate_warnings_csv(self));
         if let Some(plan) = &self.availability {
+            let modules = ModelModuleAnalysis::new(self, plan);
+            summary.push_str(&modules.summary());
+            bundle.insert("model-module-dependencies.csv", modules.dependencies_csv());
+            bundle.insert("model-module-sccs.csv", modules.sccs_csv());
+            bundle.insert("model-group-closures.csv", modules.group_closures_csv(plan.features()));
+            if graph_detail != GraphDetail::None {
+                bundle.insert("graphs/model-module-dependencies.dot", modules.graph_dot());
+            }
             let mut report = String::from("item_id,ident,emission_path,availability\n");
             for (item, record) in self.model.items().iter() {
                 let site = self.item_layout.placement(item).emission_site();
-                let availability = match plan.site(site) {
-                    Availability::Always => "always".to_string(),
-                    Availability::Disabled => "disabled".to_string(),
-                    Availability::Features(features) => {
-                        features.iter().cloned().collect::<Vec<_>>().join("|")
-                    }
-                };
+                let availability = availability_label(plan.site(site));
                 let row = [
                     item.index().to_string(),
                     record.metadata.ident.to_string(),
@@ -167,6 +381,7 @@ impl CodeGen {
                 );
             }
         }
+        bundle.insert("summary.md", summary);
         bundle
     }
 }
@@ -668,4 +883,98 @@ fn csv(value: &str) -> String {
 
 fn dot(value: &str) -> String {
     value.replace('\\', "\\\\").replace('"', "\\\"")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Availability, BTreeSet, ModelModuleAnalysis, ModuleInfo, ModuleKind};
+
+    fn fixture<'a>(conditions: &'a [Availability; 3], reversed: bool) -> ModelModuleAnalysis<'a> {
+        let mut modules = vec![
+            ("a.rs", &conditions[0], ModuleKind::Model, 2),
+            ("b.rs", &conditions[0], ModuleKind::Model, 3),
+            ("isolated.rs", &conditions[1], ModuleKind::Model, 1),
+            ("ids.rs", &conditions[1], ModuleKind::References, 1),
+            ("requests.rs", &conditions[0], ModuleKind::Requests, 4),
+            ("disabled.rs", &conditions[2], ModuleKind::Model, 5),
+        ];
+        let mut dependencies = vec![
+            ("a.rs", "a.rs"),
+            ("a.rs", "b.rs"),
+            ("b.rs", "a.rs"),
+            ("a.rs", "ids.rs"),
+            ("requests.rs", "a.rs"),
+            ("disabled.rs", "b.rs"),
+        ];
+        if reversed {
+            modules.reverse();
+            dependencies.reverse();
+        }
+        ModelModuleAnalysis {
+            modules: modules
+                .into_iter()
+                .map(|(path, availability, kind, items)| {
+                    (path.to_string(), ModuleInfo { availability, kind, items })
+                })
+                .collect(),
+            dependencies: dependencies
+                .into_iter()
+                .map(|(source, target)| (source.to_string(), target.to_string()))
+                .collect(),
+        }
+    }
+
+    #[test]
+    fn model_components_exclude_foundations_requests_and_internal_references() {
+        let conditions = [
+            Availability::Features(BTreeSet::from(["example".to_string()])),
+            Availability::Always,
+            Availability::Disabled,
+        ];
+        let report = fixture(&conditions, false);
+        let graph = report.model_graph();
+        assert_eq!(graph.node_count(), 3);
+        assert_eq!(graph.edge_count(), 2);
+        assert_eq!(report.sccs(), vec![vec!["a.rs", "b.rs"], vec!["isolated.rs"]]);
+        let rows = report.sccs_csv();
+        assert!(rows.contains("0,2,true,a.rs\n"));
+        assert!(rows.contains("1,1,false,isolated.rs\n"));
+        // The complete edge report preserves the edges omitted from that view.
+        let edges = report.dependencies_csv();
+        assert!(edges.contains("a.rs,a.rs,example,example\n"));
+        assert!(edges.contains("disabled.rs,b.rs,disabled,example\n"));
+        assert!(edges.contains("a.rs,ids.rs,example,always\n"));
+    }
+
+    #[test]
+    fn closure_counts_separate_baseline_and_overlapping_feature_modules() {
+        let features = BTreeSet::from(["always".to_string(), "example".to_string()]);
+        let conditions = [
+            Availability::Features(features.clone()),
+            Availability::Always,
+            Availability::Disabled,
+        ];
+        let report = fixture(&conditions, false);
+        let rows = report.group_closures_csv(&features);
+        assert!(rows.contains("always,,2,2,1,0,1,0\n"));
+        assert!(rows.contains("feature,always,3,9,2,1,0,0\n"));
+        assert!(rows.contains("feature,example,3,9,2,1,0,0\n"));
+    }
+
+    #[test]
+    fn module_reports_are_independent_of_graph_insertion_order() {
+        let features = BTreeSet::from(["example".to_string()]);
+        let conditions = [
+            Availability::Features(features.clone()),
+            Availability::Always,
+            Availability::Disabled,
+        ];
+        let forward = fixture(&conditions, false);
+        let reversed = fixture(&conditions, true);
+        assert_eq!(forward.dependencies_csv(), reversed.dependencies_csv());
+        assert_eq!(forward.graph_dot(), reversed.graph_dot());
+        assert_eq!(forward.sccs_csv(), reversed.sccs_csv());
+        assert_eq!(forward.group_closures_csv(&features), reversed.group_closures_csv(&features));
+        assert_eq!(forward.summary(), reversed.summary());
+    }
 }

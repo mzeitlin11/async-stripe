@@ -15,7 +15,7 @@ use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
 use crate::render::{Lifetime, RenderContext};
 use crate::request_model::RequestModel;
-use crate::rust_object::EnumOfObjects::ObjectUnion;
+use crate::rust_object::EnumOfObjects::{MaybeDeleted, ObjectUnion};
 use crate::rust_object::{ObjectIdentity, ObjectUsage, RustObject};
 use crate::templates::ObjectWriter;
 use crate::templates::object_trait::{write_object_trait, write_object_trait_for_enum};
@@ -87,16 +87,30 @@ impl RenderContext<'_> {
         }
     }
 
-    fn write_item_impls(&self, item: ItemId, out: &mut String, opaque: bool) {
+    fn write_item_impls(&self, item: ItemId, out: &mut String) {
         let record = self.item(item);
         let Some(object) = record.object() else { return };
 
         let ident = &record.metadata.ident;
         let obj = &object.definition;
-        if opaque
-            && let RustObject::Struct(strukt) = obj
-            && let Some(tag) = &strukt.object_field
-        {
+        let object_tag = match obj {
+            RustObject::Struct(strukt) => strukt.object_field.as_deref(),
+            RustObject::Enum(variants)
+                if matches!(object.enum_of_objects, Some(MaybeDeleted(_))) =>
+            {
+                let mut tags = variants.iter().map(|variant| {
+                    let RustObject::Struct(model) =
+                        self.item_object_for_type(variant.rust_type.as_ref()?)?
+                    else {
+                        return None;
+                    };
+                    model.object_field.as_deref()
+                });
+                tags.next().flatten().filter(|tag| tags.all(|other| other == Some(*tag)))
+            }
+            _ => None,
+        };
+        if let Some(tag) = object_tag {
             let _ = writeln!(
                 out,
                 "impl {STRIPE_TYPES}::ObjectType for {ident} {{ const OBJECT_TYPE: &'static str = {tag:?}; }}"
@@ -181,7 +195,7 @@ impl<'a> ItemEmitter<'a> {
             self.emit(child, output)?;
         }
         let mut text = String::new();
-        context.write_item_impls(item, &mut text, self.availability.is_some());
+        context.write_item_impls(item, &mut text);
         output.append(path, text)
     }
 

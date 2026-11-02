@@ -6,11 +6,14 @@ pub fn list_types() -> Vec<String> {
     vec!["Event".to_string()]
 }
 
-/// Generic function to parse and validate a payload of type T using serde.
-/// Returns Ok(()) if the payload is valid, or an error message with path information if parsing fails.
-fn parse_type_serde<T: serde::de::DeserializeOwned>(payload: &str) -> Result<(), String> {
+/// Validate a known event payload, retaining path information on parse failures.
+fn parse_event(payload: &str) -> Result<(), String> {
     let deserializer = &mut serde_json::Deserializer::from_str(payload);
-    let _: T = serde_path_to_error::deserialize(deserializer).map_err(|e| format!("{e}"))?;
+    let event: stripe_webhook::Event =
+        serde_path_to_error::deserialize(deserializer).map_err(|e| format!("{e}"))?;
+    if matches!(event.data.object, stripe_webhook::EventObject::Unknown(_)) {
+        return Err(format!("data.object: unknown event type '{}'", event.type_.as_str()));
+    }
     Ok(())
 }
 
@@ -23,7 +26,7 @@ fn parse_type_serde<T: serde::de::DeserializeOwned>(payload: &str) -> Result<(),
 #[wasm_bindgen]
 pub fn parse(type_name: &str, payload: &str) -> Result<(), String> {
     match type_name {
-        "Event" => parse_type_serde::<stripe_webhook::Event>(payload),
+        "Event" => parse_event(payload),
         _ => Err(format!("Unknown type: {type_name}")),
     }
 }

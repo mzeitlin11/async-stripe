@@ -48,6 +48,10 @@ pub struct MaybeDeletedBuilderInner {
 }
 
 impl MaybeDeletedBuilderInner {
+    pub fn from_object(object: Object) -> Self {
+        Self { object, ..Self::default() }
+    }
+
     pub fn shift(&mut self) {
         if let (Some(k), Some(v)) = (self.key.take(), self.value.take()) {
             self.object.insert(k, v);

@@ -26,13 +26,19 @@ fn main() -> anyhow::Result<()> {
         .as_str()
         .context("workspace package has no version")?
         .to_string();
-    let groups = groups.iter().map(String::as_str).collect::<Vec<_>>();
-    let codegen = CodeGen::new_opaque_model_groups(
-        Spec::new(load_pinned_spec()?),
-        UrlFinder::new()?,
-        version,
-        &groups,
-    )?;
+    let all = groups == ["--all"];
+    anyhow::ensure!(
+        all || !groups.iter().any(|group| group.starts_with('-')),
+        "only --all or model group names are supported"
+    );
+    let spec = Spec::new(load_pinned_spec()?);
+    let urls = UrlFinder::new()?;
+    let codegen = if all {
+        CodeGen::new_opaque_v1(spec, urls, version)?
+    } else {
+        let groups = groups.iter().map(String::as_str).collect::<Vec<_>>();
+        CodeGen::new_opaque_model_groups(spec, urls, version, &groups)?
+    };
     codegen.render_workspace()?.materialize(&output)?;
     codegen.analysis_bundle(GraphDetail::Default).write_to(&output.join("analysis"))?;
     println!("Generated opaque model groups {} into {}", groups.join(", "), output.display());

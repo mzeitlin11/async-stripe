@@ -586,18 +586,6 @@ dependencies = [
 name = "async-stripe-parser"
 version = "1.0.0-rc.9"
 dependencies = [
- "async-stripe-billing",
- "async-stripe-checkout",
- "async-stripe-connect",
- "async-stripe-core",
- "async-stripe-fraud",
- "async-stripe-issuing",
- "async-stripe-misc",
- "async-stripe-payment",
- "async-stripe-product",
- "async-stripe-shared",
- "async-stripe-terminal",
- "async-stripe-treasury",
  "async-stripe-webhook",
  "insta",
  "serde",
@@ -690,6 +678,7 @@ dependencies = [
  "async-stripe-payment",
  "async-stripe-product",
  "async-stripe-reserve",
+ "async-stripe-shared",
  "async-stripe-terminal",
  "async-stripe-treasury",
  "async-stripe-types",

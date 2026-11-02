@@ -171,3 +171,133 @@ mod model_only_tests {
         assert_eq!(source.object_type(), "future_source");
     }
 }
+
+#[cfg(all(test, feature = "application"))]
+mod application_tests {
+    #[test]
+    fn an_ordinary_model_only_group_provides_typed_decoding_and_ids() {
+        let object: stripe::ObjectValue = miniserde::json::from_str(
+            r#"{"id":"ca_example","object":"application","name":"Example"}"#,
+        )
+        .unwrap();
+        let application = object.into_typed::<stripe::Application>().unwrap();
+        let id: stripe::ApplicationId = application.id;
+        assert_eq!(id.as_str(), "ca_example");
+        assert_eq!(application.name.as_deref(), Some("Example"));
+    }
+}
+
+#[cfg(all(test, feature = "customer", feature = "deleted_customer"))]
+mod shared_discriminator_tests {
+    #[test]
+    fn a_shared_object_tag_preserves_existing_structural_decoding() {
+        assert_eq!(
+            <stripe::Customer as stripe::ObjectType>::OBJECT_TYPE,
+            <stripe::DeletedCustomer as stripe::ObjectType>::OBJECT_TYPE,
+        );
+        let json = r#"{"id":"cus_example","object":"customer","created":1,"livemode":false,"deleted":true}"#;
+        let object: stripe::ObjectValue = miniserde::json::from_str(json).unwrap();
+
+        // The object tag identifies a wire family. It does not make its model
+        // schemas disjoint: the ordinary model ignores the extra deleted field.
+        let eager: stripe::Customer = miniserde::json::from_str(json).unwrap();
+        let customer = object.clone().into_typed::<stripe::Customer>().unwrap();
+        assert_eq!(customer.id, eager.id);
+        assert_eq!(customer.created, eager.created);
+        let deleted = object.into_typed::<stripe::DeletedCustomer>().unwrap();
+        assert_eq!(deleted.id.as_str(), "cus_example");
+    }
+
+    #[test]
+    fn the_deleted_model_still_requires_its_deleted_discriminator() {
+        for json in [
+            r#"{"id":"cus_example","object":"customer","created":1,"livemode":false}"#,
+            r#"{"id":"cus_example","object":"customer","created":1,"livemode":false,"deleted":false}"#,
+        ] {
+            assert!(miniserde::json::from_str::<stripe::DeletedCustomer>(json).is_err());
+            let object: stripe::ObjectValue = miniserde::json::from_str(json).unwrap();
+            assert!(matches!(
+                object.into_typed::<stripe::DeletedCustomer>(),
+                Err(stripe::ObjectDecodeError::InvalidObject { object_type: "customer" })
+            ));
+        }
+    }
+}
+
+#[cfg(all(test, feature = "customer"))]
+mod maybe_deleted_tests {
+    use stripe::customer::RetrieveCustomerReturned;
+
+    #[test]
+    fn deferred_customer_union_decoding_uses_the_existing_deleted_flag() {
+        for (json, expected_deleted) in [
+            (r#"{"id":"cus_example","object":"customer","created":1,"livemode":false}"#, false),
+            (r#"{"id":"cus_example","object":"customer","deleted":true}"#, true),
+            (
+                r#"{"id":"cus_example","object":"customer","created":1,"livemode":false,"deleted":true}"#,
+                true,
+            ),
+            (
+                r#"{"id":"cus_example","object":"customer","created":1,"livemode":false,"deleted":false}"#,
+                false,
+            ),
+        ] {
+            let eager: RetrieveCustomerReturned = miniserde::json::from_str(json).unwrap();
+            let object: stripe::ObjectValue = miniserde::json::from_str(json).unwrap();
+            let deferred = object.into_typed::<RetrieveCustomerReturned>().unwrap();
+            for model in [eager, deferred] {
+                match model {
+                    RetrieveCustomerReturned::Customer(customer) => {
+                        assert!(!expected_deleted, "{json}");
+                        assert_eq!(customer.id.as_str(), "cus_example");
+                    }
+                    RetrieveCustomerReturned::DeletedCustomer(customer) => {
+                        assert!(expected_deleted, "{json}");
+                        assert_eq!(customer.id.as_str(), "cus_example");
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn an_expanded_customer_keeps_its_typed_id_and_deleted_union_view() {
+        let object: stripe::ExpandableValue<stripe::CustomerId> =
+            miniserde::json::from_str(r#"{"id":"cus_example","object":"customer","deleted":true}"#)
+                .unwrap();
+        let id: &stripe::CustomerId = object.id();
+        assert_eq!(id.as_str(), "cus_example");
+        assert!(matches!(
+            object.into_expanded_as::<RetrieveCustomerReturned>().unwrap(),
+            Some(RetrieveCustomerReturned::DeletedCustomer(_))
+        ));
+    }
+
+    #[test]
+    fn a_matching_family_tag_still_requires_a_valid_union_branch() {
+        for json in [
+            r#"{"id":"cus_example","object":"customer"}"#,
+            r#"{"id":"cus_example","object":"customer","deleted":false}"#,
+            r#"{"id":"cus_example","object":"customer","created":"invalid","livemode":false}"#,
+        ] {
+            assert!(miniserde::json::from_str::<RetrieveCustomerReturned>(json).is_err());
+            let object: stripe::ObjectValue = miniserde::json::from_str(json).unwrap();
+            assert!(matches!(
+                object.into_typed::<RetrieveCustomerReturned>(),
+                Err(stripe::ObjectDecodeError::InvalidObject { object_type: "customer" })
+            ));
+        }
+    }
+
+    #[test]
+    fn the_union_wire_tag_is_checked_before_its_structural_decoder() {
+        let object: stripe::ObjectValue = miniserde::json::from_str(
+            r#"{"id":"cus_example","object":"charge","created":1,"livemode":false}"#,
+        )
+        .unwrap();
+        assert!(matches!(
+            object.into_typed::<RetrieveCustomerReturned>(),
+            Err(stripe::ObjectDecodeError::UnexpectedObjectType { expected: "customer", .. })
+        ));
+    }
+}

@@ -5,6 +5,8 @@ use stripe_core::customer::RetrieveCustomerReturned;
 use stripe_core::{
     Charge, ChargeStatus, Customer, CustomerTaxExempt, File, FileLink, FilePurpose, PaymentSource,
 };
+#[cfg(feature = "opaque-models")]
+use stripe_payment::BankAccount;
 use stripe_types::{Currency, Timestamp};
 
 fn mock_customer_with_card() -> Value {
@@ -310,9 +312,12 @@ fn mock_payment_source() -> Value {
 
 #[track_caller]
 fn assert_payment_source_matches(result: &PaymentSource) {
+    #[cfg(not(feature = "opaque-models"))]
     let PaymentSource::BankAccount(bank) = result else {
         panic!("Expected bank account");
     };
+    #[cfg(feature = "opaque-models")]
+    let bank = result.clone().into_typed::<BankAccount>().expect("Expected bank account");
     assert_eq!(bank.last4, "1234");
     assert_eq!(bank.status, "new");
 }
@@ -353,7 +358,10 @@ fn deserialize_expandable() {
     file_link.as_object_mut().unwrap().insert("file".into(), mock_file());
 
     let result: FileLink = from_str(&file_link.to_string()).unwrap();
+    #[cfg(not(feature = "opaque-models"))]
     let file = result.file.as_object().unwrap();
+    #[cfg(feature = "opaque-models")]
+    let file = result.file.into_expanded_as::<File>().unwrap().unwrap();
 
     assert_eq!(file.created, FILE_CREATED);
     assert_eq!(file.purpose, FilePurpose::AccountRequirement);
@@ -385,8 +393,18 @@ fn deserialize_expandable_polymorphic() {
     cust.as_object_mut().unwrap().insert("default_source".into(), mock_payment_source());
 
     let result: Customer = from_str(&cust.to_string()).unwrap();
-    let payment_source = result.default_source.as_ref().unwrap().as_object().unwrap();
-    assert_payment_source_matches(payment_source);
+    #[cfg(not(feature = "opaque-models"))]
+    {
+        let payment_source = result.default_source.as_ref().unwrap().as_object().unwrap();
+        assert_payment_source_matches(payment_source);
+    }
+    #[cfg(feature = "opaque-models")]
+    {
+        let bank =
+            result.default_source.unwrap().into_expanded_as::<BankAccount>().unwrap().unwrap();
+        assert_eq!(bank.last4, "1234");
+        assert_eq!(bank.status, "new");
+    }
 }
 
 #[test]

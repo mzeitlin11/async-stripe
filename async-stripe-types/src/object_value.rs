@@ -11,6 +11,8 @@ use crate::miniserde_helpers::FromValueOpt;
 ///
 /// A model implements this trait where it is defined. Opaque values can then
 /// validate a requested model without depending on it until decoding is used.
+/// The tag is not a unique schema identity: live and deleted models can share
+/// one. Typed conversion follows the selected model decoder's acceptance rules.
 pub trait ObjectType {
     /// The value of the model's JSON `object` property.
     const OBJECT_TYPE: &'static str;

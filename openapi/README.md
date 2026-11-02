@@ -112,26 +112,42 @@ Rare model exceptions live in `src/overrides.rs`. Each override selects one gene
 
 ## Experimental opaque model groups
 
-The v1 model-group experiment exercises representation, dependency closure, module availability, and facade exports together. Normal `generate` retains the existing concrete types and output. Run the isolated consumer check from this directory:
+The v1 model-group experiment exercises representation, dependency closure, module availability, and facade exports together. Normal `generate` retains the concrete representation. Model discriminator metadata and live/deleted value conversion are available in both representations. Run the isolated consumer check from this directory:
 
 ```console
 python3 tests/verify_opaque_groups.py
 ```
 
-The check generates `balance_transaction`, `charge`, `invoice`, and `balance_transaction_source` groups, builds a private workspace, and tests real generated retrieval through a mock client. It verifies that the base group preserves source IDs and unknown expanded objects without compiling `Charge`, that enabling `charge` adds typed decoding, and that `charge` also works independently. Model-only and combined endpoint groups check facade exports across backing crates, including helpers with the same name. Deferred decoding is checked against eager validation for malformed numbers and optional fields. Logs and compiled-source lists are retained; disposable generated workspaces and build caches are removed after success. Explicit `--target-dir` and `--generator-target-dir` caches are retained for reuse.
+The check builds a private workspace and tests real generated retrieval through a mock client. It verifies that the base group preserves source IDs and unknown expanded objects without compiling `Charge`, that enabling `charge` adds typed decoding, and that `charge` also works independently. Model-only Application, live/deleted Customer, and combined charge/invoice groups exercise facade exports and decoding boundaries. Webhook consumers check disabled/raw and enabled/typed payloads on both decoding paths, including that webhook model features do not activate HTTP request packages. Logs, compiled-source lists, and analysis reports are retained; disposable generated workspaces and build caches are removed after success. Explicit `--target-dir` and `--generator-target-dir` caches are retained for reuse.
+
+For the complete supported v1 surface, including the existing generated fixture suite and standalone parser tests:
+
+```console
+python3 tests/verify_opaque_groups.py --full-v1
+```
+
+Full v1 generation selects every resource with a wire object tag, named polymorphic resource family, and component with HTTP operations. Supporting schemas follow their actual dependencies rather than receiving an individual public feature. Fixture validation deliberately enables all selected groups and uses actual model addresses. The staged test manifest declares its representation-specific test feature; normal tests keep their concrete behavior, including under `--all-features`.
 
 For inspecting the unformatted output and analysis directly:
 
 ```console
 cargo run --example opaque_model_groups -- /tmp/stripe-opaque-output balance_transaction charge
+# Or generate every supported v1 resource/endpoint group:
+cargo run --example opaque_model_groups -- /tmp/stripe-opaque-output --all
 ```
 
 `analysis/model-availability.csv` records each canonical item's emission path and availability (`always`, `disabled`, or its enabling groups). Availability closes actual represented dependencies at source-module granularity: sibling declarations in the same file compile together. The crate dependency and availability passes share their definition of type consumers.
+
+`model-module-dependencies.csv` and `graphs/model-module-dependencies.dot` expose that same dependency graph after representation and placement. `model-module-sccs.csv` identifies the remaining model cycles; `model-group-closures.csv` separates always-on support from conditional group closures. These provide evidence for choosing crate boundaries without changing the current crate map. Overlapping group counts must not be summed.
 
 Representation changes occur after sharing and canonical allocation. `ExpandableValue<I>` stores an ID or a complete JSON object without naming its concrete model. Named polymorphic families use distinct opaque wrappers; their typed conversion checks the wire discriminator. IDs and component-level opaque families are lightweight unconditional support. Error scalars remain typed, while resource objects embedded as diagnostic context become `ObjectValue`. The original semantic relationships and occurrence provenance are retained.
 
 The JSON tree is parsed eagerly; concrete model construction is deferred. A consuming decode such as `source.into_expanded_as::<stripe::Charge>()` distinguishes an ID-only value from invalid expanded data. Enabling a model does not change base parsing or discard unknown payloads.
 
+The wire tag is not a unique schema identity: live and deleted models can share it. Deferred conversion follows the existing miniserde model decoder's structural acceptance. A live/deleted union follows its existing `deleted` flag routing. Serde's existing untagged union decoding can choose a different branch for payloads that structurally satisfy both models; this experiment does not impose stricter validation on either individual model.
+
 Selected models and endpoint builders are available at the root (`stripe::Charge`, `stripe::CreateCharge`). Request helpers live under their resource module (`stripe::charge::OptionalFieldsAddress`), so different groups can use the same helper name. Common runtime types such as `stripe::Currency` and `stripe::ObjectValue` are available without another dependency.
 
-This is an isolated v1 SDK slice, not a completed organization policy for the whole SDK. It keeps the current crate map and gates heavy model modules within it. Existing webhook, parser, and generated API-fixture integrations still need their own availability work; they are outside the isolated consumer check. Repository installation of this experimental output is rejected because the normal installer does not yet handle its facade changes and sibling packages. The group selection is a generator development API/example, with no new normal-generation CLI flag.
+Webhooks gate typed payloads using the same model availability plan. Unknown and disabled payloads preserve their complete data in `EventObject::Unknown` on both serde and miniserde paths; malformed enabled models still fail. The standalone parser enables all model groups and rejects unknown event variants. Opaque expandable/polymorphic subtrees remain opaque there too, so this is not recursive validation of every retained subtree.
+
+This is an experimental v1 SDK representation, not a completed crate organization policy. It keeps the current crate map and gates heavy model modules within it. Repository installation remains rejected while the normal installer lacks ownership of the additional facade, webhook, and test manifests. Those manifests record generated model groups so regeneration can remove stale flags/dependencies while preserving runtime settings. Group selection remains a generator development API/example, with no new normal-generation CLI flag.

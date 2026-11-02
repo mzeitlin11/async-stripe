@@ -68,6 +68,7 @@ impl Availability {
 pub(crate) struct ModelAvailability {
     sites: HashMap<EmissionSite, Availability>,
     features: BTreeSet<String>,
+    dependencies: HashMap<EmissionSite, HashSet<EmissionSite>>,
 }
 
 impl ModelAvailability {
@@ -134,7 +135,7 @@ impl ModelAvailability {
                 }
             }
         }
-        Ok(Self { sites, features: names })
+        Ok(Self { sites, features: names, dependencies: graph })
     }
 
     pub(crate) fn site(&self, site: EmissionSite) -> &Availability {
@@ -143,6 +144,11 @@ impl ModelAvailability {
 
     pub(crate) fn features(&self) -> &BTreeSet<String> {
         &self.features
+    }
+
+    /// The represented module dependencies used to compute these conditions.
+    pub(crate) fn dependencies(&self) -> &HashMap<EmissionSite, HashSet<EmissionSite>> {
+        &self.dependencies
     }
 }
 
@@ -321,6 +327,20 @@ mod tests {
             plan.features().iter().map(String::as_str).collect::<Vec<_>>(),
             ["charge", "other"]
         );
+    }
+
+    #[test]
+    fn the_retained_graph_includes_disabled_modules_and_same_module_references() {
+        let fixture = Fixture::new(false);
+        let plan = fixture.build(&[], &[fixture.feature("charge", fixture.charge)]);
+        let charge = EmissionSite::ComponentTypes(fixture.charge);
+        let customer = EmissionSite::ComponentTypes(fixture.customer);
+        let other = EmissionSite::ComponentTypes(fixture.other);
+        assert!(plan.dependencies()[&charge].contains(&charge));
+        assert!(plan.dependencies()[&charge].contains(&customer));
+        assert!(plan.dependencies()[&other].contains(&customer));
+        assert!(plan.dependencies()[&customer].is_empty());
+        assert_eq!(plan.site(other), &Availability::Disabled);
     }
 
     #[test]

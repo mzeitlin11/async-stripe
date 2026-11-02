@@ -199,6 +199,7 @@ fn webhook_union_references_and_feature_gates_follow_its_placement() {
         write_generated_for_webhooks(
             RenderContext::new(&layout, &fixture.items, EmissionSite::Webhooks),
             &fixture.components.webhook_objs,
+            None,
             &mut output,
         )
         .unwrap();

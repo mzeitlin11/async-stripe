@@ -98,3 +98,7 @@ full = [
 
 [package.metadata.docs.rs]
 features = ["full"]
+
+[lints.rust]
+# Experimental generation declares the model features used by these tests.
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(feature, values("async-stripe-billing", "invoice_item", "billing_portal_session"))'] }

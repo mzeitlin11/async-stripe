@@ -107,7 +107,37 @@ impl CodeGen {
         version: String,
         groups: &[&str],
     ) -> anyhow::Result<Self> {
-        let mut generated = Self::new(spec, url_finder, version)?;
+        Self::new(spec, url_finder, version)?.with_opaque_model_groups(groups)
+    }
+
+    /// Build the experimental opaque representation for every v1 resource and
+    /// endpoint group. Supporting schemas follow their actual dependencies.
+    pub fn new_opaque_v1(
+        spec: Spec,
+        url_finder: UrlFinder,
+        version: String,
+    ) -> anyhow::Result<Self> {
+        let generated = Self::new(spec, url_finder, version)?;
+        let groups = generated
+            .components
+            .components
+            .iter()
+            .filter(|(component, object)| {
+                object.object_name().is_some()
+                    || matches!(
+                        object.identity(),
+                        Some(crate::rust_object::ObjectIdentity::ObjectUnion)
+                    )
+                    || generated.components.has_requests(**component)
+            })
+            .map(|(_, object)| object.mod_path())
+            .collect::<Vec<_>>();
+        let names = groups.iter().map(String::as_str).collect::<Vec<_>>();
+        generated.with_opaque_model_groups(&names)
+    }
+
+    fn with_opaque_model_groups(mut self, groups: &[&str]) -> anyhow::Result<Self> {
+        let generated = &mut self;
         anyhow::ensure!(!groups.is_empty(), "at least one model group is required");
         generated.model.use_opaque_relationships(&generated.components)?;
         let items = generated.model.items();
@@ -141,10 +171,11 @@ impl CodeGen {
                         &record.origin.type_root,
                         TypeRoot::Declaration(DeclarationRoot::Shared(_))
                     )
+                    || matches!(record.origin.type_root, TypeRoot::Webhook(_))
                     || (record.origin.path.is_empty()
                         && matches!(record.origin.type_root,
                             TypeRoot::Declaration(DeclarationRoot::Component(component))
-                            if generated.components.component_name(component).as_ref() == "error"));
+                            if matches!(generated.components.component_name(component).as_ref(), "error" | "event")));
                 support.then_some(item)
             })
             .collect::<Vec<_>>();
@@ -161,7 +192,7 @@ impl CodeGen {
             &generated.component_layout,
             &generated.item_layout,
         )?;
-        Ok(generated)
+        Ok(self)
     }
 
     pub fn canonical_item_count(&self) -> usize {
@@ -253,8 +284,13 @@ impl CodeGen {
         self.write_declarations(&mut output)?;
         self.write_api_version_file(&mut output)?;
         let context = self.render_context(EmissionSite::Webhooks);
-        write_generated_for_webhooks(context, &self.components.webhook_objs, &mut output)
-            .context("Could not write webhook generated code")?;
+        write_generated_for_webhooks(
+            context,
+            &self.components.webhook_objs,
+            self.availability.as_ref(),
+            &mut output,
+        )
+        .context("Could not write webhook generated code")?;
         output.write("crate_info.md", generate_crate_table(self.output_locations()))?;
         self.write_object_info_for_testing(&mut output)?;
         if self.availability.is_some() {
@@ -266,6 +302,14 @@ impl CodeGen {
                 &self.version,
                 &mut output,
             )?;
+            crate::webhook::write_manifest(
+                context,
+                &self.components.webhook_objs,
+                self.availability.as_ref().expect("opaque model availability"),
+                &self.version,
+                &mut output,
+            )?;
+            self.write_fixture_manifest(&mut output)?;
         }
         Ok(output)
     }
@@ -276,37 +320,32 @@ impl CodeGen {
             let mut dependencies = self.crate_dependencies.neighbors(*krate).collect::<Vec<_>>();
             dependencies.sort_unstable();
             let base_path = PathBuf::from(krate.generated_out_path());
-            let request_features = locations
-                .crate_members(*krate)
-                .into_iter()
-                .filter(|c| locations.components.has_requests(*c) && *krate != Crate::SHARED)
-                .map(|c| locations.components.get_by_id(c).mod_path())
-                .collect();
-
-            let mut toml =
-                gen_crate_toml(*krate, dependencies.clone(), request_features, &self.version);
-            if let Some(plan) = &self.availability {
-                let mut document: toml::Value = toml::from_str(&toml)?;
-                let section =
-                    document["features"].as_table_mut().expect("generated features table");
-                section.retain(|name, _| {
-                    matches!(name, "serialize" | "deserialize" | "redact-generated-debug")
-                });
-                for feature in plan.features() {
-                    let forwarded = dependencies
+            let features = if let Some(plan) = &self.availability {
+                Some(
+                    plan.features()
                         .iter()
-                        .map(|dep| toml::Value::String(format!("{}/{feature}", dep.crate_name())))
-                        .collect();
-                    section.insert(feature.clone(), toml::Value::Array(forwarded));
-                }
-                section.insert(
-                    "full".to_string(),
-                    toml::Value::Array(
-                        plan.features().iter().cloned().map(toml::Value::String).collect(),
-                    ),
-                );
-                toml = toml::to_string(&document)?;
-            }
+                        .map(|feature| {
+                            let forwarded = dependencies
+                                .iter()
+                                .map(|dep| format!("{}/{feature}", dep.crate_name()))
+                                .collect();
+                            (feature.clone(), forwarded)
+                        })
+                        .collect(),
+                )
+            } else if *krate == Crate::SHARED {
+                None
+            } else {
+                Some(
+                    locations
+                        .crate_members(*krate)
+                        .into_iter()
+                        .filter(|c| locations.components.has_requests(*c))
+                        .map(|c| (locations.components.get_by_id(c).mod_path(), Vec::new()))
+                        .collect(),
+                )
+            };
+            let toml = gen_crate_toml(*krate, dependencies, features, &self.version);
             output.write(base_path.join("Cargo.toml"), toml)?;
 
             let lib_name = krate.lib_name();
@@ -341,6 +380,50 @@ impl CodeGen {
         Ok(())
     }
 
+    fn write_fixture_manifest(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
+        let template = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../tests/Cargo.toml"));
+        let mut manifest: toml::Value = toml::from_str(template)?;
+        let dependencies = manifest
+            .get_mut("dev-dependencies")
+            .and_then(toml::Value::as_table_mut)
+            .context("fixture manifest has no dev-dependencies table")?;
+        for krate in &*ALL_CRATES {
+            let package = krate.crate_name();
+            let features = dependencies
+                .get_mut(&package)
+                .and_then(toml::Value::as_table_mut)
+                .with_context(|| format!("fixture manifest has no generated dependency {package}"))?
+                .entry("features")
+                .or_insert_with(|| toml::Value::Array(vec![]))
+                .as_array_mut()
+                .with_context(|| {
+                    format!("fixture dependency features are not an array: {package}")
+                })?;
+            let full = toml::Value::String("full".into());
+            features.retain(|feature| {
+                matches!(
+                    feature.as_str(),
+                    Some("serialize" | "deserialize" | "redact-generated-debug")
+                )
+            });
+            features.push(full);
+        }
+        let features = manifest
+            .get_mut("features")
+            .and_then(toml::Value::as_table_mut)
+            .context("fixture manifest has no feature table")?;
+        features.insert("opaque-models".into(), toml::Value::Array(vec![]));
+        let defaults = features
+            .get_mut("default")
+            .and_then(toml::Value::as_array_mut)
+            .context("fixture manifest has no default feature list")?;
+        let opaque = toml::Value::String("opaque-models".into());
+        if !defaults.contains(&opaque) {
+            defaults.push(opaque);
+        }
+        output.write("tests/Cargo.toml", toml::to_string_pretty(&manifest)?)
+    }
+
     fn write_object_info_for_testing(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
         let mut checks = String::new();
         for (&component, obj) in &self.components.components {
@@ -348,8 +431,14 @@ impl CodeGen {
                 continue;
             }
             let path = self.components.component_name(component);
-            let krate = self.output_locations().request_crate(component);
-            let import_path = format!("{}::{}", krate.lib_name(), obj.ident());
+            let item = self.model.items().component_root(component);
+            let crate::item_layout::ItemAddress::CrateRoot(krate) =
+                self.item_layout.placement(item).address()
+            else {
+                anyhow::bail!("fixture model is not publicly addressable: {component:?}");
+            };
+            let import_path =
+                format!("{}::{}", krate.lib_name(), self.model.items().get(item).metadata.ident);
             let _ = writeln!(checks, r#"check_object::<{import_path}>(resources, "{path}");"#);
         }
         let content = formatdoc! {

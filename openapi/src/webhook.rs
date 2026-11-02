@@ -9,6 +9,7 @@ use crate::component_catalog::ComponentCatalog;
 use crate::crates::Crate;
 use crate::item_layout::ItemAddress;
 use crate::item_origin::TypeRoot;
+use crate::model_availability::{Availability, ModelAvailability};
 use crate::output::GeneratedWorkspace;
 use crate::render::RenderContext;
 use crate::rust_object::RustObject;
@@ -18,19 +19,21 @@ use crate::templates::object_writer::{write_derives_line, write_redacted_debug_i
 use crate::templates::utils::write_doc_comment;
 use crate::types::RustIdent;
 
-pub fn write_generated_for_webhooks(
+pub(crate) fn write_generated_for_webhooks(
     context: RenderContext<'_>,
     webhooks: &[WebhookObject],
+    availability: Option<&ModelAvailability>,
     output: &mut GeneratedWorkspace,
 ) -> anyhow::Result<()> {
     let base = Path::new("async-stripe-webhook");
-    write_event_object(context, webhooks, base, output)?;
+    write_event_object(context, webhooks, availability, base, output)?;
     Ok(())
 }
 
 fn write_event_object(
     context: RenderContext<'_>,
     webhooks: &[WebhookObject],
+    availability: Option<&ModelAvailability>,
     out_path: &Path,
     output: &mut GeneratedWorkspace,
 ) -> anyhow::Result<()> {
@@ -53,22 +56,24 @@ fn write_event_object(
         // address. Their declarations have already been emitted through ItemLayout.
         let payload_item = payload.item_id().context("expected a lowered webhook payload item")?;
         let printable = context.display_type(payload).to_string();
-        let feature_gate = match context.item_address(payload_item) {
-            ItemAddress::CrateRoot(krate) if krate != Crate::SHARED => Some(krate.crate_name()),
-            ItemAddress::CrateRoot(_) | ItemAddress::Local => None,
+        let feature_gate = if let Some(plan) = availability {
+            plan.site(context.item_site(payload_item)).cfg_attribute()
+        } else {
+            match context.item_address(payload_item) {
+                ItemAddress::CrateRoot(krate) if krate != Crate::SHARED => {
+                    format!("#[cfg(feature = {:?})]\n", krate.crate_name())
+                }
+                ItemAddress::CrateRoot(_) | ItemAddress::Local => String::new(),
+            }
         };
 
         let comment = write_doc_comment(&webhook_obj.doc, 1);
         let _ = write!(enum_body, "{comment}");
-        if let Some(gate) = &feature_gate {
-            let _ = writeln!(enum_body, r#"#[cfg(feature = "{gate}")]"#);
-        }
+        enum_body.push_str(&feature_gate);
         let _ = writeln!(enum_body, "{ident}(Box<{printable}>),");
 
-        if let Some(gate) = &feature_gate {
-            let _ = writeln!(match_inner, r#"#[cfg(feature = "{gate}")]"#);
-            let _ = writeln!(match_inner_serde, r#"#[cfg(feature = "{gate}")]"#);
-        }
+        match_inner.push_str(&feature_gate);
+        match_inner_serde.push_str(&feature_gate);
         let evt_type = &webhook_obj.event_type;
         let _ = writeln!(
             match_inner,
@@ -137,14 +142,68 @@ fn write_event_object(
 
             {match_inner_serde}
 
-            // Unknown event type - error instead of silently accepting
-            Err(format!("unknown event type '{{typ}}'"))
+            // Preserve payloads whose event type or model is unavailable.
+            stripe_types::with_serde_json::deserialize(data)
+                .map(Self::Unknown)
+                .map_err(|error| error.to_string())
         }}
     }}
     "#};
 
     output.append(out_path.join("mod.rs"), out)?;
     Ok(())
+}
+
+/// Webhook features enable payload models at their actual backing addresses,
+/// independently of the packages that implement their HTTP requests.
+pub(crate) fn write_manifest(
+    context: RenderContext<'_>,
+    webhooks: &[WebhookObject],
+    availability: &ModelAvailability,
+    version: &str,
+    output: &mut GeneratedWorkspace,
+) -> anyhow::Result<()> {
+    use std::collections::{BTreeMap, BTreeSet};
+
+    let mut groups = availability
+        .features()
+        .iter()
+        .map(|name| (name.clone(), BTreeSet::from([Crate::SHARED])))
+        .collect::<BTreeMap<_, _>>();
+    for webhook in webhooks {
+        let root = TypeRoot::Webhook(webhook.event_type.clone());
+        let item = context
+            .root(&root)
+            .and_then(|root| root.typ.item_id())
+            .with_context(|| format!("webhook payload has no item: {root:?}"))?;
+        if let ItemAddress::CrateRoot(krate) = context.item_address(item) {
+            match availability.site(context.item_site(item)) {
+                Availability::Features(names) => {
+                    for name in names {
+                        groups
+                            .get_mut(name)
+                            .expect("availability feature was not registered")
+                            .insert(krate);
+                    }
+                }
+                Availability::Always => {
+                    ensure!(
+                        krate == Crate::SHARED,
+                        "unconditional webhook model is outside shared: {root:?}"
+                    );
+                }
+                Availability::Disabled => {}
+            }
+        }
+    }
+    let groups = groups
+        .into_iter()
+        .map(|(name, crates)| (name, crates.into_iter().collect()))
+        .collect::<Vec<_>>();
+    let template =
+        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../async-stripe-webhook/Cargo.toml"));
+    let manifest = crate::facade::model_group_manifest(template, &groups, version)?;
+    output.write("async-stripe-webhook/Cargo.toml", manifest)
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]

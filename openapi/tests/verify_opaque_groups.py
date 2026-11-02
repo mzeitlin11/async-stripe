@@ -18,7 +18,7 @@ import tempfile
 
 
 REPO = Path(__file__).resolve().parents[2]
-MEMBERS = ["async-stripe-types", "async-stripe-client-core", "async-stripe", "generated/*"]
+MEMBERS = ["async-stripe-types", "async-stripe-client-core", "async-stripe", "async-stripe-webhook", "async-stripe-parser", "generated/*"]
 
 
 def source_snapshot():
@@ -82,6 +82,7 @@ def main():
     parser.add_argument("--target-dir", type=Path, help="reusable consumer build cache")
     parser.add_argument("--generator-target-dir", type=Path, help="reusable generator build cache")
     parser.add_argument("--toolchain", default="1.89.0")
+    parser.add_argument("--full-v1", action="store_true", help="generate every v1 group and run exhaustive fixtures and parser tests")
     args = parser.parse_args()
     work = (args.work_dir or Path(tempfile.mkdtemp(prefix="async-stripe-opaque-check-"))).resolve()
     work.mkdir(parents=True, exist_ok=True)
@@ -90,34 +91,47 @@ def main():
         raise AssertionError(f"verification work directory must be empty or managed: {work}")
     marker.write_text("opaque model group verification\n")
     workspace, output = work / "workspace", work / "generated-output"
-    for path in [workspace, output]:
+    for path in [workspace, output, work / "analysis"]:
         if path.exists():
             shutil.rmtree(path)
     generator_target = (args.generator_target_dir or work / "generator-target").resolve()
     target = (args.target_dir or work / "consumer-target").resolve()
     before = source_snapshot()
     env = dict(os.environ, CARGO_TARGET_DIR=str(generator_target))
-    groups = ["balance_transaction", "charge", "invoice", "balance_transaction_source"]
+    groups = ["--all"] if args.full_v1 else ["balance_transaction", "charge", "invoice", "balance_transaction_source", "application", "deleted_customer", "customer"]
     run(work, "generation", ["cargo", f"+{args.toolchain}", "run", "--locked", "--offline", "--example", "opaque_model_groups", "--", str(output), *groups], REPO / "openapi", env)
+    shutil.copytree(output / "analysis", work / "analysis")
 
     workspace.mkdir()
-    for crate in MEMBERS[:-1]:
+    members = MEMBERS + (["tests"] if args.full_v1 else [])
+    for crate in [member for member in members if member != "generated/*"]:
         shutil.copytree(REPO / crate, workspace / crate, ignore=shutil.ignore_patterns("target"))
     shutil.copytree(output / "crates", workspace / "generated")
-    for relative in ["async-stripe/Cargo.toml", "async-stripe/src/generated/mod.rs"]:
+    for relative in ["async-stripe/Cargo.toml", "async-stripe/src/generated/mod.rs", "async-stripe-webhook/Cargo.toml"]:
         shutil.copyfile(output / relative, workspace / relative)
+    shutil.copyfile(output / "async-stripe-webhook/mod.rs", workspace / "async-stripe-webhook/src/generated/mod.rs")
+    if args.full_v1:
+        shutil.copyfile(output / "tests/Cargo.toml", workspace / "tests/Cargo.toml")
+        shutil.copyfile(output / "tests/mod.rs", workspace / "tests/tests/it/generated/mod.rs")
+        (workspace / "openapi").mkdir(exist_ok=True)
+        shutil.copyfile(REPO / "openapi/fixtures.json", workspace / "openapi/fixtures.json")
     manifest = (REPO / "Cargo.toml").read_text()
     for key in ["members", "default-members"]:
-        manifest = replace_array(manifest, key, MEMBERS)
+        manifest = replace_array(manifest, key, members)
     (workspace / "Cargo.toml").write_text(manifest)
     shutil.copyfile(REPO / "Cargo.lock", workspace / "Cargo.lock")
     fixture_relative = Path("openapi/tests/fixtures/opaque-consumer")
     fixture = workspace / fixture_relative
     shutil.copytree(REPO / fixture_relative, fixture, ignore=shutil.ignore_patterns("target", "Cargo.lock"))
     shutil.copyfile(REPO / "Cargo.lock", fixture / "Cargo.lock")
+    webhook_relative = Path("openapi/tests/fixtures/opaque-webhook-consumer")
+    webhook_fixture = workspace / webhook_relative
+    shutil.copytree(REPO / webhook_relative, webhook_fixture, ignore=shutil.ignore_patterns("target", "Cargo.lock"))
+    shutil.copyfile(REPO / "Cargo.lock", webhook_fixture / "Cargo.lock")
     env = dict(os.environ, CARGO_TARGET_DIR=str(target), CARGO_PROFILE_DEV_DEBUG="0", CARGO_INCREMENTAL="0", CARGO_BUILD_JOBS="2")
     run(work, "format", ["cargo", "+nightly", "fmt", "--all"], workspace, env)
     run(work, "fixture-format", ["cargo", "+nightly", "fmt"], fixture, env)
+    run(work, "webhook-fixture-format", ["cargo", "+nightly", "fmt"], webhook_fixture, env)
     cargo = ["cargo", f"+{args.toolchain}"]
     base = run(work, "base", cargo + ["test", "--offline", "--message-format=json"], fixture, env)
     base_sources = compiled_shared_sources(base.stdout, workspace)
@@ -137,6 +151,8 @@ def main():
     assert charge_file in charge_only_sources
     assert "generated/async-stripe-shared/src/balance_transaction.rs" not in charge_only_sources, "charge alone compiled the balance transaction model"
     run(work, "model-only", cargo + ["test", "--offline", "--no-default-features", "--features", "balance_transaction_source"], fixture, env)
+    run(work, "typed-model-only", cargo + ["test", "--offline", "--no-default-features", "--features", "application"], fixture, env)
+    run(work, "shared-tag-models", cargo + ["test", "--offline", "--no-default-features", "--features", "application,deleted_customer,customer,deserialize"], fixture, env)
     run(work, "combined-groups", cargo + ["test", "--offline", "--no-default-features", "--features", "charge,invoice"], fixture, env)
     run(work, "all-features", cargo + ["test", "--offline", "--all-features"], fixture, env)
     run(work, "http-client", cargo + ["check", "--offline", "--features", "stripe/default-tls"], fixture, env)
@@ -146,9 +162,29 @@ def main():
             message = json.loads(line)
         except json.JSONDecodeError:
             continue
-        assert message.get("target", {}).get("name") != "stripe_core", "serialization forwarding activated the optional API crate"
+        assert message.get("target", {}).get("name") not in {"stripe_core", "stripe_billing"}, "serialization forwarding activated an optional API crate"
+
+    webhook_base = run(work, "webhook-base", cargo + ["test", "--offline", "--message-format=json"], webhook_fixture, env)
+    webhook_base_sources = compiled_shared_sources(webhook_base.stdout, workspace)
+    assert charge_file not in webhook_base_sources, "base webhook compiled Charge"
+    webhook_charge = run(work, "webhook-charge", cargo + ["test", "--offline", "--features", "charge,deserialize,serialize", "--message-format=json"], webhook_fixture, env)
+    webhook_charge_sources = compiled_shared_sources(webhook_charge.stdout, workspace)
+    assert charge_file in webhook_charge_sources
+    for line in webhook_charge.stdout.splitlines():
+        try:
+            message = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        assert message.get("target", {}).get("name") != "stripe_core", "webhook model feature activated HTTP request package"
+    run(work, "webhook-disabled-serde", cargo + ["test", "--offline", "--features", "deserialize,serialize"], webhook_fixture, env)
+    run(work, "webhook-all-features", cargo + ["test", "--offline", "--all-features"], webhook_fixture, env)
+    if args.full_v1:
+        run(work, "webhook-unit-tests", cargo + ["test", "--offline", "-p", "async-stripe-webhook", "--all-features"], workspace, env)
+        run(work, "facade-full", cargo + ["check", "--offline", "-p", "async-stripe", "--no-default-features", "--features", "full,serialize,deserialize"], workspace, env)
+        run(work, "exhaustive-fixtures", cargo + ["test", "--offline", "-p", "async-stripe-tests", "--test", "it", "deserialization_fixture::fixtures", "--", "--nocapture"], workspace, env)
+        run(work, "parser", cargo + ["test", "--offline", "-p", "async-stripe-parser"], workspace, env)
     assert source_snapshot() == before, "verification modified product source"
-    summary = {"base_shared_source_files": len(base_sources), "charge_shared_source_files": len(charge_sources), "charge_only_shared_source_files": len(charge_only_sources), "charge_absent_from_base": True, "source_unchanged": True}
+    summary = {"full_v1": args.full_v1, "base_shared_source_files": len(base_sources), "charge_shared_source_files": len(charge_sources), "charge_only_shared_source_files": len(charge_only_sources), "webhook_base_shared_source_files": len(webhook_base_sources), "webhook_charge_shared_source_files": len(webhook_charge_sources), "charge_absent_from_base": True, "webhook_charge_does_not_activate_core": True, "source_unchanged": True}
     (work / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     for path in [workspace, output]:
         shutil.rmtree(path)

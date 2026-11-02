@@ -135,6 +135,10 @@ impl<'model> RenderContext<'model> {
         self.item_layout.placement(item).address()
     }
 
+    pub(crate) fn item_site(self, item: ItemId) -> EmissionSite {
+        self.item_layout.placement(item).emission_site()
+    }
+
     pub fn display_type<'type_>(self, typ: &'type_ RustType) -> DisplayType<'model, 'type_> {
         DisplayType { context: self, typ, use_site: TypeUse::default() }
     }

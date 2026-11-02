@@ -130,6 +130,22 @@ fn build_inner(
     }}
     "#
     };
+    if let EnumOfObjects::MaybeDeleted(_) = objects {
+        let _ = writedoc!(
+            out,
+            r#"
+        impl FromValueOpt for {ident} {{
+            fn from_value(v: Value) -> Option<Self> {{
+                let Value::Object(object) = v else {{ return None; }};
+                let mut builder = {builder_name} {{
+                    inner: stripe_types::miniserde_helpers::MaybeDeletedBuilderInner::from_object(object),
+                }};
+                builder.take_out()
+            }}
+        }}
+        "#
+        );
+    }
     if let EnumOfObjects::ObjectUnion(objects) = objects {
         let mut cons_inner = String::new();
         for (obj_discr, component) in objects {

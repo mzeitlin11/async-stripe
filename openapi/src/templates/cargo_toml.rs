@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::fmt::Write;
 
 use indoc::formatdoc;
@@ -15,7 +16,7 @@ fn get_serialization_feature(deps: &[Crate], kind: &str) -> String {
 pub fn gen_crate_toml(
     krate: Crate,
     crate_deps: Vec<Crate>,
-    crate_features: Vec<String>,
+    crate_features: Option<BTreeMap<String, Vec<String>>>,
     version: &str,
 ) -> String {
     let mut crate_dep_section = String::new();
@@ -45,8 +46,7 @@ pub fn gen_crate_toml(
     let deser_features = get_serialization_feature(&crate_deps, "deserialize");
     let redact_debug_features = get_serialization_feature(&crate_deps, "redact-generated-debug");
 
-    let features =
-        if krate == Crate::SHARED { "".into() } else { gen_feature_section(crate_features) };
+    let features = crate_features.map(gen_feature_section).unwrap_or_default();
 
     let crate_name = krate.crate_name();
     let lib_name = krate.lib_name();
@@ -89,19 +89,22 @@ pub fn gen_crate_toml(
     }
 }
 
-fn gen_feature_section(mut crate_features: Vec<String>) -> String {
-    // assert!(!crate_features.is_empty(), "expected crate to have features");
+fn gen_feature_section(crate_features: BTreeMap<String, Vec<String>>) -> String {
     let mut feature_section = String::new();
 
-    crate_features.sort_unstable();
-    for feature in &crate_features {
-        let _ = writeln!(feature_section, "{feature} = []");
+    for (feature, forwarded) in &crate_features {
+        let forwarded = forwarded.iter().map(|value| format!(r#""{value}""#)).collect::<Vec<_>>();
+        let _ = writeln!(feature_section, "{feature} = [{}]", forwarded.join(","));
     }
     feature_section.push('\n');
     let _ = writeln!(
         feature_section,
         "full = [{}]",
-        crate_features.iter().map(|feat| format!(r#""{feat}""#)).collect::<Vec<_>>().join(",\n")
+        crate_features
+            .keys()
+            .map(|feature| format!(r#""{feature}""#))
+            .collect::<Vec<_>>()
+            .join(",\n")
     );
 
     formatdoc! {
@@ -111,5 +114,52 @@ fn gen_feature_section(mut crate_features: Vec<String>) -> String {
         [package.metadata.docs.rs]
         features = ["full"]
         "#
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::BTreeMap;
+
+    use super::{gen_crate_toml, gen_feature_section};
+    use crate::crates::Crate;
+
+    #[test]
+    fn request_features_retain_the_existing_text_layout() {
+        assert_eq!(
+            gen_feature_section(BTreeMap::from([
+                ("customer".into(), vec![]),
+                ("charge".into(), vec![])
+            ])),
+            concat!(
+                "charge = []\ncustomer = []\n\nfull = [\"charge\",\n\"customer\"]\n\n\n",
+                "[package.metadata.docs.rs]\nfeatures = [\"full\"]\n"
+            )
+        );
+    }
+
+    #[test]
+    fn model_features_render_forwarding_and_docs_for_shared() {
+        let manifest = gen_crate_toml(
+            Crate::SHARED,
+            vec![],
+            Some(BTreeMap::from([("charge".into(), vec!["async-stripe-core/charge".into()])])),
+            "1.0.0",
+        );
+        let document: toml::Value = toml::from_str(&manifest).unwrap();
+        assert_eq!(document["features"]["charge"][0].as_str(), Some("async-stripe-core/charge"));
+        assert_eq!(document["features"]["full"][0].as_str(), Some("charge"));
+        assert_eq!(
+            document["package"]["metadata"]["docs"]["rs"]["features"][0].as_str(),
+            Some("full")
+        );
+    }
+
+    #[test]
+    fn normal_shared_has_no_resource_features_or_docs_flags() {
+        let manifest = gen_crate_toml(Crate::SHARED, vec![], None, "1.0.0");
+        let document: toml::Value = toml::from_str(&manifest).unwrap();
+        assert!(document["features"].get("full").is_none());
+        assert!(document["package"].get("metadata").is_none());
     }
 }

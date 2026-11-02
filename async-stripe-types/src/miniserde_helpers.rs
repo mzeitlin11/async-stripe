@@ -4,7 +4,7 @@ use std::mem;
 use std::str::FromStr;
 
 use miniserde::Deserialize;
-use miniserde::de::Visitor;
+use miniserde::de::{Map, Visitor};
 use miniserde::json::{Number, Object, Value};
 
 use crate::Currency;
@@ -79,6 +79,29 @@ pub trait FromValueOpt {
     fn from_value(v: Value) -> Option<Self>
     where
         Self: Sized;
+}
+
+/// Build a JSON object before converting it through `FromValueOpt`.
+/// Used by opaque object newtypes without instantiating any concrete model.
+pub fn object_value_map<T: FromValueOpt>(out: &mut Option<T>) -> Box<dyn Map + '_> {
+    Box::new(ObjectValueMap { out, inner: ObjectBuilderInner::default() })
+}
+
+struct ObjectValueMap<'a, T> {
+    out: &'a mut Option<T>,
+    inner: ObjectBuilderInner,
+}
+
+impl<T: FromValueOpt> Map for ObjectValueMap<'_, T> {
+    fn key(&mut self, key: &str) -> miniserde::Result<&mut dyn Visitor> {
+        self.inner.key_inner(key)
+    }
+
+    fn finish(&mut self) -> miniserde::Result<()> {
+        let (_, object) = self.inner.finish_inner().ok_or(miniserde::Error)?;
+        *self.out = Some(T::from_value(Value::Object(object)).ok_or(miniserde::Error)?);
+        Ok(())
+    }
 }
 
 impl FromValueOpt for bool {

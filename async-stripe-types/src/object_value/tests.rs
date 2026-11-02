@@ -1,0 +1,227 @@
+use miniserde::json::Value;
+use smol_str::SmolStr;
+
+use super::{ExpandableValue, ObjectDecodeError, ObjectType, ObjectValue};
+use crate::FromCursor;
+use crate::miniserde_helpers::FromValueOpt;
+
+crate::def_id!(TestId);
+crate::def_object_value!(PaymentSource);
+
+#[derive(Debug)]
+struct Charge {
+    id: TestId,
+    amount: i64,
+}
+
+impl ObjectType for Charge {
+    const OBJECT_TYPE: &'static str = "charge";
+}
+
+impl FromValueOpt for Charge {
+    fn from_value(value: Value) -> Option<Self> {
+        let Value::Object(mut object) = value else { return None };
+        Some(Self {
+            id: TestId::from_value(object.remove("id")?)?,
+            amount: i64::from_value(object.remove("amount")?)?,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct Customer;
+
+impl ObjectType for Customer {
+    const OBJECT_TYPE: &'static str = "customer";
+}
+
+impl FromValueOpt for Customer {
+    fn from_value(_: Value) -> Option<Self> {
+        panic!("a wrong discriminator must fail before invoking the model decoder")
+    }
+}
+
+fn value(json: &str) -> Value {
+    miniserde::json::from_str(json).unwrap()
+}
+
+#[test]
+fn id_only_values_do_not_need_a_model() {
+    let reference: ExpandableValue<TestId> = miniserde::json::from_str(r#""ch_123""#).unwrap();
+    assert_eq!(reference.id().as_str(), "ch_123");
+    assert!(!reference.is_object());
+    assert!(reference.as_object().is_none());
+    assert_eq!(serde_json::to_string(&reference).unwrap(), r#""ch_123""#);
+    assert!(reference.into_expanded_as::<Charge>().unwrap().is_none());
+}
+
+#[test]
+fn expanded_objects_keep_typed_ids_and_decode_on_demand() {
+    let reference: ExpandableValue<TestId> =
+        miniserde::json::from_str(r#"{"id":"ch_123","object":"charge","amount":120}"#).unwrap();
+    assert_eq!(reference.id().as_str(), "ch_123");
+    assert!(reference.is_object());
+    assert_eq!(reference.as_object().unwrap().object_type(), "charge");
+    let charge = reference.into_expanded_as::<Charge>().unwrap().unwrap();
+    assert_eq!(charge.id.as_str(), "ch_123");
+    assert_eq!(charge.amount, 120);
+}
+
+#[test]
+fn polymorphic_ids_do_not_require_the_models_id_newtype() {
+    let reference: ExpandableValue<SmolStr> =
+        miniserde::json::from_str(r#"{"id":"ch_123","object":"charge","amount":120}"#).unwrap();
+    assert_eq!(reference.id(), "ch_123");
+    assert_eq!(reference.into_expanded_as::<Charge>().unwrap().unwrap().amount, 120);
+}
+
+#[test]
+fn named_opaque_objects_keep_unknown_variants_and_support_typed_views() {
+    let known: PaymentSource =
+        miniserde::json::from_str(r#"{"id":"ch_123","object":"charge","amount":120}"#).unwrap();
+    assert_eq!(known.id(), "ch_123");
+    assert_eq!(known.object_type(), "charge");
+    assert_eq!(known.into_typed::<Charge>().unwrap().amount, 120);
+    let future: PaymentSource = miniserde::json::from_str(
+        r#"{"id":"future_123","object":"future_source","additional":true}"#,
+    )
+    .unwrap();
+    assert_eq!(future.object_type(), "future_source");
+    assert!(matches!(future.as_value(), Value::Object(_)));
+    assert_eq!(crate::Object::into_id(future.clone()), "future_123");
+    assert!(matches!(future.clone().into_value(), Value::Object(_)));
+    assert_eq!(serde_json::to_value(&future).unwrap()["additional"], true);
+    assert!(miniserde::json::from_str::<PaymentSource>(r#"{"object":"future"}"#).is_err());
+}
+
+#[cfg(feature = "deserialize")]
+#[test]
+fn named_opaque_objects_support_serde_decoding() {
+    let source: PaymentSource =
+        serde_json::from_str(r#"{"id":"ch_123","object":"charge","amount":120}"#).unwrap();
+    assert_eq!(source.into_typed::<Charge>().unwrap().amount, 120);
+}
+
+#[test]
+fn unknown_types_and_fields_round_trip_without_a_decoder() {
+    let json = r#"{"id":"future_123","object":"future_source","extra":{"nested":[true,null,18446744073709551615]}}"#;
+    let reference: ExpandableValue<SmolStr> = miniserde::json::from_str(json).unwrap();
+    let object = reference.as_object().unwrap();
+    assert_eq!(object.object_type(), "future_source");
+    assert_eq!(object.id(), "future_123");
+    assert_eq!(
+        serde_json::from_str::<serde_json::Value>(&serde_json::to_string(&reference).unwrap())
+            .unwrap(),
+        serde_json::from_str::<serde_json::Value>(json).unwrap()
+    );
+    assert!(matches!(
+        reference.into_expanded_as::<Charge>(),
+        Err(ObjectDecodeError::UnexpectedObjectType { expected: "charge", actual })
+            if actual == "future_source"
+    ));
+}
+
+#[test]
+fn decoding_checks_the_discriminator_before_the_model() {
+    let object =
+        ObjectValue::try_from_value(value(r#"{"id":"ch_123","object":"charge","amount":120}"#))
+            .unwrap();
+    assert!(matches!(
+        object.into_typed::<Customer>(),
+        Err(ObjectDecodeError::UnexpectedObjectType { expected: "customer", actual })
+            if actual == "charge"
+    ));
+}
+
+#[test]
+fn malformed_known_models_fail_only_when_typed_decoding_is_requested() {
+    let reference: ExpandableValue<TestId> =
+        miniserde::json::from_str(r#"{"id":"ch_123","object":"charge","amount":"invalid"}"#)
+            .unwrap();
+    assert_eq!(reference.id().as_str(), "ch_123");
+    assert!(matches!(
+        reference.into_expanded_as::<Charge>(),
+        Err(ObjectDecodeError::InvalidObject { object_type: "charge" })
+    ));
+}
+
+#[test]
+fn malformed_opaque_objects_are_rejected_by_both_entry_points() {
+    for json in [
+        "null",
+        "[]",
+        "123",
+        r#"{"object":"charge"}"#,
+        r#"{"id":123,"object":"charge"}"#,
+        r#"{"id":"ch_123"}"#,
+        r#"{"id":"ch_123","object":123}"#,
+    ] {
+        assert!(ObjectValue::try_from_value(value(json)).is_err(), "{json}");
+        assert!(miniserde::json::from_str::<ObjectValue>(json).is_err(), "{json}");
+        assert!(miniserde::json::from_str::<ExpandableValue<TestId>>(json).is_err(), "{json}");
+    }
+}
+
+#[test]
+fn id_conversion_errors_are_not_ignored_for_expanded_payloads() {
+    #[derive(Debug)]
+    struct ChargeOnlyId;
+    impl FromCursor for ChargeOnlyId {
+        fn from_cursor(id: &str) -> Option<Self> {
+            id.starts_with("ch_").then_some(Self)
+        }
+    }
+    for json in [r#""cus_123""#, r#"{"id":"cus_123","object":"customer"}"#] {
+        assert!(matches!(
+            ExpandableValue::<ChargeOnlyId>::try_from_value(value(json)),
+            Err(ObjectDecodeError::InvalidId)
+        ));
+        assert!(miniserde::json::from_str::<ExpandableValue<ChargeOnlyId>>(json).is_err());
+    }
+}
+
+#[test]
+fn opaque_values_expose_the_complete_payload_without_mutating_identity() {
+    let object: ObjectValue =
+        miniserde::json::from_str(r#"{"id":"ch_123","object":"charge","amount":120}"#).unwrap();
+    let Value::Object(raw) = object.as_value() else { panic!() };
+    assert!(raw.contains_key("amount"));
+    assert_eq!(object.id(), "ch_123");
+    assert!(matches!(object.into_value(), Value::Object(_)));
+}
+
+#[cfg(feature = "deserialize")]
+#[test]
+fn serde_and_miniserde_agree_and_preserve_large_integer_payloads() {
+    for json in [
+        r#""ch_123""#,
+        r#"{"id":"ch_123","object":"charge","amount":120}"#,
+        r#"{"id":"future_123","object":"future","value":18446744073709551615}"#,
+    ] {
+        let serde: ExpandableValue<SmolStr> = serde_json::from_str(json).unwrap();
+        let mini: ExpandableValue<SmolStr> = miniserde::json::from_str(json).unwrap();
+        assert_eq!(serde.id(), mini.id());
+        assert_eq!(serde.is_object(), mini.is_object());
+        assert_eq!(serde_json::to_value(&serde).unwrap(), serde_json::to_value(&mini).unwrap());
+        assert_eq!(
+            serde_json::to_value(&serde).unwrap(),
+            serde_json::from_str::<serde_json::Value>(json).unwrap()
+        );
+    }
+    for json in ["null", "123", r#"{"object":"charge"}"#, r#"{"id":"ch_123"}"#] {
+        assert!(serde_json::from_str::<ExpandableValue<SmolStr>>(json).is_err(), "{json}");
+        assert!(serde_json::from_str::<ObjectValue>(json).is_err(), "{json}");
+    }
+}
+
+#[cfg(feature = "redact-generated-debug")]
+#[test]
+fn object_debug_respects_redaction() {
+    let object = ObjectValue::try_from_value(value(
+        r#"{"id":"ch_123","object":"charge","secret":"sensitive"}"#,
+    ))
+    .unwrap();
+    let debug = format!("{object:?}");
+    assert!(!debug.contains("sensitive"));
+    assert!(!debug.contains("ch_123"));
+}

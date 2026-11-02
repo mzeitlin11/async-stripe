@@ -98,12 +98,12 @@ fn serde_json_to_mini(val: serde_json::Value) -> Option<MiniValue> {
         serde_json::Value::Null => MiniValue::Null,
         serde_json::Value::Bool(bool) => MiniValue::Bool(bool),
         serde_json::Value::Number(num) => {
-            if let Some(float) = num.as_f64() {
-                MiniValue::Number(Number::F64(float))
-            } else if let Some(uint) = num.as_u64() {
+            if let Some(uint) = num.as_u64() {
                 MiniValue::Number(Number::U64(uint))
             } else if let Some(int) = num.as_i64() {
                 MiniValue::Number(Number::I64(int))
+            } else if let Some(float) = num.as_f64() {
+                MiniValue::Number(Number::F64(float))
             } else {
                 return None;
             }

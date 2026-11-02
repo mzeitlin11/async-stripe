@@ -301,3 +301,109 @@ mod maybe_deleted_tests {
         ));
     }
 }
+
+#[cfg(all(test, feature = "charge"))]
+mod record_tests {
+    use serde_json::{Value, json};
+
+    fn charge_json(details: Value) -> String {
+        let mut charge: Value = serde_json::from_str(include_str!("../charge.json")).unwrap();
+        charge["payment_method_details"] = details;
+        charge.to_string()
+    }
+
+    fn record(details: Value) -> stripe::PaymentMethodDetails {
+        let charge: stripe::Charge = miniserde::json::from_str(&charge_json(details)).unwrap();
+        charge.payment_method_details.unwrap()
+    }
+
+    #[test]
+    fn charge_retains_unknown_method_details_without_a_decoder() {
+        let value =
+            json!({"type":"future_method", "future_method":{"nested":[true,null,u64::MAX]}});
+        let details = record(value.clone());
+        assert_eq!(details.type_(), "future_method");
+        assert_eq!(serde_json::to_value(&details).unwrap(), value);
+        #[cfg(feature = "deserialize")]
+        {
+            let charge: stripe::Charge = serde_json::from_str(&charge_json(value.clone())).unwrap();
+            assert_eq!(
+                serde_json::to_value(charge.payment_method_details.unwrap()).unwrap(),
+                value
+            );
+        }
+    }
+
+    #[test]
+    fn record_parsing_checks_its_envelope_and_defers_field_validation() {
+        for value in [Value::Null, json!([]), json!({}), json!({"type":123})] {
+            assert!(
+                miniserde::json::from_str::<stripe::PaymentMethodDetails>(&value.to_string())
+                    .is_err()
+            );
+            if !value.is_null() {
+                assert!(miniserde::json::from_str::<stripe::Charge>(&charge_json(value)).is_err());
+            }
+        }
+        assert!(
+            miniserde::json::from_str::<stripe::Charge>(&charge_json(Value::Null))
+                .unwrap()
+                .payment_method_details
+                .is_none()
+        );
+        let value = json!({"type":"card", "card":{"exp_month":"invalid"}});
+        let details = record(value.clone());
+        assert_eq!(serde_json::to_value(details).unwrap(), value);
+    }
+
+    #[cfg(feature = "payment_method_details_card")]
+    #[test]
+    fn card_decoder_adds_repeatable_borrowed_access_without_changing_storage() {
+        let value = json!({"type":"card", "card":{"exp_month":12,"exp_year":2030,"last4":"4242","brand":"visa"}, "extra":true});
+        let details = record(value.clone());
+        let first: stripe::PaymentMethodDetailsCard = details.card().unwrap().unwrap();
+        let second = details.card().unwrap().unwrap();
+        assert_eq!(first.last4.as_deref(), Some("4242"));
+        assert_eq!(second.exp_year, 2030);
+        assert_eq!(serde_json::to_value(&details).unwrap(), value);
+    }
+
+    #[cfg(feature = "payment_method_details_card")]
+    #[test]
+    fn card_access_preserves_optional_field_semantics() {
+        for value in [json!({"type":"card"}), json!({"type":"card", "card":null})] {
+            assert!(record(value).card().unwrap().is_none());
+        }
+        let value = json!({"type":"future_method", "card":{"exp_month":12,"exp_year":2030}});
+        assert!(record(value).card().unwrap().is_some());
+        let details = record(json!({"type":"card", "card":{"exp_month":"invalid"}}));
+        assert_eq!(
+            details.card().unwrap_err(),
+            stripe::RecordDecodeError::InvalidField { field: "card" }
+        );
+        assert_eq!(details.type_(), "card");
+    }
+
+    #[cfg(feature = "payment_method_details_ideal")]
+    #[test]
+    fn another_decoder_can_be_enabled_independently() {
+        let details = record(
+            json!({"type":"ideal", "ideal":{"bank":"ing","bic":"INGBNL2A","iban_last4":"1234"}}),
+        );
+        let ideal: stripe::PaymentMethodDetailsIdeal = details.ideal().unwrap().unwrap();
+        assert_eq!(ideal.iban_last4.as_deref(), Some("1234"));
+    }
+}
+
+#[cfg(all(test, feature = "payment_method_details_card"))]
+mod standalone_card_decoder_tests {
+    #[test]
+    fn the_decoder_can_be_used_without_charge_or_its_request_package() {
+        let details: stripe::PaymentMethodDetails = miniserde::json::from_str(
+            r#"{"type":"card","card":{"exp_month":12,"exp_year":2030,"last4":"4242"}}"#,
+        )
+        .unwrap();
+        let card: stripe::PaymentMethodDetailsCard = details.card().unwrap().unwrap();
+        assert_eq!(card.last4.as_deref(), Some("4242"));
+    }
+}

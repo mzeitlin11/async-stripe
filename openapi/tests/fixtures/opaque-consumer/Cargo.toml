@@ -11,6 +11,7 @@ stripe = { package = "async-stripe", path = "../../../../async-stripe", default-
 stripe-client-core = { package = "async-stripe-client-core", path = "../../../../async-stripe-client-core" }
 bytes = "1.6.0"
 miniserde = "0.1.34"
+serde_json = "1"
 
 [features]
 default = ["balance_transaction"]
@@ -21,13 +22,21 @@ balance_transaction_source = ["stripe/balance_transaction_source"]
 application = ["stripe/application"]
 deleted_customer = ["stripe/deleted_customer"]
 customer = ["stripe/customer"]
+payment_method_details_card = ["stripe/payment_method_details_card"]
+payment_method_details_ideal = ["stripe/payment_method_details_ideal"]
 serialize = ["stripe/serialize"]
 deserialize = ["stripe/deserialize"]
 redact-generated-debug = ["stripe/redact-generated-debug"]
 # This probe must fail without `charge` and succeed when `charge` is enabled.
 charge-compile-probe = []
+record-card-compile-probe = []
 
 [[bin]]
 name = "charge-compile-probe"
 path = "src/charge_compile_probe.rs"
 required-features = ["charge-compile-probe"]
+
+[[bin]]
+name = "record-card-compile-probe"
+path = "src/record_card_compile_probe.rs"
+required-features = ["record-card-compile-probe"]

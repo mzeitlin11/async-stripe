@@ -297,6 +297,12 @@ impl CodeGen {
         if let Some(plan) = &self.availability {
             let modules = ModelModuleAnalysis::new(self, plan);
             summary.push_str(&modules.summary());
+            let _ = writeln!(
+                summary,
+                "\n- Inherent record accessor colocation constraints: {}\n\n`model-colocations.csv` records owner/payload pairs that must share a public crate for inherent decoder methods. These constraints are independent of dependency cycles and do not require sharing a source module.",
+                self.model.items().record_accessors().count()
+            );
+            bundle.insert("model-colocations.csv", model_colocations_csv(self));
             bundle.insert("model-module-dependencies.csv", modules.dependencies_csv());
             bundle.insert("model-module-sccs.csv", modules.sccs_csv());
             bundle.insert("model-group-closures.csv", modules.group_closures_csv(plan.features()));
@@ -468,7 +474,12 @@ fn summary(
     let items = codegen.model.items();
     let canonical_objects = items
         .iter()
-        .filter(|(_, item)| matches!(item.item, RustItem::Object(_) | RustItem::OpaqueObject))
+        .filter(|(_, item)| {
+            matches!(
+                item.item,
+                RustItem::Object(_) | RustItem::OpaqueObject | RustItem::OpaqueRecord(_)
+            )
+        })
         .count();
     assert_eq!(
         shape.objects, canonical_objects,
@@ -552,6 +563,45 @@ fn summary(
             stats.requests,
             stats.shape.objects,
             stats.shape.fields
+        );
+    }
+    out
+}
+
+fn model_colocations_csv(codegen: &CodeGen) -> String {
+    let items = codegen.model.items();
+    let locations = codegen.output_locations();
+    let rows = items
+        .record_accessors()
+        .map(|accessor| {
+            let path = |item| {
+                locations
+                    .emission_path(codegen.item_layout.placement(item).emission_site(), items)
+                    .display()
+                    .to_string()
+            };
+            [
+                items.get(accessor.owner).metadata.ident.to_string(),
+                items.get(accessor.payload).metadata.ident.to_string(),
+                accessor.field.variable_name().to_string(),
+                path(accessor.owner),
+                path(accessor.payload),
+            ]
+        })
+        .collect();
+    colocation_rows_csv(rows)
+}
+
+fn colocation_rows_csv(mut rows: Vec<[String; 5]>) -> String {
+    rows.sort();
+    let mut out = String::from(
+        "owner,payload,accessor,owner_emission_path,payload_emission_path,requirement,reason\n",
+    );
+    for row in rows {
+        let _ = writeln!(
+            out,
+            "{},same public crate,inherent record accessor",
+            row.iter().map(|value| csv(value)).collect::<Vec<_>>().join(",")
         );
     }
     out
@@ -887,7 +937,26 @@ fn dot(value: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{Availability, BTreeSet, ModelModuleAnalysis, ModuleInfo, ModuleKind};
+    use super::{
+        Availability, BTreeSet, ModelModuleAnalysis, ModuleInfo, ModuleKind, colocation_rows_csv,
+    };
+
+    #[test]
+    fn record_colocations_are_sorted_and_keep_the_crate_requirement_explicit() {
+        let rows = vec![
+            ["Details", "Wallet", "wallet", "details.rs", "wallet.rs"].map(str::to_string),
+            ["Details", "Card", "card", "details.rs", "nested,card.rs"].map(str::to_string),
+        ];
+        let report = colocation_rows_csv(rows.clone());
+        assert_eq!(report, colocation_rows_csv(rows.into_iter().rev().collect()));
+        assert_eq!(
+            report.lines().skip(1).collect::<Vec<_>>(),
+            [
+                "Details,Card,card,details.rs,\"nested,card.rs\",same public crate,inherent record accessor",
+                "Details,Wallet,wallet,details.rs,wallet.rs,same public crate,inherent record accessor",
+            ]
+        );
+    }
 
     fn fixture<'a>(conditions: &'a [Availability; 3], reversed: bool) -> ModelModuleAnalysis<'a> {
         let mut modules = vec![

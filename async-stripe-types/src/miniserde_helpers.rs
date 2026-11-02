@@ -102,7 +102,8 @@ impl<T: FromValueOpt> Map for ObjectValueMap<'_, T> {
     }
 
     fn finish(&mut self) -> miniserde::Result<()> {
-        let (_, object) = self.inner.finish_inner().ok_or(miniserde::Error)?;
+        self.inner.shift();
+        let object = mem::take(&mut self.inner.object);
         *self.out = Some(T::from_value(Value::Object(object)).ok_or(miniserde::Error)?);
         Ok(())
     }

@@ -179,13 +179,52 @@ impl CodeGen {
                 support.then_some(item)
             })
             .collect::<Vec<_>>();
-        generated.availability = Some(ModelAvailability::build(
+        let mut availability = ModelAvailability::build(
             items,
             generated.model.requests(),
             &generated.item_layout,
             &unconditional,
             &features,
-        )?);
+        )?;
+        let mut selected = features
+            .iter()
+            .map(|feature| feature.name.clone())
+            .collect::<std::collections::BTreeSet<_>>();
+        for accessor in items.record_accessors() {
+            if *availability.site(generated.item_layout.placement(accessor.owner).emission_site())
+                == crate::model_availability::Availability::Disabled
+            {
+                continue;
+            }
+            let TypeRoot::Declaration(DeclarationRoot::Component(component)) =
+                items.get(accessor.payload).origin.type_root
+            else {
+                anyhow::bail!("record decoder has no component root: {:?}", accessor.payload);
+            };
+            let name = generated.components.get_by_id(component).mod_path();
+            if selected.insert(name.clone()) {
+                anyhow::ensure!(
+                    !generated.components.has_requests(component),
+                    "record decoder unexpectedly implements requests: {name}"
+                );
+                generated.model_groups.push((name.clone(), component));
+                features.push(ModelFeature {
+                    name,
+                    items: vec![accessor.payload],
+                    requests: Vec::new(),
+                });
+            }
+        }
+        if features.len() != groups.len() {
+            availability = ModelAvailability::build(
+                items,
+                generated.model.requests(),
+                &generated.item_layout,
+                &unconditional,
+                &features,
+            )?;
+        }
+        generated.availability = Some(availability);
         generated.crate_dependencies = crate_dependencies(
             items,
             generated.model.requests(),
@@ -274,6 +313,7 @@ impl CodeGen {
                 emitter.emit(item, output)?;
             }
         }
+        emitter.record_accessors(output)?;
         emitter.finish()
     }
 
@@ -298,6 +338,7 @@ impl CodeGen {
                 self.output_locations(),
                 self.model.items(),
                 &self.item_layout,
+                self.availability.as_ref().expect("opaque model availability"),
                 &self.model_groups,
                 &self.version,
                 &mut output,

@@ -17,6 +17,7 @@ use crate::render::{Lifetime, RenderContext};
 use crate::request_model::RequestModel;
 use crate::rust_object::EnumOfObjects::{MaybeDeleted, ObjectUnion};
 use crate::rust_object::{ObjectIdentity, ObjectUsage, RustObject};
+use crate::rust_type::RustType;
 use crate::templates::ObjectWriter;
 use crate::templates::object_trait::{write_object_trait, write_object_trait_for_enum};
 use crate::templates::utils::write_doc_comment;
@@ -40,6 +41,13 @@ impl RenderContext<'_> {
             RustItem::OpaqueObject => {
                 let _ =
                     writeln!(out, "{STRIPE_TYPES}::def_object_value!({});", record.metadata.ident);
+            }
+            RustItem::OpaqueRecord(_) => {
+                if let Some(doc) = &record.metadata.doc {
+                    let _ = write!(out, "{}", write_doc_comment(doc, 0));
+                }
+                let _ =
+                    writeln!(out, "{STRIPE_TYPES}::def_record_value!({});", record.metadata.ident);
             }
         }
     }
@@ -221,6 +229,60 @@ impl<'a> ItemEmitter<'a> {
             }
         }
         output.append(path, "\n")
+    }
+
+    /// Decoder methods compile with their payload declaration. The raw record's
+    /// module can therefore be enabled without compiling every optional detail.
+    pub(crate) fn record_accessors(
+        &mut self,
+        output: &mut GeneratedWorkspace,
+    ) -> anyhow::Result<()> {
+        for accessor in self.items.record_accessors() {
+            let payload = self.layout.placement(accessor.payload);
+            let owner = self.layout.placement(accessor.owner);
+            ensure!(
+                matches!(owner.address(), ItemAddress::CrateRoot(_))
+                    && owner.address() == payload.address(),
+                "lazy record accessor {} requires its owner and payload in the same public crate",
+                accessor.field.field_name
+            );
+            ensure!(self.emitted[accessor.payload.index()], "record payload has not been emitted");
+            let site = payload.emission_site();
+            let path = self.locations.emission_path(site, self.items);
+            ensure!(
+                self.files.get(&path) == Some(&site),
+                "record payload file has not been opened"
+            );
+            let context = RenderContext::new(self.layout, self.items, site);
+            let owner_type = RustType::Item(accessor.owner);
+            let payload_type = RustType::Item(accessor.payload);
+            let method = accessor.field.variable_name();
+            let mut text = String::new();
+            let _ = writeln!(text, "impl {} {{", context.display_type(&owner_type));
+            if let Some(doc) = &accessor.field.doc_comment {
+                let _ = write!(text, "{}", write_doc_comment(doc, 4));
+            }
+            let _ = write!(
+                text,
+                "{}",
+                write_doc_comment(
+                    "Decode this optional field without consuming the record.\n\n\
+                 Each call clones and decodes only this field's retained JSON subtree.\n\n\
+                 # Errors\n\
+                 Returns an error if a present, non-null payload does not satisfy the selected model.",
+                    4,
+                )
+            );
+            let _ = writeln!(
+                text,
+                "pub fn {method}(&self) -> Result<{}, {STRIPE_TYPES}::RecordDecodeError> {{ self.field_as::<{}>({:?}) }}\n}}",
+                context.display_type(&accessor.field.rust_type),
+                context.display_type(&payload_type),
+                accessor.field.wire_name(),
+            );
+            output.append(path, text)?;
+        }
+        Ok(())
     }
 
     pub(crate) fn component_reexports(

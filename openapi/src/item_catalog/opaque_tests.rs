@@ -345,3 +345,197 @@ fn erased_reference_does_not_enable_a_structural_child_moved_to_another_module()
     assert_eq!(plan.site(layout.placement(child).emission_site()), &Availability::Disabled);
     assert_eq!(plan.site(EmissionSite::ComponentTypes(customer)), &Availability::Disabled);
 }
+
+struct RecordFixture {
+    components: Components,
+    items: ItemCatalog,
+    owner: ComponentId,
+    card: ComponentId,
+    other: ComponentId,
+}
+
+impl RecordFixture {
+    fn new() -> Self {
+        let catalog = ComponentCatalog::from_names(
+            [
+                "payment_method_details",
+                "payment_method_details_card",
+                "payment_method_details_other",
+            ]
+            .map(|name| ComponentName::new(name.into())),
+        )
+        .unwrap();
+        let owner = catalog.id_str("payment_method_details").unwrap();
+        let card = catalog.id_str("payment_method_details_card").unwrap();
+        let other = catalog.id_str("payment_method_details_other").unwrap();
+        let mut objects = IndexMap::new();
+        for (component, name) in catalog.iter() {
+            let schema = if component == owner {
+                serde_json::json!({
+                    "type": "object",
+                    "properties": {
+                        "type": {"type": "string"},
+                        "card": {"$ref": "#/components/schemas/payment_method_details_card"},
+                        "other": {"$ref": "#/components/schemas/payment_method_details_other"}
+                    },
+                    "required": ["type"]
+                })
+            } else {
+                serde_json::json!({"type": "object", "properties": {"value": {"type": "string"}}})
+            };
+            let schema = serde_json::from_value(schema).unwrap();
+            let resource = StripeResource::from_schema(&schema, name.clone()).unwrap();
+            objects.insert(component, StripeObject::from_schema(&schema, &resource, &catalog));
+        }
+        let mut operations = OperationCatalog::from_operations(
+            catalog.iter().map(|(component, _)| (component, &[] as &[StripeOperation])),
+        )
+        .unwrap();
+        for (component, _) in catalog.iter() {
+            operations.attach_requests(component, vec![]).unwrap();
+        }
+        let components = Components::for_test(catalog, objects, operations);
+        let items = ItemCatalog::build(&components, |component| {
+            ItemMetadata::new(components.get_by_id(component).ident().clone())
+        })
+        .unwrap();
+        Self { components, items, owner, card, other }
+    }
+
+    fn layout(&self, card_crate: Crate) -> (ComponentLayout, ItemLayout) {
+        let placement = ComponentLayout::for_test(&[
+            (self.owner, Crate::SHARED, Crate::SHARED),
+            (self.card, card_crate, card_crate),
+            (self.other, Crate::SHARED, Crate::SHARED),
+        ]);
+        let layout =
+            ItemLayout::from_component_layout(&self.components, &self.items, &placement).unwrap();
+        (placement, layout)
+    }
+}
+
+#[test]
+fn lazy_record_preserves_identity_and_source_without_storage_dependencies() {
+    let mut fixture = RecordFixture::new();
+    let owner = fixture.items.component_root(fixture.owner);
+    let before = fixture.items.get(owner).clone();
+    fixture.items.use_opaque_relationships(&fixture.components).unwrap();
+    let record = fixture.items.get(owner);
+    assert_eq!(record.origin, before.origin);
+    assert_eq!(record.occurrences, before.occurrences);
+    assert_eq!(record.metadata, before.metadata);
+    let RustItem::OpaqueRecord(fields) = &record.item else { panic!("record was not lowered") };
+    assert_eq!(fields.len(), 2);
+    let mut uses = 0;
+    record
+        .visit_type_uses(|_| {
+            uses += 1;
+            Ok(())
+        })
+        .unwrap();
+    assert_eq!(uses, 0);
+    assert!(matches!(
+        fixture.components.get_by_id(fixture.owner).rust_obj(),
+        RustObject::Struct(_)
+    ));
+    assert!(!fixture.items.properties(owner).is_copy);
+    assert!(!fixture.items.properties(owner).is_eq);
+    assert!(!fixture.items.properties(owner).has_lifetime);
+}
+
+#[test]
+fn lazy_record_decoders_follow_payload_sites_without_enabling_other_payloads() {
+    let mut fixture = RecordFixture::new();
+    fixture.items.use_opaque_relationships(&fixture.components).unwrap();
+    let (placement, original) = fixture.layout(Crate::SHARED);
+    let owner = fixture.items.component_root(fixture.owner);
+    let card = fixture.items.component_root(fixture.card);
+    let other = fixture.items.component_root(fixture.other);
+    // A decoder must follow the selected payload placement, including a moved
+    // declaration, rather than its original component's module.
+    let card_site = EmissionSite::Standalone { item: card, krate: Crate::SHARED };
+    let layout = ItemLayout::for_test(
+        fixture
+            .items
+            .iter()
+            .map(|(item, _)| {
+                let placement = original.placement(item);
+                (
+                    if item == card { card_site } else { placement.emission_site() },
+                    placement.address(),
+                )
+            })
+            .collect(),
+    );
+    layout.validate(&fixture.items, &placement).unwrap();
+    let features = [
+        ModelFeature { name: "details".into(), items: vec![owner], requests: vec![] },
+        ModelFeature { name: "card".into(), items: vec![card], requests: vec![] },
+    ];
+    let plan = ModelAvailability::build(&fixture.items, [], &layout, &[], &features).unwrap();
+    assert_eq!(
+        plan.site(layout.placement(owner).emission_site()),
+        &Availability::Features(["card".into(), "details".into()].into_iter().collect())
+    );
+    assert_eq!(
+        plan.site(card_site),
+        &Availability::Features(["card".into()].into_iter().collect())
+    );
+    assert_eq!(plan.site(layout.placement(other).emission_site()), &Availability::Disabled);
+    let mut output = GeneratedWorkspace::default();
+    let mut emitter = ItemEmitter::new(
+        &fixture.items,
+        &layout,
+        OutputLocations::new(&fixture.components, &placement),
+    )
+    .with_availability(&plan);
+    for (item, _) in fixture.items.iter() {
+        emitter.emit(item, &mut output).unwrap();
+    }
+    emitter.record_accessors(&mut output).unwrap();
+    emitter.finish().unwrap();
+    let locations = OutputLocations::new(&fixture.components, &placement);
+    let wrapper = std::str::from_utf8(
+        output
+            .contents(
+                locations.emission_path(layout.placement(owner).emission_site(), &fixture.items),
+            )
+            .unwrap(),
+    )
+    .unwrap();
+    assert!(wrapper.contains("def_record_value!(PaymentMethodDetails)"));
+    assert!(!wrapper.contains("pub fn card("));
+    let payload = std::str::from_utf8(
+        output.contents(locations.emission_path(card_site, &fixture.items)).unwrap(),
+    )
+    .unwrap();
+    assert!(payload.contains("impl stripe_shared::PaymentMethodDetails"));
+    assert!(
+        payload.contains(
+            "pub fn card(&self) -> Result<Option<stripe_shared::PaymentMethodDetailsCard>"
+        )
+    );
+    assert!(payload.contains("self.field_as::<stripe_shared::PaymentMethodDetailsCard>(\"card\")"));
+    assert!(!payload.contains("pub fn other("));
+}
+
+#[test]
+fn lazy_record_decoder_rejects_cross_crate_inherent_impls() {
+    let mut fixture = RecordFixture::new();
+    fixture.items.use_opaque_relationships(&fixture.components).unwrap();
+    let (placement, layout) = fixture.layout(krate("core"));
+    let error = crate_dependencies(&fixture.items, [], &placement, &layout).unwrap_err();
+    assert!(error.to_string().contains("same public crate"));
+}
+
+#[test]
+fn lazy_record_rejects_unexpected_detail_field_shapes() {
+    let mut fixture = RecordFixture::new();
+    let owner = fixture.items.component_root(fixture.owner);
+    let RustItem::Object(object) = &mut fixture.items.items[owner.index()].item else { panic!() };
+    let RustObject::Struct(strukt) = &mut object.definition else { panic!() };
+    let field = strukt.fields.iter_mut().find(|field| field.field_name == "card").unwrap();
+    field.rust_type = RustType::string();
+    let error = fixture.items.use_opaque_relationships(&fixture.components).unwrap_err();
+    assert!(error.to_string().contains("optional public item field"));
+}

@@ -5,7 +5,8 @@ use crate::components::Components;
 use crate::deduplication::SharingRule;
 use crate::item_origin::{ItemOccurrence, ItemOrigin, TypeRoot};
 use crate::rust_object::{
-    EnumOfObjects, ObjectIdentity, ObjectMetadata, ObjectUsage, RustObject, as_enum_of_objects,
+    EnumOfObjects, ObjectIdentity, ObjectMetadata, ObjectUsage, RustObject, StructField,
+    as_enum_of_objects,
 };
 use crate::rust_type::{DeclarationRoot, RustType};
 use crate::types::RustIdent;
@@ -70,6 +71,7 @@ impl From<&ObjectMetadata> for ItemMetadata {
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum ItemKind {
     OpaqueObject,
+    OpaqueRecord,
     Struct,
     Enum,
     FieldlessEnum,
@@ -86,6 +88,7 @@ impl ItemKind {
             },
             RustItem::IdNewtype => Self::IdNewtype,
             RustItem::OpaqueObject => Self::OpaqueObject,
+            RustItem::OpaqueRecord(_) => Self::OpaqueRecord,
         }
     }
 }
@@ -105,6 +108,28 @@ pub enum RustItem {
     IdNewtype,
     /// A nominal object family whose payload is preserved until typed decoding.
     OpaqueObject,
+    /// A tagged record stored as raw JSON. Fields describe optional decoders,
+    /// rather than storage references to their payload models.
+    OpaqueRecord(Vec<StructField>),
+}
+
+/// An inherent decoder method compiled alongside its optional payload model.
+#[derive(Debug, Copy, Clone)]
+pub(crate) struct RecordAccessor<'a> {
+    pub owner: ItemId,
+    pub field: &'a StructField,
+    pub payload: ItemId,
+}
+
+impl RecordAccessor<'_> {
+    /// The receiver and return types referenced by the emitted impl.
+    pub(crate) fn visit_type_uses(
+        self,
+        mut visit: impl FnMut(&RustType) -> anyhow::Result<()>,
+    ) -> anyhow::Result<()> {
+        visit(&RustType::Item(self.owner))?;
+        visit(&self.field.rust_type)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -142,7 +167,7 @@ impl ItemRecord {
     pub fn object(&self) -> Option<&ObjectItem> {
         match &self.item {
             RustItem::Object(object) => Some(object),
-            RustItem::IdNewtype | RustItem::OpaqueObject => None,
+            RustItem::IdNewtype | RustItem::OpaqueObject | RustItem::OpaqueRecord(_) => None,
         }
     }
 
@@ -347,6 +372,23 @@ impl ItemCatalog {
         self.property_analysis_rounds
     }
 
+    pub(crate) fn record_accessors(&self) -> impl Iterator<Item = RecordAccessor<'_>> {
+        self.iter().flat_map(|(owner, record)| {
+            let fields = match &record.item {
+                RustItem::OpaqueRecord(fields) => fields.as_slice(),
+                _ => &[],
+            };
+            fields.iter().map(move |field| RecordAccessor {
+                owner,
+                field,
+                payload: field
+                    .rust_type
+                    .item_id()
+                    .expect("validated record decoder has no payload"),
+            })
+        })
+    }
+
     /// Select wire storage after sharing and allocation, preserving item IDs and
     /// occurrence provenance. Only represented types change; the parsed
     /// dependency facts remain available on Components.
@@ -382,11 +424,43 @@ impl ItemCatalog {
                 ids.insert(item, id);
             }
         }
+        let item_count = self.items.len();
         for record in &mut self.items {
+            let payment_method_details = record.origin.path.is_empty()
+                && matches!(&record.origin.type_root,
+                    TypeRoot::Declaration(DeclarationRoot::Component(component))
+                    if components.component_name(*component).as_ref() == "payment_method_details");
             let diagnostic = matches!(&record.origin.type_root,
                 TypeRoot::Declaration(DeclarationRoot::Component(component))
                 if components.component_name(*component).as_ref() == "api_errors");
             let RustItem::Object(object) = &mut record.item else { continue };
+            if payment_method_details {
+                anyhow::ensure!(
+                    record.children.is_empty() && object.identity.is_none(),
+                    "payment_method_details must have no inline declarations or object identity"
+                );
+                let RustObject::Struct(strukt) = &object.definition else {
+                    anyhow::bail!("payment_method_details must be a struct");
+                };
+                let discriminator = strukt.fields.iter().find(|field| field.wire_name() == "type");
+                anyhow::ensure!(
+                    discriminator.is_some_and(|field| {
+                        field.required && field.rust_type == RustType::string()
+                    }),
+                    "payment_method_details must have a required string type discriminator"
+                );
+                let fields = strukt
+                    .fields
+                    .iter()
+                    .filter(|field| field.wire_name() != "type")
+                    .cloned()
+                    .collect::<Vec<_>>();
+                for field in &fields {
+                    validate_record_field(field, item_count)?;
+                }
+                record.item = RustItem::OpaqueRecord(fields);
+                continue;
+            }
             if matches!(object.enum_of_objects, Some(EnumOfObjects::ObjectUnion(_))) {
                 anyhow::ensure!(
                     record.children.is_empty(),
@@ -457,6 +531,11 @@ impl ItemCatalog {
                     })?;
                 }
             }
+            if let RustItem::OpaqueRecord(fields) = &item.item {
+                for field in fields {
+                    validate_record_field(field, self.items.len())?;
+                }
+            }
             for child in &item.children {
                 anyhow::ensure!(
                     child.index() < self.items.len(),
@@ -501,7 +580,7 @@ impl ItemCatalog {
                     }),
                     RustObject::Struct(_) | RustObject::FieldlessEnum(_) => None,
                 },
-                RustItem::IdNewtype | RustItem::OpaqueObject => None,
+                RustItem::IdNewtype | RustItem::OpaqueObject | RustItem::OpaqueRecord(_) => None,
             })
             .collect::<Vec<_>>();
         for (item, classification) in self.items.iter_mut().zip(classifications) {
@@ -510,6 +589,19 @@ impl ItemCatalog {
             }
         }
     }
+}
+
+fn validate_record_field(field: &StructField, item_count: usize) -> anyhow::Result<()> {
+    use crate::rust_type::Container;
+    anyhow::ensure!(
+        !field.required
+            && field.vis.is_public()
+            && matches!(&field.rust_type,
+                RustType::Container(Container::Option(inner)) if matches!(**inner, RustType::Item(_))),
+        "lazy record decoder {} must be an optional public item field",
+        field.field_name
+    );
+    validate_lowered_type(&field.rust_type, item_count)
 }
 
 fn lower_opaque_type(

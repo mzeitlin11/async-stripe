@@ -6,6 +6,7 @@ use crate::crates::{ALL_CRATES, Crate};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
+use crate::model_availability::{ModelAvailability, ModelFeature};
 use crate::object_writing::ItemEmitter;
 use crate::operations::{
     MethodType, OperationCatalog, OperationType, RequestParam, RequestSpec, StripeOperation,
@@ -37,16 +38,19 @@ struct Fixture {
 
 impl Fixture {
     fn new() -> Self {
+        Self::with_model_schema(serde_json::json!({
+            "type": "object", "properties": {"id": {"type": "string", "description": "Unique identifier for the object."}}, "required": ["id"]
+        }))
+    }
+
+    fn with_model_schema(schema: serde_json::Value) -> Self {
         let catalog = ComponentCatalog::from_names(
             ["customer", "charge"].map(|name| ComponentName::new(name.to_string())),
         )
         .unwrap();
         let customer = catalog.id_str("customer").unwrap();
         let charge = catalog.id_str("charge").unwrap();
-        let schema = serde_json::from_value(serde_json::json!({
-            "type": "object", "properties": {"id": {"type": "string", "description": "Unique identifier for the object."}}, "required": ["id"]
-        }))
-        .unwrap();
+        let schema = serde_json::from_value(schema).unwrap();
         let objects = [customer, charge]
             .map(|component| {
                 let resource =
@@ -158,6 +162,39 @@ impl Fixture {
         }
         emitter.finish()?;
         Ok(output)
+    }
+
+    fn availability(
+        &self,
+        layout: &ItemLayout,
+        groups: &[(String, ComponentId)],
+    ) -> ModelAvailability {
+        let unconditional = self
+            .items
+            .iter()
+            .filter_map(|(item, record)| record.is_reference_foundation().then_some(item))
+            .collect::<Vec<_>>();
+        let features = groups
+            .iter()
+            .map(|(name, component)| ModelFeature {
+                name: name.clone(),
+                items: vec![self.items.component_root(*component)],
+                requests: self
+                    .components
+                    .has_requests(*component)
+                    .then_some(*component)
+                    .into_iter()
+                    .collect(),
+            })
+            .collect::<Vec<_>>();
+        ModelAvailability::build(
+            &self.items,
+            [(self.customer, std::slice::from_ref(&self.request))],
+            layout,
+            &unconditional,
+            &features,
+        )
+        .unwrap()
     }
 }
 
@@ -426,11 +463,14 @@ fn a_standalone_model_cannot_shadow_its_request_directory() {
 fn facade_requires_the_lightweight_reference_foundation_to_be_placed_first() {
     let fixture = Fixture::new();
     let layout = fixture.layout(&[]);
+    let groups = [("customer".to_string(), fixture.customer)];
+    let availability = fixture.availability(&layout, &groups);
     let error = crate::facade::write_facade(
         OutputLocations::new(&fixture.components, &fixture.component_layout),
         &fixture.items,
         &layout,
-        &[("customer".to_string(), fixture.customer)],
+        &availability,
+        &groups,
         "1.0.0",
         &mut GeneratedWorkspace::default(),
     )
@@ -444,12 +484,15 @@ fn facade_exports_same_crate_models_from_the_root_of_the_private_types_module() 
     let ids = [fixture.customer, fixture.charge]
         .map(|component| (fixture.items.component_id_item(component).unwrap(), Crate::SHARED));
     let layout = fixture.layout(&ids);
+    let groups = [("customer".to_string(), fixture.customer)];
+    let availability = fixture.availability(&layout, &groups);
     let mut output = GeneratedWorkspace::default();
     crate::facade::write_facade(
         OutputLocations::new(&fixture.components, &fixture.component_layout),
         &fixture.items,
         &layout,
-        &[("customer".to_string(), fixture.customer)],
+        &availability,
+        &groups,
         "1.0.0",
         &mut output,
     )
@@ -470,12 +513,15 @@ fn facade_exports_a_selected_opaque_family_only_once() {
     let ids = [fixture.customer, fixture.charge]
         .map(|component| (fixture.items.component_id_item(component).unwrap(), Crate::SHARED));
     let layout = fixture.layout(&[(model, Crate::SHARED), ids[0], ids[1]]);
+    let groups = [("charge".to_string(), fixture.charge)];
+    let availability = fixture.availability(&layout, &groups);
     let mut output = GeneratedWorkspace::default();
     crate::facade::write_facade(
         OutputLocations::new(&fixture.components, &fixture.component_layout),
         &fixture.items,
         &layout,
-        &[("charge".to_string(), fixture.charge)],
+        &availability,
+        &groups,
         "1.0.0",
         &mut output,
     )
@@ -492,12 +538,15 @@ fn facade_exports_a_moved_model_from_its_selected_standalone_crate() {
     let ids = [fixture.customer, fixture.charge]
         .map(|component| (fixture.items.component_id_item(component).unwrap(), Crate::SHARED));
     let layout = fixture.layout(&[(model, Crate::SHARED), ids[0], ids[1]]);
+    let groups = [("customer".to_string(), fixture.customer)];
+    let availability = fixture.availability(&layout, &groups);
     let mut output = GeneratedWorkspace::default();
     crate::facade::write_facade(
         OutputLocations::new(&fixture.components, &fixture.component_layout),
         &fixture.items,
         &layout,
-        &[("customer".to_string(), fixture.customer)],
+        &availability,
+        &groups,
         "1.0.0",
         &mut output,
     )
@@ -514,4 +563,100 @@ fn facade_exports_a_moved_model_from_its_selected_standalone_crate() {
             .iter()
             .any(|entry| { entry.as_str() == Some("async-stripe-shared/customer") })
     );
+}
+
+#[test]
+fn facade_exports_reachable_model_helpers_once_with_their_actual_feature_conditions() {
+    let fixture = Fixture::with_model_schema(serde_json::json!({
+        "type": "object", "properties": {
+            "id": {"type": "string", "description": "Unique identifier for the object."},
+            "status": {"type": "string", "enum": ["available"]}
+        }, "required": ["id"]
+    }));
+    let ids = [fixture.customer, fixture.charge]
+        .map(|component| (fixture.items.component_id_item(component).unwrap(), Crate::SHARED));
+    let layout = fixture.layout(&ids);
+    let groups =
+        [("customer".to_string(), fixture.customer), ("charge".to_string(), fixture.charge)];
+    let availability = fixture.availability(&layout, &groups);
+    let mut output = GeneratedWorkspace::default();
+    crate::facade::write_facade(
+        OutputLocations::new(&fixture.components, &fixture.component_layout),
+        &fixture.items,
+        &layout,
+        &availability,
+        &groups,
+        "1.0.0",
+        &mut output,
+    )
+    .unwrap();
+
+    let exports = contents(&output, "async-stripe/src/generated/mod.rs");
+    assert!(
+        exports.contains("#[cfg(feature = \"customer\")]\npub use stripe_core::CustomerStatus;")
+    );
+    assert_eq!(exports.matches("pub use stripe_billing::charge::*;").count(), 1);
+    assert!(exports.contains(
+        "#[cfg(any(feature = \"charge\", feature = \"customer\"))]\npub use stripe_billing::charge::*;"
+    ));
+    assert!(!exports.contains("stripe_core::CustomerParamsMode"));
+    let manifest: toml::Value =
+        toml::from_str(contents(&output, "async-stripe/Cargo.toml")).unwrap();
+    assert!(
+        manifest["features"]["customer"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|entry| { entry.as_str() == Some("async-stripe-billing/customer") })
+    );
+}
+
+#[test]
+fn facade_does_not_promote_local_children_of_a_standalone_owner() {
+    let fixture = Fixture::with_model_schema(serde_json::json!({
+        "type": "object", "properties": {
+            "id": {"type": "string", "description": "Unique identifier for the object."},
+            "status": {"type": "string", "enum": ["available"]}
+        }, "required": ["id"]
+    }));
+    let ids = [fixture.customer, fixture.charge]
+        .map(|component| (fixture.items.component_id_item(component).unwrap(), Crate::SHARED));
+    let default = fixture.layout(&ids);
+    let model = fixture.items.component_root(fixture.customer);
+    let helper = fixture.items.get(model).children[0];
+    let site = EmissionSite::Standalone { item: model, krate: Crate::SHARED };
+    let layout = ItemLayout::for_test(
+        fixture
+            .items
+            .iter()
+            .map(|(item, _)| {
+                if item == model {
+                    (site, ItemAddress::CrateRoot(Crate::SHARED))
+                } else if item == helper {
+                    (site, ItemAddress::Local)
+                } else {
+                    let placement = default.placement(item);
+                    (placement.emission_site(), placement.address())
+                }
+            })
+            .collect(),
+    );
+    layout.validate(&fixture.items, &fixture.component_layout).unwrap();
+    let groups = [("customer".to_string(), fixture.customer)];
+    let availability = fixture.availability(&layout, &groups);
+    let mut output = GeneratedWorkspace::default();
+    crate::facade::write_facade(
+        OutputLocations::new(&fixture.components, &fixture.component_layout),
+        &fixture.items,
+        &layout,
+        &availability,
+        &groups,
+        "1.0.0",
+        &mut output,
+    )
+    .unwrap();
+    let exports = contents(&output, "async-stripe/src/generated/mod.rs");
+    assert!(exports.contains("pub use stripe_shared::Customer;"));
+    assert!(!exports.contains("pub use stripe_shared::CustomerStatus;"));
+    assert!(!exports.contains("pub use stripe_shared::customer::*;"));
 }

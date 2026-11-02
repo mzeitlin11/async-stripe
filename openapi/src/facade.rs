@@ -7,22 +7,28 @@ use crate::component_catalog::ComponentId;
 use crate::crates::{ALL_CRATES, Crate};
 use crate::item_catalog::{ItemCatalog, RustItem};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
+use crate::model_availability::{Availability, ModelAvailability};
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
 use crate::rust_object::RustObject;
 
-/// Use the selected model groups for both facade features and public exports.
+/// Export available model modules and selected endpoint groups.
 /// The handwritten manifest remains the source of transport/runtime settings.
 pub(crate) fn write_facade(
     locations: OutputLocations<'_>,
     items: &ItemCatalog,
     layout: &ItemLayout,
+    availability: &ModelAvailability,
     groups: &[(String, ComponentId)],
     version: &str,
     output: &mut GeneratedWorkspace,
 ) -> anyhow::Result<()> {
     let template = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../async-stripe/Cargo.toml"));
-    let mut selected = Vec::new();
+    let mut selected = availability
+        .features()
+        .iter()
+        .map(|feature| (feature.clone(), BTreeSet::new()))
+        .collect::<BTreeMap<_, _>>();
     let mut exports = String::from("// Generated from the selected model groups.\n");
 
     let references = items
@@ -46,65 +52,85 @@ pub(crate) fn write_facade(
         );
     }
 
-    for (feature, component) in groups {
-        let request_crate = locations.request_crate(*component);
-        let item = items.component_root(*component);
-        let placement = layout.placement(item);
-        let ItemAddress::CrateRoot(model_crate) = placement.address() else {
-            anyhow::bail!("facade model is not publicly addressable: {component:?}");
-        };
-        let mut crates = std::collections::BTreeSet::from([model_crate]);
-        if locations.components.has_requests(*component) {
-            crates.insert(request_crate);
+    let mut emitted_sites = std::collections::HashSet::new();
+    for (item, record) in items.iter() {
+        let site = layout.placement(item).emission_site();
+        if !emitted_sites.insert(site) {
+            continue;
         }
-        selected.push((feature.clone(), crates.into_iter().collect::<Vec<_>>()));
-
-        let paths = if items.get(item).is_reference_foundation() {
-            // Lightweight references are already exported without a feature.
-            Vec::new()
-        } else {
-            match placement.emission_site() {
-                EmissionSite::ComponentTypes(owner) => {
-                    if !locations.components.has_requests(owner)
-                        || locations.types_split_from_requests(owner)
-                    {
-                        let module = locations.components.get_by_id(owner).mod_path();
-                        vec![format!("{}::{module}::*", model_crate.lib_name())]
-                    } else {
-                        // The private `component::types` module is reexported at the
-                        // model crate root. Export public declarations from that site.
-                        items
-                            .iter()
-                            .filter(|(id, record)| {
-                                layout.placement(*id).emission_site() == placement.emission_site()
-                                    && match &record.item {
-                                        RustItem::Object(object) => match &object.definition {
-                                            RustObject::Struct(strukt) => strukt.vis.is_public(),
-                                            RustObject::Enum(_) | RustObject::FieldlessEnum(_) => {
-                                                true
-                                            }
-                                        },
-                                        RustItem::IdNewtype | RustItem::OpaqueObject => true,
-                                    }
-                            })
-                            .map(|(_, record)| {
-                                format!("{}::{}", model_crate.lib_name(), record.metadata.ident)
-                            })
-                            .collect()
-                    }
+        let condition = availability.site(site);
+        if *condition == Availability::Disabled {
+            continue;
+        }
+        let (model_crate, paths) = match site {
+            EmissionSite::ComponentTypes(owner) => {
+                let krate = locations.types_crate(owner);
+                let paths = if !locations.components.has_requests(owner)
+                    || locations.types_split_from_requests(owner)
+                {
+                    let module = locations.components.get_by_id(owner).mod_path();
+                    vec![format!("{}::{module}::*", krate.lib_name())]
+                } else {
+                    // Public helpers such as ChargeStatus have local render
+                    // addresses, but this module reexports them at the crate root.
+                    items
+                        .iter()
+                        .filter(|(id, record)| {
+                            layout.placement(*id).emission_site() == site
+                                && match &record.item {
+                                    RustItem::Object(object) => match &object.definition {
+                                        RustObject::Struct(strukt) => strukt.vis.is_public(),
+                                        RustObject::Enum(_) | RustObject::FieldlessEnum(_) => true,
+                                    },
+                                    RustItem::IdNewtype
+                                    | RustItem::OpaqueObject
+                                    | RustItem::OpaqueRecord(_) => true,
+                                }
+                        })
+                        .map(|(_, record)| {
+                            format!("{}::{}", krate.lib_name(), record.metadata.ident)
+                        })
+                        .collect()
+                };
+                (krate, paths)
+            }
+            EmissionSite::Standalone { item: owner, krate } => {
+                if items.get(owner).is_reference_foundation() {
+                    // Reference declarations were exported together above.
+                    continue;
                 }
-                EmissionSite::Standalone { .. } => {
-                    vec![format!("{}::{}", model_crate.lib_name(), items.get(item).metadata.ident)]
-                }
-                EmissionSite::ComponentRequests(_) | EmissionSite::Webhooks => {
-                    anyhow::bail!("facade model has a local-only emission site: {component:?}");
+                (krate, vec![format!("{}::{}", krate.lib_name(), items.get(owner).metadata.ident)])
+            }
+            EmissionSite::ComponentRequests(_) | EmissionSite::Webhooks => continue,
+        };
+        match condition {
+            Availability::Features(names) => {
+                for name in names {
+                    selected
+                        .get_mut(name)
+                        .expect("export feature was not registered")
+                        .insert(model_crate);
                 }
             }
-        };
-        for path in paths {
-            let _ = writeln!(exports, "#[cfg(feature = {feature:?})]\npub use {path};");
+            Availability::Always => ensure!(
+                model_crate == Crate::SHARED,
+                "unconditional facade model must be placed in shared: {}",
+                record.metadata.ident
+            ),
+            Availability::Disabled => unreachable!(),
         }
+        for path in paths {
+            let _ = writeln!(exports, "{}pub use {path};", condition.cfg_attribute());
+        }
+    }
+
+    for (feature, component) in groups {
         if locations.components.has_requests(*component) {
+            let request_crate = locations.request_crate(*component);
+            selected
+                .get_mut(feature)
+                .with_context(|| format!("facade request feature was not registered: {feature}"))?
+                .insert(request_crate);
             let module = locations.components.get_by_id(*component).mod_path();
             let _ = writeln!(
                 exports,
@@ -127,6 +153,10 @@ pub(crate) fn write_facade(
             );
         }
     }
+    let selected = selected
+        .into_iter()
+        .map(|(feature, crates)| (feature, crates.into_iter().collect()))
+        .collect::<Vec<_>>();
     let manifest = model_group_manifest(template, &selected, version)?;
     output.write("async-stripe/Cargo.toml", manifest)?;
     output.write("async-stripe/src/generated/mod.rs", exports)

@@ -144,8 +144,28 @@ def main():
     charge = run(work, "charge", cargo + ["test", "--offline", "--features", "charge", "--message-format=json"], fixture, env)
     charge_sources = compiled_shared_sources(charge.stdout, workspace)
     assert charge_file in charge_sources, "charge feature did not compile the Charge model"
+    card_file = "generated/async-stripe-shared/src/payment_method_details_card.rs"
+    ideal_file = "generated/async-stripe-shared/src/payment_method_details_ideal.rs"
+    assert card_file not in charge_sources and ideal_file not in charge_sources, "Charge compiled optional detail decoders"
     (work / "charge-compiled-sources.json").write_text(json.dumps(charge_sources, indent=2) + "\n")
     run(work, "charge-available", cargo + ["check", "--offline", "--bin", "charge-compile-probe", "--features", "charge-compile-probe,charge"], fixture, env)
+    no_card = run(work, "record-card-unavailable", cargo + ["check", "--offline", "--no-default-features", "--bin", "record-card-compile-probe", "--features", "charge,record-card-compile-probe"], fixture, env, expect_success=False)
+    assert "no method named" in no_card.stderr and "`card`" in no_card.stderr, no_card.stderr
+    card = run(work, "record-card", cargo + ["test", "--offline", "--no-default-features", "--features", "charge,payment_method_details_card", "--message-format=json"], fixture, env)
+    card_sources = compiled_shared_sources(card.stdout, workspace)
+    assert card_file in card_sources and ideal_file not in card_sources
+    run(work, "record-card-available", cargo + ["check", "--offline", "--no-default-features", "--bin", "record-card-compile-probe", "--features", "record-card-compile-probe,payment_method_details_card"], fixture, env)
+    card_only = run(work, "record-card-only", cargo + ["test", "--offline", "--no-default-features", "--features", "payment_method_details_card", "--message-format=json"], fixture, env)
+    assert charge_file not in compiled_shared_sources(card_only.stdout, workspace), "standalone card decoder compiled Charge"
+    for line in card_only.stdout.splitlines():
+        try:
+            message = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        assert message.get("target", {}).get("name") != "stripe_core", "standalone card decoder activated HTTP request package"
+    ideal = run(work, "record-ideal", cargo + ["test", "--offline", "--no-default-features", "--features", "charge,payment_method_details_ideal", "--message-format=json"], fixture, env)
+    ideal_sources = compiled_shared_sources(ideal.stdout, workspace)
+    assert ideal_file in ideal_sources and card_file not in ideal_sources
     charge_only = run(work, "charge-only", cargo + ["test", "--offline", "--no-default-features", "--features", "charge", "--message-format=json"], fixture, env)
     charge_only_sources = compiled_shared_sources(charge_only.stdout, workspace)
     assert charge_file in charge_only_sources
@@ -184,7 +204,7 @@ def main():
         run(work, "exhaustive-fixtures", cargo + ["test", "--offline", "-p", "async-stripe-tests", "--test", "it", "deserialization_fixture::fixtures", "--", "--nocapture"], workspace, env)
         run(work, "parser", cargo + ["test", "--offline", "-p", "async-stripe-parser"], workspace, env)
     assert source_snapshot() == before, "verification modified product source"
-    summary = {"full_v1": args.full_v1, "base_shared_source_files": len(base_sources), "charge_shared_source_files": len(charge_sources), "charge_only_shared_source_files": len(charge_only_sources), "webhook_base_shared_source_files": len(webhook_base_sources), "webhook_charge_shared_source_files": len(webhook_charge_sources), "charge_absent_from_base": True, "webhook_charge_does_not_activate_core": True, "source_unchanged": True}
+    summary = {"full_v1": args.full_v1, "base_shared_source_files": len(base_sources), "charge_shared_source_files": len(charge_sources), "charge_only_shared_source_files": len(charge_only_sources), "card_decoder_shared_source_files": len(card_sources), "ideal_decoder_shared_source_files": len(ideal_sources), "webhook_base_shared_source_files": len(webhook_base_sources), "webhook_charge_shared_source_files": len(webhook_charge_sources), "charge_absent_from_base": True, "detail_decoders_compile_independently": True, "webhook_charge_does_not_activate_core": True, "source_unchanged": True}
     (work / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     for path in [workspace, output]:
         shutil.rmtree(path)

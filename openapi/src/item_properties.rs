@@ -22,7 +22,7 @@ pub(crate) fn infer(items: &[ItemRecord]) -> anyhow::Result<(Vec<ItemProperties>
                 RustItem::IdNewtype => {
                     Ok(ItemProperties { has_lifetime: false, is_copy: false, is_eq: true })
                 }
-                RustItem::OpaqueObject => {
+                RustItem::OpaqueObject | RustItem::OpaqueRecord(_) => {
                     Ok(ItemProperties { has_lifetime: false, is_copy: false, is_eq: false })
                 }
             })

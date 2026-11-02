@@ -9,8 +9,9 @@ use crate::component_catalog::ComponentCatalog;
 use crate::crates::Crate;
 use crate::item_layout::ItemAddress;
 use crate::item_origin::TypeRoot;
-use crate::model_availability::{Availability, ModelAvailability};
+use crate::model_availability::{Availability, ModelAvailability, model_feature_name};
 use crate::output::GeneratedWorkspace;
+use crate::output_locations::OutputLocations;
 use crate::render::RenderContext;
 use crate::rust_object::RustObject;
 use crate::rust_type::RustType;
@@ -158,6 +159,7 @@ fn write_event_object(
 /// independently of the packages that implement their HTTP requests.
 pub(crate) fn write_manifest(
     context: RenderContext<'_>,
+    locations: OutputLocations<'_>,
     webhooks: &[WebhookObject],
     availability: &ModelAvailability,
     version: &str,
@@ -198,7 +200,19 @@ pub(crate) fn write_manifest(
     }
     let groups = groups
         .into_iter()
-        .map(|(name, crates)| (name, crates.into_iter().collect()))
+        .map(|(name, crates)| {
+            let targets = crates
+                .into_iter()
+                .map(|krate| {
+                    let has_requests_here = availability
+                        .request_components(&name)
+                        .iter()
+                        .any(|component| locations.request_crate(*component) == krate);
+                    (krate, model_feature_name(&name, has_requests_here))
+                })
+                .collect();
+            (name, targets)
+        })
         .collect::<Vec<_>>();
     let template =
         include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../async-stripe-webhook/Cargo.toml"));

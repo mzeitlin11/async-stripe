@@ -126,6 +126,16 @@ For the complete supported v1 surface, including the existing generated fixture 
 python3 tests/verify_opaque_groups.py --full-v1
 ```
 
+To also exercise the consumer-based placement candidate:
+
+```console
+python3 tests/verify_opaque_groups.py --full-v1 --consumer-layout
+```
+
+Add `--keep-workspace` to retain the formatted SDK sources for reviewing the actual generated crate contents. Build caches remain outside that source workspace.
+
+This candidate keeps the existing package names, request ownership, and domain reexports. It assigns model modules to a single consuming domain when possible, with cross-domain support remaining shared. Consumer sets propagate through actual dependencies and inherent-accessor colocation constraints before placement. It requires the complete supported surface so changing a consumer's feature selection does not change the inferred organization.
+
 Full v1 generation selects every resource with a wire object tag, named polymorphic resource family, and component with HTTP operations. Supporting schemas follow their actual dependencies rather than receiving an individual public feature. Fixture validation deliberately enables all selected groups and uses actual model addresses. The staged test manifest declares its representation-specific test feature; normal tests keep their concrete behavior, including under `--all-features`.
 
 For inspecting the unformatted output and analysis directly:
@@ -134,6 +144,8 @@ For inspecting the unformatted output and analysis directly:
 cargo run --example opaque_model_groups -- /tmp/stripe-opaque-output balance_transaction charge
 # Or generate every supported v1 resource/endpoint group:
 cargo run --example opaque_model_groups -- /tmp/stripe-opaque-output --all
+# Apply the placement candidate without installing it:
+cargo run --example opaque_model_groups -- /tmp/stripe-opaque-output --all --consumer-layout
 ```
 
 `analysis/model-availability.csv` records each canonical item's emission path and availability (`always`, `disabled`, or its enabling groups). Availability closes actual represented dependencies at source-module granularity: sibling declarations in the same file compile together. The crate dependency and availability passes share their definition of type consumers.
@@ -141,6 +153,10 @@ cargo run --example opaque_model_groups -- /tmp/stripe-opaque-output --all
 `model-module-dependencies.csv` and `graphs/model-module-dependencies.dot` expose that same dependency graph after representation and placement. `model-module-sccs.csv` identifies the remaining model cycles; `model-group-closures.csv` separates always-on support from conditional group closures. `model-colocations.csv` records inherent-accessor constraints that require a common crate even without a dependency cycle. These provide evidence for choosing crate boundaries without changing the current crate map. Overlapping group counts must not be summed.
 
 Representation changes occur after sharing and canonical allocation. `ExpandableValue<I>` stores an ID or a complete JSON object without naming its concrete model. Named polymorphic families use distinct opaque wrappers; their typed conversion checks the wire discriminator. IDs and component-level opaque families are lightweight unconditional support. Error scalars remain typed, while resource objects embedded as diagnostic context become `ObjectValue`. The original semantic relationships and occurrence provenance are retained.
+
+`ObjectValue<I = SmolStr>` retains the selected ID type. Its default constructor requires a string ID. Optional identities such as `ExpandableValue<Option<InvoiceId>>` accept absent/null IDs when the existing model permits them, while rejecting malformed nonstring IDs. Expanded and ID-only states each retain one typed identity rather than duplicate caches.
+
+Opaque resource storage also requires a wire `object` discriminator. Untagged payloads such as Radar Rule retain their existing concrete expandable representation. This preserves their valid wire shape without inventing a discriminator or weakening the tagged-object contract.
 
 The JSON tree is parsed eagerly; concrete model construction is deferred. A consuming decode such as `source.into_expanded_as::<stripe::Charge>()` distinguishes an ID-only value from invalid expanded data. Enabling a model does not change base parsing or discard unknown payloads.
 
@@ -155,4 +171,6 @@ Available model modules and their public helpers are reexported according to act
 
 Webhooks gate typed payloads using the same model availability plan. Unknown and disabled payloads preserve their complete data in `EventObject::Unknown` on both serde and miniserde paths; malformed enabled models still fail. The standalone parser enables all model groups and rejects unknown event variants. Opaque expandable/polymorphic subtrees remain opaque there too, so this is not recursive validation of every retained subtree.
 
-This is an experimental v1 SDK representation, not a completed crate organization policy. It keeps the current crate map and gates heavy model modules within it. Repository installation remains rejected while the normal installer lacks ownership of the additional facade, webhook, and test manifests. Those manifests record generated model groups so regeneration can remove stale flags/dependencies while preserving runtime settings. Group selection remains a generator development API/example, with no new normal-generation CLI flag.
+Where a generated package implements a group's HTTP requests, it distinguishes an internal model flag from the public resource/request flag. Other groups use their existing flag directly for models. A webhook enables the backing model flags, without enabling HTTP builders or the optional client-interface dependency. The public facade enables models and their selected endpoints together. `full` contains public groups. The isolated check also verifies that publishable manifests stay within [crates.io's default 300-feature limit](https://doc.rust-lang.org/cargo/reference/features.html), including implicit dependency features.
+
+This is an experimental v1 SDK representation and an optional crate-placement candidate. The default experiment keeps the current crate map; consumer placement changes model locations within the same packages. Repository installation remains rejected while the normal installer lacks ownership of the additional facade, webhook, and test manifests. Those manifests record generated model groups so regeneration can remove stale flags/dependencies while preserving runtime settings. Group selection remains a generator development API/example, with no new normal-generation CLI flag.

@@ -155,7 +155,10 @@ pub(crate) fn write_facade(
     }
     let selected = selected
         .into_iter()
-        .map(|(feature, crates)| (feature, crates.into_iter().collect()))
+        .map(|(feature, crates)| {
+            let targets = crates.into_iter().map(|krate| (krate, feature.clone())).collect();
+            (feature, targets)
+        })
         .collect::<Vec<_>>();
     let manifest = model_group_manifest(template, &selected, version)?;
     output.write("async-stripe/Cargo.toml", manifest)?;
@@ -166,7 +169,7 @@ pub(crate) fn write_facade(
 /// the handwritten runtime settings shared by the facade and webhook crates.
 pub(crate) fn model_group_manifest(
     template: &str,
-    groups: &[(String, Vec<Crate>)],
+    groups: &[(String, Vec<(Crate, String)>)],
     version: &str,
 ) -> anyhow::Result<String> {
     let mut manifest: toml::Value = toml::from_str(template)?;
@@ -197,7 +200,7 @@ pub(crate) fn model_group_manifest(
         .collect::<BTreeSet<_>>();
     let mut domain_crates = BTreeSet::new();
     let mut group_features = BTreeMap::new();
-    for (feature, crates) in groups {
+    for (feature, targets) in groups {
         ensure!(
             !matches!(
                 feature.as_str(),
@@ -206,13 +209,13 @@ pub(crate) fn model_group_manifest(
             "model group uses a reserved feature name: {feature}"
         );
         let mut forwarded = vec![];
-        for krate in crates.iter().copied().collect::<BTreeSet<_>>() {
+        for (krate, target) in targets.iter().cloned().collect::<BTreeSet<_>>() {
             let package = krate.crate_name();
             if krate != Crate::SHARED {
                 forwarded.push(toml::Value::String(format!("dep:{package}")));
                 domain_crates.insert(krate);
             }
-            forwarded.push(toml::Value::String(format!("{package}/{feature}")));
+            forwarded.push(toml::Value::String(format!("{package}/{target}")));
         }
         ensure!(
             group_features.insert(feature.clone(), toml::Value::Array(forwarded)).is_none(),
@@ -319,9 +322,12 @@ custom = ["tls"]
 redact-generated-debug = ["custom"]
 "#;
 
-    fn groups() -> Vec<(String, Vec<crate::crates::Crate>)> {
+    fn groups() -> Vec<(String, Vec<(crate::crates::Crate, String)>)> {
         let core = *ALL_CRATES.iter().find(|krate| krate.base_name() == "core").unwrap();
-        vec![("balance_transaction".to_string(), vec![core]), ("charge".to_string(), vec![core])]
+        vec![
+            ("balance_transaction".into(), vec![(core, "balance_transaction".into())]),
+            ("charge".into(), vec![(core, "charge".into())]),
+        ]
     }
 
     #[test]
@@ -353,7 +359,7 @@ redact-generated-debug = ["custom"]
     fn changing_selection_removes_owned_features_dependencies_and_forwarding() {
         let first = model_group_manifest(TEMPLATE, &groups(), "1.0.0").unwrap();
         let billing = *ALL_CRATES.iter().find(|krate| krate.base_name() == "billing").unwrap();
-        let selected = vec![("invoice".to_string(), vec![billing])];
+        let selected = vec![("invoice".to_string(), vec![(billing, "invoice".into())])];
         let second = model_group_manifest(&first, &selected, "2.0.0").unwrap();
         assert_eq!(second, model_group_manifest(&second, &selected, "2.0.0").unwrap());
         let manifest: toml::Value = toml::from_str(&second).unwrap();
@@ -402,15 +408,33 @@ redact-generated-debug = ["custom"]
             env!("CARGO_MANIFEST_DIR"),
             "/../async-stripe-webhook/Cargo.toml"
         ));
-        let generated = model_group_manifest(template, &groups(), "2.0.0").unwrap();
+        let groups = groups()
+            .into_iter()
+            .map(|(group, targets)| {
+                (
+                    group,
+                    targets
+                        .into_iter()
+                        .map(|(krate, target)| (krate, format!("__model_{target}")))
+                        .collect(),
+                )
+            })
+            .collect::<Vec<_>>();
+        let generated = model_group_manifest(template, &groups, "2.0.0").unwrap();
         let manifest: toml::Value = toml::from_str(&generated).unwrap();
         assert_eq!(manifest["features"]["full"][0].as_str(), Some("balance_transaction"));
         assert_eq!(manifest["features"]["full"][1].as_str(), Some("charge"));
+        assert!(
+            manifest["features"]["charge"]
+                .as_array()
+                .unwrap()
+                .contains(&toml::Value::String("async-stripe-core/__model_charge".into()))
+        );
         assert!(manifest["dependencies"].get("async-stripe-billing").is_none());
         assert_eq!(
             manifest["features"]["detailed-errors"][0].as_str(),
             Some("dep:serde_path_to_error")
         );
-        assert_eq!(generated, model_group_manifest(&generated, &groups(), "2.0.0").unwrap());
+        assert_eq!(generated, model_group_manifest(&generated, &groups, "2.0.0").unwrap());
     }
 }

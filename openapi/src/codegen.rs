@@ -16,7 +16,7 @@ use crate::item_catalog::ItemMetadata;
 use crate::item_layout::{EmissionSite, ItemLayout};
 use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
-use crate::model_availability::{ModelAvailability, ModelFeature};
+use crate::model_availability::{ModelAvailability, ModelFeature, model_feature_name};
 use crate::object_writing::ItemEmitter;
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
@@ -118,8 +118,13 @@ impl CodeGen {
         version: String,
     ) -> anyhow::Result<Self> {
         let generated = Self::new(spec, url_finder, version)?;
-        let groups = generated
-            .components
+        let groups = generated.resource_model_groups();
+        let names = groups.iter().map(|(name, _)| name.as_str()).collect::<Vec<_>>();
+        generated.with_opaque_model_groups(&names)
+    }
+
+    fn resource_model_groups(&self) -> Vec<(String, ComponentId)> {
+        self.components
             .components
             .iter()
             .filter(|(component, object)| {
@@ -128,12 +133,10 @@ impl CodeGen {
                         object.identity(),
                         Some(crate::rust_object::ObjectIdentity::ObjectUnion)
                     )
-                    || generated.components.has_requests(**component)
+                    || self.components.has_requests(**component)
             })
-            .map(|(_, object)| object.mod_path())
-            .collect::<Vec<_>>();
-        let names = groups.iter().map(String::as_str).collect::<Vec<_>>();
-        generated.with_opaque_model_groups(&names)
+            .map(|(&component, object)| (object.mod_path(), component))
+            .collect()
     }
 
     fn with_opaque_model_groups(mut self, groups: &[&str]) -> anyhow::Result<Self> {
@@ -143,7 +146,6 @@ impl CodeGen {
         let items = generated.model.items();
         generated.item_layout.separate_reference_types(items);
         generated.item_layout.validate(items, &generated.component_layout)?;
-        let mut features = Vec::new();
         for name in groups {
             let (&component, object) = generated
                 .components
@@ -152,43 +154,12 @@ impl CodeGen {
                 .find(|(_, object)| object.mod_path() == *name)
                 .with_context(|| format!("unknown model group {name}"))?;
             generated.model_groups.push((object.mod_path(), component));
-            features.push(ModelFeature {
-                name: object.mod_path(),
-                items: vec![items.component_root(component)],
-                requests: generated
-                    .components
-                    .has_requests(component)
-                    .then_some(component)
-                    .into_iter()
-                    .collect(),
-            });
         }
-        let unconditional = items
+        let mut availability = generated.model_availability()?;
+        let mut selected = generated
+            .model_groups
             .iter()
-            .filter_map(|(item, record)| {
-                let support = record.is_reference_foundation()
-                    || matches!(
-                        &record.origin.type_root,
-                        TypeRoot::Declaration(DeclarationRoot::Shared(_))
-                    )
-                    || matches!(record.origin.type_root, TypeRoot::Webhook(_))
-                    || (record.origin.path.is_empty()
-                        && matches!(record.origin.type_root,
-                            TypeRoot::Declaration(DeclarationRoot::Component(component))
-                            if matches!(generated.components.component_name(component).as_ref(), "error" | "event")));
-                support.then_some(item)
-            })
-            .collect::<Vec<_>>();
-        let mut availability = ModelAvailability::build(
-            items,
-            generated.model.requests(),
-            &generated.item_layout,
-            &unconditional,
-            &features,
-        )?;
-        let mut selected = features
-            .iter()
-            .map(|feature| feature.name.clone())
+            .map(|(name, _)| name.clone())
             .collect::<std::collections::BTreeSet<_>>();
         for accessor in items.record_accessors() {
             if *availability.site(generated.item_layout.placement(accessor.owner).emission_site())
@@ -208,21 +179,10 @@ impl CodeGen {
                     "record decoder unexpectedly implements requests: {name}"
                 );
                 generated.model_groups.push((name.clone(), component));
-                features.push(ModelFeature {
-                    name,
-                    items: vec![accessor.payload],
-                    requests: Vec::new(),
-                });
             }
         }
-        if features.len() != groups.len() {
-            availability = ModelAvailability::build(
-                items,
-                generated.model.requests(),
-                &generated.item_layout,
-                &unconditional,
-                &features,
-            )?;
+        if generated.model_groups.len() != groups.len() {
+            availability = generated.model_availability()?;
         }
         generated.availability = Some(availability);
         generated.crate_dependencies = crate_dependencies(
@@ -231,6 +191,91 @@ impl CodeGen {
             &generated.component_layout,
             &generated.item_layout,
         )?;
+        Ok(self)
+    }
+
+    fn model_availability(&self) -> anyhow::Result<ModelAvailability> {
+        let items = self.model.items();
+        let features = self
+            .model_groups
+            .iter()
+            .map(|(name, component)| ModelFeature {
+                name: name.clone(),
+                items: vec![items.component_root(*component)],
+                requests: self
+                    .components
+                    .has_requests(*component)
+                    .then_some(*component)
+                    .into_iter()
+                    .collect(),
+            })
+            .collect::<Vec<_>>();
+        let unconditional = items.iter().filter_map(|(item, record)| {
+            let support = record.is_reference_foundation()
+                || matches!(&record.origin.type_root, TypeRoot::Declaration(DeclarationRoot::Shared(_)))
+                || matches!(record.origin.type_root, TypeRoot::Webhook(_))
+                || (record.origin.path.is_empty() && matches!(record.origin.type_root,
+                    TypeRoot::Declaration(DeclarationRoot::Component(component))
+                    if matches!(self.components.component_name(component).as_ref(), "error" | "event")));
+            support.then_some(item)
+        }).collect::<Vec<_>>();
+        ModelAvailability::build(
+            items,
+            self.model.requests(),
+            &self.item_layout,
+            &unconditional,
+            &features,
+        )
+    }
+
+    /// Place complete v1 model modules using their represented consumers and
+    /// retained domain exports, preserving existing package names.
+    ///
+    /// This experiment requires the complete resource surface so placement does
+    /// not change according to a consumer's subset of enabled features.
+    pub fn with_consumer_model_layout(mut self) -> anyhow::Result<Self> {
+        let availability = self
+            .availability
+            .as_ref()
+            .context("consumer model layout requires opaque v1 generation")?;
+        let selected = self
+            .model_groups
+            .iter()
+            .map(|(_, component)| *component)
+            .collect::<std::collections::HashSet<_>>();
+        anyhow::ensure!(
+            self.resource_model_groups().iter().all(|(_, component)| selected.contains(component)),
+            "consumer model layout requires every v1 resource group; use --all"
+        );
+        let feature_crates = self
+            .model_groups
+            .iter()
+            .map(|(name, component)| {
+                (name.clone(), self.component_layout.placement(*component).request_crate())
+            })
+            .collect();
+        self.component_layout = self.component_layout.with_consumer_model_crates(
+            &self.components,
+            self.model.items(),
+            &self.item_layout,
+            availability,
+            &feature_crates,
+        )?;
+        self.item_layout = ItemLayout::from_component_layout(
+            &self.components,
+            self.model.items(),
+            &self.component_layout,
+        )?;
+        self.item_layout.separate_reference_types(self.model.items());
+        self.item_layout.validate(self.model.items(), &self.component_layout)?;
+        self.availability = Some(self.model_availability()?);
+        self.crate_dependencies = crate_dependencies(
+            self.model.items(),
+            self.model.requests(),
+            &self.component_layout,
+            &self.item_layout,
+        )?;
+        validate_crate_dependencies(&self.crate_dependencies)?;
         Ok(self)
     }
 
@@ -345,6 +390,7 @@ impl CodeGen {
             )?;
             crate::webhook::write_manifest(
                 context,
+                self.output_locations(),
                 &self.components.webhook_objs,
                 self.availability.as_ref().expect("opaque model availability"),
                 &self.version,
@@ -362,31 +408,58 @@ impl CodeGen {
             dependencies.sort_unstable();
             let base_path = PathBuf::from(krate.generated_out_path());
             let features = if let Some(plan) = &self.availability {
-                Some(
-                    plan.features()
+                let mut features = std::collections::BTreeMap::new();
+                for feature in plan.features() {
+                    let requests_here = plan
+                        .request_components(feature)
                         .iter()
-                        .map(|feature| {
-                            let forwarded = dependencies
+                        .any(|component| locations.request_crate(*component) == *krate);
+                    let model_feature = model_feature_name(feature, requests_here);
+                    let forwarded = dependencies
+                        .iter()
+                        .map(|dep| {
+                            let requests_there = plan
+                                .request_components(feature)
                                 .iter()
-                                .map(|dep| format!("{}/{feature}", dep.crate_name()))
-                                .collect();
-                            (feature.clone(), forwarded)
+                                .any(|component| locations.request_crate(*component) == *dep);
+                            format!(
+                                "{}/{}",
+                                dep.crate_name(),
+                                model_feature_name(feature, requests_there)
+                            )
                         })
-                        .collect(),
-                )
+                        .collect();
+                    features.insert(model_feature.clone(), forwarded);
+                    if requests_here {
+                        features
+                            .insert(feature.clone(), vec!["__requests".to_string(), model_feature]);
+                    }
+                }
+                if *krate != Crate::SHARED {
+                    features
+                        .insert("__requests".into(), vec!["dep:async-stripe-client-core".into()]);
+                }
+                features.insert("full".into(), plan.features().iter().cloned().collect());
+                Some(features)
             } else if *krate == Crate::SHARED {
                 None
             } else {
-                Some(
-                    locations
-                        .crate_members(*krate)
-                        .into_iter()
-                        .filter(|c| locations.components.has_requests(*c))
-                        .map(|c| (locations.components.get_by_id(c).mod_path(), Vec::new()))
-                        .collect(),
-                )
+                let mut features = locations
+                    .crate_members(*krate)
+                    .into_iter()
+                    .filter(|c| locations.components.has_requests(*c))
+                    .map(|c| (locations.components.get_by_id(c).mod_path(), Vec::new()))
+                    .collect::<std::collections::BTreeMap<_, _>>();
+                features.insert("full".into(), features.keys().cloned().collect());
+                Some(features)
             };
-            let toml = gen_crate_toml(*krate, dependencies, features, &self.version);
+            let toml = gen_crate_toml(
+                *krate,
+                dependencies,
+                features,
+                self.availability.is_some(),
+                &self.version,
+            );
             output.write(base_path.join("Cargo.toml"), toml)?;
 
             let lib_name = krate.lib_name();

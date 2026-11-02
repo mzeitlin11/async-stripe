@@ -17,6 +17,7 @@ pub fn gen_crate_toml(
     krate: Crate,
     crate_deps: Vec<Crate>,
     crate_features: Option<BTreeMap<String, Vec<String>>>,
+    request_dependency_optional: bool,
     version: &str,
 ) -> String {
     let mut crate_dep_section = String::new();
@@ -35,9 +36,10 @@ pub fn gen_crate_toml(
     let request_deps = if krate == Crate::SHARED {
         None
     } else {
+        let optional = if request_dependency_optional { ", optional = true" } else { "" };
         Some(format!(
             // release-plz adds an extra space. let's add it here also to prevent churn
-            r#"async-stripe-client-core = {{path = "../../async-stripe-client-core", version = "{version}" }}"#,
+            r#"async-stripe-client-core = {{path = "../../async-stripe-client-core", version = "{version}"{optional} }}"#,
         ))
     };
     let request_deps = request_deps.as_deref().unwrap_or_default();
@@ -89,8 +91,9 @@ pub fn gen_crate_toml(
     }
 }
 
-fn gen_feature_section(crate_features: BTreeMap<String, Vec<String>>) -> String {
+fn gen_feature_section(mut crate_features: BTreeMap<String, Vec<String>>) -> String {
     let mut feature_section = String::new();
+    let full = crate_features.remove("full").expect("generated feature map must define full");
 
     for (feature, forwarded) in &crate_features {
         let forwarded = forwarded.iter().map(|value| format!(r#""{value}""#)).collect::<Vec<_>>();
@@ -100,11 +103,7 @@ fn gen_feature_section(crate_features: BTreeMap<String, Vec<String>>) -> String 
     let _ = writeln!(
         feature_section,
         "full = [{}]",
-        crate_features
-            .keys()
-            .map(|feature| format!(r#""{feature}""#))
-            .collect::<Vec<_>>()
-            .join(",\n")
+        full.iter().map(|feature| format!(r#""{feature}""#)).collect::<Vec<_>>().join(",\n")
     );
 
     formatdoc! {
@@ -122,14 +121,15 @@ mod tests {
     use std::collections::BTreeMap;
 
     use super::{gen_crate_toml, gen_feature_section};
-    use crate::crates::Crate;
+    use crate::crates::{ALL_CRATES, Crate};
 
     #[test]
     fn request_features_retain_the_existing_text_layout() {
         assert_eq!(
             gen_feature_section(BTreeMap::from([
                 ("customer".into(), vec![]),
-                ("charge".into(), vec![])
+                ("charge".into(), vec![]),
+                ("full".into(), vec!["charge".into(), "customer".into()]),
             ])),
             concat!(
                 "charge = []\ncustomer = []\n\nfull = [\"charge\",\n\"customer\"]\n\n\n",
@@ -139,15 +139,20 @@ mod tests {
     }
 
     #[test]
-    fn model_features_render_forwarding_and_docs_for_shared() {
+    fn shared_models_use_public_flags_directly() {
         let manifest = gen_crate_toml(
             Crate::SHARED,
             vec![],
-            Some(BTreeMap::from([("charge".into(), vec!["async-stripe-core/charge".into()])])),
+            Some(BTreeMap::from([
+                ("charge".into(), vec![]),
+                ("full".into(), vec!["charge".into()]),
+            ])),
+            true,
             "1.0.0",
         );
         let document: toml::Value = toml::from_str(&manifest).unwrap();
-        assert_eq!(document["features"]["charge"][0].as_str(), Some("async-stripe-core/charge"));
+        assert!(document["features"].get("__model_charge").is_none());
+        assert!(document["features"]["charge"].as_array().unwrap().is_empty());
         assert_eq!(document["features"]["full"][0].as_str(), Some("charge"));
         assert_eq!(
             document["package"]["metadata"]["docs"]["rs"]["features"][0].as_str(),
@@ -157,9 +162,43 @@ mod tests {
 
     #[test]
     fn normal_shared_has_no_resource_features_or_docs_flags() {
-        let manifest = gen_crate_toml(Crate::SHARED, vec![], None, "1.0.0");
+        let manifest = gen_crate_toml(Crate::SHARED, vec![], None, false, "1.0.0");
         let document: toml::Value = toml::from_str(&manifest).unwrap();
         assert!(document["features"].get("full").is_none());
         assert!(document["package"].get("metadata").is_none());
+    }
+
+    #[test]
+    fn opaque_domains_make_the_client_optional_and_keep_full_public() {
+        let core = *ALL_CRATES.iter().find(|krate| krate.base_name() == "core").unwrap();
+        let manifest = gen_crate_toml(
+            core,
+            vec![Crate::SHARED],
+            Some(BTreeMap::from([
+                ("__model_charge".into(), vec!["async-stripe-shared/charge".into()]),
+                ("__requests".into(), vec!["dep:async-stripe-client-core".into()]),
+                ("charge".into(), vec!["__model_charge".into(), "__requests".into()]),
+                ("full".into(), vec!["charge".into()]),
+            ])),
+            true,
+            "1.0.0",
+        );
+        let document: toml::Value = toml::from_str(&manifest).unwrap();
+        assert_eq!(
+            document["dependencies"]["async-stripe-client-core"]["optional"].as_bool(),
+            Some(true)
+        );
+        assert_eq!(
+            document["features"]["__requests"][0].as_str(),
+            Some("dep:async-stripe-client-core")
+        );
+        assert_eq!(
+            document["features"]["__model_charge"][0].as_str(),
+            Some("async-stripe-shared/charge")
+        );
+        assert_eq!(
+            document["features"]["full"].as_array().unwrap(),
+            &[toml::Value::String("charge".into())]
+        );
     }
 }

@@ -7,6 +7,7 @@ caches and are retained. No product files are installed.
 """
 
 import argparse
+import csv
 import hashlib
 import json
 import os
@@ -49,30 +50,31 @@ def run(work, name, command, cwd, env, expect_success=True):
     return result
 
 
-def compiled_shared_sources(stdout, workspace):
+def compiled_generated_sources(stdout, workspace):
     artifacts = []
     for line in stdout.splitlines():
         try:
             message = json.loads(line)
         except json.JSONDecodeError:
             continue
-        if message.get("reason") == "compiler-artifact" and message.get("target", {}).get("name") == "stripe_shared":
+        source = message.get("target", {}).get("src_path", "")
+        if message.get("reason") == "compiler-artifact" and source.startswith(str(workspace / "generated") + "/"):
             artifacts.extend(message["filenames"])
-    assert artifacts, "Cargo reported no compiled shared artifact"
+    assert artifacts, "Cargo reported no compiled generated artifact"
     info = set()
     for filename in artifacts:
         artifact = Path(filename)
         dep_info = artifact.with_name(artifact.name.removeprefix("lib").rsplit(".", 1)[0] + ".d")
         if dep_info.is_file():
             info.add(dep_info.read_text())
-    assert info, "shared crate dependency information was not found"
+    assert info, "generated crate dependency information was not found"
     contents = "\n".join(info)
     sources = []
-    for source in (workspace / "generated/async-stripe-shared/src").rglob("*.rs"):
+    for source in (workspace / "generated").rglob("*.rs"):
         escaped = str(source).replace(" ", "\\ ")
         if str(source) in contents or escaped in contents:
             sources.append(str(source.relative_to(workspace)))
-    assert sources, "shared dependency information contains no generated sources"
+    assert sources, "dependency information contains no generated sources"
     return sorted(sources)
 
 
@@ -83,7 +85,11 @@ def main():
     parser.add_argument("--generator-target-dir", type=Path, help="reusable generator build cache")
     parser.add_argument("--toolchain", default="1.89.0")
     parser.add_argument("--full-v1", action="store_true", help="generate every v1 group and run exhaustive fixtures and parser tests")
+    parser.add_argument("--consumer-layout", action="store_true", help="test model placement by actual consumers; requires --full-v1")
+    parser.add_argument("--keep-workspace", action="store_true", help="retain formatted SDK sources for reviewing the generated crate contents")
     args = parser.parse_args()
+    if args.consumer_layout and not args.full_v1:
+        parser.error("--consumer-layout requires --full-v1")
     work = (args.work_dir or Path(tempfile.mkdtemp(prefix="async-stripe-opaque-check-"))).resolve()
     work.mkdir(parents=True, exist_ok=True)
     marker = work / ".opaque-groups-verification"
@@ -99,8 +105,11 @@ def main():
     before = source_snapshot()
     env = dict(os.environ, CARGO_TARGET_DIR=str(generator_target))
     groups = ["--all"] if args.full_v1 else ["balance_transaction", "charge", "invoice", "balance_transaction_source", "application", "deleted_customer", "customer"]
+    if args.consumer_layout:
+        groups.append("--consumer-layout")
     run(work, "generation", ["cargo", f"+{args.toolchain}", "run", "--locked", "--offline", "--example", "opaque_model_groups", "--", str(output), *groups], REPO / "openapi", env)
     shutil.copytree(output / "analysis", work / "analysis")
+    model_paths = {row["ident"]: row["emission_path"].replace("crates/", "generated/", 1) for row in csv.DictReader((work / "analysis/items.csv").open()) if row["origin"].startswith("component:")}
 
     workspace.mkdir()
     members = MEMBERS + (["tests"] if args.full_v1 else [])
@@ -133,30 +142,35 @@ def main():
     run(work, "fixture-format", ["cargo", "+nightly", "fmt"], fixture, env)
     run(work, "webhook-fixture-format", ["cargo", "+nightly", "fmt"], webhook_fixture, env)
     cargo = ["cargo", f"+{args.toolchain}"]
+    metadata = run(work, "manifest-features", cargo + ["metadata", "--offline", "--no-deps", "--format-version", "1"], workspace, env)
+    feature_counts = {package["name"]: len(package["features"]) for package in json.loads(metadata.stdout)["packages"] if package.get("publish") != []}
+    assert all(count <= 300 for count in feature_counts.values()), f"published package exceeds crates.io's default feature limit: {feature_counts}"
+    (work / "feature-counts.json").write_text(json.dumps(feature_counts, indent=2, sort_keys=True) + "\n")
     base = run(work, "base", cargo + ["test", "--offline", "--message-format=json"], fixture, env)
-    base_sources = compiled_shared_sources(base.stdout, workspace)
-    charge_file = "generated/async-stripe-shared/src/charge.rs"
+    base_sources = compiled_generated_sources(base.stdout, workspace)
+    charge_file = model_paths["Charge"]
+    balance_file = model_paths["BalanceTransaction"]
     assert charge_file not in base_sources, "base feature compiled the full Charge model"
-    assert "generated/async-stripe-shared/src/balance_transaction.rs" in base_sources
+    assert balance_file in base_sources
     (work / "base-compiled-sources.json").write_text(json.dumps(base_sources, indent=2) + "\n")
     negative = run(work, "charge-unavailable", cargo + ["check", "--offline", "--bin", "charge-compile-probe", "--features", "charge-compile-probe"], fixture, env, expect_success=False)
     assert "unresolved import" in negative.stderr and "stripe::Charge" in negative.stderr, negative.stderr
     charge = run(work, "charge", cargo + ["test", "--offline", "--features", "charge", "--message-format=json"], fixture, env)
-    charge_sources = compiled_shared_sources(charge.stdout, workspace)
+    charge_sources = compiled_generated_sources(charge.stdout, workspace)
     assert charge_file in charge_sources, "charge feature did not compile the Charge model"
-    card_file = "generated/async-stripe-shared/src/payment_method_details_card.rs"
-    ideal_file = "generated/async-stripe-shared/src/payment_method_details_ideal.rs"
+    card_file = model_paths["PaymentMethodDetailsCard"]
+    ideal_file = model_paths["PaymentMethodDetailsIdeal"]
     assert card_file not in charge_sources and ideal_file not in charge_sources, "Charge compiled optional detail decoders"
     (work / "charge-compiled-sources.json").write_text(json.dumps(charge_sources, indent=2) + "\n")
     run(work, "charge-available", cargo + ["check", "--offline", "--bin", "charge-compile-probe", "--features", "charge-compile-probe,charge"], fixture, env)
     no_card = run(work, "record-card-unavailable", cargo + ["check", "--offline", "--no-default-features", "--bin", "record-card-compile-probe", "--features", "charge,record-card-compile-probe"], fixture, env, expect_success=False)
     assert "no method named" in no_card.stderr and "`card`" in no_card.stderr, no_card.stderr
     card = run(work, "record-card", cargo + ["test", "--offline", "--no-default-features", "--features", "charge,payment_method_details_card", "--message-format=json"], fixture, env)
-    card_sources = compiled_shared_sources(card.stdout, workspace)
+    card_sources = compiled_generated_sources(card.stdout, workspace)
     assert card_file in card_sources and ideal_file not in card_sources
     run(work, "record-card-available", cargo + ["check", "--offline", "--no-default-features", "--bin", "record-card-compile-probe", "--features", "record-card-compile-probe,payment_method_details_card"], fixture, env)
     card_only = run(work, "record-card-only", cargo + ["test", "--offline", "--no-default-features", "--features", "payment_method_details_card", "--message-format=json"], fixture, env)
-    assert charge_file not in compiled_shared_sources(card_only.stdout, workspace), "standalone card decoder compiled Charge"
+    assert charge_file not in compiled_generated_sources(card_only.stdout, workspace), "standalone card decoder compiled Charge"
     for line in card_only.stdout.splitlines():
         try:
             message = json.loads(line)
@@ -164,15 +178,16 @@ def main():
             continue
         assert message.get("target", {}).get("name") != "stripe_core", "standalone card decoder activated HTTP request package"
     ideal = run(work, "record-ideal", cargo + ["test", "--offline", "--no-default-features", "--features", "charge,payment_method_details_ideal", "--message-format=json"], fixture, env)
-    ideal_sources = compiled_shared_sources(ideal.stdout, workspace)
+    ideal_sources = compiled_generated_sources(ideal.stdout, workspace)
     assert ideal_file in ideal_sources and card_file not in ideal_sources
     charge_only = run(work, "charge-only", cargo + ["test", "--offline", "--no-default-features", "--features", "charge", "--message-format=json"], fixture, env)
-    charge_only_sources = compiled_shared_sources(charge_only.stdout, workspace)
+    charge_only_sources = compiled_generated_sources(charge_only.stdout, workspace)
     assert charge_file in charge_only_sources
-    assert "generated/async-stripe-shared/src/balance_transaction.rs" not in charge_only_sources, "charge alone compiled the balance transaction model"
+    assert balance_file not in charge_only_sources, "charge alone compiled the balance transaction model"
     run(work, "model-only", cargo + ["test", "--offline", "--no-default-features", "--features", "balance_transaction_source"], fixture, env)
     run(work, "typed-model-only", cargo + ["test", "--offline", "--no-default-features", "--features", "application"], fixture, env)
     run(work, "shared-tag-models", cargo + ["test", "--offline", "--no-default-features", "--features", "application,deleted_customer,customer,deserialize"], fixture, env)
+    run(work, "optional-invoice-identity", cargo + ["test", "--offline", "--no-default-features", "--features", "invoice,serialize,deserialize"], fixture, env)
     run(work, "combined-groups", cargo + ["test", "--offline", "--no-default-features", "--features", "charge,invoice"], fixture, env)
     run(work, "all-features", cargo + ["test", "--offline", "--all-features"], fixture, env)
     run(work, "http-client", cargo + ["check", "--offline", "--features", "stripe/default-tls"], fixture, env)
@@ -185,17 +200,18 @@ def main():
         assert message.get("target", {}).get("name") not in {"stripe_core", "stripe_billing"}, "serialization forwarding activated an optional API crate"
 
     webhook_base = run(work, "webhook-base", cargo + ["test", "--offline", "--message-format=json"], webhook_fixture, env)
-    webhook_base_sources = compiled_shared_sources(webhook_base.stdout, workspace)
+    webhook_base_sources = compiled_generated_sources(webhook_base.stdout, workspace)
     assert charge_file not in webhook_base_sources, "base webhook compiled Charge"
     webhook_charge = run(work, "webhook-charge", cargo + ["test", "--offline", "--features", "charge,deserialize,serialize", "--message-format=json"], webhook_fixture, env)
-    webhook_charge_sources = compiled_shared_sources(webhook_charge.stdout, workspace)
+    webhook_charge_sources = compiled_generated_sources(webhook_charge.stdout, workspace)
     assert charge_file in webhook_charge_sources
+    assert not any(path.endswith("/requests.rs") for path in webhook_charge_sources), "webhook model feature compiled HTTP request builders"
     for line in webhook_charge.stdout.splitlines():
         try:
             message = json.loads(line)
         except json.JSONDecodeError:
             continue
-        assert message.get("target", {}).get("name") != "stripe_core", "webhook model feature activated HTTP request package"
+        assert message.get("target", {}).get("name") != "stripe_client_core", "webhook model feature activated HTTP client interfaces"
     run(work, "webhook-disabled-serde", cargo + ["test", "--offline", "--features", "deserialize,serialize"], webhook_fixture, env)
     run(work, "webhook-all-features", cargo + ["test", "--offline", "--all-features"], webhook_fixture, env)
     if args.full_v1:
@@ -204,10 +220,15 @@ def main():
         run(work, "exhaustive-fixtures", cargo + ["test", "--offline", "-p", "async-stripe-tests", "--test", "it", "deserialization_fixture::fixtures", "--", "--nocapture"], workspace, env)
         run(work, "parser", cargo + ["test", "--offline", "-p", "async-stripe-parser"], workspace, env)
     assert source_snapshot() == before, "verification modified product source"
-    summary = {"full_v1": args.full_v1, "base_shared_source_files": len(base_sources), "charge_shared_source_files": len(charge_sources), "charge_only_shared_source_files": len(charge_only_sources), "card_decoder_shared_source_files": len(card_sources), "ideal_decoder_shared_source_files": len(ideal_sources), "webhook_base_shared_source_files": len(webhook_base_sources), "webhook_charge_shared_source_files": len(webhook_charge_sources), "charge_absent_from_base": True, "detail_decoders_compile_independently": True, "webhook_charge_does_not_activate_core": True, "source_unchanged": True}
+    source_sets = {"base": base_sources, "charge": charge_sources, "charge_only": charge_only_sources, "card_decoder": card_sources, "ideal_decoder": ideal_sources, "webhook_base": webhook_base_sources, "webhook_charge": webhook_charge_sources}
+    summary = {"full_v1": args.full_v1, "consumer_layout": args.consumer_layout, "workspace_retained": args.keep_workspace, "maximum_published_feature_count": max(feature_counts.values()), "charge_absent_from_base": True, "detail_decoders_compile_independently": True, "webhook_charge_does_not_compile_requests_or_client_interfaces": True, "source_unchanged": True}
+    for name, sources in source_sets.items():
+        summary[f"{name}_generated_source_files"] = len(sources)
+        summary[f"{name}_shared_source_files"] = sum(path.startswith("generated/async-stripe-shared/") for path in sources)
     (work / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     for path in [workspace, output]:
-        shutil.rmtree(path)
+        if path != workspace or not args.keep_workspace:
+            shutil.rmtree(path)
     for explicit, path in [(args.target_dir, target), (args.generator_target_dir, generator_target)]:
         if explicit is None and path.exists():
             shutil.rmtree(path)

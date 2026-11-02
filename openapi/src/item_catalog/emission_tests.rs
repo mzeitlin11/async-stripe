@@ -203,6 +203,38 @@ fn contents<'a>(output: &'a GeneratedWorkspace, path: &str) -> &'a str {
 }
 
 #[test]
+fn colocated_models_can_compile_without_their_request_module() {
+    let fixture = Fixture::new();
+    let ids = [fixture.customer, fixture.charge]
+        .map(|component| (fixture.items.component_id_item(component).unwrap(), Crate::SHARED));
+    let layout = fixture.layout(&ids);
+    let availability = fixture.availability(&layout, &[("customer".into(), fixture.customer)]);
+    let mut output = GeneratedWorkspace::default();
+    let mut emitter = ItemEmitter::new(
+        &fixture.items,
+        &layout,
+        OutputLocations::new(&fixture.components, &fixture.component_layout),
+    )
+    .with_availability(&availability);
+    for component in [fixture.customer, fixture.charge] {
+        emitter.emit(fixture.items.component_root(component), &mut output).unwrap();
+        emitter.emit(fixture.items.component_id_item(component).unwrap(), &mut output).unwrap();
+    }
+    emitter
+        .requests(fixture.customer, std::slice::from_ref(&fixture.request), &mut output)
+        .unwrap();
+    emitter.finish().unwrap();
+    let root = contents(&output, "crates/async-stripe-core/src/mod.rs");
+    assert!(root.contains(
+        "#[cfg(any(feature = \"__model_customer\", feature = \"customer\"))]\npub mod customer;"
+    ));
+    let module = contents(&output, "crates/async-stripe-core/src/customer/mod.rs");
+    assert!(module.contains("#[cfg(feature = \"__model_customer\")]\npub(crate) mod types;"));
+    assert!(module.contains("#[cfg(feature = \"customer\")]\nmod requests;"));
+    assert!(!module.contains("use stripe_client_core"));
+}
+
+#[test]
 fn webhook_union_references_and_feature_gates_follow_its_placement() {
     let mut fixture = Fixture::new();
     fixture.components.webhook_objs.push(WebhookObject {

@@ -10,7 +10,7 @@ use crate::component_catalog::ComponentId;
 use crate::crates::Crate;
 use crate::item_catalog::{ItemCatalog, ItemId, ItemMetadata, ItemProperties, RustItem};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
-use crate::model_availability::ModelAvailability;
+use crate::model_availability::{Availability, ModelAvailability};
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
 use crate::render::{Lifetime, RenderContext};
@@ -183,7 +183,22 @@ impl<'a> ItemEmitter<'a> {
     }
 
     fn cfg(&self, site: EmissionSite) -> String {
-        self.availability.map(|plan| plan.site(site).cfg_attribute()).unwrap_or_default()
+        self.availability.map(|plan| self.condition(plan, site).cfg_attribute()).unwrap_or_default()
+    }
+
+    fn condition(&self, plan: &ModelAvailability, site: EmissionSite) -> Availability {
+        let krate = match site {
+            EmissionSite::ComponentTypes(component) => self.locations.types_crate(component),
+            EmissionSite::Standalone { krate, .. } => krate,
+            EmissionSite::ComponentRequests(_) | EmissionSite::Webhooks => {
+                return plan.site(site).clone();
+            }
+        };
+        plan.site(site).for_models(|feature| {
+            plan.request_components(feature)
+                .iter()
+                .any(|component| self.locations.request_crate(*component) == krate)
+        })
     }
 
     pub(crate) fn emit(
@@ -438,9 +453,9 @@ impl<'a> ItemEmitter<'a> {
                         if self.locations.types_split_from_requests(component) {
                             plan.site(site).cfg_attribute()
                         } else {
-                            plan.site(site)
-                                .union(plan.site(EmissionSite::ComponentTypes(component)))
-                                .cfg_attribute()
+                            let models =
+                                self.condition(plan, EmissionSite::ComponentTypes(component));
+                            plan.site(site).union(&models).cfg_attribute()
                         }
                     })
                     .unwrap_or_default();

@@ -18,6 +18,11 @@ pub(crate) struct ModelFeature {
     pub requests: Vec<ComponentId>,
 }
 
+/// Internal flags enable model declarations without their HTTP request builders.
+pub(crate) fn model_feature_name(group: &str, has_requests_here: bool) -> String {
+    if has_requests_here { format!("__model_{group}") } else { group.to_string() }
+}
+
 /// The condition under which a generated source module is compiled.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) enum Availability {
@@ -27,6 +32,18 @@ pub(crate) enum Availability {
 }
 
 impl Availability {
+    pub(crate) fn for_models(&self, has_requests_here: impl Fn(&str) -> bool) -> Self {
+        match self {
+            Self::Features(features) => Self::Features(
+                features
+                    .iter()
+                    .map(|feature| model_feature_name(feature, has_requests_here(feature)))
+                    .collect(),
+            ),
+            Self::Always | Self::Disabled => self.clone(),
+        }
+    }
+
     /// A component's outer module can contain independently enabled model and
     /// request modules. It must exist whenever either child is compiled.
     pub(crate) fn union(&self, other: &Self) -> Self {
@@ -68,6 +85,7 @@ impl Availability {
 pub(crate) struct ModelAvailability {
     sites: HashMap<EmissionSite, Availability>,
     features: BTreeSet<String>,
+    request_components: HashMap<String, Vec<ComponentId>>,
     dependencies: HashMap<EmissionSite, HashSet<EmissionSite>>,
 }
 
@@ -115,6 +133,7 @@ impl ModelAvailability {
             sites.insert(site, Availability::Always);
         }
         let mut names = BTreeSet::new();
+        let mut request_components = HashMap::new();
         for feature in features {
             ensure!(!feature.name.is_empty(), "model feature name cannot be empty");
             ensure!(
@@ -122,6 +141,7 @@ impl ModelAvailability {
                 "duplicate model feature: {}",
                 feature.name
             );
+            request_components.insert(feature.name.clone(), feature.requests.clone());
             let roots = feature
                 .items
                 .iter()
@@ -140,7 +160,7 @@ impl ModelAvailability {
                 }
             }
         }
-        Ok(Self { sites, features: names, dependencies: graph })
+        Ok(Self { sites, features: names, request_components, dependencies: graph })
     }
 
     pub(crate) fn site(&self, site: EmissionSite) -> &Availability {
@@ -149,6 +169,10 @@ impl ModelAvailability {
 
     pub(crate) fn features(&self) -> &BTreeSet<String> {
         &self.features
+    }
+
+    pub(crate) fn request_components(&self, feature: &str) -> &[ComponentId] {
+        self.request_components.get(feature).map(Vec::as_slice).unwrap_or_default()
     }
 
     /// The represented module dependencies used to compute these conditions.
@@ -210,6 +234,30 @@ mod tests {
     use crate::rust_type::RustType;
     use crate::stripe_object::{StripeObject, StripeResource};
     use crate::types::{ComponentName, RustIdent};
+
+    #[test]
+    fn model_conditions_can_share_an_outer_module_with_public_request_flags() {
+        let public = Availability::Features(["charge".into()].into_iter().collect());
+        assert_eq!(
+            public.for_models(|_| true).cfg_attribute(),
+            "#[cfg(feature = \"__model_charge\")]\n"
+        );
+        assert_eq!(
+            public.union(&public.for_models(|_| true)).cfg_attribute(),
+            "#[cfg(any(feature = \"__model_charge\", feature = \"charge\"))]\n"
+        );
+        assert_eq!(public.for_models(|_| false), public);
+        let mixed =
+            Availability::Features(["charge".into(), "customer".into()].into_iter().collect());
+        assert_eq!(
+            mixed.for_models(|feature| feature == "charge"),
+            Availability::Features(
+                ["__model_charge".into(), "customer".into()].into_iter().collect()
+            )
+        );
+        assert_eq!(Availability::Always.for_models(|_| true), Availability::Always);
+        assert_eq!(Availability::Disabled.for_models(|_| true), Availability::Disabled);
+    }
 
     struct Fixture {
         items: ItemCatalog,
@@ -422,6 +470,8 @@ mod tests {
             &[group],
         )
         .unwrap();
+        assert_eq!(plan.request_components("retrieve"), &[fixture.charge]);
+        assert!(plan.request_components("unknown").is_empty());
         for site in [
             EmissionSite::ComponentRequests(fixture.charge),
             EmissionSite::ComponentTypes(fixture.charge),

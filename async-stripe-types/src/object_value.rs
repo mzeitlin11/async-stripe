@@ -178,10 +178,19 @@ impl<'de> serde::Deserialize<'de> for ObjectValue {
 /// `I` controls typed ID access. The target of typed decoding is validated by
 /// its wire discriminator at runtime, allowing polymorphic relationships whose
 /// models use different ID newtypes to share the same representation.
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct ExpandableValue<I> {
     id: I,
     object: Option<ObjectValue>,
+}
+
+impl<I: fmt::Debug> fmt::Debug for ExpandableValue<I> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let mut out = f.debug_struct("ExpandableValue");
+        #[cfg(not(feature = "redact-generated-debug"))]
+        out.field("id", &self.id).field("object", &self.object);
+        out.finish_non_exhaustive()
+    }
 }
 
 impl<I> ExpandableValue<I> {
@@ -317,6 +326,7 @@ mod miniserde_impl {
 ///
 /// The generated type retains its public identity without importing the
 /// concrete models its object discriminator may select.
+#[doc(hidden)]
 #[macro_export]
 #[allow(clippy::crate_in_macro_def)]
 macro_rules! def_object_value {

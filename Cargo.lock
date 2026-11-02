@@ -449,6 +449,7 @@ dependencies = [
  "async-std",
  "async-stripe-client-core",
  "async-stripe-shared",
+ "async-stripe-types",
  "bytes 1.12.1",
  "http-body-util",
  "http-types",

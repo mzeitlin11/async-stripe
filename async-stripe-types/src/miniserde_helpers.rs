@@ -117,7 +117,7 @@ impl FromValueOpt for i64 {
     fn from_value(v: Value) -> Option<Self> {
         match v {
             Value::Number(num) => match num {
-                Number::U64(u) => Some(u as i64),
+                Number::U64(u) => i64::try_from(u).ok(),
                 Number::I64(i) => Some(i),
                 Number::F64(_) => None,
             },
@@ -189,7 +189,7 @@ impl<T: FromValueOpt> FromValueOpt for Option<T> {
     fn from_value(v: Value) -> Option<Self> {
         match v {
             Value::Null => Some(None),
-            val => Some(T::from_value(val)),
+            val => T::from_value(val).map(Some),
         }
     }
 }

@@ -77,3 +77,8 @@ pub use stripe_client_core::{
 };
 pub use stripe_shared::api_errors::*;
 pub use stripe_shared::{AccountId, ApplicationId};
+pub use stripe_types::{
+    AlwaysTrue, AsCursor, AsCursorOpt, Currency, ExpandableValue, FromCursor, List, Object,
+    ObjectDecodeError, ObjectType, ObjectValue, RangeBoundsTs, RangeQueryTs, SearchList,
+    StripeParseError, Timestamp,
+};

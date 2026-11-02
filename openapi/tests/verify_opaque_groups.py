@@ -97,7 +97,8 @@ def main():
     target = (args.target_dir or work / "consumer-target").resolve()
     before = source_snapshot()
     env = dict(os.environ, CARGO_TARGET_DIR=str(generator_target))
-    run(work, "generation", ["cargo", f"+{args.toolchain}", "run", "--locked", "--offline", "--example", "opaque_model_groups", "--", str(output)], REPO / "openapi", env)
+    groups = ["balance_transaction", "charge", "invoice", "balance_transaction_source"]
+    run(work, "generation", ["cargo", f"+{args.toolchain}", "run", "--locked", "--offline", "--example", "opaque_model_groups", "--", str(output), *groups], REPO / "openapi", env)
 
     workspace.mkdir()
     for crate in MEMBERS[:-1]:
@@ -131,6 +132,12 @@ def main():
     assert charge_file in charge_sources, "charge feature did not compile the Charge model"
     (work / "charge-compiled-sources.json").write_text(json.dumps(charge_sources, indent=2) + "\n")
     run(work, "charge-available", cargo + ["check", "--offline", "--bin", "charge-compile-probe", "--features", "charge-compile-probe,charge"], fixture, env)
+    charge_only = run(work, "charge-only", cargo + ["test", "--offline", "--no-default-features", "--features", "charge", "--message-format=json"], fixture, env)
+    charge_only_sources = compiled_shared_sources(charge_only.stdout, workspace)
+    assert charge_file in charge_only_sources
+    assert "generated/async-stripe-shared/src/balance_transaction.rs" not in charge_only_sources, "charge alone compiled the balance transaction model"
+    run(work, "model-only", cargo + ["test", "--offline", "--no-default-features", "--features", "balance_transaction_source"], fixture, env)
+    run(work, "combined-groups", cargo + ["test", "--offline", "--no-default-features", "--features", "charge,invoice"], fixture, env)
     run(work, "all-features", cargo + ["test", "--offline", "--all-features"], fixture, env)
     run(work, "http-client", cargo + ["check", "--offline", "--features", "stripe/default-tls"], fixture, env)
     bare = run(work, "bare-serialize", cargo + ["check", "--offline", "--manifest-path", str(workspace / "async-stripe/Cargo.toml"), "--no-default-features", "--features", "serialize", "--message-format=json"], workspace, env)
@@ -141,7 +148,7 @@ def main():
             continue
         assert message.get("target", {}).get("name") != "stripe_core", "serialization forwarding activated the optional API crate"
     assert source_snapshot() == before, "verification modified product source"
-    summary = {"base_shared_source_files": len(base_sources), "charge_shared_source_files": len(charge_sources), "charge_absent_from_base": True, "source_unchanged": True}
+    summary = {"base_shared_source_files": len(base_sources), "charge_shared_source_files": len(charge_sources), "charge_only_shared_source_files": len(charge_only_sources), "charge_absent_from_base": True, "source_unchanged": True}
     (work / "summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     for path in [workspace, output]:
         shutil.rmtree(path)

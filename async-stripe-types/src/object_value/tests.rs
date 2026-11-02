@@ -8,7 +8,7 @@ use crate::miniserde_helpers::FromValueOpt;
 crate::def_id!(TestId);
 crate::def_object_value!(PaymentSource);
 
-#[derive(Debug)]
+#[derive(Debug, miniserde::Deserialize)]
 struct Charge {
     id: TestId,
     amount: i64,
@@ -146,6 +146,33 @@ fn malformed_known_models_fail_only_when_typed_decoding_is_requested() {
 }
 
 #[test]
+fn deferred_decoding_rejects_integer_overflow_like_eager_decoding() {
+    for amount in [
+        "-9223372036854775808",
+        "9223372036854775807",
+        "9223372036854775808",
+        "18446744073709551615",
+    ] {
+        let json = format!(r#"{{"id":"ch_123","object":"charge","amount":{amount}}}"#);
+        let eager = miniserde::json::from_str::<Charge>(&json);
+        let deferred = ObjectValue::try_from_value(value(&json)).unwrap().into_typed::<Charge>();
+        assert_eq!(eager.is_ok(), deferred.is_ok(), "{amount}");
+        if let (Ok(eager), Ok(deferred)) = (eager, deferred) {
+            assert_eq!(eager.amount, deferred.amount);
+        }
+    }
+}
+
+#[test]
+fn optional_value_decoding_distinguishes_null_from_invalid_values() {
+    for json in ["null", "0", "9223372036854775807", "9223372036854775808", "\"invalid\"", "{}"] {
+        let eager = miniserde::json::from_str::<Option<i64>>(json).ok();
+        let deferred = Option::<i64>::from_value(value(json));
+        assert_eq!(eager, deferred, "{json}");
+    }
+}
+
+#[test]
 fn malformed_opaque_objects_are_rejected_by_both_entry_points() {
     for json in [
         "null",
@@ -224,4 +251,11 @@ fn object_debug_respects_redaction() {
     let debug = format!("{object:?}");
     assert!(!debug.contains("sensitive"));
     assert!(!debug.contains("ch_123"));
+
+    for json in [r#""ch_123""#, r#"{"id":"ch_123","object":"charge","secret":"sensitive"}"#] {
+        let reference: ExpandableValue<SmolStr> = miniserde::json::from_str(json).unwrap();
+        let debug = format!("{reference:?}");
+        assert!(!debug.contains("ch_123"));
+        assert!(!debug.contains("sensitive"));
+    }
 }

@@ -455,8 +455,33 @@ fn facade_exports_same_crate_models_from_the_root_of_the_private_types_module() 
     .unwrap();
     let exports = contents(&output, "async-stripe/src/generated/mod.rs");
     assert!(exports.contains("pub use stripe_core::Customer;"));
-    assert_eq!(exports.matches("pub use stripe_core::customer::*;").count(), 1);
+    assert!(exports.contains("pub use stripe_core::customer;"));
+    assert!(exports.contains("pub use stripe_core::customer::{RetrieveCustomer};"));
+    assert!(!exports.contains("pub use stripe_core::customer::*;"));
     assert!(!exports.contains("customer::types"));
+}
+
+#[test]
+fn facade_exports_a_selected_opaque_family_only_once() {
+    let mut fixture = Fixture::new();
+    let model = fixture.items.component_root(fixture.charge);
+    fixture.items.items[model.index()].item = RustItem::OpaqueObject;
+    let ids = [fixture.customer, fixture.charge]
+        .map(|component| (fixture.items.component_id_item(component).unwrap(), Crate::SHARED));
+    let layout = fixture.layout(&[(model, Crate::SHARED), ids[0], ids[1]]);
+    let mut output = GeneratedWorkspace::default();
+    crate::facade::write_facade(
+        OutputLocations::new(&fixture.components, &fixture.component_layout),
+        &fixture.items,
+        &layout,
+        &[("charge".to_string(), fixture.charge)],
+        "1.0.0",
+        &mut output,
+    )
+    .unwrap();
+    let exports = contents(&output, "async-stripe/src/generated/mod.rs");
+    assert!(exports.contains("Charge,"));
+    assert!(!exports.contains("pub use stripe_shared::Charge;"));
 }
 
 #[test]

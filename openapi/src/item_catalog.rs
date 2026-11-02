@@ -128,6 +128,17 @@ pub struct ItemRecord {
 }
 
 impl ItemRecord {
+    /// Lightweight declarations available independently of concrete model groups.
+    pub(crate) fn is_reference_foundation(&self) -> bool {
+        matches!(self.item, RustItem::IdNewtype)
+            || (matches!(self.item, RustItem::OpaqueObject)
+                && self.origin.path.is_empty()
+                && matches!(
+                    self.origin.type_root,
+                    TypeRoot::Declaration(DeclarationRoot::Component(_))
+                ))
+    }
+
     pub fn object(&self) -> Option<&ObjectItem> {
         match &self.item {
             RustItem::Object(object) => Some(object),

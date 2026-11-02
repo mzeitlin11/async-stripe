@@ -35,6 +35,7 @@ http-types = { version = "2.12.0", default-features = false, optional = true }
 
 async-stripe-shared = { path = "../generated/async-stripe-shared", version = "1.0.0-rc.9" }
 async-stripe-client-core = { path = "../async-stripe-client-core", version = "1.0.0-rc.9" }
+async-stripe-types = { path = "../async-stripe-types", version = "1.0.0-rc.9" }
 
 [features]
 default = ["default-tls"]

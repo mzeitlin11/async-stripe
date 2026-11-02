@@ -1,4 +1,4 @@
-#[cfg(test)]
+#[cfg(all(test, feature = "balance_transaction"))]
 mod tests {
     use bytes::Bytes;
     use stripe::{BalanceTransaction, BalanceTransactionId, RetrieveBalanceTransaction};
@@ -115,5 +115,59 @@ mod tests {
         let source = transaction.source.unwrap();
         assert_eq!(source.as_object().unwrap().object_type(), "future_source");
         assert!(source.into_expanded_as::<stripe::Charge>().is_err());
+    }
+}
+
+#[cfg(all(test, feature = "charge"))]
+mod charge_tests {
+    #[test]
+    fn the_facade_supports_request_construction_without_another_model_group() {
+        let _request = stripe::CreateCharge::new().amount(1000).currency(stripe::Currency::USD);
+        let _address = stripe::charge::OptionalFieldsAddress::new();
+        let source: stripe::ObjectValue =
+            miniserde::json::from_str(include_str!("../charge.json")).unwrap();
+        assert_eq!(source.into_typed::<stripe::Charge>().unwrap().amount, 1000);
+    }
+
+    #[test]
+    fn deferred_generated_model_decoding_agrees_with_eager_validation() {
+        use miniserde::json::Value;
+        for (field, json) in [
+            ("amount", "18446744073709551615"),
+            ("application_fee_amount", "\"invalid\""),
+            ("application_fee_amount", "null"),
+            ("application_fee_amount", "100"),
+            ("billing_details", r#"{"address":{"city":false}}"#),
+        ] {
+            let mut value: Value =
+                miniserde::json::from_str(include_str!("../charge.json")).unwrap();
+            let Value::Object(object) = &mut value else { panic!() };
+            object.insert(field.into(), miniserde::json::from_str(json).unwrap());
+            let eager =
+                miniserde::json::from_str::<stripe::Charge>(&miniserde::json::to_string(&value));
+            let deferred =
+                stripe::ObjectValue::try_from_value(value).unwrap().into_typed::<stripe::Charge>();
+            assert_eq!(eager.is_ok(), deferred.is_ok(), "{field}: {json}");
+        }
+    }
+}
+
+#[cfg(all(test, feature = "charge", feature = "invoice"))]
+mod combined_group_tests {
+    #[test]
+    fn helpers_with_the_same_name_remain_addressable_by_resource() {
+        let _charge = stripe::charge::OptionalFieldsAddress::new();
+        let _invoice = stripe::invoice::OptionalFieldsAddress::new();
+        let _request = stripe::CreateInvoice::new().currency(stripe::Currency::USD);
+    }
+}
+
+#[cfg(all(test, feature = "balance_transaction_source"))]
+mod model_only_tests {
+    #[test]
+    fn selecting_a_lightweight_family_does_not_duplicate_its_export() {
+        let source: stripe::BalanceTransactionSource =
+            miniserde::json::from_str(r#"{"id":"future_123","object":"future_source"}"#).unwrap();
+        assert_eq!(source.object_type(), "future_source");
     }
 }

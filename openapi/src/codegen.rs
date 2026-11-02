@@ -12,7 +12,7 @@ use crate::crate_inference::CrateInferenceWarning;
 use crate::crate_table::generate_crate_table;
 use crate::crates::{ALL_CRATES, Crate, get_crate_doc_comment};
 pub use crate::dependencies::EdgePolicy;
-use crate::item_catalog::{ItemMetadata, RustItem};
+use crate::item_catalog::ItemMetadata;
 use crate::item_layout::{EmissionSite, ItemLayout};
 use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
@@ -136,13 +136,7 @@ impl CodeGen {
         let unconditional = items
             .iter()
             .filter_map(|(item, record)| {
-                let support = matches!(record.item, RustItem::IdNewtype)
-                    || (matches!(record.item, RustItem::OpaqueObject)
-                        && record.origin.path.is_empty()
-                        && matches!(
-                            record.origin.type_root,
-                            TypeRoot::Declaration(DeclarationRoot::Component(_))
-                        ))
+                let support = record.is_reference_foundation()
                     || matches!(
                         &record.origin.type_root,
                         TypeRoot::Declaration(DeclarationRoot::Shared(_))

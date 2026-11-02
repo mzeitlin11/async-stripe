@@ -6,11 +6,9 @@ use crate::component_catalog::ComponentId;
 use crate::crates::Crate;
 use crate::item_catalog::{ItemCatalog, RustItem};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
-use crate::item_origin::TypeRoot;
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
 use crate::rust_object::RustObject;
-use crate::rust_type::DeclarationRoot;
 
 /// Use the selected model groups for both facade features and public exports.
 /// The handwritten manifest remains the source of transport/runtime settings.
@@ -28,15 +26,7 @@ pub(crate) fn write_facade(
 
     let references = items
         .iter()
-        .filter(|(_, record)| {
-            matches!(record.item, RustItem::IdNewtype)
-                || (matches!(record.item, RustItem::OpaqueObject)
-                    && record.origin.path.is_empty()
-                    && matches!(
-                        record.origin.type_root,
-                        TypeRoot::Declaration(DeclarationRoot::Component(_))
-                    ))
-        })
+        .filter(|(_, record)| record.is_reference_foundation())
         .map(|(item, record)| {
             ensure!(
                 layout.placement(item).address() == ItemAddress::CrateRoot(Crate::SHARED),
@@ -68,39 +58,46 @@ pub(crate) fn write_facade(
         }
         selected.push((feature.clone(), crates.into_iter().collect::<Vec<_>>()));
 
-        let paths = match placement.emission_site() {
-            EmissionSite::ComponentTypes(owner) => {
-                if !locations.components.has_requests(owner)
-                    || locations.types_split_from_requests(owner)
-                {
-                    let module = locations.components.get_by_id(owner).mod_path();
-                    vec![format!("{}::{module}::*", model_crate.lib_name())]
-                } else {
-                    // The private `component::types` module is reexported at the
-                    // model crate root. Export public declarations from that site.
-                    items
-                        .iter()
-                        .filter(|(id, record)| {
-                            layout.placement(*id).emission_site() == placement.emission_site()
-                                && match &record.item {
-                                    RustItem::Object(object) => match &object.definition {
-                                        RustObject::Struct(strukt) => strukt.vis.is_public(),
-                                        RustObject::Enum(_) | RustObject::FieldlessEnum(_) => true,
-                                    },
-                                    RustItem::IdNewtype | RustItem::OpaqueObject => true,
-                                }
-                        })
-                        .map(|(_, record)| {
-                            format!("{}::{}", model_crate.lib_name(), record.metadata.ident)
-                        })
-                        .collect()
+        let paths = if items.get(item).is_reference_foundation() {
+            // Lightweight references are already exported without a feature.
+            Vec::new()
+        } else {
+            match placement.emission_site() {
+                EmissionSite::ComponentTypes(owner) => {
+                    if !locations.components.has_requests(owner)
+                        || locations.types_split_from_requests(owner)
+                    {
+                        let module = locations.components.get_by_id(owner).mod_path();
+                        vec![format!("{}::{module}::*", model_crate.lib_name())]
+                    } else {
+                        // The private `component::types` module is reexported at the
+                        // model crate root. Export public declarations from that site.
+                        items
+                            .iter()
+                            .filter(|(id, record)| {
+                                layout.placement(*id).emission_site() == placement.emission_site()
+                                    && match &record.item {
+                                        RustItem::Object(object) => match &object.definition {
+                                            RustObject::Struct(strukt) => strukt.vis.is_public(),
+                                            RustObject::Enum(_) | RustObject::FieldlessEnum(_) => {
+                                                true
+                                            }
+                                        },
+                                        RustItem::IdNewtype | RustItem::OpaqueObject => true,
+                                    }
+                            })
+                            .map(|(_, record)| {
+                                format!("{}::{}", model_crate.lib_name(), record.metadata.ident)
+                            })
+                            .collect()
+                    }
                 }
-            }
-            EmissionSite::Standalone { .. } => {
-                vec![format!("{}::{}", model_crate.lib_name(), items.get(item).metadata.ident)]
-            }
-            EmissionSite::ComponentRequests(_) | EmissionSite::Webhooks => {
-                anyhow::bail!("facade model has a local-only emission site: {component:?}");
+                EmissionSite::Standalone { .. } => {
+                    vec![format!("{}::{}", model_crate.lib_name(), items.get(item).metadata.ident)]
+                }
+                EmissionSite::ComponentRequests(_) | EmissionSite::Webhooks => {
+                    anyhow::bail!("facade model has a local-only emission site: {component:?}");
+                }
             }
         };
         for path in paths {
@@ -110,8 +107,22 @@ pub(crate) fn write_facade(
             let module = locations.components.get_by_id(*component).mod_path();
             let _ = writeln!(
                 exports,
-                "#[cfg(feature = {feature:?})]\npub use {}::{module}::*;",
+                "#[cfg(feature = {feature:?})]\npub use {}::{module};",
                 request_crate.lib_name(),
+            );
+            // Endpoint builders have stable root names. Helpers remain under
+            // the resource module, where names shared by other groups are unambiguous.
+            let builders = locations
+                .components
+                .requests_for_component(*component)
+                .iter()
+                .map(|request| request.ident.to_string())
+                .collect::<Vec<_>>();
+            let _ = writeln!(
+                exports,
+                "#[cfg(feature = {feature:?})]\npub use {}::{module}::{{{}}};",
+                request_crate.lib_name(),
+                builders.join(","),
             );
         }
     }

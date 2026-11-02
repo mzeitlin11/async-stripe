@@ -41,6 +41,8 @@ pub enum ObjectDecodeError {
         /// The discriminator of the requested model.
         object_type: &'static str,
     },
+    /// An expanded resource without an object tag did not satisfy its model.
+    InvalidUntaggedObject,
 }
 
 impl Display for ObjectDecodeError {
@@ -57,6 +59,9 @@ impl Display for ObjectDecodeError {
             }
             Self::InvalidObject { object_type } => {
                 write!(f, "invalid payload for Stripe object {object_type}")
+            }
+            Self::InvalidUntaggedObject => {
+                f.write_str("expanded object does not satisfy the selected model")
             }
         }
     }
@@ -92,15 +97,21 @@ impl ObjectValue {
 impl<I: FromCursor> ObjectValue<I> {
     fn parse(value: Value) -> Result<Self, ObjectDecodeError> {
         let Value::Object(object) = &value else { return Err(ObjectDecodeError::NotObject) };
-        let id = match object.get("id") {
-            Some(Value::String(id)) => I::from_cursor(id).ok_or(ObjectDecodeError::InvalidId)?,
-            None | Some(Value::Null) => I::from_missing_id().ok_or(ObjectDecodeError::MissingId)?,
-            Some(_) => return Err(ObjectDecodeError::MissingId),
-        };
+        let id = parse_object_id(object)?;
         let Some(Value::String(object_type)) = object.get("object") else {
             return Err(ObjectDecodeError::MissingObjectType);
         };
         Ok(Self { id, object_type: SmolStr::from(object_type), value })
+    }
+}
+
+pub(crate) fn parse_object_id<I: FromCursor>(
+    object: &miniserde::json::Object,
+) -> Result<I, ObjectDecodeError> {
+    match object.get("id") {
+        Some(Value::String(id)) => I::from_cursor(id).ok_or(ObjectDecodeError::InvalidId),
+        None | Some(Value::Null) => I::from_missing_id().ok_or(ObjectDecodeError::MissingId),
+        Some(_) => Err(ObjectDecodeError::MissingId),
     }
 }
 

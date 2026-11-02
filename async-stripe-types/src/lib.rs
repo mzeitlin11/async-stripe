@@ -4,8 +4,10 @@
 #![forbid(unsafe_code)]
 
 mod currency;
+mod deferred_fields;
 mod error;
 mod expandable;
+mod expanded_value;
 mod ids;
 mod object_value;
 mod pagination;
@@ -13,8 +15,10 @@ mod params;
 mod record_value;
 
 pub use currency::Currency;
+pub use deferred_fields::DeferredFields;
 pub use error::StripeParseError;
 pub use expandable::*;
+pub use expanded_value::ExpandedValue;
 pub use object_value::{ExpandableValue, ObjectDecodeError, ObjectType, ObjectValue};
 pub use pagination::*;
 pub use params::*;

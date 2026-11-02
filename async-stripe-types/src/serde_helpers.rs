@@ -43,6 +43,11 @@ pub mod with_serde_json {
 
     use crate::serde_helpers::Wrapper;
 
+    /// Borrow a JSON value through its serde adapter.
+    pub fn as_serialize(value: &MiniValue) -> impl Serialize + '_ {
+        Wrapper(value)
+    }
+
     #[cfg(feature = "deserialize")]
     pub fn deserialize<'de, D>(deserializer: D) -> Result<MiniValue, D::Error>
     where
@@ -67,6 +72,11 @@ pub mod with_serde_json_opt {
     use serde::Serializer;
 
     use crate::serde_helpers::Wrapper;
+
+    /// Borrow an optional JSON value through its serde adapter.
+    pub fn as_serialize(value: &Option<MiniValue>) -> impl serde::Serialize + '_ {
+        value.as_ref().map(Wrapper)
+    }
 
     #[cfg(feature = "deserialize")]
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<MiniValue>, D::Error>

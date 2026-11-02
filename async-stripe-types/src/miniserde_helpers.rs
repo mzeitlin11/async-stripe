@@ -29,6 +29,12 @@ impl ObjectBuilderInner {
         Ok(Deserialize::begin(&mut self.value))
     }
 
+    /// Finish the pending field and take the raw object without checking a tag.
+    pub fn take_object(&mut self) -> Object {
+        self.shift();
+        mem::take(&mut self.object)
+    }
+
     pub fn finish_inner(&mut self) -> Option<(String, Object)> {
         self.shift();
         let object_key = self.object.get("object").and_then(|o| match o {
@@ -102,8 +108,7 @@ impl<T: FromValueOpt> Map for ObjectValueMap<'_, T> {
     }
 
     fn finish(&mut self) -> miniserde::Result<()> {
-        self.inner.shift();
-        let object = mem::take(&mut self.inner.object);
+        let object = self.inner.take_object();
         *self.out = Some(T::from_value(Value::Object(object)).ok_or(miniserde::Error)?);
         Ok(())
     }

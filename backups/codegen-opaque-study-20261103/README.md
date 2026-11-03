@@ -33,3 +33,8 @@ The original refactor review branches already on this fork remain available: `re
 The implementation branch now includes `176c3f588c4e1553cad274c90f2f1a4a28e41772`, restoring all 11 live/deleted response pairs to concrete matchable enums. General polymorphic responses and expandable storage stay deferred. Crate/model dependency graphs, all model feature closures, and Shared's model placement are unchanged. The original enum decoders are retained, including their existing serde/miniserde distinction for overlapping shapes.
 
 The [live/deleted restoration notes](live-deleted-restoration/README.md) and [summary](live-deleted-restoration/summary.json) supersede the original archive's discussion of opaque live/deleted pairs. That directory also contains the comparison script, normal-generation artifact hashes, and a verified archive of the new full/narrow validation logs and reports. All 117 generator tests, strict Clippy, full/narrow consumers, fixtures, and parser checks passed; normal generation remains byte-identical across 1,758 artifacts.
+
+
+## Reusable baseline and v2 starting point
+
+The [refactor baseline notes](refactor-baseline/README.md) preserve extraction and verification results for updated `review/codegen-pipeline` at `5c0dafda`. `expt/codegen-v2` starts at the same concrete baseline, without the opaque experiment. Independent cursor/Reserve fixes are on `fix/codegen-experiment-correctness`. The new verified artifact archive contains normal SDK/compiler-source measurements, 64 generator tests, strict Clippy/release checks, and generated-output parity results.

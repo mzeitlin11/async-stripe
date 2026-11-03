@@ -1,0 +1,94 @@
+{
+  "root": "/private/tmp/async-stripe-refactor-baseline-3do84c6a",
+  "worktree": "/private/tmp/async-stripe-refactor-baseline-3do84c6a/worktree",
+  "branch": "review/codegen-pipeline",
+  "baseline": "26a95664feb378b48423c35e22a67e08a5639ae3",
+  "experiment": "176c3f588c4e1553cad274c90f2f1a4a28e41772",
+  "original_diff_sha256": "8d97e4c876f42acd61241ed9e71dbbf8f59cd8f3a877718dbb37df386847df73",
+  "head": "5c0dafda38b01f022d1076c76cee4272f8f2dc5c",
+  "v2_branch": "expt/codegen-v2",
+  "compatibility_commit": "ad6027f1146ae55cb92c79fefd514a3e61864562",
+  "original_worktree_unchanged": true,
+  "correctness_branch": "fix/codegen-experiment-correctness",
+  "correctness_head": "0297ca757b5d6c3f26fc6cf772b894c5656c4125",
+  "checks": {
+    "generator_tests": 64,
+    "strict_generator_clippy": true,
+    "release_generator_build": true,
+    "normal_artifacts_byte_identical": 1758,
+    "analysis_repeatability": {
+      "all_graph_report_files": 20,
+      "repeated_reports_identical": true,
+      "graph_selection_removes_stale_owned_files": true,
+      "unrelated_review_note_preserved": true
+    },
+    "isolated_sdk": {
+      "toolchain": "1.89.0",
+      "completed_checks": [
+        "generation",
+        "format",
+        "format-check",
+        "generated-and-webhook-check",
+        "webhook-tests",
+        "fixtures",
+        "deserialization-tests",
+        "parser-tests"
+      ],
+      "source_unchanged": true,
+      "success": true,
+      "generated_packages": [
+        "async-stripe-billing",
+        "async-stripe-checkout",
+        "async-stripe-connect",
+        "async-stripe-core",
+        "async-stripe-fraud",
+        "async-stripe-issuing",
+        "async-stripe-misc",
+        "async-stripe-payment",
+        "async-stripe-product",
+        "async-stripe-reserve",
+        "async-stripe-shared",
+        "async-stripe-terminal",
+        "async-stripe-treasury"
+      ],
+      "compiled_generated_crate_source_files": 1741,
+      "compiled_generated_crate_source_files_by_package": {
+        "async-stripe-billing": 116,
+        "async-stripe-checkout": 3,
+        "async-stripe-connect": 62,
+        "async-stripe-core": 71,
+        "async-stripe-fraud": 41,
+        "async-stripe-issuing": 17,
+        "async-stripe-misc": 172,
+        "async-stripe-payment": 39,
+        "async-stripe-product": 19,
+        "async-stripe-reserve": 9,
+        "async-stripe-shared": 1049,
+        "async-stripe-terminal": 59,
+        "async-stripe-treasury": 84
+      },
+      "workspace_retained": true
+    },
+    "independent_review": "No correctness blockers or unnecessary abstraction found."
+  },
+  "correctness_checks": {
+    "optional_cursor_regression_failed_before_fix": true,
+    "types_all_features_tests_passed": 16,
+    "types_all_targets_all_features_clippy_deny_warnings_passed": true,
+    "reserve_cargo_metadata_feature_validation": {
+      "reserve_full_feature_before": false,
+      "reserve_full_feature_after": true,
+      "reserve_serialization_features": [
+        "deserialize",
+        "serialize"
+      ],
+      "serialize_forwarding_unchanged": true,
+      "deserialize_forwarding_unchanged": true,
+      "metadata_only_no_sdk_compilation": true
+    },
+    "git_diff_check_passed": true,
+    "working_tree_clean": true
+  },
+  "v2_implementation_started": false,
+  "opaque_experiment_in_baseline": false
+}

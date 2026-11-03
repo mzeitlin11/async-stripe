@@ -1,0 +1,6 @@
+{
+  "all_graph_report_files": 20,
+  "repeated_reports_identical": true,
+  "graph_selection_removes_stale_owned_files": true,
+  "unrelated_review_note_preserved": true
+}

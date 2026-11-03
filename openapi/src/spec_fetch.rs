@@ -1,32 +1,35 @@
 use std::fs;
 
 use anyhow::Context;
+use openapiv3::OpenAPI;
 use regex_lite::Regex;
 use reqwest::blocking::Client;
 use reqwest::header::USER_AGENT;
 use serde_json::Value;
 use tracing::info;
 
+const SPEC_FILE_PATH: &str = "spec3.sdk.json";
 const VERSION_FILE_PATH: &str = "version.json";
+const FIXTURES_FILE_PATH: &str = "fixtures.json";
 
 #[derive(Debug, Clone)]
-pub enum SpecVersion {
+pub enum SpecUpdate {
     Latest,
-    Current,
     Version(String),
 }
 
-pub fn parse_spec_version(arg: &str) -> anyhow::Result<SpecVersion> {
+pub fn parse_spec_update(arg: &str) -> anyhow::Result<SpecUpdate> {
     let as_lower = arg.to_lowercase();
     match as_lower.as_str() {
-        "latest" => Ok(SpecVersion::Latest),
-        "current" => Ok(SpecVersion::Current),
+        "latest" => Ok(SpecUpdate::Latest),
         version => {
-            let re = Regex::new(r"v[1-9]\d*").unwrap();
+            let re = Regex::new(r"^v[1-9]\d*$").unwrap();
             if re.is_match(version) {
-                Ok(SpecVersion::Version(as_lower))
+                Ok(SpecUpdate::Version(as_lower))
             } else {
-                Err(anyhow::anyhow!("Spec version should match `v###`, for example `v172`"))
+                Err(anyhow::anyhow!(
+                    "Spec update must be `latest` or match `v###`, for example `v172`"
+                ))
             }
         }
     }
@@ -52,76 +55,83 @@ struct VersionFile {
     version: String,
 }
 
-fn get_current_openapi_tag() -> anyhow::Result<String> {
+fn get_pinned_openapi_tag() -> anyhow::Result<String> {
     let raw = fs::File::open(VERSION_FILE_PATH).context("Could not find version file")?;
     let version_info: VersionFile =
         serde_json::from_reader(&raw).context("Failed to read JSON from version file")?;
     Ok(version_info.version)
 }
 
-pub fn fetch_spec(version: SpecVersion, in_path: &str) -> anyhow::Result<Value> {
+pub fn load_pinned_spec() -> anyhow::Result<OpenAPI> {
     let client = Client::new();
+    let desired_version = get_pinned_openapi_tag()?;
+    load_spec_version(&client, &desired_version)
+}
 
-    let desired_version = match version {
-        SpecVersion::Latest => get_latest_openapi_tag(&client)?,
-        SpecVersion::Current => get_current_openapi_tag()?,
-        SpecVersion::Version(v) => v,
+pub fn load_generation_spec(update: Option<SpecUpdate>) -> anyhow::Result<OpenAPI> {
+    let client = Client::new();
+    let updates_pin = update.is_some();
+    let desired_version = match update {
+        Some(SpecUpdate::Latest) => get_latest_openapi_tag(&client)?,
+        Some(SpecUpdate::Version(version)) => version,
+        None => get_pinned_openapi_tag()?,
     };
 
-    ensure_correct_fixtures_file(&desired_version)?;
-
-    info!("fetching OpenAPI spec version {}", desired_version);
-
-    if let Some(value) = fs::File::open(in_path)
-        .ok()
-        .and_then(|f| serde_json::from_reader(f).ok())
-        .filter(|value| read_x_stripe_tag(value) == Some(&desired_version))
-    {
-        return Ok(value);
+    let spec = load_spec_version(&client, &desired_version)?;
+    ensure_correct_fixtures_file(&client, &desired_version)?;
+    if updates_pin {
+        write_pinned_openapi_tag(&desired_version)?;
     }
-
-    if let Ok(file) = fs::File::open(in_path) {
-        if let Ok(value) = serde_json::from_reader(file) {
-            let cached_version = read_x_stripe_tag(&value);
-            if cached_version == Some(&desired_version) {
-                return Ok(value);
-            }
-        }
-    }
-
-    let url = format!(
-        "https://raw.githubusercontent.com/stripe/openapi/{desired_version}/openapi/spec3.sdk.json"
-    );
-
-    let mut spec: Value = client.get(url).send()?.error_for_status()?.json()?;
-    write_x_stripe_tag(&mut spec, &desired_version)?;
-
-    let writer = fs::File::create(in_path)?;
-    serde_json::to_writer_pretty(writer, &spec)?;
-    info!("Wrote OpenAPI spec to {}", in_path);
-
-    let version_file_writer = fs::File::create(VERSION_FILE_PATH)?;
-    serde_json::to_writer_pretty(version_file_writer, &VersionFile { version: desired_version })?;
 
     Ok(spec)
 }
 
-fn ensure_correct_fixtures_file(desired_version: &str) -> anyhow::Result<()> {
-    if let Ok(file) = fs::File::open("fixtures.json") {
-        let fixtures: Value = serde_json::from_reader(file)?;
-        let curr_fixtures_version = read_fixtures_version(&fixtures);
-        if curr_fixtures_version == Some(desired_version) {
-            return Ok(());
-        }
+fn load_spec_version(client: &Client, desired_version: &str) -> anyhow::Result<OpenAPI> {
+    if let Some(spec) = fs::File::open(SPEC_FILE_PATH)
+        .ok()
+        .and_then(|file| serde_json::from_reader(file).ok())
+        .filter(|spec| read_x_stripe_tag(spec) == Some(desired_version))
+    {
+        info!("Using cached OpenAPI spec version {}", desired_version);
+        Ok(spec)
+    } else {
+        fetch_spec(client, desired_version)
     }
-
-    fetch_new_fixtures(desired_version)
 }
 
-fn fetch_new_fixtures(desired_version: &str) -> anyhow::Result<()> {
-    info!("Fetching new fixtures file");
+fn fetch_spec(client: &Client, desired_version: &str) -> anyhow::Result<OpenAPI> {
+    info!("Fetching OpenAPI spec version {}", desired_version);
+    let url = format!(
+        "https://raw.githubusercontent.com/stripe/openapi/{desired_version}/openapi/spec3.sdk.json"
+    );
+    let mut spec: OpenAPI = client.get(url).send()?.error_for_status()?.json()?;
+    write_x_stripe_tag(&mut spec, desired_version);
 
-    let client = Client::new();
+    let writer = fs::File::create(SPEC_FILE_PATH)?;
+    serde_json::to_writer_pretty(writer, &spec)?;
+    info!("Wrote OpenAPI spec to {}", SPEC_FILE_PATH);
+    Ok(spec)
+}
+
+fn write_pinned_openapi_tag(version: &str) -> anyhow::Result<()> {
+    if matches!(get_pinned_openapi_tag().as_deref(), Ok(pinned) if pinned == version) {
+        return Ok(());
+    }
+    let writer = fs::File::create(VERSION_FILE_PATH)?;
+    serde_json::to_writer_pretty(writer, &VersionFile { version: version.to_string() })?;
+    Ok(())
+}
+
+fn ensure_correct_fixtures_file(client: &Client, desired_version: &str) -> anyhow::Result<()> {
+    let matches = fs::File::open(FIXTURES_FILE_PATH)
+        .ok()
+        .and_then(|file| serde_json::from_reader::<_, VersionFile>(file).ok())
+        .is_some_and(|fixtures| fixtures.version == desired_version);
+    if matches { Ok(()) } else { fetch_new_fixtures(client, desired_version) }
+}
+
+fn fetch_new_fixtures(client: &Client, desired_version: &str) -> anyhow::Result<()> {
+    info!("Fetching new fixtures file");
     let url = format!(
         "https://raw.githubusercontent.com/stripe/openapi/{desired_version}/openapi/fixtures3.json"
     );
@@ -130,28 +140,16 @@ fn fetch_new_fixtures(desired_version: &str) -> anyhow::Result<()> {
         .context("expected object")?
         .insert("version".into(), Value::String(desired_version.into()));
 
-    let writer = fs::File::create("fixtures.json")?;
+    let writer = fs::File::create(FIXTURES_FILE_PATH)?;
     serde_json::to_writer_pretty(writer, &spec)?;
     info!("Finished writing fixtures file");
     Ok(())
 }
 
-fn read_fixtures_version(fixtures: &Value) -> Option<&str> {
-    fixtures.get("version")?.as_str()
+fn write_x_stripe_tag(spec: &mut OpenAPI, version: &str) {
+    spec.info.extensions.insert("x-stripeTag".to_string(), version.into());
 }
 
-fn write_x_stripe_tag(spec: &mut Value, version: &str) -> anyhow::Result<()> {
-    spec.as_object_mut()
-        .context("must be an object")?
-        .get_mut("info")
-        .context("must have info field")?
-        .as_object_mut()
-        .context("must be an object")?
-        .insert("x-stripeTag".to_string(), version.into());
-
-    Ok(())
-}
-
-fn read_x_stripe_tag(spec: &Value) -> Option<&str> {
-    spec.as_object()?.get("info")?.as_object()?.get("x-stripeTag")?.as_str()
+fn read_x_stripe_tag(spec: &OpenAPI) -> Option<&str> {
+    spec.info.extensions.get("x-stripeTag")?.as_str()
 }

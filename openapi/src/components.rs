@@ -131,7 +131,7 @@ impl Components {
             for &component_id in self.components.keys() {
                 let path = self.component_name(component_id);
                 // The `error` component is a false positive since we don't include the error
-                // type in dependency calculations, but every requests depends on `error`
+                // type in dependency calculations, but every request depends on `error`
                 if path.as_ref() == "error" || webhook_deps.contains(&component_id) {
                     continue;
                 }

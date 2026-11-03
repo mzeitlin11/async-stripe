@@ -12,8 +12,8 @@ use crate::types::RustIdent;
 /// Dense, run-local identity for a canonical Rust declaration.
 ///
 /// IDs are allocated after overrides and deduplication, so one ID corresponds
-/// to one declaration that the current model will render. Names, origins, and
-/// eventual placement remain separate properties.
+/// to one type declaration that will be generated.
+// TODO: macro for the id newtypes
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct ItemId(u32);
 

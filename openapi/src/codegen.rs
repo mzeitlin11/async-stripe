@@ -93,6 +93,7 @@ impl CodeGen {
         self.model.items().len()
     }
 
+    // TODO: too many useless helpers
     pub fn request_component_count(&self) -> usize {
         self.components.request_component_count()
     }

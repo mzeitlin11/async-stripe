@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Component, Path, PathBuf};
 
@@ -99,10 +99,6 @@ impl ArtifactSet {
         }
         Ok(())
     }
-
-    pub fn file_count(&self) -> usize {
-        self.files.len()
-    }
 }
 
 /// Generated bindings are one use of the general artifact-set abstraction.
@@ -144,106 +140,6 @@ fn prepare_staging_root(root: &Path) -> anyhow::Result<()> {
         .with_context(|| format!("could not create output directory {}", root.display()))
 }
 
-#[derive(Debug, Clone, Default, Eq, PartialEq)]
-pub struct OutputStats {
-    pub files: usize,
-    pub lines: usize,
-    pub bytes: usize,
-}
-
-impl OutputStats {
-    fn add_file(&mut self, content: &[u8]) {
-        self.files += 1;
-        self.bytes += content.len();
-        self.lines += content.iter().filter(|byte| **byte == b'\n').count();
-        if !content.is_empty() && !content.ends_with(b"\n") {
-            self.lines += 1;
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct OutputInventory {
-    pub total: OutputStats,
-    pub by_crate: BTreeMap<String, OutputStats>,
-}
-
-impl OutputInventory {
-    pub fn collect(root: &Path) -> anyhow::Result<Self> {
-        let files = collect_files(root)?;
-        let mut total = OutputStats::default();
-        let mut by_crate = BTreeMap::<String, OutputStats>::new();
-
-        for (path, content) in files {
-            if path == Path::new(MANAGED_MARKER) {
-                continue;
-            }
-            total.add_file(&content);
-            if let Some(crate_name) = crate_name_for_staged_path(&path) {
-                by_crate.entry(crate_name).or_default().add_file(&content);
-            }
-        }
-        Ok(Self { total, by_crate })
-    }
-}
-
-fn crate_name_for_staged_path(path: &Path) -> Option<String> {
-    let mut components = path.components();
-    match (components.next(), components.next()) {
-        (Some(Component::Normal(first)), Some(Component::Normal(second))) if first == "crates" => {
-            Some(second.to_string_lossy().into_owned())
-        }
-        (Some(Component::Normal(first)), _) if first == "async-stripe-webhook" => {
-            Some("async-stripe-webhook".to_string())
-        }
-        (Some(Component::Normal(first)), _) if first == "tests" => Some("tests".to_string()),
-        _ => None,
-    }
-}
-
-/// Compare the staged output with every repository path owned by code generation.
-pub fn compare_with_repository(staging_root: &Path, repo_root: &Path) -> anyhow::Result<()> {
-    let expected = install_file_map(staging_root, repo_root)?;
-    let actual = repository_generated_file_map(repo_root)?;
-    if expected == actual {
-        return Ok(());
-    }
-
-    let expected_paths = expected.keys().collect::<BTreeSet<_>>();
-    let actual_paths = actual.keys().collect::<BTreeSet<_>>();
-    let added = expected_paths.difference(&actual_paths).copied().collect::<Vec<_>>();
-    let removed = actual_paths.difference(&expected_paths).copied().collect::<Vec<_>>();
-    let changed = expected_paths
-        .intersection(&actual_paths)
-        .filter(|path| expected.get(**path) != actual.get(**path))
-        .copied()
-        .collect::<Vec<_>>();
-
-    let mut message = format!(
-        "generated output differs: {} changed, {} added, {} removed",
-        changed.len(),
-        added.len(),
-        removed.len()
-    );
-    append_paths(&mut message, "changed", &changed);
-    append_paths(&mut message, "added", &added);
-    append_paths(&mut message, "removed", &removed);
-    bail!(message)
-}
-
-fn append_paths(message: &mut String, label: &str, paths: &[&PathBuf]) {
-    if paths.is_empty() {
-        return;
-    }
-    message.push_str(&format!("\n{label}:"));
-    for path in paths.iter().take(30) {
-        message.push_str(&format!("\n  {}", path.display()));
-    }
-    if paths.len() > 30 {
-        message.push_str(&format!("\n  ... and {} more", paths.len() - 30));
-    }
-}
-
 pub fn install_to_repository(staging_root: &Path, repo_root: &Path) -> anyhow::Result<()> {
     for krate in &*ALL_CRATES {
         let staged_crate = staging_root.join("crates").join(krate.crate_name());
@@ -278,95 +174,6 @@ fn copy_directory(source: &Path, destination: &Path) -> anyhow::Result<()> {
             copy_directory(&entry.path(), &target)?;
         } else {
             fs::copy(entry.path(), target)?;
-        }
-    }
-    Ok(())
-}
-
-fn install_file_map(
-    staging_root: &Path,
-    repo_root: &Path,
-) -> anyhow::Result<BTreeMap<PathBuf, Vec<u8>>> {
-    let mut installed = BTreeMap::new();
-    for (path, content) in collect_files(staging_root)? {
-        if path == Path::new(MANAGED_MARKER) {
-            continue;
-        }
-        let destination = if let Ok(rest) = path.strip_prefix("crates") {
-            PathBuf::from("generated").join(rest)
-        } else if let Ok(rest) = path.strip_prefix("async-stripe-webhook") {
-            PathBuf::from("async-stripe-webhook/src/generated").join(rest)
-        } else if let Ok(rest) = path.strip_prefix("tests") {
-            PathBuf::from("tests/tests/it/generated").join(rest)
-        } else if path == Path::new("crate_info.md") {
-            PathBuf::from("crate_info.md")
-        } else {
-            continue;
-        };
-        ensure!(
-            repo_root.join(&destination).starts_with(repo_root),
-            "invalid install destination {}",
-            destination.display()
-        );
-        installed.insert(destination, content);
-    }
-    Ok(installed)
-}
-
-fn repository_generated_file_map(repo_root: &Path) -> anyhow::Result<BTreeMap<PathBuf, Vec<u8>>> {
-    let mut files = BTreeMap::new();
-    for krate in &*ALL_CRATES {
-        let crate_root = PathBuf::from("generated").join(krate.crate_name());
-        collect_files_into(
-            repo_root.join(&crate_root).join("src"),
-            crate_root.join("src"),
-            &mut files,
-        )?;
-        let cargo_path = crate_root.join("Cargo.toml");
-        files.insert(cargo_path.clone(), fs::read(repo_root.join(cargo_path))?);
-    }
-    collect_files_into(
-        repo_root.join("async-stripe-webhook/src/generated"),
-        PathBuf::from("async-stripe-webhook/src/generated"),
-        &mut files,
-    )?;
-    collect_files_into(
-        repo_root.join("tests/tests/it/generated"),
-        PathBuf::from("tests/tests/it/generated"),
-        &mut files,
-    )?;
-    files.insert(PathBuf::from("crate_info.md"), fs::read(repo_root.join("crate_info.md"))?);
-    Ok(files)
-}
-
-fn collect_files(root: &Path) -> anyhow::Result<BTreeMap<PathBuf, Vec<u8>>> {
-    let mut files = BTreeMap::new();
-    collect_files_into(root.to_owned(), PathBuf::new(), &mut files)?;
-    Ok(files)
-}
-
-pub fn snapshot_files(root: &Path) -> anyhow::Result<BTreeMap<PathBuf, Vec<u8>>> {
-    let mut files = collect_files(root)?;
-    files.remove(Path::new(MANAGED_MARKER));
-    Ok(files)
-}
-
-fn collect_files_into(
-    root: PathBuf,
-    prefix: PathBuf,
-    files: &mut BTreeMap<PathBuf, Vec<u8>>,
-) -> anyhow::Result<()> {
-    if !root.exists() {
-        return Ok(());
-    }
-    for entry in fs::read_dir(&root)? {
-        let entry = entry?;
-        let path = entry.path();
-        let relative = prefix.join(entry.file_name());
-        if entry.file_type()?.is_dir() {
-            collect_files_into(path, relative, files)?;
-        } else {
-            files.insert(relative, fs::read(path)?);
         }
     }
     Ok(())

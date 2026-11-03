@@ -4,12 +4,6 @@ This crate generates async-stripe from Stripe's [OpenAPI specification](https://
 
 ## Common commands
 
-Regenerate and compare every generated artifact with the checked-in repository:
-
-```console
-cargo run --release -- check
-```
-
 Generate, format, and install the result into the repository:
 
 ```console
@@ -21,6 +15,14 @@ Generate without installing:
 ```console
 cargo run --release -- generate --no-install
 ```
+
+Advance to the latest Stripe OpenAPI release and regenerate:
+
+```console
+cargo run --release -- generate --update-spec latest
+```
+
+An exact release such as `v2343` can be selected instead of `latest`.
 
 Write the default analysis bundle to `out/analysis`:
 
@@ -34,9 +36,9 @@ Write every graph projection, including the expandable counterfactuals:
 cargo run --release -- analyze --graphs all
 ```
 
-All generation commands accept `--fetch current`, `--fetch latest`, or a release such as `--fetch v171`. Without `--fetch`, codegen reads the local `spec3.sdk.json`. Use `cargo run -- --help` or a subcommand's `--help` for the complete interface.
+Commands use the OpenAPI release pinned in `version.json`. The managed `spec3.sdk.json` cache is downloaded automatically when it is missing, malformed, or tagged with another release. Generation also synchronizes `fixtures.json`. `generate --update-spec latest` or `generate --update-spec v2343` advances the pin after both inputs are available. Use `cargo run -- --help` or a subcommand's `--help` for the complete interface.
 
-`check` is the output-compatibility contract for refactors: it renders into the staging directory, applies rustfmt, and compares the complete generated file set and contents with the repository. The default staging directory is `out`.
+CI verifies output compatibility by running `generate` and requiring the entire Git worktree to remain clean. This exercises the same input synchronization, formatting, and installation path used to update generated code.
 
 ## Pipeline
 
@@ -48,7 +50,7 @@ Code generation has explicit stages:
 4. **Model rewrites** apply validated overrides and structural deduplication.
 5. **Rust-model lowering** allocates a post-dedup `ItemId` for every declaration, replaces nested declarations and named paths with item references, and computes lifetime/`Copy`/`Eq` properties over the resulting canonical graph. Each item is then assigned an explicit emission site and either local or crate-root addressability under the frozen component layout.
 6. **Rendering** combines an emission-site-scoped `RenderContext` with canonical items, their explicit placements, and semantic `RustType`s, then writes Rust syntax directly. Rendering does not infer placement from item provenance. The current path policy deliberately preserves absolute generated-crate aliases; path shortening is a separate output-changing decision.
-7. **Materialization** writes the staging tree, runs rustfmt to a checked fixed point, and either compares or installs it.
+7. **Materialization** writes generated bindings to the staging tree, runs rustfmt directly to a checked fixed point, and installs them unless `--no-install` was requested. Analysis stops after model construction and writes only its report bundle.
 
 Keeping identity, dependency facts, layout, and rendering separate is deliberate. A future layout or `Expandable` experiment should be expressible as a different projection or policy rather than by rewriting component names or rendered Rust paths early in the pipeline.
 

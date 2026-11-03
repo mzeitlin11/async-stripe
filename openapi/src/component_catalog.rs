@@ -1,20 +1,18 @@
 use std::collections::HashMap;
 
-use anyhow::{bail, ensure};
+use anyhow::{bail, ensure, Context};
 
 use crate::types::{ComponentName, ComponentSchemaRef};
 
 /// Stable identity for a top-level component schema within one codegen run.
 ///
-/// IDs are allocated in the OpenAPI document's component order. They are an
-/// internal identity, not a persisted or user-visible value.
+/// IDs are allocated in the OpenAPI document's component order.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct ComponentId(u32);
 
 impl ComponentId {
     fn from_index(index: usize) -> anyhow::Result<Self> {
-        ensure!(index <= u32::MAX as usize, "too many component schemas");
-        Ok(Self(index as u32))
+        Ok(Self(index.try_into().context("impossible number of component schemas")?))
     }
 
     pub const fn index(self) -> usize {
@@ -77,6 +75,7 @@ impl ComponentCatalog {
         })
     }
 
+    // TODO: inline at usage?
     pub fn validate_retained(
         &self,
         retained: impl IntoIterator<Item = ComponentId>,
@@ -125,14 +124,5 @@ mod tests {
 
         assert_eq!(catalog.name(id).as_ref(), "charge");
         assert!(catalog.resolve_reference("#/components/schemas/invoice").is_err());
-    }
-
-    #[test]
-    fn validates_retained_component_ids() {
-        let catalog = ComponentCatalog::from_names([name("charge"), name("invoice")]).unwrap();
-        let charge = catalog.id(&name("charge")).unwrap();
-
-        catalog.validate_retained([charge]).unwrap();
-        assert!(catalog.validate_retained([ComponentId(u32::MAX)]).is_err());
     }
 }

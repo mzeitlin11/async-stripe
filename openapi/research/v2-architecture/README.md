@@ -2,7 +2,7 @@
 
 V2 is a useful independent test of the codegen refactor and a promising way to avoid v1's cross-resource compilation dependencies. It does not remove those dependencies from applications that still use v1. The experiment should first make a v2-only consumer independent of v1 Shared, then evaluate ordinary concrete v2 models with simple, changeable placement. Package boundaries remain experimental. Compare compiler inputs, binary/library artifact sizes, and LLVM IR using the current benchmark approach; repeated timing runs are outside the plan. Opaque v1 representations are a separate experiment.
 
-This is a planning checkpoint on `expt/codegen-v2`, based on `5c0dafda38b01f022d1076c76cee4272f8f2dc5c`. There are no generator, runtime, manifest, feature, or generated-SDK changes. Breaking public changes are acceptable, but the initial experiment should keep the legacy output comparison available so unrelated changes cannot explain its results.
+This records the planning checkpoint on `expt/codegen-v2`, based on `5c0dafda38b01f022d1076c76cee4272f8f2dc5c`. The subsequent [implemented slice, validation, and artifact results](../../experiments/v2/README.md) evaluate this plan. Breaking public changes are acceptable, but the experiment keeps the legacy output comparison available so unrelated changes cannot explain its results.
 
 The two questions governing the work are:
 

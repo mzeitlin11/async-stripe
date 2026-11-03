@@ -1,0 +1,904 @@
+{
+  "code_commit": "8c2f3c216118d52e6704fcf5a12e6e86b2f66fb6",
+  "schema_sha256": "92363b86025d012852f648554372bf5fa6146af1472fb63f3c29d7c5fe6bd19a",
+  "toolchain": "1.89.0",
+  "platform": "aarch64-apple-darwin",
+  "measurement_scope": "Identical Event Destination consumer against different generated API scopes, each in one v2 package; not an equal-full-API layout comparison",
+  "no_timing_samples": true,
+  "v1_artifact_parity": {
+    "compared_artifacts": 1758,
+    "changed": []
+  },
+  "legacy_verification": {
+    "toolchain": "1.89.0",
+    "completed_checks": [
+      "generation",
+      "format",
+      "format-check",
+      "generated-and-webhook-check",
+      "webhook-tests",
+      "fixtures",
+      "deserialization-tests",
+      "parser-tests"
+    ],
+    "source_unchanged": true,
+    "success": true,
+    "generated_packages": [
+      "async-stripe-billing",
+      "async-stripe-checkout",
+      "async-stripe-connect",
+      "async-stripe-core",
+      "async-stripe-fraud",
+      "async-stripe-issuing",
+      "async-stripe-misc",
+      "async-stripe-payment",
+      "async-stripe-product",
+      "async-stripe-reserve",
+      "async-stripe-shared",
+      "async-stripe-terminal",
+      "async-stripe-treasury"
+    ],
+    "compiled_generated_crate_source_files": 1741,
+    "compiled_generated_crate_source_files_by_package": {
+      "async-stripe-billing": 116,
+      "async-stripe-checkout": 3,
+      "async-stripe-connect": 62,
+      "async-stripe-core": 71,
+      "async-stripe-fraud": 41,
+      "async-stripe-issuing": 17,
+      "async-stripe-misc": 172,
+      "async-stripe-payment": 39,
+      "async-stripe-product": 19,
+      "async-stripe-reserve": 9,
+      "async-stripe-shared": 1049,
+      "async-stripe-terminal": 59,
+      "async-stripe-treasury": 84
+    },
+    "workspace_retained": true
+  },
+  "v2_verification": {
+    "input_sha256": "92363b86025d012852f648554372bf5fa6146af1472fb63f3c29d7c5fe6bd19a",
+    "source_unchanged": true,
+    "success": true,
+    "cases": {
+      "events": {
+        "workspace": "/private/tmp/async-stripe-v2-study-20261103/verification/events/workspace",
+        "generated_compiler_sources": [
+          "generated/async-stripe-v2/src/mod.rs",
+          "generated/async-stripe-v2/src/v2_core_event/mod.rs",
+          "generated/async-stripe-v2/src/v2_core_event/requests.rs",
+          "generated/async-stripe-v2/src/v2_core_event/types.rs",
+          "generated/async-stripe-v2/src/v2_core_event_destination/mod.rs",
+          "generated/async-stripe-v2/src/v2_core_event_destination/requests.rs",
+          "generated/async-stripe-v2/src/v2_core_event_destination/types.rs",
+          "generated/async-stripe-v2/src/v2_deleted_object.rs"
+        ],
+        "success": true
+      },
+      "combined": {
+        "workspace": "/private/tmp/async-stripe-v2-study-20261103/verification/combined/workspace",
+        "generated_compiler_sources": [
+          "generated/async-stripe-v2/src/mod.rs",
+          "generated/async-stripe-v2/src/v2_core_account/mod.rs",
+          "generated/async-stripe-v2/src/v2_core_account/requests.rs",
+          "generated/async-stripe-v2/src/v2_core_account/types.rs",
+          "generated/async-stripe-v2/src/v2_core_account_link/mod.rs",
+          "generated/async-stripe-v2/src/v2_core_account_link/requests.rs",
+          "generated/async-stripe-v2/src/v2_core_account_link/types.rs",
+          "generated/async-stripe-v2/src/v2_core_account_person/mod.rs",
+          "generated/async-stripe-v2/src/v2_core_account_person/requests.rs",
+          "generated/async-stripe-v2/src/v2_core_account_person/types.rs",
+          "generated/async-stripe-v2/src/v2_core_account_person_token/mod.rs",
+          "generated/async-stripe-v2/src/v2_core_account_person_token/requests.rs",
+          "generated/async-stripe-v2/src/v2_core_account_person_token/types.rs",
+          "generated/async-stripe-v2/src/v2_core_account_token/mod.rs",
+          "generated/async-stripe-v2/src/v2_core_account_token/requests.rs",
+          "generated/async-stripe-v2/src/v2_core_account_token/types.rs",
+          "generated/async-stripe-v2/src/v2_core_event/mod.rs",
+          "generated/async-stripe-v2/src/v2_core_event/requests.rs",
+          "generated/async-stripe-v2/src/v2_core_event/types.rs",
+          "generated/async-stripe-v2/src/v2_core_event_destination/mod.rs",
+          "generated/async-stripe-v2/src/v2_core_event_destination/requests.rs",
+          "generated/async-stripe-v2/src/v2_core_event_destination/types.rs",
+          "generated/async-stripe-v2/src/v2_deleted_object.rs"
+        ],
+        "success": true
+      }
+    }
+  },
+  "cases": {
+    "events": {
+      "model_graph": {
+        "module_count": 3,
+        "item_count": 20,
+        "field_count": 42,
+        "variant_count": 19,
+        "cross_module_cycles": 0
+      },
+      "compiler_source_files": 8,
+      "collector": {
+        "version": "0.0.0",
+        "source_sha256": "10ee043482585af87e2ca32a3345ebbd4bc8091b85e87ebda164445b45fd0c53"
+      },
+      "environment": {
+        "rustc": "rustc 1.89.0 (29483883e 2025-08-04)\nbinary: rustc\ncommit-hash: 29483883eed69d5fb4db01964cdf2af4d86e9cb2\ncommit-date: 2025-08-04\nhost: aarch64-apple-darwin\nrelease: 1.89.0\nLLVM version: 20.1.7",
+        "cargo": "cargo 1.89.0 (c24e10642 2025-06-23)",
+        "platform": "macos/aarch64",
+        "target": "aarch64-apple-darwin",
+        "rustflags": [],
+        "build_environment": {
+          "CARGO_BUILD_JOBS": "2",
+          "RUSTC": "/Users/matthewzeitlin/.rustup/toolchains/1.89.0-aarch64-apple-darwin/bin/rustc"
+        },
+        "cargo_configuration": {},
+        "workspace_profiles": {},
+        "policy": "explicit RUSTC; isolated target; incremental=dev only; wrappers=off; split-debuginfo=off; strip=none; remap repo/target/CARGO_HOME paths"
+      },
+      "source": {
+        "repository": "/private/tmp/async-stripe-v2-study-20261103/artifact-study/events/workspace",
+        "commit": "2e2a099cca416c4a3473d1a0a2610a3f679182d4",
+        "dirty": false,
+        "lockfile_sha256": "e4f80c4238af5dfebcfeffda82aefa7b51f8612009045d3a3261bb1d5c721254",
+        "workload_sha256": {
+          "minimal": "76a2ca0608da83a6a9bb41a65fd52590aa1b9c0ef2ad864563f9688c85a00e61"
+        }
+      },
+      "measurements": [
+        {
+          "case": "minimal",
+          "profile": "dev",
+          "sizes": {
+            "executable_bytes": 1038800,
+            "stripped_executable_bytes": 683184,
+            "sections": [
+              {
+                "name": "__text",
+                "segment": "__TEXT",
+                "kind": "Text",
+                "file_bytes": 381972,
+                "memory_bytes": 381972
+              },
+              {
+                "name": "__stubs",
+                "segment": "__TEXT",
+                "kind": "Unknown",
+                "file_bytes": 816,
+                "memory_bytes": 816
+              },
+              {
+                "name": "__stub_helper",
+                "segment": "__TEXT",
+                "kind": "Unknown",
+                "file_bytes": 840,
+                "memory_bytes": 840
+              },
+              {
+                "name": "__gcc_except_tab",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyData",
+                "file_bytes": 10412,
+                "memory_bytes": 10412
+              },
+              {
+                "name": "__const",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyData",
+                "file_bytes": 30468,
+                "memory_bytes": 30468
+              },
+              {
+                "name": "__cstring",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyString",
+                "file_bytes": 8021,
+                "memory_bytes": 8021
+              },
+              {
+                "name": "__unwind_info",
+                "segment": "__TEXT",
+                "kind": "Unknown",
+                "file_bytes": 15192,
+                "memory_bytes": 15192
+              },
+              {
+                "name": "__eh_frame",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyData",
+                "file_bytes": 79284,
+                "memory_bytes": 79284
+              },
+              {
+                "name": "__got",
+                "segment": "__DATA_CONST",
+                "kind": "Unknown",
+                "file_bytes": 16,
+                "memory_bytes": 16
+              },
+              {
+                "name": "__const",
+                "segment": "__DATA_CONST",
+                "kind": "Unknown",
+                "file_bytes": 20728,
+                "memory_bytes": 20728
+              },
+              {
+                "name": "__la_symbol_ptr",
+                "segment": "__DATA",
+                "kind": "Unknown",
+                "file_bytes": 544,
+                "memory_bytes": 544
+              },
+              {
+                "name": "__data",
+                "segment": "__DATA",
+                "kind": "Data",
+                "file_bytes": 2664,
+                "memory_bytes": 2664
+              },
+              {
+                "name": "__thread_vars",
+                "segment": "__DATA",
+                "kind": "TlsVariables",
+                "file_bytes": 192,
+                "memory_bytes": 192
+              },
+              {
+                "name": "__thread_data",
+                "segment": "__DATA",
+                "kind": "Tls",
+                "file_bytes": 80,
+                "memory_bytes": 80
+              },
+              {
+                "name": "__thread_bss",
+                "segment": "__DATA",
+                "kind": "UninitializedTls",
+                "file_bytes": 0,
+                "memory_bytes": 80
+              },
+              {
+                "name": "__common",
+                "segment": "__DATA",
+                "kind": "Common",
+                "file_bytes": 0,
+                "memory_bytes": 72
+              },
+              {
+                "name": "__bss",
+                "segment": "__DATA",
+                "kind": "UninitializedData",
+                "file_bytes": 0,
+                "memory_bytes": 240
+              }
+            ],
+            "libraries": [
+              {
+                "package": "async-stripe-client-core",
+                "features": [
+                  "uuid",
+                  "v2"
+                ],
+                "rlib_bytes": 975576,
+                "rmeta_bytes": 273031
+              },
+              {
+                "package": "async-stripe-types",
+                "features": [],
+                "rlib_bytes": 811456,
+                "rmeta_bytes": 295063
+              },
+              {
+                "package": "async-stripe-v2",
+                "features": [],
+                "rlib_bytes": 4367104,
+                "rmeta_bytes": 706957
+              }
+            ],
+            "consumer_incremental_bytes": 723587,
+            "library_incremental_bytes": 23609539,
+            "artifact_profile": {
+              "opt_level": "0",
+              "debuginfo": 2,
+              "debug_assertions": true,
+              "overflow_checks": true,
+              "test": false
+            }
+          },
+          "timing_samples": [],
+          "consumer_ir": null,
+          "warnings": [],
+          "retained_artifacts": [
+            {
+              "build": 1,
+              "kind": "executable",
+              "path": "artifacts/minimal-dev/executable"
+            }
+          ]
+        },
+        {
+          "case": "minimal",
+          "profile": "release",
+          "sizes": {
+            "executable_bytes": 568608,
+            "stripped_executable_bytes": 409904,
+            "sections": [
+              {
+                "name": "__text",
+                "segment": "__TEXT",
+                "kind": "Text",
+                "file_bytes": 264428,
+                "memory_bytes": 264428
+              },
+              {
+                "name": "__stubs",
+                "segment": "__TEXT",
+                "kind": "Unknown",
+                "file_bytes": 816,
+                "memory_bytes": 816
+              },
+              {
+                "name": "__stub_helper",
+                "segment": "__TEXT",
+                "kind": "Unknown",
+                "file_bytes": 840,
+                "memory_bytes": 840
+              },
+              {
+                "name": "__gcc_except_tab",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyData",
+                "file_bytes": 6120,
+                "memory_bytes": 6120
+              },
+              {
+                "name": "__const",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyData",
+                "file_bytes": 18288,
+                "memory_bytes": 18288
+              },
+              {
+                "name": "__cstring",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyString",
+                "file_bytes": 4899,
+                "memory_bytes": 4899
+              },
+              {
+                "name": "__unwind_info",
+                "segment": "__TEXT",
+                "kind": "Unknown",
+                "file_bytes": 6704,
+                "memory_bytes": 6704
+              },
+              {
+                "name": "__eh_frame",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyData",
+                "file_bytes": 38284,
+                "memory_bytes": 38284
+              },
+              {
+                "name": "__got",
+                "segment": "__DATA_CONST",
+                "kind": "Unknown",
+                "file_bytes": 16,
+                "memory_bytes": 16
+              },
+              {
+                "name": "__const",
+                "segment": "__DATA_CONST",
+                "kind": "Unknown",
+                "file_bytes": 14688,
+                "memory_bytes": 14688
+              },
+              {
+                "name": "__la_symbol_ptr",
+                "segment": "__DATA",
+                "kind": "Unknown",
+                "file_bytes": 544,
+                "memory_bytes": 544
+              },
+              {
+                "name": "__data",
+                "segment": "__DATA",
+                "kind": "Data",
+                "file_bytes": 2728,
+                "memory_bytes": 2728
+              },
+              {
+                "name": "__thread_vars",
+                "segment": "__DATA",
+                "kind": "TlsVariables",
+                "file_bytes": 192,
+                "memory_bytes": 192
+              },
+              {
+                "name": "__thread_data",
+                "segment": "__DATA",
+                "kind": "Tls",
+                "file_bytes": 80,
+                "memory_bytes": 80
+              },
+              {
+                "name": "__thread_bss",
+                "segment": "__DATA",
+                "kind": "UninitializedTls",
+                "file_bytes": 0,
+                "memory_bytes": 80
+              },
+              {
+                "name": "__common",
+                "segment": "__DATA",
+                "kind": "Common",
+                "file_bytes": 0,
+                "memory_bytes": 72
+              },
+              {
+                "name": "__bss",
+                "segment": "__DATA",
+                "kind": "UninitializedData",
+                "file_bytes": 0,
+                "memory_bytes": 240
+              }
+            ],
+            "libraries": [
+              {
+                "package": "async-stripe-client-core",
+                "features": [
+                  "uuid",
+                  "v2"
+                ],
+                "rlib_bytes": 412048,
+                "rmeta_bytes": 312560
+              },
+              {
+                "package": "async-stripe-types",
+                "features": [],
+                "rlib_bytes": 413232,
+                "rmeta_bytes": 324759
+              },
+              {
+                "package": "async-stripe-v2",
+                "features": [],
+                "rlib_bytes": 1333856,
+                "rmeta_bytes": 778336
+              }
+            ],
+            "consumer_incremental_bytes": null,
+            "library_incremental_bytes": null,
+            "artifact_profile": {
+              "opt_level": "3",
+              "debuginfo": 0,
+              "debug_assertions": false,
+              "overflow_checks": false,
+              "test": false
+            }
+          },
+          "timing_samples": [],
+          "consumer_ir": null,
+          "warnings": [],
+          "retained_artifacts": [
+            {
+              "build": 1,
+              "kind": "executable",
+              "path": "artifacts/minimal-release/executable"
+            }
+          ]
+        }
+      ],
+      "release_ir": {
+        "consumer": {
+          "lines": 1448,
+          "copies": 81
+        },
+        "library": {
+          "lines": 47277,
+          "copies": 1397
+        }
+      },
+      "fixture_sha256": "2668f5b07cf7f0f9a706c5c64be610527567723ebd224b0e84b43bf033042763"
+    },
+    "combined": {
+      "model_graph": {
+        "module_count": 8,
+        "item_count": 313,
+        "field_count": 798,
+        "variant_count": 633,
+        "cross_module_cycles": 0
+      },
+      "compiler_source_files": 23,
+      "collector": {
+        "version": "0.0.0",
+        "source_sha256": "10ee043482585af87e2ca32a3345ebbd4bc8091b85e87ebda164445b45fd0c53"
+      },
+      "environment": {
+        "rustc": "rustc 1.89.0 (29483883e 2025-08-04)\nbinary: rustc\ncommit-hash: 29483883eed69d5fb4db01964cdf2af4d86e9cb2\ncommit-date: 2025-08-04\nhost: aarch64-apple-darwin\nrelease: 1.89.0\nLLVM version: 20.1.7",
+        "cargo": "cargo 1.89.0 (c24e10642 2025-06-23)",
+        "platform": "macos/aarch64",
+        "target": "aarch64-apple-darwin",
+        "rustflags": [],
+        "build_environment": {
+          "CARGO_BUILD_JOBS": "2",
+          "RUSTC": "/Users/matthewzeitlin/.rustup/toolchains/1.89.0-aarch64-apple-darwin/bin/rustc"
+        },
+        "cargo_configuration": {},
+        "workspace_profiles": {},
+        "policy": "explicit RUSTC; isolated target; incremental=dev only; wrappers=off; split-debuginfo=off; strip=none; remap repo/target/CARGO_HOME paths"
+      },
+      "source": {
+        "repository": "/private/tmp/async-stripe-v2-study-20261103/artifact-study/combined/workspace",
+        "commit": "a988ac66dcce313834c9e9457c5eb69a6e42fb01",
+        "dirty": false,
+        "lockfile_sha256": "e4f80c4238af5dfebcfeffda82aefa7b51f8612009045d3a3261bb1d5c721254",
+        "workload_sha256": {
+          "minimal": "76a2ca0608da83a6a9bb41a65fd52590aa1b9c0ef2ad864563f9688c85a00e61"
+        }
+      },
+      "measurements": [
+        {
+          "case": "minimal",
+          "profile": "dev",
+          "sizes": {
+            "executable_bytes": 1038928,
+            "stripped_executable_bytes": 683184,
+            "sections": [
+              {
+                "name": "__text",
+                "segment": "__TEXT",
+                "kind": "Text",
+                "file_bytes": 381972,
+                "memory_bytes": 381972
+              },
+              {
+                "name": "__stubs",
+                "segment": "__TEXT",
+                "kind": "Unknown",
+                "file_bytes": 816,
+                "memory_bytes": 816
+              },
+              {
+                "name": "__stub_helper",
+                "segment": "__TEXT",
+                "kind": "Unknown",
+                "file_bytes": 840,
+                "memory_bytes": 840
+              },
+              {
+                "name": "__gcc_except_tab",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyData",
+                "file_bytes": 10412,
+                "memory_bytes": 10412
+              },
+              {
+                "name": "__const",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyData",
+                "file_bytes": 30468,
+                "memory_bytes": 30468
+              },
+              {
+                "name": "__cstring",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyString",
+                "file_bytes": 8021,
+                "memory_bytes": 8021
+              },
+              {
+                "name": "__unwind_info",
+                "segment": "__TEXT",
+                "kind": "Unknown",
+                "file_bytes": 15192,
+                "memory_bytes": 15192
+              },
+              {
+                "name": "__eh_frame",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyData",
+                "file_bytes": 79272,
+                "memory_bytes": 79272
+              },
+              {
+                "name": "__got",
+                "segment": "__DATA_CONST",
+                "kind": "Unknown",
+                "file_bytes": 16,
+                "memory_bytes": 16
+              },
+              {
+                "name": "__const",
+                "segment": "__DATA_CONST",
+                "kind": "Unknown",
+                "file_bytes": 20728,
+                "memory_bytes": 20728
+              },
+              {
+                "name": "__la_symbol_ptr",
+                "segment": "__DATA",
+                "kind": "Unknown",
+                "file_bytes": 544,
+                "memory_bytes": 544
+              },
+              {
+                "name": "__data",
+                "segment": "__DATA",
+                "kind": "Data",
+                "file_bytes": 2664,
+                "memory_bytes": 2664
+              },
+              {
+                "name": "__thread_vars",
+                "segment": "__DATA",
+                "kind": "TlsVariables",
+                "file_bytes": 192,
+                "memory_bytes": 192
+              },
+              {
+                "name": "__thread_data",
+                "segment": "__DATA",
+                "kind": "Tls",
+                "file_bytes": 80,
+                "memory_bytes": 80
+              },
+              {
+                "name": "__thread_bss",
+                "segment": "__DATA",
+                "kind": "UninitializedTls",
+                "file_bytes": 0,
+                "memory_bytes": 80
+              },
+              {
+                "name": "__common",
+                "segment": "__DATA",
+                "kind": "Common",
+                "file_bytes": 0,
+                "memory_bytes": 72
+              },
+              {
+                "name": "__bss",
+                "segment": "__DATA",
+                "kind": "UninitializedData",
+                "file_bytes": 0,
+                "memory_bytes": 240
+              }
+            ],
+            "libraries": [
+              {
+                "package": "async-stripe-client-core",
+                "features": [
+                  "uuid",
+                  "v2"
+                ],
+                "rlib_bytes": 975576,
+                "rmeta_bytes": 273031
+              },
+              {
+                "package": "async-stripe-types",
+                "features": [],
+                "rlib_bytes": 811456,
+                "rmeta_bytes": 295063
+              },
+              {
+                "package": "async-stripe-v2",
+                "features": [],
+                "rlib_bytes": 53242040,
+                "rmeta_bytes": 12414452
+              }
+            ],
+            "consumer_incremental_bytes": 883639,
+            "library_incremental_bytes": 170617956,
+            "artifact_profile": {
+              "opt_level": "0",
+              "debuginfo": 2,
+              "debug_assertions": true,
+              "overflow_checks": true,
+              "test": false
+            }
+          },
+          "timing_samples": [],
+          "consumer_ir": null,
+          "warnings": [],
+          "retained_artifacts": [
+            {
+              "build": 1,
+              "kind": "executable",
+              "path": "artifacts/minimal-dev/executable"
+            }
+          ]
+        },
+        {
+          "case": "minimal",
+          "profile": "release",
+          "sizes": {
+            "executable_bytes": 617104,
+            "stripped_executable_bytes": 427280,
+            "sections": [
+              {
+                "name": "__text",
+                "segment": "__TEXT",
+                "kind": "Text",
+                "file_bytes": 265736,
+                "memory_bytes": 265736
+              },
+              {
+                "name": "__stubs",
+                "segment": "__TEXT",
+                "kind": "Unknown",
+                "file_bytes": 816,
+                "memory_bytes": 816
+              },
+              {
+                "name": "__stub_helper",
+                "segment": "__TEXT",
+                "kind": "Unknown",
+                "file_bytes": 840,
+                "memory_bytes": 840
+              },
+              {
+                "name": "__gcc_except_tab",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyData",
+                "file_bytes": 6060,
+                "memory_bytes": 6060
+              },
+              {
+                "name": "__const",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyData",
+                "file_bytes": 18288,
+                "memory_bytes": 18288
+              },
+              {
+                "name": "__cstring",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyString",
+                "file_bytes": 4899,
+                "memory_bytes": 4899
+              },
+              {
+                "name": "__unwind_info",
+                "segment": "__TEXT",
+                "kind": "Unknown",
+                "file_bytes": 6736,
+                "memory_bytes": 6736
+              },
+              {
+                "name": "__eh_frame",
+                "segment": "__TEXT",
+                "kind": "ReadOnlyData",
+                "file_bytes": 38564,
+                "memory_bytes": 38564
+              },
+              {
+                "name": "__got",
+                "segment": "__DATA_CONST",
+                "kind": "Unknown",
+                "file_bytes": 16,
+                "memory_bytes": 16
+              },
+              {
+                "name": "__const",
+                "segment": "__DATA_CONST",
+                "kind": "Unknown",
+                "file_bytes": 14688,
+                "memory_bytes": 14688
+              },
+              {
+                "name": "__la_symbol_ptr",
+                "segment": "__DATA",
+                "kind": "Unknown",
+                "file_bytes": 544,
+                "memory_bytes": 544
+              },
+              {
+                "name": "__data",
+                "segment": "__DATA",
+                "kind": "Data",
+                "file_bytes": 2728,
+                "memory_bytes": 2728
+              },
+              {
+                "name": "__thread_vars",
+                "segment": "__DATA",
+                "kind": "TlsVariables",
+                "file_bytes": 192,
+                "memory_bytes": 192
+              },
+              {
+                "name": "__thread_data",
+                "segment": "__DATA",
+                "kind": "Tls",
+                "file_bytes": 80,
+                "memory_bytes": 80
+              },
+              {
+                "name": "__thread_bss",
+                "segment": "__DATA",
+                "kind": "UninitializedTls",
+                "file_bytes": 0,
+                "memory_bytes": 80
+              },
+              {
+                "name": "__common",
+                "segment": "__DATA",
+                "kind": "Common",
+                "file_bytes": 0,
+                "memory_bytes": 72
+              },
+              {
+                "name": "__bss",
+                "segment": "__DATA",
+                "kind": "UninitializedData",
+                "file_bytes": 0,
+                "memory_bytes": 240
+              }
+            ],
+            "libraries": [
+              {
+                "package": "async-stripe-client-core",
+                "features": [
+                  "uuid",
+                  "v2"
+                ],
+                "rlib_bytes": 412048,
+                "rmeta_bytes": 312560
+              },
+              {
+                "package": "async-stripe-types",
+                "features": [],
+                "rlib_bytes": 413232,
+                "rmeta_bytes": 324759
+              },
+              {
+                "package": "async-stripe-v2",
+                "features": [],
+                "rlib_bytes": 21127752,
+                "rmeta_bytes": 14809934
+              }
+            ],
+            "consumer_incremental_bytes": null,
+            "library_incremental_bytes": null,
+            "artifact_profile": {
+              "opt_level": "3",
+              "debuginfo": 0,
+              "debug_assertions": false,
+              "overflow_checks": false,
+              "test": false
+            }
+          },
+          "timing_samples": [],
+          "consumer_ir": null,
+          "warnings": [],
+          "retained_artifacts": [
+            {
+              "build": 1,
+              "kind": "executable",
+              "path": "artifacts/minimal-release/executable"
+            }
+          ]
+        }
+      ],
+      "release_ir": {
+        "consumer": {
+          "lines": 1448,
+          "copies": 81
+        },
+        "library": {
+          "lines": 609053,
+          "copies": 17059
+        }
+      },
+      "fixture_sha256": "2668f5b07cf7f0f9a706c5c64be610527567723ebd224b0e84b43bf033042763"
+    }
+  },
+  "common_generated_source_files_identical": [
+    "src/v2_core_event/mod.rs",
+    "src/v2_core_event/requests.rs",
+    "src/v2_core_event/types.rs",
+    "src/v2_core_event_destination/mod.rs",
+    "src/v2_core_event_destination/requests.rs",
+    "src/v2_core_event_destination/types.rs",
+    "src/v2_deleted_object.rs"
+  ]
+}

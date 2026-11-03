@@ -99,6 +99,7 @@ full = [
     "async-stripe-fraud",
     "async-stripe-misc",
     "async-stripe-payment",
+    "async-stripe-reserve",
     "async-stripe-terminal",
     "async-stripe-treasury",
 ]

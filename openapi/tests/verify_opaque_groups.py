@@ -196,7 +196,7 @@ def main():
         extra_sources[feature] = sources
         (work / f"{feature}-compiled-sources.json").write_text(json.dumps(sources, indent=2) + "\n")
     assert model_paths["PaymentMethodCard"] not in extra_sources["payment_method"], "PaymentMethod compiled its optional card decoder"
-    assert model_paths["PaymentIntentPaymentMethodOptionsCard"] not in extra_sources["payment_intent"], "PaymentIntent compiled its optional card settings decoder"
+    assert model_paths["PaymentIntentPaymentMethodOptionsCard"] in extra_sources["payment_intent"], "PaymentIntent did not compile its ordinary typed card settings"
     assert model_paths["IssuingCard"] not in extra_sources["treasury_transaction"], "Treasury transaction compiled Issuing card through opaque flow details"
     run(work, "mixed-record-decoders", cargo + ["test", "--offline", "--no-default-features", "--features", "payment_method,payment_intent,source,payment_decoders,core_decoders,serialize,deserialize"], fixture, env)
     run(work, "treasury-record-decoders", cargo + ["test", "--offline", "--no-default-features", "--features", "treasury_transaction,issuing_decoders,serialize,deserialize"], fixture, env)

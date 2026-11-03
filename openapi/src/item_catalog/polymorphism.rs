@@ -13,29 +13,6 @@ pub(super) fn deferred_fields(items: &ItemCatalog, item: ItemId) -> Vec<StructFi
     }
     let RustObject::Struct(record) = &object.definition else { return Vec::new() };
     let mut selected = HashSet::new();
-    // Response options are keyed by payment method, independently of one
-    // another. Preserve that semantics while deferring each optional payload.
-    // A name suffix or an arbitrary collection of optional objects does not
-    // establish this relationship for ordinary settings records.
-    if matches!(
-        items.get(item).metadata.ident.as_ref(),
-        "CheckoutSessionPaymentMethodOptions"
-            | "PaymentIntentPaymentMethodOptions"
-            | "SetupIntentPaymentMethodOptions"
-            | "InvoicesPaymentMethodOptions"
-            | "SubscriptionsResourcePaymentMethodOptions"
-            | "PaymentFlowsAmountDetailsResourceLineItemsListResourceLineItemResourcePaymentMethodOptions"
-    ) {
-        selected.extend(
-            record
-                .fields
-                .iter()
-                // Invoice/subscription bags mark method branches required
-                // but nullable; Option<Item> still identifies those payloads.
-                .filter(|field| optional_record_payload(items, field))
-                .map(|field| field.wire_name()),
-        );
-    }
     for discriminator in &record.fields {
         let typ = discriminator.rust_type.with_option_stripped();
         // These schemas list their discriminator states only in prose.
@@ -288,7 +265,7 @@ mod tests {
     }
 
     #[test]
-    fn known_response_option_bags_preserve_required_common_fields() {
+    fn option_bags_without_discriminators_keep_their_typed_fields() {
         let (mut items, owner) = catalog(serde_json::json!({
             "type":"object", "properties": {
                 "card":{"anyOf":[{"$ref":"#/components/schemas/payload_a"}],"nullable":true},
@@ -307,7 +284,7 @@ mod tests {
             "PaymentFlowsAmountDetailsResourceLineItemsListResourceLineItemResourcePaymentMethodOptions",
         ] {
             items.items[owner.index()].metadata.ident = crate::types::RustIdent::unchanged(name);
-            assert_eq!(fields(&items, owner), ["bank".to_string(), "card".to_string()].into());
+            assert!(fields(&items, owner).is_empty());
         }
         items.items[owner.index()].metadata.ident =
             crate::types::RustIdent::unchanged("OtherPaymentMethodOptions");

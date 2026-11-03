@@ -277,30 +277,41 @@ mod treasury_flows {
 
 #[cfg(feature = "payment_intent")]
 mod option_bags {
-    #[cfg(feature = "core_decoders")]
-    use stripe::PaymentIntentPaymentMethodOptionsExt;
-
     use super::json;
 
     #[test]
-    fn response_options_defer_independent_methods_and_preserve_unknown_settings() {
-        let value =
-            json!({"card":{"request_three_d_secure":true},"future_method":{"setting":"kept"}});
+    fn response_options_keep_typed_fields_and_validate_them_during_parsing() {
+        let value = json!({"card":{"request_three_d_secure":"automatic"}});
         let options: stripe::PaymentIntentPaymentMethodOptions =
             miniserde::json::from_str(&value.to_string()).unwrap();
-        assert_eq!(serde_json::to_value(options.variant_fields()).unwrap(), value);
-        #[cfg(feature = "core_decoders")]
-        assert!(matches!(
-            options.card(),
-            Err(stripe::RecordDecodeError::InvalidField { field: "card" })
-        ));
+        assert_eq!(
+            options.card.as_ref().unwrap().request_three_d_secure.as_ref().unwrap().as_str(),
+            "automatic"
+        );
         #[cfg(feature = "deserialize")]
         {
             let options: stripe::PaymentIntentPaymentMethodOptions =
                 serde_json::from_value(value.clone()).unwrap();
-            assert_eq!(serde_json::to_value(options.variant_fields()).unwrap(), value);
+            assert_eq!(
+                options.card.as_ref().unwrap().request_three_d_secure.as_ref().unwrap().as_str(),
+                "automatic"
+            );
         }
         #[cfg(feature = "serialize")]
-        assert_eq!(serde_json::to_value(&options).unwrap(), value);
+        assert_eq!(
+            serde_json::to_value(&options).unwrap()["card"]["request_three_d_secure"],
+            "automatic"
+        );
+        let malformed = json!({"card":{"request_three_d_secure":true}});
+        assert!(
+            miniserde::json::from_str::<stripe::PaymentIntentPaymentMethodOptions>(
+                &malformed.to_string()
+            )
+            .is_err()
+        );
+        #[cfg(feature = "deserialize")]
+        assert!(
+            serde_json::from_value::<stripe::PaymentIntentPaymentMethodOptions>(malformed).is_err()
+        );
     }
 }

@@ -1,0 +1,62 @@
+{
+  "repository": "stripe/openapi",
+  "tag": "v2494",
+  "commit": "3e5f190f81ef54900d83909fc733226b87afccb1",
+  "channel": "latest (GA)",
+  "files": {
+    "openapi.spec3.sdk.json": {
+      "url": "https://raw.githubusercontent.com/stripe/openapi/3e5f190f81ef54900d83909fc733226b87afccb1/latest/openapi.spec3.sdk.json",
+      "sha256": "92363b86025d012852f648554372bf5fa6146af1472fb63f3c29d7c5fe6bd19a",
+      "bytes": 6690676,
+      "openapi": "3.0.0",
+      "info": {
+        "title": "Stripe API",
+        "description": "The Stripe REST API. Please see https://stripe.com/docs/api for more details.",
+        "termsOfService": "https://stripe.com/us/terms/",
+        "contact": {
+          "name": "Stripe Dev Platform Team",
+          "url": "https://stripe.com",
+          "email": "dev-platform@stripe.com"
+        },
+        "version": "2026-08-26.dahlia",
+        "x-stripeReleasePhase": "ga",
+        "x-stripeSpecAudience": "sdk",
+        "x-stripeSpecFilename": "spec3.ga.sdk"
+      },
+      "paths": 409,
+      "schemas": 1919
+    },
+    "openapi.spec3.json": {
+      "url": "https://raw.githubusercontent.com/stripe/openapi/3e5f190f81ef54900d83909fc733226b87afccb1/latest/openapi.spec3.json",
+      "sha256": "2c31317cdff103e4495b5b3501004d9ddc0af61f43b0ab819e2db392eef008f6",
+      "bytes": 4518735,
+      "openapi": "3.0.0",
+      "info": {
+        "title": "Stripe API",
+        "description": "The Stripe REST API. Please see https://stripe.com/docs/api for more details.",
+        "termsOfService": "https://stripe.com/us/terms/",
+        "contact": {
+          "name": "Stripe Dev Platform Team",
+          "url": "https://stripe.com",
+          "email": "dev-platform@stripe.com"
+        },
+        "version": "2026-08-26.dahlia",
+        "x-stripeReleasePhase": "ga",
+        "x-stripeSpecAudience": "public",
+        "x-stripeSpecFilename": "spec3.ga.public"
+      },
+      "paths": 442,
+      "schemas": 1614
+    }
+  },
+  "stripe_python_release": {
+    "tag": "v16.1.0",
+    "published_at": "2026-10-29T19:51:20Z",
+    "commit": "94756ffee7754e2fddc4bf5de4c3a407971128a5",
+    "api_revision": "2026-10-28.endive",
+    "purpose": "Transport and event-helper source inspection; newer than the schema pin, not a schema compatibility claim"
+  },
+  "refactor_baseline": "5c0dafda38b01f022d1076c76cee4272f8f2dc5c",
+  "inspected_on": "2026-11-03",
+  "production_pin_changed": false
+}

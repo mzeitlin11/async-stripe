@@ -1,0 +1,75 @@
+{
+  "source_branch": "backup/codegen-refactor-workspace-20261103",
+  "source_commit": "9ab0f87ed999ff0e0a555ee3c5c5b88aa5a92a31",
+  "archive_path": "backups/codegen-opaque-study-20261103/refactor-baseline/artifacts.tar.gz",
+  "generator_commit": "5c0dafda38b01f022d1076c76cee4272f8f2dc5c",
+  "note": "Archived concrete baseline measurements, not newly compiled v2 output",
+  "represented_model_modules": 1465,
+  "shared_model_components": 1046,
+  "largest_model_sccs": [
+    {
+      "scc_id": 306,
+      "module_count": 98,
+      "item_count": 230,
+      "field_count": 1270,
+      "variant_count": 1161,
+      "cross_module_cycle": true
+    },
+    {
+      "scc_id": 1310,
+      "module_count": 14,
+      "item_count": 44,
+      "field_count": 166,
+      "variant_count": 119,
+      "cross_module_cycle": true
+    },
+    {
+      "scc_id": 49,
+      "module_count": 2,
+      "item_count": 5,
+      "field_count": 37,
+      "variant_count": 6,
+      "cross_module_cycle": true
+    },
+    {
+      "scc_id": 427,
+      "module_count": 2,
+      "item_count": 8,
+      "field_count": 47,
+      "variant_count": 21,
+      "cross_module_cycle": true
+    },
+    {
+      "scc_id": 487,
+      "module_count": 2,
+      "item_count": 5,
+      "field_count": 18,
+      "variant_count": 21,
+      "cross_module_cycle": true
+    },
+    {
+      "scc_id": 1093,
+      "module_count": 2,
+      "item_count": 9,
+      "field_count": 38,
+      "variant_count": 11,
+      "cross_module_cycle": true
+    }
+  ],
+  "compiled_generated_crate_source_files": 1741,
+  "compiled_generated_crate_source_files_by_package": {
+    "async-stripe-billing": 116,
+    "async-stripe-checkout": 3,
+    "async-stripe-connect": 62,
+    "async-stripe-core": 71,
+    "async-stripe-fraud": 41,
+    "async-stripe-issuing": 17,
+    "async-stripe-misc": 172,
+    "async-stripe-payment": 39,
+    "async-stripe-product": 19,
+    "async-stripe-reserve": 9,
+    "async-stripe-shared": 1049,
+    "async-stripe-terminal": 59,
+    "async-stripe-treasury": 84
+  }
+}

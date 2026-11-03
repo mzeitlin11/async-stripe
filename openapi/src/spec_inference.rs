@@ -8,19 +8,36 @@ use openapiv3::{
     Type, VariantOrUnknownOrEmpty,
 };
 
+use crate::component_catalog::{ComponentCatalog, ComponentId};
 use crate::rust_object::{
     EnumVariant, FieldlessVariant, ObjectMetadata, RustObject, Struct, StructField, Visibility,
 };
-use crate::rust_type::{ExtType, IntType, RustType, SimpleType};
+use crate::rust_type::{ExternalType, IntType, PrimitiveType, RustType};
 use crate::spec::{
     ExpansionResources, as_data_array_item, as_object_enum_name, is_enum_with_just_empty_string,
 };
-use crate::types::{ComponentPath, RustIdent};
+use crate::types::RustIdent;
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum Borrowing {
+    Owned,
+    /// Supported by inference and the Rust model, but not currently selected
+    /// by the production pipeline.
+    #[allow(dead_code)]
+    BorrowWherePossible,
+}
+
+impl Borrowing {
+    const fn is_enabled(self) -> bool {
+        matches!(self, Self::BorrowWherePossible)
+    }
+}
 
 #[derive(Copy, Clone, Debug)]
 pub struct Inference<'a> {
-    can_borrow: bool,
-    id_path: Option<&'a ComponentPath>,
+    catalog: &'a ComponentCatalog,
+    borrowing: Borrowing,
+    id_component: Option<ComponentId>,
     curr_ident: &'a RustIdent,
     field_name: Option<&'a str>,
     description: Option<&'a str>,
@@ -29,20 +46,21 @@ pub struct Inference<'a> {
 }
 
 impl<'a> Inference<'a> {
-    pub fn new(ident: &'a RustIdent) -> Self {
+    pub fn new(ident: &'a RustIdent, catalog: &'a ComponentCatalog) -> Self {
         Self {
-            can_borrow: false,
+            catalog,
+            borrowing: Borrowing::Owned,
             field_name: None,
             description: None,
             required: false,
             curr_ident: ident,
-            id_path: None,
+            id_component: None,
             title: None,
         }
     }
 
-    pub fn can_borrow(mut self, can_borrow: bool) -> Self {
-        self.can_borrow = can_borrow;
+    pub fn borrowing(mut self, borrowing: Borrowing) -> Self {
+        self.borrowing = borrowing;
         self
     }
 
@@ -56,8 +74,8 @@ impl<'a> Inference<'a> {
         self
     }
 
-    pub fn id_path(mut self, path: &'a ComponentPath) -> Self {
-        self.id_path = Some(path);
+    pub fn id_component(mut self, component: ComponentId) -> Self {
+        self.id_component = Some(component);
         self
     }
 
@@ -82,6 +100,13 @@ impl<'a> Inference<'a> {
         } else {
             self.curr_ident.clone()
         }
+    }
+
+    #[track_caller]
+    fn resolve_reference(&self, reference: &str) -> ComponentId {
+        self.catalog
+            .resolve_reference(reference)
+            .unwrap_or_else(|error| panic!("invalid component schema reference: {error:#}"))
     }
 
     fn build_object_type(self, data: RustObject) -> RustType {
@@ -132,7 +157,7 @@ impl<'a> Inference<'a> {
             return RustType::bool();
         };
         if desc.contains("Always true for") {
-            return RustType::ext(ExtType::AlwaysTrue);
+            return RustType::external(ExternalType::AlwaysTrue);
         }
         RustType::bool()
     }
@@ -146,8 +171,8 @@ impl<'a> Inference<'a> {
             SchemaKind::Type(Type::Array(typ)) => {
                 let element = typ.items.as_ref().expect("Array type had no items field");
                 let element_type = self.required(true).infer_schema_or_ref_type(element);
-                if self.can_borrow {
-                    RustType::slice(element_type)
+                if self.borrowing.is_enabled() {
+                    RustType::slice(element_type).into_reference()
                 } else {
                     RustType::vec(element_type)
                 }
@@ -171,16 +196,21 @@ impl<'a> Inference<'a> {
         if let Some(f_name) = self.field_name
             && (f_name == "currency" || f_name.ends_with("_currency"))
         {
-            return RustType::ext(ExtType::Currency);
+            return RustType::external(ExternalType::Currency);
         }
 
         if self.should_infer_as_id_type()
-            && let Some(id_path) = self.id_path
+            && let Some(id_component) = self.id_component
         {
-            return RustType::object_id(id_path.clone(), self.can_borrow);
+            let id_type = RustType::object_id(id_component);
+            return if self.borrowing.is_enabled() { id_type.into_reference() } else { id_type };
         }
 
-        if self.can_borrow { RustType::Simple(SimpleType::Str) } else { RustType::string() }
+        if self.borrowing.is_enabled() {
+            RustType::Primitive(PrimitiveType::Str).into_reference()
+        } else {
+            RustType::string()
+        }
     }
 
     fn infer_object_typ(&self, typ: &ObjectType, field: &Schema) -> RustType {
@@ -197,13 +227,16 @@ impl<'a> Inference<'a> {
         }
 
         if let Some(AdditionalProperties::Schema(additional)) = &typ.additional_properties {
-            let map_value_typ =
-                self.required(true).can_borrow(false).infer_schema_or_ref_type(additional);
-            return if should_infer_currency_key_from_desc(self.description) {
-                RustType::currency_map(map_value_typ, self.can_borrow)
+            let map_value_typ = self
+                .required(true)
+                .borrowing(Borrowing::Owned)
+                .infer_schema_or_ref_type(additional);
+            let map = if should_infer_currency_key_from_desc(self.description) {
+                RustType::currency_map(map_value_typ)
             } else {
-                RustType::str_map(map_value_typ, self.can_borrow)
+                RustType::str_map(map_value_typ)
             };
+            return if self.borrowing.is_enabled() { map.into_reference() } else { map };
         }
 
         // NB: There is some inconsistency between usage of properties: {} and not including
@@ -243,11 +276,12 @@ impl<'a> Inference<'a> {
         if fields.len() == 1 {
             self.infer_schema_or_ref_type(fields[0])
         } else if let Some(resources) = field.schema_data.extensions.get("x-expansionResources") {
-            parse_expansion_resources(resources).expect("Failed to parse expansion resources")
+            parse_expansion_resources(resources, self.catalog)
+                .expect("Failed to parse expansion resources")
         } else if fields[0].as_item().and_then(|s| s.schema_data.title.as_deref())
             == Some("range_query_specs")
         {
-            RustType::ext(ExtType::RangeQueryTs)
+            RustType::external(ExternalType::RangeQueryTs)
         } else {
             let enum_ = self.build_enum_variants(fields).expect("Could not build enum with fields");
             self.build_object_type(RustObject::Enum(enum_))
@@ -257,11 +291,11 @@ impl<'a> Inference<'a> {
     pub fn infer_schema_or_ref_type<T: Borrow<Schema>>(&self, field: &ReferenceOr<T>) -> RustType {
         match field {
             ReferenceOr::Reference { reference } => {
-                let path = ComponentPath::from_reference(reference);
+                let component = self.resolve_reference(reference);
                 // Must box `ApiErrors`, otherwise we end up with an infinitely
                 // sized type
-                let should_box = path.as_ref() == "api_errors";
-                let mut typ = RustType::component_path(path);
+                let should_box = self.catalog.name(component).as_ref() == "api_errors";
+                let mut typ = RustType::component(component);
 
                 if should_box {
                     typ = RustType::boxed(typ);
@@ -287,8 +321,7 @@ impl<'a> Inference<'a> {
         let field_rename = field_name.to_snake_case();
 
         // The `deleted` field is only used as a de/ser discriminant, so there is no reason to make it public
-        let force_private =
-            matches!(rust_type, RustType::Simple(SimpleType::Ext(ExtType::AlwaysTrue)));
+        let force_private = matches!(rust_type, RustType::External(ExternalType::AlwaysTrue));
 
         let mut struct_field = StructField::new(&field_rename, rust_type).required(self.required);
         if force_private {
@@ -311,10 +344,10 @@ impl<'a> Inference<'a> {
         for option in fields {
             match option {
                 ReferenceOr::Reference { reference } => {
-                    let schema_path = ComponentPath::from_reference(reference);
+                    let component = self.resolve_reference(reference);
                     variants.push(EnumVariant::new(
-                        RustIdent::create(&schema_path),
-                        RustType::component_path(schema_path),
+                        RustIdent::create(self.catalog.name(component)),
+                        RustType::component(component),
                     ));
                 }
                 ReferenceOr::Item(item) => {
@@ -333,12 +366,15 @@ impl<'a> Inference<'a> {
                     } else {
                         let variant_ident = if let Some(name) = inferred_name {
                             RustIdent::create(name)
-                        } else if let RustType::Simple(typ) = &rust_type {
-                            RustIdent::create(typ.display_name())
                         } else {
-                            bail!(
-                                "Could not infer a variant name for {item:?} and type {rust_type:?}"
-                            );
+                            let display_name = match &rust_type {
+                                RustType::Primitive(typ) => typ.display_name(),
+                                RustType::External(typ) => typ.display_name(),
+                                _ => bail!(
+                                    "Could not infer a variant name for {item:?} and type {rust_type:?}"
+                                ),
+                            };
+                            RustIdent::create(display_name)
                         };
                         variants.push(EnumVariant::new(variant_ident, rust_type));
                     }
@@ -350,7 +386,7 @@ impl<'a> Inference<'a> {
 
     fn infer_integer_type(&self, int_fmt: &VariantOrUnknownOrEmpty<IntegerFormat>) -> RustType {
         if matches!(int_fmt, VariantOrUnknownOrEmpty::Unknown(inner) if inner == "unix-time") {
-            return RustType::ext(ExtType::Timestamp);
+            return RustType::external(ExternalType::Timestamp);
         }
 
         // Infer based on field name, otherwise default
@@ -359,7 +395,7 @@ impl<'a> Inference<'a> {
         let name_snake = name.to_snake_case();
         let name_words = name_snake.split('_').collect::<Vec<_>>();
         if name_words.contains(&"date") {
-            RustType::ext(ExtType::Timestamp)
+            RustType::external(ExternalType::Timestamp)
         } else if name == "monthly_anchor" {
             RustType::int(IntType::U8)
         } else if name_words.contains(&"days") {
@@ -382,7 +418,10 @@ fn should_infer_currency_key_from_desc(desc: Option<&str>) -> bool {
     desc.contains("Each key must be a three-letter [ISO currency code]")
 }
 
-fn parse_expansion_resources(resources: &serde_json::Value) -> anyhow::Result<RustType> {
+fn parse_expansion_resources(
+    resources: &serde_json::Value,
+    catalog: &ComponentCatalog,
+) -> anyhow::Result<RustType> {
     let expansion_resources = serde_json::from_value::<ExpansionResources>(resources.clone())?;
 
     let schema_kind = expansion_resources.into_schema_kind();
@@ -395,8 +434,8 @@ fn parse_expansion_resources(resources: &serde_json::Value) -> anyhow::Result<Ru
     let ReferenceOr::Reference { reference } = one_of.first().unwrap() else {
         bail!("Expected expansion resource to only contain a schema reference");
     };
-    let path = ComponentPath::from_reference(reference);
-    Ok(RustType::expandable(RustType::component_path(path)))
+    let component = catalog.resolve_reference(reference)?;
+    Ok(RustType::expandable(RustType::component(component)))
 }
 
 fn build_enum_variants(options: &[Option<String>]) -> Vec<FieldlessVariant> {
@@ -425,6 +464,49 @@ fn build_enum_variants(options: &[Option<String>]) -> Vec<FieldlessVariant> {
         enum_variants.push(FieldlessVariant::new(wire_name.clone(), variant_name));
     }
     enum_variants
+}
+
+#[cfg(test)]
+mod tests {
+    use openapiv3::Schema;
+    use serde_json::json;
+
+    use super::{Borrowing, Inference};
+    use crate::component_catalog::ComponentCatalog;
+    use crate::rust_type::{PrimitiveType, RustType};
+    use crate::types::RustIdent;
+
+    fn schema(value: serde_json::Value) -> Schema {
+        serde_json::from_value(value).unwrap()
+    }
+
+    #[test]
+    fn borrowed_inference_uses_explicit_reference_nodes() {
+        let catalog = ComponentCatalog::from_names([]).unwrap();
+        let ident = RustIdent::create("Example");
+        let inference = Inference::new(&ident, &catalog)
+            .borrowing(Borrowing::BorrowWherePossible)
+            .required(true);
+
+        let string = inference.infer_schema_type(&schema(json!({ "type": "string" })));
+        assert_eq!(string, RustType::Primitive(PrimitiveType::Str).into_reference());
+
+        let array = inference.infer_schema_type(&schema(json!({
+            "type": "array",
+            "items": { "type": "string" }
+        })));
+        assert_eq!(
+            array,
+            RustType::slice(RustType::Primitive(PrimitiveType::Str).into_reference())
+                .into_reference()
+        );
+
+        let map = inference.infer_schema_type(&schema(json!({
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+        })));
+        assert_eq!(map, RustType::str_map(RustType::string()).into_reference());
+    }
 }
 
 fn infer_enum_variant_name(schema: &Schema) -> Option<&str> {

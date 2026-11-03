@@ -3,9 +3,10 @@ use std::fmt::{Debug, Display, Formatter};
 
 use indexmap::IndexMap;
 
+use crate::component_catalog::ComponentId;
 use crate::components::Components;
 use crate::rust_type::RustType;
-use crate::types::{ComponentPath, RustIdent};
+use crate::types::RustIdent;
 use crate::visitor::{Visit, VisitMut};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -16,6 +17,24 @@ pub enum RustObject {
     Enum(Vec<EnumVariant>),
     /// A definition of an enum, containing only fieldless variants, e.g. a C-like enum.
     FieldlessEnum(Vec<FieldlessVariant>),
+}
+
+/// How a top-level Stripe object exposes identity through `stripe_types::Object`.
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum ObjectIdentity {
+    /// A struct whose `id` field has this type.
+    IdType(RustType),
+    /// A polymorphic object enum whose variants expose their underlying IDs.
+    ObjectUnion,
+}
+
+impl ObjectIdentity {
+    pub fn id_type(&self) -> Option<&RustType> {
+        match self {
+            Self::IdType(typ) => Some(typ),
+            Self::ObjectUnion => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -96,44 +115,16 @@ impl RustObject {
         }
     }
 
-    /// Can this derive `Copy`?
-    pub fn is_copy(&self, components: &Components) -> bool {
-        match self {
-            Self::Struct(struct_) => struct_.fields.iter().all(|f| f.rust_type.is_copy(components)),
-            // FieldlessEnum cannot be Copy if it has an Unknown(String) variant
-            Self::FieldlessEnum(_) => false,
-            Self::Enum(variants) => variants.iter().all(|f| match &f.rust_type {
-                None => true,
-                Some(typ) => typ.is_copy(components),
-            }),
-        }
-    }
-
-    /// Can this derive `Eq`?
-    pub fn is_eq(&self, components: &Components) -> bool {
-        match self {
-            Self::Struct(struct_) => struct_.fields.iter().all(|f| f.rust_type.is_eq(components)),
-            // FieldlessEnum already derives Eq (String implements Eq)
-            Self::FieldlessEnum(_) => true,
-            Self::Enum(variants) => variants.iter().all(|f| match &f.rust_type {
-                None => true,
-                Some(typ) => typ.is_eq(components),
-            }),
-        }
-    }
-
     pub fn visit<'a, T: Visit<'a>>(&'a self, visitor: &mut T, usage: ObjectUsage) {
         match self {
             Self::Struct(struct_) => {
                 for field in &struct_.fields {
-                    visitor.visit_typ(&field.rust_type, usage);
+                    visitor.visit_field(field, usage);
                 }
             }
             Self::Enum(variants) => {
                 for variant in variants {
-                    if let Some(typ) = &variant.rust_type {
-                        visitor.visit_typ(typ, usage);
-                    }
+                    visitor.visit_variant(variant, usage);
                 }
             }
             Self::FieldlessEnum(_) => {}
@@ -165,20 +156,6 @@ impl RustObject {
                 field.map(|f| &f.rust_type)
             }
             _ => None,
-        }
-    }
-
-    /// Does this contain a reference type?
-    pub fn has_reference(&self, components: &Components) -> bool {
-        match self {
-            Self::Struct(struct_) => {
-                struct_.fields.iter().any(|f| f.rust_type.has_reference(components))
-            }
-            Self::FieldlessEnum(_) => false,
-            Self::Enum(variants) => variants.iter().any(|v| match &v.rust_type {
-                None => false,
-                Some(typ) => typ.has_reference(components),
-            }),
         }
     }
 }
@@ -338,25 +315,28 @@ impl StructField {
 fn as_object_union(
     components: &Components,
     variants: &[EnumVariant],
-) -> Option<IndexMap<String, ObjectRef>> {
+    component_for_type: &impl Fn(&RustType) -> Option<ComponentId>,
+) -> Option<IndexMap<String, ComponentId>> {
     let mut objects = IndexMap::new();
     for variant in variants {
-        let path = variant.rust_type.as_ref()?.as_component_path()?;
-        let obj = components.get(path);
+        let component = component_for_type(variant.rust_type.as_ref()?)?;
+        let obj = components.get_by_id(component);
 
-        let name = obj.data.object_name.as_deref()?;
-        let obj_ref = ObjectRef { path: path.clone(), ident: obj.ident().clone() };
-
+        let name = obj.object_name()?;
         // Union of objects cannot have duplicate object names since then we cannot discriminate
         // by the object key
-        if objects.insert(name.to_string(), obj_ref).is_some() {
+        if objects.insert(name.to_string(), component).is_some() {
             return None;
         }
     }
     Some(objects)
 }
 
-fn as_maybe_deleted(components: &Components, variants: &[EnumVariant]) -> Option<MaybeDeleted> {
+fn as_maybe_deleted(
+    components: &Components,
+    variants: &[EnumVariant],
+    component_for_type: &impl Fn(&RustType) -> Option<ComponentId>,
+) -> Option<MaybeDeleted> {
     if variants.len() != 2 {
         return None;
     }
@@ -365,13 +345,12 @@ fn as_maybe_deleted(components: &Components, variants: &[EnumVariant]) -> Option
     let mut deleted = None;
 
     for variant in variants {
-        let path = variant.rust_type.as_ref()?.as_component_path()?;
-        let obj = components.get(path);
-        let item = PathAndIdent { path: path.clone(), ident: obj.ident().clone() };
-        if path.starts_with("deleted_") {
-            deleted = Some(item);
+        let component = component_for_type(variant.rust_type.as_ref()?)?;
+        let obj = components.get_by_id(component);
+        if obj.path().starts_with("deleted_") {
+            deleted = Some(component);
         } else {
-            base = Some(item);
+            base = Some(component);
         }
     }
 
@@ -381,24 +360,19 @@ fn as_maybe_deleted(components: &Components, variants: &[EnumVariant]) -> Option
 pub fn as_enum_of_objects(
     components: &Components,
     variants: &[EnumVariant],
+    component_for_type: impl Fn(&RustType) -> Option<ComponentId>,
 ) -> Option<EnumOfObjects> {
-    if let Some(obj_union) = as_object_union(components, variants) {
+    if let Some(obj_union) = as_object_union(components, variants, &component_for_type) {
         Some(EnumOfObjects::ObjectUnion(obj_union))
     } else {
-        as_maybe_deleted(components, variants).map(EnumOfObjects::MaybeDeleted)
+        as_maybe_deleted(components, variants, &component_for_type).map(EnumOfObjects::MaybeDeleted)
     }
 }
 
-#[derive(Debug)]
-pub struct ObjectRef {
-    pub path: ComponentPath,
-    pub ident: RustIdent,
-}
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum EnumOfObjects {
     MaybeDeleted(MaybeDeleted),
-    ObjectUnion(IndexMap<String, ObjectRef>),
+    ObjectUnion(IndexMap<String, ComponentId>),
 }
 
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
@@ -443,14 +417,8 @@ pub enum ObjectKind {
     Type,
 }
 
-#[derive(Debug)]
-pub struct PathAndIdent {
-    pub path: ComponentPath,
-    pub ident: RustIdent,
-}
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct MaybeDeleted {
-    pub base: PathAndIdent,
-    pub deleted: PathAndIdent,
+    pub base: ComponentId,
+    pub deleted: ComponentId,
 }

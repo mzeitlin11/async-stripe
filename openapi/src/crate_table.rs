@@ -1,12 +1,10 @@
 use tabled::settings::Style;
 use tabled::{Table, Tabled};
 
-use crate::components::Components;
-use crate::output::OutputDirectory;
+use crate::output_locations::OutputLocations;
 use crate::stripe_object::StripeObject;
-
-/// Write a table describing where all generated requests live
-pub fn write_crate_table(components: &Components, output: &OutputDirectory) -> anyhow::Result<()> {
+/// Generate a table describing where all generated requests live.
+pub fn generate_crate_table(locations: OutputLocations<'_>) -> String {
     #[derive(Tabled)]
     struct CrateDisplay {
         #[tabled(rename = "Name")]
@@ -18,12 +16,12 @@ pub fn write_crate_table(components: &Components, output: &OutputDirectory) -> a
     }
 
     let mut comps = vec![];
-    for obj in components.components.values() {
-        if obj.requests.is_empty() {
+    for (&component, obj) in &locations.components.components {
+        if !locations.components.has_requests(component) {
             continue;
         }
         comps.push(CrateDisplay {
-            krate: obj.krate_unwrapped().base().crate_name(),
+            krate: locations.request_crate(component).crate_name(),
             feature_gate: obj.mod_path(),
             name_cell: name_cell(obj),
         })
@@ -32,9 +30,7 @@ pub fn write_crate_table(components: &Components, output: &OutputDirectory) -> a
     comps.sort_unstable_by_key(|c| (c.krate.clone(), c.name_cell.clone()));
     let mut table = Table::new(comps);
     table.with(Style::markdown());
-    let display = table.to_string();
-    output.write(display, "crate_info.md")?;
-    Ok(())
+    table.to_string()
 }
 
 fn name_cell(obj: &StripeObject) -> String {

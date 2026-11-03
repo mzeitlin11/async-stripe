@@ -1,0 +1,20 @@
+{
+  "verified_at": "2026-11-03T02:32:42.071890+00:00",
+  "branch": "expt/codegen-opaque-slice",
+  "commit": "951e1c207e380839686474bc039f12da6e531b7a",
+  "checks": {
+    "generator_tests": 117,
+    "full_and_narrow_consumer_checks": true,
+    "strict_generator_clippy": true,
+    "original_worktree_unchanged": true
+  },
+  "original_dirty_diff_sha256": "8d97e4c876f42acd61241ed9e71dbbf8f59cd8f3a877718dbb37df386847df73",
+  "impact_report": "typed-options-impact/summary.json",
+  "timing_report": "typed-options-impact/compile-comparison.json",
+  "removed_scratch_directories": [
+    "/private/tmp/async-stripe-opaque-slice-ws3qcxjm/typed-options-target"
+  ],
+  "retained_generated_workspace": "/private/tmp/async-stripe-opaque-slice-ws3qcxjm/typed-options-verification/workspace",
+  "retained_build_cache": "/private/tmp/async-stripe-opaque-slice-ws3qcxjm/target",
+  "remote_actions": []
+}

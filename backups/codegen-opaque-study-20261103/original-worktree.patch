@@ -1,0 +1,1063 @@
+diff --git a/.github/workflows/async-stripe.yml b/.github/workflows/async-stripe.yml
+index c66ac37f..7bca15f1 100644
+--- a/.github/workflows/async-stripe.yml
++++ b/.github/workflows/async-stripe.yml
+@@ -55,22 +55,18 @@ jobs:
+         run: cargo clippy
+ 
+       - name: Run codegen
+-        run: cargo run --release -- --fetch current
++        run: cargo run --release -- generate
+ 
+       - name: Ensure generated files unchanged
+-        uses: tj-actions/verify-changed-files@v20
+-        id: verify-changed-files
+-        with:
+-          files: |
+-            **/*.rs
+-
+-      - name: Report changed files
+-        if: steps.verify-changed-files.outputs.files_changed == 'true'
+-        env:
+-          CHANGED_FILES: ${{ steps.verify-changed-files.outputs.changed_files }}
++        shell: bash
+         run: |
+-          echo "Some files changed after code generation: $CHANGED_FILES"
+-          exit 1
++          changed_files="$(git -C .. status --porcelain --untracked-files=all)"
++          if [[ -n "$changed_files" ]]; then
++            echo "The worktree changed after code generation:"
++            printf '%s\n' "$changed_files"
++            git -C .. diff --stat
++            exit 1
++          fi
+ 
+   clippy:
+     runs-on: ubuntu-latest
+diff --git a/.github/workflows/openapi.yml b/.github/workflows/openapi.yml
+index 8eedced0..e80569cb 100644
+--- a/.github/workflows/openapi.yml
++++ b/.github/workflows/openapi.yml
+@@ -15,17 +15,23 @@ jobs:
+           components: rustfmt
+ 
+       - name: Run Codegen
+-        run: cargo run --release -- --fetch latest --emit-warnings
++        run: cargo run --release -- generate --update-spec latest --report-dir out/analysis
+         working-directory: openapi
+ 
+       - name: Check for crate inference warnings
+         id: warnings
++        shell: bash
+         run: |
+-          if [ -f openapi/out/crate_warnings.md ]; then
++          warnings_file=openapi/out/analysis/crate-inference-warnings.csv
++          if [[ "$(wc -l < "$warnings_file")" -gt 1 ]]; then
+             echo "has_warnings=true" >> "$GITHUB_OUTPUT"
+             {
+               echo 'body<<WARNINGS_EOF'
+-              cat openapi/out/crate_warnings.md
++              echo '## Crate inference warnings'
++              echo
++              echo '```csv'
++              cat "$warnings_file"
++              echo '```'
+               echo 'WARNINGS_EOF'
+             } >> "$GITHUB_OUTPUT"
+           else
+@@ -43,7 +49,6 @@ jobs:
+ 
+             ${{ steps.warnings.outputs.has_warnings == 'true' && steps.warnings.outputs.body || '' }}
+           branch: openapi
+-          update-pull-request-title-and-body: true
+ 
+       - name: email if failed
+         if: failure()
+diff --git a/openapi/README.md b/openapi/README.md
+index 0e42b61c..90b29d4f 100644
+--- a/openapi/README.md
++++ b/openapi/README.md
+@@ -4,12 +4,6 @@ This crate generates async-stripe from Stripe's [OpenAPI specification](https://
+ 
+ ## Common commands
+ 
+-Regenerate and compare every generated artifact with the checked-in repository:
+-
+-```console
+-cargo run --release -- check
+-```
+-
+ Generate, format, and install the result into the repository:
+ 
+ ```console
+@@ -22,6 +16,14 @@ Generate without installing:
+ cargo run --release -- generate --no-install
+ ```
+ 
++Advance to the latest Stripe OpenAPI release and regenerate:
++
++```console
++cargo run --release -- generate --update-spec latest
++```
++
++An exact release such as `v2343` can be selected instead of `latest`.
++
+ Write the default analysis bundle to `out/analysis`:
+ 
+ ```console
+@@ -34,9 +36,9 @@ Write every graph projection, including the expandable counterfactuals:
+ cargo run --release -- analyze --graphs all
+ ```
+ 
+-All generation commands accept `--fetch current`, `--fetch latest`, or a release such as `--fetch v171`. Without `--fetch`, codegen reads the local `spec3.sdk.json`. Use `cargo run -- --help` or a subcommand's `--help` for the complete interface.
++Commands use the OpenAPI release pinned in `version.json`. The managed `spec3.sdk.json` cache is downloaded automatically when it is missing, malformed, or tagged with another release. Generation also synchronizes `fixtures.json`. `generate --update-spec latest` or `generate --update-spec v2343` advances the pin after both inputs are available. Use `cargo run -- --help` or a subcommand's `--help` for the complete interface.
+ 
+-`check` is the output-compatibility contract for refactors: it renders into the staging directory, applies rustfmt, and compares the complete generated file set and contents with the repository. The default staging directory is `out`.
++CI verifies output compatibility by running `generate` and requiring the entire Git worktree to remain clean. This exercises the same input synchronization, formatting, and installation path used to update generated code.
+ 
+ ## Pipeline
+ 
+@@ -48,7 +50,7 @@ Code generation has explicit stages:
+ 4. **Model rewrites** apply validated overrides and structural deduplication.
+ 5. **Rust-model lowering** allocates a post-dedup `ItemId` for every declaration, replaces nested declarations and named paths with item references, and computes lifetime/`Copy`/`Eq` properties over the resulting canonical graph. Each item is then assigned an explicit emission site and either local or crate-root addressability under the frozen component layout.
+ 6. **Rendering** combines an emission-site-scoped `RenderContext` with canonical items, their explicit placements, and semantic `RustType`s, then writes Rust syntax directly. Rendering does not infer placement from item provenance. The current path policy deliberately preserves absolute generated-crate aliases; path shortening is a separate output-changing decision.
+-7. **Materialization** writes the staging tree, runs rustfmt to a checked fixed point, and either compares or installs it.
++7. **Materialization** writes generated bindings to the staging tree, runs rustfmt directly to a checked fixed point, and installs them unless `--no-install` was requested. Analysis stops after model construction and writes only its report bundle.
+ 
+ Keeping identity, dependency facts, layout, and rendering separate is deliberate. A future layout or `Expandable` experiment should be expressible as a different projection or policy rather than by rewriting component names or rendered Rust paths early in the pipeline.
+ 
+diff --git a/openapi/src/analysis.rs b/openapi/src/analysis.rs
+index 8d763e68..688d34e1 100644
+--- a/openapi/src/analysis.rs
++++ b/openapi/src/analysis.rs
+@@ -11,7 +11,7 @@ use crate::crates::{ALL_CRATES, Crate};
+ use crate::dependencies::{Dependency, DependencySource, EdgePolicy};
+ use crate::graph::{ComponentGraph, gen_crate_dep_graph};
+ use crate::item_catalog::{ItemKind, ItemOrigin, RustItem, TypeRoot};
+-use crate::output::{ArtifactSet, OutputInventory, OutputStats};
++use crate::output::ArtifactSet;
+ use crate::rust_object::{ObjectKind, RustObject};
+ use crate::rust_type::{DeclarationRoot, RustType};
+ 
+@@ -58,7 +58,6 @@ struct CrateStats {
+     request_components: usize,
+     requests: usize,
+     shape: ShapeStats,
+-    output: OutputStats,
+ }
+ 
+ #[derive(Debug)]
+@@ -69,16 +68,12 @@ struct ComponentStats {
+ }
+ 
+ impl CodeGen {
+-    pub fn analysis_bundle(
+-        &self,
+-        inventory: &OutputInventory,
+-        graph_detail: GraphDetail,
+-    ) -> AnalysisBundle {
++    pub fn analysis_bundle(&self, graph_detail: GraphDetail) -> AnalysisBundle {
+         let locations = self.output_locations();
+         let component_stats = component_stats(&self.components);
+-        let crate_stats = crate_stats(self, inventory, &component_stats);
++        let crate_stats = crate_stats(self, &component_stats);
+         let mut bundle = AnalysisBundle::default();
+-        bundle.insert("summary.md", summary(self, inventory, &component_stats, &crate_stats));
++        bundle.insert("summary.md", summary(self, &component_stats, &crate_stats));
+         bundle.insert("components.csv", components_csv(self, &component_stats));
+         bundle.insert("items.csv", items_csv(self));
+         bundle.insert("dependencies.csv", dependencies_csv(&self.components));
+@@ -171,20 +166,13 @@ fn component_stats(components: &Components) -> Vec<ComponentStats> {
+ 
+ fn crate_stats(
+     codegen: &CodeGen,
+-    inventory: &OutputInventory,
+     component_stats: &[ComponentStats],
+ ) -> BTreeMap<String, CrateStats> {
+     let locations = codegen.output_locations();
+     let mut crates = BTreeMap::new();
+     for krate in &*ALL_CRATES {
+         let name = krate.crate_name();
+-        crates.insert(
+-            name.clone(),
+-            CrateStats {
+-                output: inventory.by_crate.get(&name).cloned().unwrap_or_default(),
+-                ..CrateStats::default()
+-            },
+-        );
++        crates.insert(name, CrateStats::default());
+     }
+     for stats in component_stats {
+         let placement = locations.placement(stats.id);
+@@ -203,10 +191,7 @@ fn crate_stats(
+         shared.shape.add(shape_for_object(&extra.obj));
+     }
+     let webhook_name = "async-stripe-webhook".to_string();
+-    let mut webhook = CrateStats {
+-        output: inventory.by_crate.get(&webhook_name).cloned().unwrap_or_default(),
+-        ..CrateStats::default()
+-    };
++    let mut webhook = CrateStats::default();
+     for event in &codegen.components.webhook_objs {
+         webhook.shape.add(shape_for_type(&event.typ));
+     }
+@@ -216,7 +201,6 @@ fn crate_stats(
+ 
+ fn summary(
+     codegen: &CodeGen,
+-    inventory: &OutputInventory,
+     component_stats: &[ComponentStats],
+     crate_stats: &BTreeMap<String, CrateStats>,
+ ) -> String {
+@@ -291,10 +275,6 @@ fn summary(
+     let _ =
+         writeln!(out, "- ID-only edges used for layout: {}", codegen.edge_policy().keeps_id_only());
+     let _ = writeln!(out, "- Crate inference warnings: {}", codegen.crate_inference_warnings.len());
+-    let _ = writeln!(out, "- Generated files: {}", inventory.total.files);
+-    let _ = writeln!(out, "- Generated lines: {}", inventory.total.lines);
+-    let _ = writeln!(out, "- Generated bytes: {}", inventory.total.bytes);
+-
+     out.push_str("\n## Dependency facts\n\n### By representation\n\n");
+     for (form, count) in forms {
+         let _ = writeln!(out, "- {form}: {count}");
+@@ -305,20 +285,17 @@ fn summary(
+     }
+ 
+     out.push_str(
+-        "\n## Crates\n\n| Crate | Model components | Request components | Requests | Objects | Fields | Files | Lines | Bytes |\n|---|---:|---:|---:|---:|---:|---:|---:|---:|\n",
++        "\n## Crates\n\n| Crate | Model components | Request components | Requests | Objects | Fields |\n|---|---:|---:|---:|---:|---:|\n",
+     );
+     for (name, stats) in crate_stats {
+         let _ = writeln!(
+             out,
+-            "| {name} | {} | {} | {} | {} | {} | {} | {} | {} |",
++            "| {name} | {} | {} | {} | {} | {} |",
+             stats.model_components,
+             stats.request_components,
+             stats.requests,
+             stats.shape.objects,
+-            stats.shape.fields,
+-            stats.output.files,
+-            stats.output.lines,
+-            stats.output.bytes
++            stats.shape.fields
+         );
+     }
+     out
+diff --git a/openapi/src/codegen.rs b/openapi/src/codegen.rs
+index 3d909971..e1ce5e6b 100644
+--- a/openapi/src/codegen.rs
++++ b/openapi/src/codegen.rs
+@@ -93,6 +93,7 @@ impl CodeGen {
+         self.model.items().len()
+     }
+ 
++    // TODO: too many useless helpers
+     pub fn request_component_count(&self) -> usize {
+         self.components.request_component_count()
+     }
+diff --git a/openapi/src/component_catalog.rs b/openapi/src/component_catalog.rs
+index 4a374b55..c73cf961 100644
+--- a/openapi/src/component_catalog.rs
++++ b/openapi/src/component_catalog.rs
+@@ -1,20 +1,18 @@
+ use std::collections::HashMap;
+ 
+-use anyhow::{bail, ensure};
++use anyhow::{bail, ensure, Context};
+ 
+ use crate::types::{ComponentName, ComponentSchemaRef};
+ 
+ /// Stable identity for a top-level component schema within one codegen run.
+ ///
+-/// IDs are allocated in the OpenAPI document's component order. They are an
+-/// internal identity, not a persisted or user-visible value.
++/// IDs are allocated in the OpenAPI document's component order.
+ #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
+ pub struct ComponentId(u32);
+ 
+ impl ComponentId {
+     fn from_index(index: usize) -> anyhow::Result<Self> {
+-        ensure!(index <= u32::MAX as usize, "too many component schemas");
+-        Ok(Self(index as u32))
++        Ok(Self(index.try_into().context("impossible number of component schemas")?))
+     }
+ 
+     pub const fn index(self) -> usize {
+@@ -77,6 +75,7 @@ impl ComponentCatalog {
+         })
+     }
+ 
++    // TODO: inline at usage?
+     pub fn validate_retained(
+         &self,
+         retained: impl IntoIterator<Item = ComponentId>,
+@@ -126,13 +125,4 @@ mod tests {
+         assert_eq!(catalog.name(id).as_ref(), "charge");
+         assert!(catalog.resolve_reference("#/components/schemas/invoice").is_err());
+     }
+-
+-    #[test]
+-    fn validates_retained_component_ids() {
+-        let catalog = ComponentCatalog::from_names([name("charge"), name("invoice")]).unwrap();
+-        let charge = catalog.id(&name("charge")).unwrap();
+-
+-        catalog.validate_retained([charge]).unwrap();
+-        assert!(catalog.validate_retained([ComponentId(u32::MAX)]).is_err());
+-    }
+ }
+diff --git a/openapi/src/components.rs b/openapi/src/components.rs
+index 7855baaa..fdb97c93 100644
+--- a/openapi/src/components.rs
++++ b/openapi/src/components.rs
+@@ -131,7 +131,7 @@ impl Components {
+             for &component_id in self.components.keys() {
+                 let path = self.component_name(component_id);
+                 // The `error` component is a false positive since we don't include the error
+-                // type in dependency calculations, but every requests depends on `error`
++                // type in dependency calculations, but every request depends on `error`
+                 if path.as_ref() == "error" || webhook_deps.contains(&component_id) {
+                     continue;
+                 }
+diff --git a/openapi/src/item_catalog.rs b/openapi/src/item_catalog.rs
+index f3a267b3..4f9b37e5 100644
+--- a/openapi/src/item_catalog.rs
++++ b/openapi/src/item_catalog.rs
+@@ -12,8 +12,8 @@ use crate::types::RustIdent;
+ /// Dense, run-local identity for a canonical Rust declaration.
+ ///
+ /// IDs are allocated after overrides and deduplication, so one ID corresponds
+-/// to one declaration that the current model will render. Names, origins, and
+-/// eventual placement remain separate properties.
++/// to one type declaration that will be generated.
++// TODO: macro for the id newtypes
+ #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
+ pub struct ItemId(u32);
+ 
+diff --git a/openapi/src/main.rs b/openapi/src/main.rs
+index abcc5f83..1ebafe54 100644
+--- a/openapi/src/main.rs
++++ b/openapi/src/main.rs
+@@ -1,18 +1,14 @@
+-use std::fs::File;
+-use std::io::{BufRead, BufReader};
++use std::fs;
+ use std::path::{Path, PathBuf};
+ 
+-use anyhow::{Context, Result, bail, ensure};
++use anyhow::{Context, Result, bail};
+ use clap::{Args, Parser, Subcommand, ValueEnum};
+ use stripe_openapi_codegen::analysis::GraphDetail;
+ use stripe_openapi_codegen::codegen::{CodeGen, CodeGenOptions, EdgePolicy};
+ use stripe_openapi_codegen::crates::ALL_CRATES;
+-use stripe_openapi_codegen::output::{
+-    OutputInventory, compare_with_repository, install_to_repository, snapshot_files,
+-};
++use stripe_openapi_codegen::output::{GeneratedWorkspace, install_to_repository};
+ use stripe_openapi_codegen::spec::Spec;
+ use stripe_openapi_codegen::spec_fetch;
+-use stripe_openapi_codegen::spec_fetch::fetch_spec;
+ use stripe_openapi_codegen::url_finder::{UrlFinder, update_api_doc_data};
+ use tracing::info;
+ 
+@@ -27,34 +23,29 @@ struct Cli {
+ enum Command {
+     /// Generate, format, and install bindings into the repository.
+     Generate(GenerateArgs),
+-    /// Regenerate bindings and compare every generated artifact with the repository.
+-    Check(CheckArgs),
+     /// Analyze the API model and write reports without installing generated files.
+     Analyze(AnalyzeArgs),
+     /// Refresh the Stripe documentation URL mapping.
+     UpdateApiDocs(UpdateApiDocsArgs),
+ }
+ 
+-#[derive(Debug, Clone, Args)]
+-struct CommonArgs {
++#[derive(Debug, Args)]
++struct VersionArgs {
+     /// Version of the library to generate. Defaults to the root workspace version.
+     #[arg(long)]
+     version: Option<String>,
+-    /// Input path for the OpenAPI spec.
+-    #[arg(default_value = "spec3.sdk.json")]
+-    spec_path: String,
+-    /// Staging directory for generated code.
+-    #[arg(long, default_value = "out")]
+-    out: PathBuf,
+-    /// Fetch `latest`, `current`, or a specific Stripe OpenAPI release such as `v171`.
+-    #[arg(long, value_parser = spec_fetch::parse_spec_version)]
+-    fetch: Option<spec_fetch::SpecVersion>,
+ }
+ 
+ #[derive(Debug, Args)]
+ struct GenerateArgs {
+     #[command(flatten)]
+-    common: CommonArgs,
++    version: VersionArgs,
++    /// Staging directory for generated code.
++    #[arg(long, default_value = "out")]
++    out: PathBuf,
++    /// Update the pinned Stripe OpenAPI spec to `latest` or a release such as `v171`.
++    #[arg(long, value_parser = spec_fetch::parse_spec_update)]
++    update_spec: Option<spec_fetch::SpecUpdate>,
+     /// Generate and format staging output without installing it into the repository.
+     #[arg(long, alias = "dry-run")]
+     no_install: bool,
+@@ -63,12 +54,6 @@ struct GenerateArgs {
+     report_dir: Option<PathBuf>,
+ }
+ 
+-#[derive(Debug, Args)]
+-struct CheckArgs {
+-    #[command(flatten)]
+-    common: CommonArgs,
+-}
+-
+ #[derive(Debug, Copy, Clone, Default, ValueEnum)]
+ enum GraphSelection {
+     None,
+@@ -80,22 +65,20 @@ enum GraphSelection {
+ #[derive(Debug, Args)]
+ struct AnalyzeArgs {
+     #[command(flatten)]
+-    common: CommonArgs,
++    version: VersionArgs,
+     /// Graph detail to include in the analysis bundle.
+     #[arg(long, value_enum, default_value_t)]
+     graphs: GraphSelection,
+     /// Analysis-only counterfactual: do not use Expandable<T> references for placement.
+     #[arg(long)]
+     without_expandables: bool,
+-    /// Directory for reports. Defaults to `<out>/analysis`.
+-    #[arg(long)]
+-    report_dir: Option<PathBuf>,
++    /// Directory for reports.
++    #[arg(long, default_value = "out/analysis")]
++    report_dir: PathBuf,
+ }
+ 
+ #[derive(Debug, Args)]
+ struct UpdateApiDocsArgs {
+-    #[command(flatten)]
+-    common: CommonArgs,
+     /// Stripe API documentation URL.
+     #[arg(long, default_value = "https://stripe.com/docs/api")]
+     api_docs_url: String,
+@@ -106,82 +89,65 @@ fn main() -> Result<()> {
+     let cli = Cli::parse();
+     match cli.command {
+         Command::Generate(args) => run_generate(args),
+-        Command::Check(args) => run_check(args),
+         Command::Analyze(args) => run_analyze(args),
+         Command::UpdateApiDocs(args) => run_update_api_docs(args),
+     }
+ }
+ 
+ fn run_generate(args: GenerateArgs) -> Result<()> {
+-    let codegen = build_codegen(&args.common, EdgePolicy::current_layout())?;
+-    let inventory = render_and_format(&codegen, &args.common.out)?;
+-    print_summary(&codegen, &inventory);
++    let spec = Spec::new(spec_fetch::load_generation_spec(args.update_spec)?);
++    let codegen = build_codegen(args.version.version, EdgePolicy::current_layout(), spec)?;
++    let workspace = codegen.render_workspace()?;
++    print_summary(&codegen);
++
++    materialize_and_format(&workspace, &args.out)?;
+ 
+     if let Some(report_dir) = args.report_dir {
+-        write_analysis(&codegen, &inventory, &report_dir, GraphSelection::Default)?;
++        write_analysis(&codegen, &report_dir, GraphSelection::Default)?;
+     }
+     if !args.no_install {
+-        install_to_repository(&args.common.out, Path::new(".."))?;
++        install_to_repository(&args.out, Path::new(".."))?;
+         info!("Installed generated files into the repository");
+     }
+     Ok(())
+ }
+ 
+-fn run_check(args: CheckArgs) -> Result<()> {
+-    let codegen = build_codegen(&args.common, EdgePolicy::current_layout())?;
+-    let inventory = render_and_format(&codegen, &args.common.out)?;
+-    print_summary(&codegen, &inventory);
+-    compare_with_repository(&args.common.out, Path::new(".."))?;
+-    println!("Generated output matches all checked-in artifacts.");
+-    Ok(())
+-}
+-
+ fn run_analyze(args: AnalyzeArgs) -> Result<()> {
+     let policy = if args.without_expandables {
+         EdgePolicy::without_expandables()
+     } else {
+         EdgePolicy::current_layout()
+     };
+-    let codegen = build_codegen(&args.common, policy)?;
+-    let inventory = render_and_format(&codegen, &args.common.out)?;
+-    print_summary(&codegen, &inventory);
+-    let report_dir = args.report_dir.unwrap_or_else(|| args.common.out.join("analysis"));
+-    write_analysis(&codegen, &inventory, &report_dir, args.graphs)?;
+-    println!("Analysis written to {}", report_dir.display());
++    let spec = Spec::new(spec_fetch::load_pinned_spec()?);
++    let codegen = build_codegen(args.version.version, policy, spec)?;
++    print_summary(&codegen);
++    write_analysis(&codegen, &args.report_dir, args.graphs)?;
++    println!("Analysis written to {}", args.report_dir.display());
+     Ok(())
+ }
+ 
+ fn run_update_api_docs(args: UpdateApiDocsArgs) -> Result<()> {
+-    let codegen = build_codegen(&args.common, EdgePolicy::current_layout())?;
++    let spec = Spec::new(spec_fetch::load_pinned_spec()?);
++    let codegen = build_codegen(None, EdgePolicy::current_layout(), spec)?;
+     update_api_doc_data(&args.api_docs_url, &codegen.components)
+ }
+ 
+-fn build_codegen(args: &CommonArgs, edge_policy: EdgePolicy) -> Result<CodeGen> {
+-    info!("Loading {}", args.spec_path);
+-    let spec = if let Some(version) = args.fetch.clone() {
+-        let raw = fetch_spec(version, &args.spec_path)?;
+-        Spec::new(serde_json::from_value(raw)?)
+-    } else {
+-        let raw = File::open(&args.spec_path).context("failed to load the OpenAPI spec")?;
+-        Spec::new(serde_json::from_reader(&raw).context("failed to parse the OpenAPI spec")?)
+-    };
++fn build_codegen(version: Option<String>, edge_policy: EdgePolicy, spec: Spec) -> Result<CodeGen> {
+     let url_finder = UrlFinder::new().context("could not initialize URL finder")?;
+-    let version = args.version.clone().map_or_else(parse_workspace_version, Ok)?;
++    let version = version.map_or_else(parse_workspace_version, Ok)?;
+     CodeGen::new_with_options(spec, url_finder, version, CodeGenOptions { edge_policy })
+ }
+ 
+-fn render_and_format(codegen: &CodeGen, out: &Path) -> Result<OutputInventory> {
+-    let workspace = codegen.render_workspace()?;
+-    info!(files = workspace.file_count(), output = %out.display(), "Materializing generated workspace");
++fn materialize_and_format(workspace: &GeneratedWorkspace, out: &Path) -> Result<()> {
++    info!(output = %out.display(), "Materializing generated workspace");
+     workspace.materialize(out)?;
+-    run_rustfmt(out)?;
+-    OutputInventory::collect(out)
++    run_rustfmt(out)
+ }
+ 
+ fn run_rustfmt(out: &Path) -> Result<()> {
+-    let mut command = std::process::Command::new("cargo");
++    let mut command = std::process::Command::new("rustfmt");
+     let rustfmt_config = Path::new("../.rustfmt.toml").canonicalize()?;
+-    command.arg("+nightly").arg("fmt").arg("--").arg("--config-path").arg(rustfmt_config);
++    command.arg("+nightly").arg("--edition").arg("2024").arg("--config-path").arg(rustfmt_config);
+     for krate in &*ALL_CRATES {
+         command.arg(out.join(krate.generated_out_path()).join("src/mod.rs"));
+     }
+@@ -192,52 +158,53 @@ fn run_rustfmt(out: &Path) -> Result<()> {
+     if !first.status.success() {
+         bail!("rustfmt failed: {}", String::from_utf8_lossy(&first.stderr));
+     }
+-    let once = snapshot_files(out)?;
+-    let second = command.output().context("failed to invoke rustfmt a second time")?;
+-    if !second.status.success() {
+-        bail!("rustfmt failed: {}", String::from_utf8_lossy(&second.stderr));
++    command.arg("--check");
++    let check = command.output().context("failed to verify rustfmt output")?;
++    if !check.status.success() {
++        bail!(
++            "rustfmt did not reach a fixed point after one pass: {}",
++            String::from_utf8_lossy(&check.stderr)
++        );
+     }
+-    ensure!(once == snapshot_files(out)?, "rustfmt did not reach a fixed point after one pass");
+     Ok(())
+ }
+ 
+-fn print_summary(codegen: &CodeGen, inventory: &OutputInventory) {
++fn print_summary(codegen: &CodeGen) {
+     println!(
+-        "Generated {} components ({} with requests) into {} files, {} lines, {} bytes.",
++        "Modeled {} components ({} with requests).",
+         codegen.components.components.len(),
+-        codegen.request_component_count(),
+-        inventory.total.files,
+-        inventory.total.lines,
+-        inventory.total.bytes
++        codegen.request_component_count()
+     );
+     if !codegen.crate_inference_warnings.is_empty() {
+         println!("Crate inference warnings: {}", codegen.crate_inference_warnings.len());
+     }
+ }
+ 
+-fn write_analysis(
+-    codegen: &CodeGen,
+-    inventory: &OutputInventory,
+-    report_dir: &Path,
+-    graphs: GraphSelection,
+-) -> Result<()> {
++fn write_analysis(codegen: &CodeGen, report_dir: &Path, graphs: GraphSelection) -> Result<()> {
+     let detail = match graphs {
+         GraphSelection::None => GraphDetail::None,
+         GraphSelection::Default => GraphDetail::Default,
+         GraphSelection::All => GraphDetail::All,
+     };
+-    codegen.analysis_bundle(inventory, detail).write_to(report_dir)
++    codegen.analysis_bundle(detail).write_to(report_dir)
+ }
+ 
+ fn parse_workspace_version() -> Result<String> {
+-    let reader = BufReader::new(File::open("../Cargo.toml")?);
+-    for line in reader.lines() {
+-        let line = line?;
+-        let line = line.trim_ascii();
+-        if line.starts_with("version") {
+-            let (_, version) = line.split_once('=').context("invalid workspace version line")?;
+-            return Ok(version.trim_ascii().replace('"', ""));
+-        }
++    #[derive(serde::Deserialize)]
++    struct Manifest {
++        workspace: Workspace,
++    }
++
++    #[derive(serde::Deserialize)]
++    struct Workspace {
++        package: WorkspacePackage,
+     }
+-    bail!("No workspace version key found")
++
++    #[derive(serde::Deserialize)]
++    struct WorkspacePackage {
++        version: String,
++    }
++
++    let manifest = fs::read_to_string("../Cargo.toml")?;
++    Ok(toml::from_str::<Manifest>(&manifest)?.workspace.package.version)
+ }
+diff --git a/openapi/src/output.rs b/openapi/src/output.rs
+index 5c55a259..54d46423 100644
+--- a/openapi/src/output.rs
++++ b/openapi/src/output.rs
+@@ -1,4 +1,4 @@
+-use std::collections::{BTreeMap, BTreeSet};
++use std::collections::BTreeMap;
+ use std::fs;
+ use std::path::{Component, Path, PathBuf};
+ 
+@@ -99,10 +99,6 @@ impl ArtifactSet {
+         }
+         Ok(())
+     }
+-
+-    pub fn file_count(&self) -> usize {
+-        self.files.len()
+-    }
+ }
+ 
+ /// Generated bindings are one use of the general artifact-set abstraction.
+@@ -144,106 +140,6 @@ fn prepare_staging_root(root: &Path) -> anyhow::Result<()> {
+         .with_context(|| format!("could not create output directory {}", root.display()))
+ }
+ 
+-#[derive(Debug, Clone, Default, Eq, PartialEq)]
+-pub struct OutputStats {
+-    pub files: usize,
+-    pub lines: usize,
+-    pub bytes: usize,
+-}
+-
+-impl OutputStats {
+-    fn add_file(&mut self, content: &[u8]) {
+-        self.files += 1;
+-        self.bytes += content.len();
+-        self.lines += content.iter().filter(|byte| **byte == b'\n').count();
+-        if !content.is_empty() && !content.ends_with(b"\n") {
+-            self.lines += 1;
+-        }
+-    }
+-}
+-
+-#[derive(Debug, Clone)]
+-pub struct OutputInventory {
+-    pub total: OutputStats,
+-    pub by_crate: BTreeMap<String, OutputStats>,
+-}
+-
+-impl OutputInventory {
+-    pub fn collect(root: &Path) -> anyhow::Result<Self> {
+-        let files = collect_files(root)?;
+-        let mut total = OutputStats::default();
+-        let mut by_crate = BTreeMap::<String, OutputStats>::new();
+-
+-        for (path, content) in files {
+-            if path == Path::new(MANAGED_MARKER) {
+-                continue;
+-            }
+-            total.add_file(&content);
+-            if let Some(crate_name) = crate_name_for_staged_path(&path) {
+-                by_crate.entry(crate_name).or_default().add_file(&content);
+-            }
+-        }
+-        Ok(Self { total, by_crate })
+-    }
+-}
+-
+-fn crate_name_for_staged_path(path: &Path) -> Option<String> {
+-    let mut components = path.components();
+-    match (components.next(), components.next()) {
+-        (Some(Component::Normal(first)), Some(Component::Normal(second))) if first == "crates" => {
+-            Some(second.to_string_lossy().into_owned())
+-        }
+-        (Some(Component::Normal(first)), _) if first == "async-stripe-webhook" => {
+-            Some("async-stripe-webhook".to_string())
+-        }
+-        (Some(Component::Normal(first)), _) if first == "tests" => Some("tests".to_string()),
+-        _ => None,
+-    }
+-}
+-
+-/// Compare the staged output with every repository path owned by code generation.
+-pub fn compare_with_repository(staging_root: &Path, repo_root: &Path) -> anyhow::Result<()> {
+-    let expected = install_file_map(staging_root, repo_root)?;
+-    let actual = repository_generated_file_map(repo_root)?;
+-    if expected == actual {
+-        return Ok(());
+-    }
+-
+-    let expected_paths = expected.keys().collect::<BTreeSet<_>>();
+-    let actual_paths = actual.keys().collect::<BTreeSet<_>>();
+-    let added = expected_paths.difference(&actual_paths).copied().collect::<Vec<_>>();
+-    let removed = actual_paths.difference(&expected_paths).copied().collect::<Vec<_>>();
+-    let changed = expected_paths
+-        .intersection(&actual_paths)
+-        .filter(|path| expected.get(**path) != actual.get(**path))
+-        .copied()
+-        .collect::<Vec<_>>();
+-
+-    let mut message = format!(
+-        "generated output differs: {} changed, {} added, {} removed",
+-        changed.len(),
+-        added.len(),
+-        removed.len()
+-    );
+-    append_paths(&mut message, "changed", &changed);
+-    append_paths(&mut message, "added", &added);
+-    append_paths(&mut message, "removed", &removed);
+-    bail!(message)
+-}
+-
+-fn append_paths(message: &mut String, label: &str, paths: &[&PathBuf]) {
+-    if paths.is_empty() {
+-        return;
+-    }
+-    message.push_str(&format!("\n{label}:"));
+-    for path in paths.iter().take(30) {
+-        message.push_str(&format!("\n  {}", path.display()));
+-    }
+-    if paths.len() > 30 {
+-        message.push_str(&format!("\n  ... and {} more", paths.len() - 30));
+-    }
+-}
+-
+ pub fn install_to_repository(staging_root: &Path, repo_root: &Path) -> anyhow::Result<()> {
+     for krate in &*ALL_CRATES {
+         let staged_crate = staging_root.join("crates").join(krate.crate_name());
+@@ -283,95 +179,6 @@ fn copy_directory(source: &Path, destination: &Path) -> anyhow::Result<()> {
+     Ok(())
+ }
+ 
+-fn install_file_map(
+-    staging_root: &Path,
+-    repo_root: &Path,
+-) -> anyhow::Result<BTreeMap<PathBuf, Vec<u8>>> {
+-    let mut installed = BTreeMap::new();
+-    for (path, content) in collect_files(staging_root)? {
+-        if path == Path::new(MANAGED_MARKER) {
+-            continue;
+-        }
+-        let destination = if let Ok(rest) = path.strip_prefix("crates") {
+-            PathBuf::from("generated").join(rest)
+-        } else if let Ok(rest) = path.strip_prefix("async-stripe-webhook") {
+-            PathBuf::from("async-stripe-webhook/src/generated").join(rest)
+-        } else if let Ok(rest) = path.strip_prefix("tests") {
+-            PathBuf::from("tests/tests/it/generated").join(rest)
+-        } else if path == Path::new("crate_info.md") {
+-            PathBuf::from("crate_info.md")
+-        } else {
+-            continue;
+-        };
+-        ensure!(
+-            repo_root.join(&destination).starts_with(repo_root),
+-            "invalid install destination {}",
+-            destination.display()
+-        );
+-        installed.insert(destination, content);
+-    }
+-    Ok(installed)
+-}
+-
+-fn repository_generated_file_map(repo_root: &Path) -> anyhow::Result<BTreeMap<PathBuf, Vec<u8>>> {
+-    let mut files = BTreeMap::new();
+-    for krate in &*ALL_CRATES {
+-        let crate_root = PathBuf::from("generated").join(krate.crate_name());
+-        collect_files_into(
+-            repo_root.join(&crate_root).join("src"),
+-            crate_root.join("src"),
+-            &mut files,
+-        )?;
+-        let cargo_path = crate_root.join("Cargo.toml");
+-        files.insert(cargo_path.clone(), fs::read(repo_root.join(cargo_path))?);
+-    }
+-    collect_files_into(
+-        repo_root.join("async-stripe-webhook/src/generated"),
+-        PathBuf::from("async-stripe-webhook/src/generated"),
+-        &mut files,
+-    )?;
+-    collect_files_into(
+-        repo_root.join("tests/tests/it/generated"),
+-        PathBuf::from("tests/tests/it/generated"),
+-        &mut files,
+-    )?;
+-    files.insert(PathBuf::from("crate_info.md"), fs::read(repo_root.join("crate_info.md"))?);
+-    Ok(files)
+-}
+-
+-fn collect_files(root: &Path) -> anyhow::Result<BTreeMap<PathBuf, Vec<u8>>> {
+-    let mut files = BTreeMap::new();
+-    collect_files_into(root.to_owned(), PathBuf::new(), &mut files)?;
+-    Ok(files)
+-}
+-
+-pub fn snapshot_files(root: &Path) -> anyhow::Result<BTreeMap<PathBuf, Vec<u8>>> {
+-    let mut files = collect_files(root)?;
+-    files.remove(Path::new(MANAGED_MARKER));
+-    Ok(files)
+-}
+-
+-fn collect_files_into(
+-    root: PathBuf,
+-    prefix: PathBuf,
+-    files: &mut BTreeMap<PathBuf, Vec<u8>>,
+-) -> anyhow::Result<()> {
+-    if !root.exists() {
+-        return Ok(());
+-    }
+-    for entry in fs::read_dir(&root)? {
+-        let entry = entry?;
+-        let path = entry.path();
+-        let relative = prefix.join(entry.file_name());
+-        if entry.file_type()?.is_dir() {
+-            collect_files_into(path, relative, files)?;
+-        } else {
+-            files.insert(relative, fs::read(path)?);
+-        }
+-    }
+-    Ok(())
+-}
+-
+ #[cfg(test)]
+ mod tests {
+     use std::fs;
+diff --git a/openapi/src/spec_fetch.rs b/openapi/src/spec_fetch.rs
+index 2702b133..d8cd7551 100644
+--- a/openapi/src/spec_fetch.rs
++++ b/openapi/src/spec_fetch.rs
+@@ -1,32 +1,35 @@
+ use std::fs;
+ 
+ use anyhow::Context;
++use openapiv3::OpenAPI;
+ use regex_lite::Regex;
+ use reqwest::blocking::Client;
+ use reqwest::header::USER_AGENT;
+ use serde_json::Value;
+ use tracing::info;
+ 
++const SPEC_FILE_PATH: &str = "spec3.sdk.json";
+ const VERSION_FILE_PATH: &str = "version.json";
++const FIXTURES_FILE_PATH: &str = "fixtures.json";
+ 
+ #[derive(Debug, Clone)]
+-pub enum SpecVersion {
++pub enum SpecUpdate {
+     Latest,
+-    Current,
+     Version(String),
+ }
+ 
+-pub fn parse_spec_version(arg: &str) -> anyhow::Result<SpecVersion> {
++pub fn parse_spec_update(arg: &str) -> anyhow::Result<SpecUpdate> {
+     let as_lower = arg.to_lowercase();
+     match as_lower.as_str() {
+-        "latest" => Ok(SpecVersion::Latest),
+-        "current" => Ok(SpecVersion::Current),
++        "latest" => Ok(SpecUpdate::Latest),
+         version => {
+-            let re = Regex::new(r"v[1-9]\d*").unwrap();
++            let re = Regex::new(r"^v[1-9]\d*$").unwrap();
+             if re.is_match(version) {
+-                Ok(SpecVersion::Version(as_lower))
++                Ok(SpecUpdate::Version(as_lower))
+             } else {
+-                Err(anyhow::anyhow!("Spec version should match `v###`, for example `v172`"))
++                Err(anyhow::anyhow!(
++                    "Spec update must be `latest` or match `v###`, for example `v172`"
++                ))
+             }
+         }
+     }
+@@ -52,76 +55,83 @@ struct VersionFile {
+     version: String,
+ }
+ 
+-fn get_current_openapi_tag() -> anyhow::Result<String> {
++fn get_pinned_openapi_tag() -> anyhow::Result<String> {
+     let raw = fs::File::open(VERSION_FILE_PATH).context("Could not find version file")?;
+     let version_info: VersionFile =
+         serde_json::from_reader(&raw).context("Failed to read JSON from version file")?;
+     Ok(version_info.version)
+ }
+ 
+-pub fn fetch_spec(version: SpecVersion, in_path: &str) -> anyhow::Result<Value> {
++pub fn load_pinned_spec() -> anyhow::Result<OpenAPI> {
+     let client = Client::new();
++    let desired_version = get_pinned_openapi_tag()?;
++    load_spec_version(&client, &desired_version)
++}
+ 
+-    let desired_version = match version {
+-        SpecVersion::Latest => get_latest_openapi_tag(&client)?,
+-        SpecVersion::Current => get_current_openapi_tag()?,
+-        SpecVersion::Version(v) => v,
++pub fn load_generation_spec(update: Option<SpecUpdate>) -> anyhow::Result<OpenAPI> {
++    let client = Client::new();
++    let updates_pin = update.is_some();
++    let desired_version = match update {
++        Some(SpecUpdate::Latest) => get_latest_openapi_tag(&client)?,
++        Some(SpecUpdate::Version(version)) => version,
++        None => get_pinned_openapi_tag()?,
+     };
+ 
+-    ensure_correct_fixtures_file(&desired_version)?;
++    let spec = load_spec_version(&client, &desired_version)?;
++    ensure_correct_fixtures_file(&client, &desired_version)?;
++    if updates_pin {
++        write_pinned_openapi_tag(&desired_version)?;
++    }
+ 
+-    info!("fetching OpenAPI spec version {}", desired_version);
++    Ok(spec)
++}
+ 
+-    if let Some(value) = fs::File::open(in_path)
++fn load_spec_version(client: &Client, desired_version: &str) -> anyhow::Result<OpenAPI> {
++    if let Some(spec) = fs::File::open(SPEC_FILE_PATH)
+         .ok()
+-        .and_then(|f| serde_json::from_reader(f).ok())
+-        .filter(|value| read_x_stripe_tag(value) == Some(&desired_version))
++        .and_then(|file| serde_json::from_reader(file).ok())
++        .filter(|spec| read_x_stripe_tag(spec) == Some(desired_version))
+     {
+-        return Ok(value);
+-    }
+-
+-    if let Ok(file) = fs::File::open(in_path) {
+-        if let Ok(value) = serde_json::from_reader(file) {
+-            let cached_version = read_x_stripe_tag(&value);
+-            if cached_version == Some(&desired_version) {
+-                return Ok(value);
+-            }
+-        }
++        info!("Using cached OpenAPI spec version {}", desired_version);
++        Ok(spec)
++    } else {
++        fetch_spec(client, desired_version)
+     }
++}
+ 
++fn fetch_spec(client: &Client, desired_version: &str) -> anyhow::Result<OpenAPI> {
++    info!("Fetching OpenAPI spec version {}", desired_version);
+     let url = format!(
+         "https://raw.githubusercontent.com/stripe/openapi/{desired_version}/openapi/spec3.sdk.json"
+     );
++    let mut spec: OpenAPI = client.get(url).send()?.error_for_status()?.json()?;
++    write_x_stripe_tag(&mut spec, desired_version);
+ 
+-    let mut spec: Value = client.get(url).send()?.error_for_status()?.json()?;
+-    write_x_stripe_tag(&mut spec, &desired_version)?;
+-
+-    let writer = fs::File::create(in_path)?;
++    let writer = fs::File::create(SPEC_FILE_PATH)?;
+     serde_json::to_writer_pretty(writer, &spec)?;
+-    info!("Wrote OpenAPI spec to {}", in_path);
+-
+-    let version_file_writer = fs::File::create(VERSION_FILE_PATH)?;
+-    serde_json::to_writer_pretty(version_file_writer, &VersionFile { version: desired_version })?;
+-
++    info!("Wrote OpenAPI spec to {}", SPEC_FILE_PATH);
+     Ok(spec)
+ }
+ 
+-fn ensure_correct_fixtures_file(desired_version: &str) -> anyhow::Result<()> {
+-    if let Ok(file) = fs::File::open("fixtures.json") {
+-        let fixtures: Value = serde_json::from_reader(file)?;
+-        let curr_fixtures_version = read_fixtures_version(&fixtures);
+-        if curr_fixtures_version == Some(desired_version) {
+-            return Ok(());
+-        }
++fn write_pinned_openapi_tag(version: &str) -> anyhow::Result<()> {
++    if matches!(get_pinned_openapi_tag().as_deref(), Ok(pinned) if pinned == version) {
++        return Ok(());
+     }
++    let writer = fs::File::create(VERSION_FILE_PATH)?;
++    serde_json::to_writer_pretty(writer, &VersionFile { version: version.to_string() })?;
++    Ok(())
++}
+ 
+-    fetch_new_fixtures(desired_version)
++fn ensure_correct_fixtures_file(client: &Client, desired_version: &str) -> anyhow::Result<()> {
++    let matches = fs::File::open(FIXTURES_FILE_PATH)
++        .ok()
++        .and_then(|file| serde_json::from_reader::<_, VersionFile>(file).ok())
++        .is_some_and(|fixtures| fixtures.version == desired_version);
++    if matches { Ok(()) } else { fetch_new_fixtures(client, desired_version) }
+ }
+ 
+-fn fetch_new_fixtures(desired_version: &str) -> anyhow::Result<()> {
++fn fetch_new_fixtures(client: &Client, desired_version: &str) -> anyhow::Result<()> {
+     info!("Fetching new fixtures file");
+-
+-    let client = Client::new();
+     let url = format!(
+         "https://raw.githubusercontent.com/stripe/openapi/{desired_version}/openapi/fixtures3.json"
+     );
+@@ -130,28 +140,16 @@ fn fetch_new_fixtures(desired_version: &str) -> anyhow::Result<()> {
+         .context("expected object")?
+         .insert("version".into(), Value::String(desired_version.into()));
+ 
+-    let writer = fs::File::create("fixtures.json")?;
++    let writer = fs::File::create(FIXTURES_FILE_PATH)?;
+     serde_json::to_writer_pretty(writer, &spec)?;
+     info!("Finished writing fixtures file");
+     Ok(())
+ }
+ 
+-fn read_fixtures_version(fixtures: &Value) -> Option<&str> {
+-    fixtures.get("version")?.as_str()
+-}
+-
+-fn write_x_stripe_tag(spec: &mut Value, version: &str) -> anyhow::Result<()> {
+-    spec.as_object_mut()
+-        .context("must be an object")?
+-        .get_mut("info")
+-        .context("must have info field")?
+-        .as_object_mut()
+-        .context("must be an object")?
+-        .insert("x-stripeTag".to_string(), version.into());
+-
+-    Ok(())
++fn write_x_stripe_tag(spec: &mut OpenAPI, version: &str) {
++    spec.info.extensions.insert("x-stripeTag".to_string(), version.into());
+ }
+ 
+-fn read_x_stripe_tag(spec: &Value) -> Option<&str> {
+-    spec.as_object()?.get("info")?.as_object()?.get("x-stripeTag")?.as_str()
++fn read_x_stripe_tag(spec: &OpenAPI) -> Option<&str> {
++    spec.info.extensions.get("x-stripeTag")?.as_str()
+ }

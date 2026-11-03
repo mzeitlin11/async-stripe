@@ -1,0 +1,14 @@
+crate,before_modules,before_declarations,before_structs,before_struct_fields,before_public_fields,before_enums,before_enum_variants,before_enum_payload_fields,before_opaque_wrappers,before_ids,before_raw_bags,before_struct_newtype_fields,after_modules,after_declarations,after_structs,after_struct_fields,after_public_fields,after_enums,after_enum_variants,after_enum_payload_fields,after_opaque_wrappers,after_ids,after_raw_bags,after_struct_newtype_fields
+async-stripe-billing,142,220,142,713,707,78,496,78,0,0,0,713,136,211,136,688,666,75,486,75,0,0,16,688
+async-stripe-checkout,98,211,98,349,349,113,724,113,0,0,0,349,43,74,43,186,185,31,496,31,0,0,1,186
+async-stripe-connect,94,120,94,512,510,26,187,26,0,0,0,512,94,120,94,511,508,26,187,26,0,0,1,511
+async-stripe-core,251,393,251,1068,1067,142,940,142,0,0,0,1068,206,293,203,767,755,87,722,87,3,0,11,770
+async-stripe-fraud,33,56,33,130,128,23,135,23,0,0,0,130,34,57,34,127,121,23,135,23,0,0,4,127
+async-stripe-issuing,24,48,24,134,134,24,149,24,0,0,0,134,24,48,24,126,124,24,149,24,0,0,2,126
+async-stripe-misc,125,211,125,627,625,86,507,86,0,0,0,627,124,208,124,614,603,84,487,84,0,0,9,614
+async-stripe-payment,63,88,63,366,364,25,428,25,0,0,0,366,62,85,62,300,294,23,366,23,0,0,4,300
+async-stripe-product,16,21,16,84,81,5,15,5,0,0,0,84,15,18,15,73,70,3,9,3,0,0,0,73
+async-stripe-reserve,8,17,8,50,50,9,31,9,0,0,0,50,8,17,8,49,48,9,31,9,0,0,1,49
+async-stripe-shared,495,772,493,2085,2084,278,4260,278,1,0,0,2086,645,1107,641,2384,2342,463,4979,463,3,0,41,2387
+async-stripe-terminal,48,62,48,192,189,14,86,14,0,0,0,192,48,62,48,178,170,14,86,14,0,0,5,178
+async-stripe-treasury,63,120,63,326,326,57,283,57,0,0,0,326,21,39,21,91,90,18,108,18,0,0,1,91

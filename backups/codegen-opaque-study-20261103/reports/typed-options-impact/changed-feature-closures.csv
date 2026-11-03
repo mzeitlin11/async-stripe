@@ -1,0 +1,12 @@
+feature,before_model_modules,model_modules
+billing_decoders,56,34
+checkout_decoders,61,5
+checkout_session,59,115
+core_decoders,175,123
+customer,57,75
+invoice,31,48
+payment_decoders,237,196
+payment_intent,23,95
+payment_intent_amount_details_line_item,3,7
+setup_intent,6,30
+subscription,36,54

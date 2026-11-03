@@ -1,0 +1,37 @@
+{
+  "original_head": "785bc2ef47fc618d1e48bed9c8607e0995cf6e8e",
+  "original_branch": "expt/id-typed-expandable",
+  "original_dirty_diff_sha256": "8d97e4c876f42acd61241ed9e71dbbf8f59cd8f3a877718dbb37df386847df73",
+  "original_changed_paths": [
+    ".github/workflows/async-stripe.yml",
+    ".github/workflows/openapi.yml",
+    "openapi/README.md",
+    "openapi/src/analysis.rs",
+    "openapi/src/codegen.rs",
+    "openapi/src/component_catalog.rs",
+    "openapi/src/components.rs",
+    "openapi/src/item_catalog.rs",
+    "openapi/src/main.rs",
+    "openapi/src/output.rs",
+    "openapi/src/spec_fetch.rs"
+  ],
+  "experiment_head": "951e1c207e380839686474bc039f12da6e531b7a",
+  "fork": "mzeitlin11/async-stripe",
+  "backup_branch": "backup/codegen-refactor-workspace-20261103",
+  "snapshot_commit": "66768145965964acae27e71cc5ca1097b1936375",
+  "snapshot_tree": "bc152a4a18e6e454f1f2774017dcc3d2a0ca8c15",
+  "artifacts": {
+    "files": 860,
+    "uncompressed_bytes": 104026043,
+    "archive_bytes": 8742107,
+    "archive_sha256": "b898e9e833d1eb41f77d3e5ce2af330692d58e01cb91cc577f4b77da57c77f2d",
+    "excluded_reproducible_directories": [
+      ".git",
+      "__pycache__",
+      "target",
+      "typed-options-target",
+      "workspace",
+      "worktree"
+    ]
+  }
+}

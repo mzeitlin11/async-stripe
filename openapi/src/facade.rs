@@ -5,12 +5,13 @@ use anyhow::{Context as _, ensure};
 
 use crate::component_catalog::ComponentId;
 use crate::crates::{ALL_CRATES, Crate};
-use crate::item_catalog::{ItemCatalog, RustItem};
+use crate::item_catalog::{ItemCatalog, ItemId, RustItem};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::model_availability::{Availability, ModelAvailability};
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
 use crate::rust_object::RustObject;
+use crate::templates::utils::write_doc_comment;
 
 /// Export available model modules and selected endpoint groups.
 /// The handwritten manifest remains the source of transport/runtime settings.
@@ -153,6 +154,7 @@ pub(crate) fn write_facade(
             );
         }
     }
+    write_record_extensions(items, layout, availability, &mut exports)?;
     let selected = selected
         .into_iter()
         .map(|(feature, crates)| {
@@ -163,6 +165,70 @@ pub(crate) fn write_facade(
     let manifest = model_group_manifest(template, &selected, version)?;
     output.write("async-stripe/Cargo.toml", manifest)?;
     output.write("async-stripe/src/generated/mod.rs", exports)
+}
+
+/// Extension traits belong to the facade, which already depends on both model
+/// packages. Typed access therefore creates no dependency between those packages.
+fn write_record_extensions(
+    items: &ItemCatalog,
+    layout: &ItemLayout,
+    availability: &ModelAvailability,
+    out: &mut String,
+) -> anyhow::Result<()> {
+    let public_type = |item: ItemId| -> anyhow::Result<String> {
+        let ItemAddress::CrateRoot(krate) = layout.placement(item).address() else {
+            anyhow::bail!("extension decoder type must have a public model address: {:?}", item);
+        };
+        Ok(format!("{}::{}", krate.lib_name(), items.get(item).metadata.ident))
+    };
+    let mut records = BTreeMap::<ItemId, Vec<_>>::new();
+    for accessor in items.record_accessors() {
+        if *availability.site(layout.placement(accessor.owner).emission_site())
+            != Availability::Disabled
+            && *availability.site(layout.placement(accessor.payload).emission_site())
+                != Availability::Disabled
+        {
+            records.entry(accessor.owner).or_default().push(accessor);
+        }
+    }
+    let mut prelude = String::from(
+        "/// Traits for optional typed decoding of retained response fields.\npub mod prelude {\n",
+    );
+    for (owner, fields) in records {
+        let owner_type = public_type(owner)?;
+        let name = format!("{}Ext", items.get(owner).metadata.ident);
+        let owner_cfg = availability.site(layout.placement(owner).emission_site()).cfg_attribute();
+        let mut declarations = String::new();
+        let mut implementations = String::new();
+        for accessor in fields {
+            let payload_type = public_type(accessor.payload)?;
+            let method = accessor.field.variable_name();
+            let cfg = availability
+                .site(layout.placement(accessor.payload).emission_site())
+                .cfg_attribute();
+            let signature = format!(
+                "fn {method}(&self) -> Result<Option<{payload_type}>, stripe_types::RecordDecodeError>"
+            );
+            if let Some(doc) = &accessor.field.doc_comment {
+                declarations.push_str(&write_doc_comment(doc, 4));
+            }
+            declarations.push_str(&write_doc_comment("Decode this optional retained field. Each call clones and decodes only that subtree.\n\n# Errors\nReturns an error if a present non-null payload does not satisfy the selected model.", 4));
+            let _ = writeln!(declarations, "{cfg}{signature};");
+            let _ = writeln!(
+                implementations,
+                "{cfg}{signature} {{ self.field_as::<{payload_type}>({:?}) }}",
+                accessor.field.wire_name()
+            );
+        }
+        let _ = writeln!(
+            out,
+            "/// Optional typed field decoders. Import this trait or `stripe::prelude::*`.\n{owner_cfg}pub trait {name} {{\n{declarations}}}\n{owner_cfg}impl {name} for {owner_type} {{\n{implementations}}}"
+        );
+        let _ = writeln!(prelude, "{owner_cfg}pub use super::{name};");
+    }
+    prelude.push_str("}\n");
+    out.push_str(&prelude);
+    Ok(())
 }
 
 /// Update the generated model-group features and dependencies while preserving

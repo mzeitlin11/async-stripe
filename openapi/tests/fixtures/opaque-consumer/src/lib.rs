@@ -329,6 +329,11 @@ mod maybe_deleted_tests {
 #[cfg(all(test, feature = "charge"))]
 mod record_tests {
     use serde_json::{Value, json};
+    #[cfg(any(
+        feature = "payment_method_details_card",
+        feature = "payment_method_details_ideal"
+    ))]
+    use stripe::PaymentMethodDetailsExt;
 
     fn charge_json(details: Value) -> String {
         let mut charge: Value = serde_json::from_str(include_str!("../charge.json")).unwrap();
@@ -421,6 +426,8 @@ mod record_tests {
 
 #[cfg(all(test, feature = "payment_method_details_card"))]
 mod standalone_card_decoder_tests {
+    use stripe::prelude::*;
+
     #[test]
     fn the_decoder_can_be_used_without_charge_or_its_request_package() {
         let details: stripe::PaymentMethodDetails = miniserde::json::from_str(

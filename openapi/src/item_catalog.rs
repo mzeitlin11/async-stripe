@@ -118,23 +118,12 @@ pub enum RustItem {
     OpaqueRecord(Vec<StructField>),
 }
 
-/// An inherent decoder method compiled alongside its optional payload model.
+/// An optional typed decoder exported by the public facade's extension trait.
 #[derive(Debug, Copy, Clone)]
 pub(crate) struct RecordAccessor<'a> {
     pub owner: ItemId,
     pub field: &'a StructField,
     pub payload: ItemId,
-}
-
-impl RecordAccessor<'_> {
-    /// The receiver and return types referenced by the emitted impl.
-    pub(crate) fn visit_type_uses(
-        self,
-        mut visit: impl FnMut(&RustType) -> anyhow::Result<()>,
-    ) -> anyhow::Result<()> {
-        visit(&RustType::Item(self.owner))?;
-        visit(&self.field.rust_type)
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -161,7 +150,7 @@ impl ItemRecord {
     /// Lightweight declarations available independently of concrete model groups.
     pub(crate) fn is_reference_foundation(&self) -> bool {
         matches!(self.item, RustItem::IdNewtype)
-            || (matches!(self.item, RustItem::OpaqueObject(_))
+            || (matches!(self.item, RustItem::OpaqueObject(_) | RustItem::OpaqueRecord(_))
                 && self.origin.path.is_empty()
                 && matches!(
                     self.origin.type_root,

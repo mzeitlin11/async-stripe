@@ -493,54 +493,87 @@ fn lazy_record_preserves_identity_and_source_without_storage_dependencies() {
 }
 
 #[test]
-fn lazy_record_decoders_follow_payload_sites_without_enabling_other_payloads() {
+fn decoder_metadata_does_not_link_generated_model_availability() {
     let mut fixture = RecordFixture::new();
     fixture.items.use_opaque_relationships(&fixture.components).unwrap();
-    let (placement, original) = fixture.layout(Crate::SHARED);
+    let (_, layout) = fixture.layout(krate("core"));
     let owner = fixture.items.component_root(fixture.owner);
     let card = fixture.items.component_root(fixture.card);
     let other = fixture.items.component_root(fixture.other);
-    // A decoder must follow the selected payload placement, including a moved
-    // declaration, rather than its original component's module.
-    let card_site = EmissionSite::Standalone { item: card, krate: Crate::SHARED };
-    let layout = ItemLayout::for_test(
-        fixture
-            .items
-            .iter()
-            .map(|(item, _)| {
-                let placement = original.placement(item);
-                (
-                    if item == card { card_site } else { placement.emission_site() },
-                    placement.address(),
-                )
-            })
-            .collect(),
-    );
-    layout.validate(&fixture.items, &placement).unwrap();
     let features = [
         ModelFeature {
-            consumer_crate: crate::crates::Crate::SHARED,
+            consumer_crate: Crate::SHARED,
             name: "details".into(),
             items: vec![owner],
             requests: vec![],
         },
         ModelFeature {
-            consumer_crate: crate::crates::Crate::SHARED,
+            consumer_crate: krate("core"),
             name: "card".into(),
             items: vec![card],
             requests: vec![],
         },
     ];
     let plan = ModelAvailability::build(&fixture.items, [], &layout, &[], &features).unwrap();
+    let owner_site = layout.placement(owner).emission_site();
+    let card_site = layout.placement(card).emission_site();
     assert_eq!(
-        plan.site(layout.placement(owner).emission_site()),
-        &Availability::Features(["card".into(), "details".into()].into_iter().collect())
+        plan.site(owner_site),
+        &Availability::Features(["details".into()].into_iter().collect())
     );
     assert_eq!(
         plan.site(card_site),
         &Availability::Features(["card".into()].into_iter().collect())
     );
     assert_eq!(plan.site(layout.placement(other).emission_site()), &Availability::Disabled);
+    assert!(!plan.dependencies()[&owner_site].contains(&card_site));
+    assert!(!plan.dependencies()[&card_site].contains(&owner_site));
+}
+
+#[test]
+fn facade_extension_methods_span_crates_and_follow_separate_model_conditions() {
+    let mut fixture = RecordFixture::new();
+    let owner = fixture.items.component_root(fixture.owner);
+    // This common field makes the receiver an ordinary mixed record, whose
+    // availability is independent of either optional payload model.
+    let RustItem::Object(object) = &mut fixture.items.items[owner.index()].item else { panic!() };
+    let RustObject::Struct(record) = &mut object.definition else { panic!() };
+    record.fields.push(StructField::new("common", RustType::string()).required(true));
+    fixture.items.use_opaque_relationships(&fixture.components).unwrap();
+    let (placement, layout) = fixture.layout(krate("core"));
+    let card = fixture.items.component_root(fixture.card);
+    let other = fixture.items.component_root(fixture.other);
+    let features = [
+        ModelFeature {
+            consumer_crate: Crate::SHARED,
+            name: "details".into(),
+            items: vec![owner],
+            requests: vec![],
+        },
+        ModelFeature {
+            consumer_crate: krate("core"),
+            name: "card".into(),
+            items: vec![card],
+            requests: vec![],
+        },
+        ModelFeature {
+            consumer_crate: Crate::SHARED,
+            name: "other".into(),
+            items: vec![other],
+            requests: vec![],
+        },
+    ];
+    let plan = ModelAvailability::build(&fixture.items, [], &layout, &[], &features).unwrap();
+    let owner_site = layout.placement(owner).emission_site();
+    let card_site = layout.placement(card).emission_site();
+    assert_eq!(plan.site(owner_site), &Availability::Features(["details".into()].into()));
+    assert_eq!(plan.site(card_site), &Availability::Features(["card".into()].into()));
+    assert!(!plan.dependencies()[&owner_site].contains(&card_site));
+    assert!(!plan.dependencies()[&card_site].contains(&owner_site));
+    let dependencies = crate_dependencies(&fixture.items, [], &placement, &layout).unwrap();
+    validate_crate_dependencies(&dependencies).unwrap();
+    assert!(!dependencies.contains_edge(Crate::SHARED, krate("core")));
+
     let mut output = GeneratedWorkspace::default();
     let mut emitter = ItemEmitter::new(
         &fixture.items,
@@ -551,40 +584,96 @@ fn lazy_record_decoders_follow_payload_sites_without_enabling_other_payloads() {
     for (item, _) in fixture.items.iter() {
         emitter.emit(item, &mut output).unwrap();
     }
-    emitter.record_accessors(&mut output).unwrap();
     emitter.finish().unwrap();
-    let locations = OutputLocations::new(&fixture.components, &placement);
-    let wrapper = std::str::from_utf8(
-        output
-            .contents(
-                locations.emission_path(layout.placement(owner).emission_site(), &fixture.items),
-            )
-            .unwrap(),
+    for path in [
+        "crates/async-stripe-shared/src/payment_method_details.rs",
+        "crates/async-stripe-core/src/payment_method_details_card.rs",
+    ] {
+        let model = std::str::from_utf8(output.contents(path).unwrap()).unwrap();
+        assert!(!model.contains("pub fn card("));
+        assert!(!model.contains("trait PaymentMethodDetailsExt"));
+    }
+    crate::facade::write_facade(
+        OutputLocations::new(&fixture.components, &placement),
+        &fixture.items,
+        &layout,
+        &plan,
+        &[
+            ("details".into(), fixture.owner),
+            ("card".into(), fixture.card),
+            ("other".into(), fixture.other),
+        ],
+        "1.0.0",
+        &mut output,
     )
     .unwrap();
-    assert!(wrapper.contains("def_record_value!(PaymentMethodDetails)"));
-    assert!(!wrapper.contains("pub fn card("));
-    let payload = std::str::from_utf8(
-        output.contents(locations.emission_path(card_site, &fixture.items)).unwrap(),
+    let exports =
+        std::str::from_utf8(output.contents("async-stripe/src/generated/mod.rs").unwrap()).unwrap();
+    assert!(exports.contains("#[cfg(feature = \"details\")]\npub trait PaymentMethodDetailsExt"));
+    let methods = exports.split("pub trait PaymentMethodDetailsExt").nth(1).unwrap();
+    assert!(methods.contains("#[cfg(feature = \"card\")]"));
+    assert!(methods.contains("fn card("));
+    assert!(methods.contains("#[cfg(feature = \"other\")]"));
+    assert!(methods.contains("fn other("));
+    assert!(exports.contains("impl PaymentMethodDetailsExt for"));
+    assert!(exports.contains("pub mod prelude"));
+    let manifest: toml::Value = toml::from_str(
+        std::str::from_utf8(output.contents("async-stripe/Cargo.toml").unwrap()).unwrap(),
     )
     .unwrap();
-    assert!(payload.contains("impl stripe_shared::PaymentMethodDetails"));
-    assert!(
-        payload.contains(
-            "pub fn card(&self) -> Result<Option<stripe_shared::PaymentMethodDetailsCard>"
-        )
-    );
-    assert!(payload.contains("self.field_as::<stripe_shared::PaymentMethodDetailsCard>(\"card\")"));
-    assert!(!payload.contains("pub fn other("));
+    let forwarded = manifest["features"]["card"].as_array().unwrap();
+    assert!(forwarded.contains(&toml::Value::String("async-stripe-core/card".into())));
+    assert!(!forwarded.contains(&toml::Value::String("async-stripe-shared/card".into())));
 }
 
 #[test]
-fn lazy_record_decoder_rejects_cross_crate_inherent_impls() {
+fn pure_record_foundation_keeps_standalone_decoder_extension_available() {
+    let mut fixture = RecordFixture::new();
+    fixture.items.use_opaque_relationships(&fixture.components).unwrap();
+    let (placement, mut layout) = fixture.layout(krate("core"));
+    layout.separate_reference_types(&fixture.items);
+    layout.validate(&fixture.items, &placement).unwrap();
+    let owner = fixture.items.component_root(fixture.owner);
+    let card = fixture.items.component_root(fixture.card);
+    let group = ModelFeature {
+        consumer_crate: krate("core"),
+        name: "card".into(),
+        items: vec![card],
+        requests: vec![],
+    };
+    let plan = ModelAvailability::build(&fixture.items, [], &layout, &[owner], &[group]).unwrap();
+    assert_eq!(plan.site(layout.placement(owner).emission_site()), &Availability::Always);
+    assert!(
+        !plan.dependencies()[&layout.placement(card).emission_site()]
+            .contains(&layout.placement(owner).emission_site())
+    );
+    let mut output = GeneratedWorkspace::default();
+    crate::facade::write_facade(
+        OutputLocations::new(&fixture.components, &placement),
+        &fixture.items,
+        &layout,
+        &plan,
+        &[("card".into(), fixture.card)],
+        "1.0.0",
+        &mut output,
+    )
+    .unwrap();
+    let exports =
+        std::str::from_utf8(output.contents("async-stripe/src/generated/mod.rs").unwrap()).unwrap();
+    assert!(exports.contains("pub trait PaymentMethodDetailsExt"));
+    assert!(exports.contains("#[cfg(feature = \"card\")]"));
+    assert!(exports.contains("fn card("));
+    assert!(!exports.contains("feature = \"details\""));
+}
+
+#[test]
+fn decoder_metadata_does_not_create_generated_crate_dependencies() {
     let mut fixture = RecordFixture::new();
     fixture.items.use_opaque_relationships(&fixture.components).unwrap();
     let (placement, layout) = fixture.layout(krate("core"));
-    let error = crate_dependencies(&fixture.items, [], &placement, &layout).unwrap_err();
-    assert!(error.to_string().contains("same public crate"));
+    let dependencies = crate_dependencies(&fixture.items, [], &placement, &layout).unwrap();
+    validate_crate_dependencies(&dependencies).unwrap();
+    assert!(!dependencies.contains_edge(Crate::SHARED, krate("core")));
 }
 
 #[test]

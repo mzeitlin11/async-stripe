@@ -107,11 +107,6 @@ impl ModelAvailability {
             let dependencies = graph.get_mut(&source).expect("item site was not registered");
             record.visit_type_uses(|typ| collect_type_sites(typ, layout, dependencies))?;
         }
-        for accessor in items.record_accessors() {
-            let source = layout.placement(accessor.payload).emission_site();
-            let dependencies = graph.get_mut(&source).expect("payload site was not registered");
-            accessor.visit_type_uses(|typ| collect_type_sites(typ, layout, dependencies))?;
-        }
         for (component, requests) in requests {
             if requests.is_empty() {
                 continue;

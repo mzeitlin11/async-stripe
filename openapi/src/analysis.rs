@@ -299,10 +299,10 @@ impl CodeGen {
             summary.push_str(&modules.summary());
             let _ = writeln!(
                 summary,
-                "\n- Inherent record accessor colocation constraints: {}\n\n`model-colocations.csv` records owner/payload pairs that must share a public crate for inherent decoder methods. These constraints are independent of dependency cycles and do not require sharing a source module.",
+                "\n- Facade extension decoder methods: {}\n\n`record-decoders.csv` records optional field methods emitted in the public facade. Receiver and payload models may occupy different crates; these methods do not create dependencies between model crates.",
                 self.model.items().record_accessors().count()
             );
-            bundle.insert("model-colocations.csv", model_colocations_csv(self));
+            bundle.insert("record-decoders.csv", record_decoders_csv(self));
             bundle.insert("model-module-dependencies.csv", modules.dependencies_csv());
             bundle.insert("model-module-sccs.csv", modules.sccs_csv());
             bundle.insert("model-group-closures.csv", modules.group_closures_csv(plan.features()));
@@ -568,7 +568,7 @@ fn summary(
     out
 }
 
-fn model_colocations_csv(codegen: &CodeGen) -> String {
+fn record_decoders_csv(codegen: &CodeGen) -> String {
     let items = codegen.model.items();
     let locations = codegen.output_locations();
     let rows = items
@@ -589,19 +589,20 @@ fn model_colocations_csv(codegen: &CodeGen) -> String {
             ]
         })
         .collect();
-    colocation_rows_csv(rows)
+    decoder_rows_csv(rows)
 }
 
-fn colocation_rows_csv(mut rows: Vec<[String; 5]>) -> String {
+fn decoder_rows_csv(mut rows: Vec<[String; 5]>) -> String {
     rows.sort();
     let mut out = String::from(
-        "owner,payload,accessor,owner_emission_path,payload_emission_path,requirement,reason\n",
+        "owner,payload,accessor,owner_emission_path,payload_emission_path,trait,emitted_in\n",
     );
     for row in rows {
         let _ = writeln!(
             out,
-            "{},same public crate,inherent record accessor",
-            row.iter().map(|value| csv(value)).collect::<Vec<_>>().join(",")
+            "{},{},async-stripe",
+            row.iter().map(|value| csv(value)).collect::<Vec<_>>().join(","),
+            csv(&format!("{}Ext", row[0]))
         );
     }
     out
@@ -938,22 +939,22 @@ fn dot(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::{
-        Availability, BTreeSet, ModelModuleAnalysis, ModuleInfo, ModuleKind, colocation_rows_csv,
+        Availability, BTreeSet, ModelModuleAnalysis, ModuleInfo, ModuleKind, decoder_rows_csv,
     };
 
     #[test]
-    fn record_colocations_are_sorted_and_keep_the_crate_requirement_explicit() {
+    fn record_decoders_are_sorted_and_identify_the_facade_trait() {
         let rows = vec![
             ["Details", "Wallet", "wallet", "details.rs", "wallet.rs"].map(str::to_string),
             ["Details", "Card", "card", "details.rs", "nested,card.rs"].map(str::to_string),
         ];
-        let report = colocation_rows_csv(rows.clone());
-        assert_eq!(report, colocation_rows_csv(rows.into_iter().rev().collect()));
+        let report = decoder_rows_csv(rows.clone());
+        assert_eq!(report, decoder_rows_csv(rows.into_iter().rev().collect()));
         assert_eq!(
             report.lines().skip(1).collect::<Vec<_>>(),
             [
-                "Details,Card,card,details.rs,\"nested,card.rs\",same public crate,inherent record accessor",
-                "Details,Wallet,wallet,details.rs,wallet.rs,same public crate,inherent record accessor",
+                "Details,Card,card,details.rs,\"nested,card.rs\",DetailsExt,async-stripe",
+                "Details,Wallet,wallet,details.rs,wallet.rs,DetailsExt,async-stripe",
             ]
         );
     }

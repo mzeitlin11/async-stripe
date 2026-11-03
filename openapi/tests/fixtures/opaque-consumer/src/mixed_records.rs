@@ -11,6 +11,9 @@ use serde_json::json;
 
 #[cfg(feature = "payment_method")]
 mod payment_methods {
+    #[cfg(feature = "payment_decoders")]
+    use stripe::PaymentMethodExt;
+
     use super::*;
 
     fn resource() -> Value {
@@ -113,6 +116,9 @@ mod payment_methods {
 
 #[cfg(feature = "source")]
 mod sources {
+    #[cfg(feature = "core_decoders")]
+    use stripe::SourceExt;
+
     use super::*;
 
     fn resource() -> Value {
@@ -230,6 +236,9 @@ mod sources {
 
 #[cfg(feature = "treasury_transaction")]
 mod treasury_flows {
+    #[cfg(feature = "issuing_decoders")]
+    use stripe::TreasuryTransactionsResourceFlowDetailsExt;
+
     use super::*;
 
     #[test]
@@ -268,6 +277,9 @@ mod treasury_flows {
 
 #[cfg(feature = "payment_intent")]
 mod option_bags {
+    #[cfg(feature = "core_decoders")]
+    use stripe::PaymentIntentPaymentMethodOptionsExt;
+
     use super::json;
 
     #[test]

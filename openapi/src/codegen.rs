@@ -218,19 +218,7 @@ impl CodeGen {
             // optional decoders were unavailable in the previous closure.
             availability = generated.model_availability()?;
         }
-        generated.component_layout = generated.component_layout.with_record_decoder_colocation(
-            items,
-            &generated.item_layout,
-            &availability,
-        );
-        generated.item_layout = ItemLayout::from_component_layout(
-            &generated.components,
-            items,
-            &generated.component_layout,
-        )?;
-        generated.item_layout.separate_reference_types(items);
-        generated.item_layout.validate(items, &generated.component_layout)?;
-        generated.availability = Some(generated.model_availability()?);
+        generated.availability = Some(availability);
         generated.crate_dependencies = crate_dependencies(
             items,
             generated.model.requests(),
@@ -388,7 +376,6 @@ impl CodeGen {
                 emitter.emit(item, output)?;
             }
         }
-        emitter.record_accessors(output)?;
         emitter.finish()
     }
 

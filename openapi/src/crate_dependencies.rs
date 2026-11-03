@@ -59,29 +59,6 @@ pub(crate) fn crate_dependencies<'a>(
                 })
         })?;
     }
-    for accessor in items.record_accessors() {
-        let owner = item_layout.placement(accessor.owner);
-        let payload = item_layout.placement(accessor.payload);
-        anyhow::ensure!(
-            matches!(owner.address(), ItemAddress::CrateRoot(_))
-                && owner.address() == payload.address(),
-            "lazy record accessor {} requires its owner {} ({:?}) and payload {} ({:?}) in the same public crate",
-            accessor.field.field_name,
-            items.get(accessor.owner).metadata.ident,
-            owner.address(),
-            items.get(accessor.payload).metadata.ident,
-            payload.address()
-        );
-        accessor.visit_type_uses(|typ| {
-            add_type_dependencies(
-                &mut graph,
-                payload.emission_site(),
-                typ,
-                component_layout,
-                item_layout,
-            )
-        })?;
-    }
     for (component, requests) in requests {
         let source = EmissionSite::ComponentRequests(component);
         for request in requests {

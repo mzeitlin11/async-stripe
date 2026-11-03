@@ -68,56 +68,6 @@ impl ComponentLayoutDraft {
 }
 
 impl ComponentLayout {
-    /// Honor inherent decoder colocation before rendering the baseline opaque
-    /// experiment. This uses declarations, independent of selected features.
-    pub(crate) fn with_record_decoder_colocation(
-        &self,
-        items: &ItemCatalog,
-        item_layout: &ItemLayout,
-        availability: &ModelAvailability,
-    ) -> Self {
-        let crate_for_site = |site: EmissionSite| site.krate(self);
-        let mut shared = availability
-            .dependencies()
-            .keys()
-            .copied()
-            .filter(|&site| crate_for_site(site) == Some(Crate::SHARED))
-            .collect::<std::collections::HashSet<_>>();
-        let mut edges = availability
-            .dependencies()
-            .iter()
-            .flat_map(|(&source, targets)| targets.iter().map(move |&target| (source, target)))
-            .collect::<Vec<_>>();
-        for accessor in items.record_accessors() {
-            let owner = item_layout.placement(accessor.owner).emission_site();
-            let payload = item_layout.placement(accessor.payload).emission_site();
-            if crate_for_site(owner) != crate_for_site(payload) {
-                shared.extend([owner, payload]);
-            }
-            edges.extend([(owner, payload), (payload, owner)]);
-        }
-        loop {
-            let before = shared.len();
-            for &(source, target) in &edges {
-                if shared.contains(&source) {
-                    shared.insert(target);
-                }
-            }
-            if shared.len() == before {
-                break;
-            }
-        }
-        let mut placed = self.clone();
-        for (&component, placement) in &mut placed.placements {
-            if shared
-                .contains(&item_layout.placement(items.component_root(component)).emission_site())
-            {
-                placement.types_crate = Crate::SHARED;
-            }
-        }
-        placed
-    }
-
     /// Place model modules by their represented consumers while retaining the
     /// existing request crates and public component facades.
     ///
@@ -179,32 +129,21 @@ impl ComponentLayout {
                 users.insert(self.placement(component).request_crate());
             }
         }
-        let mut dependencies = availability
-            .dependencies()
-            .iter()
-            .flat_map(|(&source, targets)| targets.iter().map(move |&target| (source, target)))
-            .collect::<Vec<_>>();
-        for accessor in items.record_accessors() {
-            let owner = item_layout.placement(accessor.owner).emission_site();
-            let payload = item_layout.placement(accessor.payload).emission_site();
-            // Inherent methods require the receiver and payload declarations
-            // in one crate. Propagate both ways, then through their children;
-            // merging only the immediate pair can leave Shared -> domain cycles.
-            dependencies.extend([(owner, payload), (payload, owner)]);
-        }
         loop {
             let mut changed = false;
-            for &(source, target) in &dependencies {
+            for (source, targets) in availability.dependencies() {
                 let required = consumers
-                    .get(&source)
+                    .get(source)
                     .context("placement dependency has no source module")?
                     .clone();
-                let users = consumers
-                    .get_mut(&target)
-                    .context("placement dependency has no target module")?;
-                let before = users.len();
-                users.extend(required);
-                changed |= users.len() != before;
+                for target in targets {
+                    let users = consumers
+                        .get_mut(target)
+                        .context("placement dependency has no target module")?;
+                    let before = users.len();
+                    users.extend(required.iter().copied());
+                    changed |= users.len() != before;
+                }
             }
             if !changed {
                 break;

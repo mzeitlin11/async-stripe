@@ -503,6 +503,7 @@ dependencies = [
  "bytes 1.12.1",
  "futures-util",
  "miniserde",
+ "percent-encoding",
  "serde",
  "serde_json",
  "serde_qs 1.1.3",

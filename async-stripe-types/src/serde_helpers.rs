@@ -3,9 +3,12 @@ use miniserde::json::Value as MiniValue;
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Serialize, Serializer};
 
-struct Wrapper<'a>(&'a miniserde::json::Value);
+/// Serde serialization bridge for a miniserde JSON value.
+#[doc(hidden)]
+#[derive(Debug)]
+pub struct SerdeValue<'a>(pub &'a miniserde::json::Value);
 
-impl Serialize for Wrapper<'_> {
+impl Serialize for SerdeValue<'_> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -22,14 +25,14 @@ impl Serialize for Wrapper<'_> {
             MiniValue::Array(items) => {
                 let mut seq = serializer.serialize_seq(Some(items.len()))?;
                 for item in items {
-                    seq.serialize_element(&Wrapper(item))?;
+                    seq.serialize_element(&SerdeValue(item))?;
                 }
                 seq.end()
             }
             MiniValue::Object(items) => {
                 let mut seq = serializer.serialize_map(Some(items.len()))?;
                 for (key, v) in items {
-                    seq.serialize_entry(key, &Wrapper(v))?;
+                    seq.serialize_entry(key, &SerdeValue(v))?;
                 }
                 seq.end()
             }
@@ -41,7 +44,7 @@ pub mod with_serde_json {
     use miniserde::json::Value as MiniValue;
     use serde::{Serialize, Serializer};
 
-    use crate::serde_helpers::Wrapper;
+    use crate::serde_helpers::SerdeValue;
 
     #[cfg(feature = "deserialize")]
     pub fn deserialize<'de, D>(deserializer: D) -> Result<MiniValue, D::Error>
@@ -58,7 +61,7 @@ pub mod with_serde_json {
     }
 
     pub fn serialize<S: Serializer>(val: &MiniValue, s: S) -> Result<S::Ok, S::Error> {
-        Wrapper(val).serialize(s)
+        SerdeValue(val).serialize(s)
     }
 }
 
@@ -66,7 +69,7 @@ pub mod with_serde_json_opt {
     use miniserde::json::Value as MiniValue;
     use serde::Serializer;
 
-    use crate::serde_helpers::Wrapper;
+    use crate::serde_helpers::SerdeValue;
 
     #[cfg(feature = "deserialize")]
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<MiniValue>, D::Error>
@@ -86,7 +89,7 @@ pub mod with_serde_json_opt {
     pub fn serialize<S: Serializer>(val: &Option<MiniValue>, s: S) -> Result<S::Ok, S::Error> {
         match val {
             None => s.serialize_none(),
-            Some(v) => s.serialize_some(&Wrapper(v)),
+            Some(v) => s.serialize_some(&SerdeValue(v)),
         }
     }
 }

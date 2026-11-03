@@ -63,12 +63,28 @@ pub mod async_std;
 
 #[cfg(feature = "__hyper")]
 mod hyper;
-pub use error::StripeError;
+pub use error::{ApiError, StripeError};
 #[cfg(feature = "__hyper")]
 pub use hyper::*;
 pub use stripe_client_core::{
     CustomizedStripeRequest, IdempotencyKey, IdempotentKeyError, ListPaginator, PaginationExt,
     RequestStrategy, StripeRequest,
 };
+#[cfg(feature = "v1")]
 pub use stripe_shared::api_errors::*;
+#[cfg(feature = "v1")]
 pub use stripe_shared::{AccountId, ApplicationId};
+
+// Generated v2 requests carry their own revision. This fallback preserves the
+// historical v1 default without making it override a v2 binding's revision.
+#[cfg(any(feature = "__hyper", feature = "async-std-surf"))]
+fn default_api_version() -> Option<&'static str> {
+    #[cfg(feature = "v1")]
+    {
+        Some(stripe_shared::version::VERSION.as_str())
+    }
+    #[cfg(not(feature = "v1"))]
+    {
+        None
+    }
+}

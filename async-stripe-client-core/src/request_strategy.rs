@@ -76,6 +76,30 @@ impl RequestStrategy {
         Self::Idempotent(IdempotencyKey::new_uuid_v4())
     }
 
+    /// Select one key before the first attempt, including v2 POST/DELETE requests.
+    ///
+    /// # Errors
+    /// V2 mutations require the `v2`/`uuid` feature or an explicit idempotency key.
+    pub fn key_for_request(
+        &self,
+        v2_mutation: bool,
+    ) -> Result<Option<IdempotencyKey>, &'static str> {
+        if let Some(key) = self.get_key() {
+            return Ok(Some(key));
+        }
+        if !v2_mutation {
+            return Ok(None);
+        }
+        #[cfg(feature = "uuid")]
+        {
+            Ok(Some(IdempotencyKey::new_uuid_v4()))
+        }
+        #[cfg(not(feature = "uuid"))]
+        {
+            Err("v2 mutations require the v2 feature or an explicit idempotency key")
+        }
+    }
+
     /// Extract the current idempotency key to use for the next request, if any.
     pub fn get_key(&self) -> Option<IdempotencyKey> {
         match self {

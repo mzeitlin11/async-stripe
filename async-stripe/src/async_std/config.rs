@@ -4,7 +4,6 @@ use std::time::Duration;
 
 use http_types::Url;
 use stripe_client_core::{RequestStrategy, SharedConfigBuilder};
-use stripe_shared::{AccountId, ApiVersion, ApplicationId};
 
 use crate::StripeError;
 use crate::async_std::Client;
@@ -27,9 +26,15 @@ impl ClientBuilder {
         Self { inner: SharedConfigBuilder::new(secret) }
     }
 
+    /// Set the dated API revision sent with requests.
+    pub fn api_version(mut self, version: impl Into<String>) -> Self {
+        self.inner = self.inner.api_version(version);
+        self
+    }
+
     /// Set the Stripe client id for the client. This will be sent to stripe
     /// with the "client-id" header.
-    pub fn client_id(mut self, client_id: ApplicationId) -> Self {
+    pub fn client_id(mut self, client_id: impl AsRef<str>) -> Self {
         self.inner = self.inner.client_id(client_id);
         self
     }
@@ -37,7 +42,7 @@ impl ClientBuilder {
     /// Set the default Stripe account id used for the client. This will be sent to stripe
     /// with the "stripe-account" header, unless it is overridden when customizing
     /// a request.
-    pub fn account_id(mut self, account_id: AccountId) -> Self {
+    pub fn account_id(mut self, account_id: impl AsRef<str>) -> Self {
         self.inner = self.inner.account_id(account_id);
         self
     }
@@ -125,10 +130,10 @@ impl ClientBuilder {
 /// A finalized client configuration.
 #[derive(Clone)]
 pub struct ClientConfig {
-    pub stripe_version: ApiVersion,
+    pub stripe_version: Option<String>,
     pub user_agent: String,
-    pub client_id: Option<ApplicationId>,
-    pub account_id: Option<AccountId>,
+    pub client_id: Option<String>,
+    pub account_id: Option<String>,
     pub request_strategy: RequestStrategy,
     pub secret: String,
     pub api_base: Url,
@@ -140,7 +145,7 @@ impl ClientConfig {
         [
             ("Client-Id", self.client_id.as_deref()),
             ("Stripe-Account", self.account_id.as_deref()),
-            ("Stripe-Version", Some(self.stripe_version.as_str())),
+            ("Stripe-Version", self.stripe_version.as_deref()),
             ("User-Agent", Some(&self.user_agent)),
         ]
     }

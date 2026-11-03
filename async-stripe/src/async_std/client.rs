@@ -2,11 +2,10 @@ use std::time::Duration;
 
 use async_std::task::sleep;
 use http_types::{Body, Request, StatusCode};
-use miniserde::json::from_str;
+use stripe_client_core::ConfigOverride;
 use stripe_client_core::{
     CustomizedStripeRequest, Outcome, RequestBuilder, RequestStrategy, StripeMethod,
 };
-use stripe_shared::AccountId;
 
 use crate::StripeError;
 use crate::async_std::ClientBuilder;
@@ -34,35 +33,60 @@ impl Client {
 
     fn create_request(
         &self,
-        req_builder: RequestBuilder,
-        account_id: Option<AccountId>,
-    ) -> Request {
-        let mut url = self.config.api_base.clone();
-        url.set_path(&format!("v1/{}", req_builder.path.trim_start_matches('/')));
-        if let Some(query) = &req_builder.query {
-            url.set_query(Some(query));
+        builder: RequestBuilder,
+        config: &ConfigOverride,
+    ) -> Result<Request, StripeError> {
+        let url = builder
+            .url(self.config.api_base.as_str())
+            .map_err(|error| StripeError::ConfigError(error.into()))?;
+        let version = config
+            .api_version
+            .as_deref()
+            .or(self.config.stripe_version.as_deref())
+            .or(builder.api_version.as_deref())
+            .or(crate::default_api_version());
+        if builder.is_v2() && version.is_none_or(|version| version.trim().is_empty()) {
+            return Err(StripeError::ConfigError("v2 requests require Stripe-Version".into()));
         }
-
-        let mut req = Request::new(conv_stripe_method(req_builder.method), url);
-        if let Some(body) = req_builder.body {
-            req.set_body(Body::from_string(body));
-            req.insert_header("content-type", "application/x-www-form-urlencoded");
+        let is_v2 = builder.is_v2();
+        let mut request = Request::new(
+            conv_stripe_method(builder.method),
+            url.parse::<http_types::Url>()
+                .map_err(|error| StripeError::ConfigError(error.to_string()))?,
+        );
+        if let Some(body) = builder.body {
+            request.set_body(Body::from_string(body));
+            request.insert_header("Content-Type", builder.content_type);
         }
-
-        req.insert_header("authorization", format!("Bearer {}", self.config.secret));
-
-        for (key, value) in
-            self.config.to_headers_array().iter().filter_map(|(k, v)| v.map(|v| (*k, v)))
-        {
-            req.insert_header(key, value);
+        let mut header = |name: &str, value: &str| -> Result<(), StripeError> {
+            let value = value
+                .parse::<http_types::headers::HeaderValue>()
+                .map_err(|error| StripeError::ConfigError(error.to_string()))?;
+            request.insert_header(name, value);
+            Ok(())
+        };
+        header("Authorization", &format!("Bearer {}", self.config.secret))?;
+        for (name, value) in self.config.to_headers_array() {
+            if name != "Stripe-Version"
+                && let Some(value) = value
+            {
+                if name == "User-Agent" && is_v2 {
+                    header(name, &value.replacen("Stripe/v1", "Stripe/v2", 1))?;
+                } else {
+                    header(name, value)?;
+                }
+            }
         }
-
-        // If an account id is specified, it should override the default configuration
-        if let Some(acct_id) = account_id {
-            req.insert_header("Stripe-Account", acct_id.as_str());
+        if let Some(version) = version {
+            header("Stripe-Version", version)?;
         }
-
-        req
+        if let Some(context) = &config.context {
+            header("Stripe-Context", context)?;
+        }
+        if let Some(account) = &config.account_id {
+            header("Stripe-Account", account)?;
+        }
+        Ok(request)
     }
 
     #[tracing::instrument(skip(self, request), fields(strategy = ?strategy, retry_count))]
@@ -71,6 +95,7 @@ impl Client {
         mut request: Request,
         strategy: RequestStrategy,
         timeout: Option<Duration>,
+        is_v2: bool,
     ) -> Result<Vec<u8>, StripeError> {
         let mut tries = 0;
         let mut last_status: Option<StatusCode> = None;
@@ -79,7 +104,12 @@ impl Client {
         // if we have no last error, then the strategy is invalid
         let mut last_error = StripeError::ClientError("Invalid strategy".to_string());
 
-        if let Some(key) = strategy.get_key() {
+        let v2_mutation = is_v2
+            && matches!(request.method(), http_types::Method::Post | http_types::Method::Delete);
+        if let Some(key) = strategy
+            .key_for_request(v2_mutation)
+            .map_err(|error| StripeError::ConfigError(error.into()))?
+        {
             request.insert_header("idempotency-key", key.as_str());
             tracing::debug!("using idempotency key");
         }
@@ -134,18 +164,7 @@ impl Client {
                     if !status.is_success() {
                         tries += 1;
                         tracing::warn!("request returned error status: {}", status);
-                        let str = std::str::from_utf8(bytes.as_ref()).map_err(|_| {
-                            StripeError::JSONDeserialize("Response was not valid UTF-8".into())
-                        })?;
-                        last_error = from_str(str)
-                            .map(|e: stripe_shared::Error| {
-                                StripeError::Stripe(e.error, status.into())
-                            })
-                            .unwrap_or_else(|_| {
-                                StripeError::JSONDeserialize(
-                                    "error deserializing Stripe error".into(),
-                                )
-                            });
+                        last_error = StripeError::from_api_response(status.into(), &bytes, is_v2);
                         last_status = Some(status);
                         last_retry_header = retry;
 
@@ -178,11 +197,12 @@ impl stripe_client_core::StripeClient for Client {
         tracing::Span::current().record("method", tracing::field::debug(&req.method));
         tracing::Span::current().record("path", &req.path);
 
+        let is_v2 = req.is_v2();
+        let req = self.create_request(req, &config)?;
         let request_strategy =
             config.request_strategy.unwrap_or_else(|| self.config.request_strategy.clone());
         let timeout = config.timeout.or(self.config.timeout);
-        let req = self.create_request(req, config.account_id);
-        let bytes = self.send_inner(req, request_strategy, timeout).await?;
+        let bytes = self.send_inner(req, request_strategy, timeout, is_v2).await?;
         Ok(bytes::Bytes::from(bytes))
     }
 }

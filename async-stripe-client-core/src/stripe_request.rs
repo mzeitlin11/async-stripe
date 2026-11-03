@@ -5,10 +5,17 @@ use std::time::Duration;
 use bytes::Bytes;
 use miniserde::json::from_str;
 use serde::Serialize;
-use stripe_shared::AccountId;
 
 use crate::ConfigOverride;
 use crate::request_strategy::RequestStrategy;
+
+/// Encode an opaque v2 identifier as one URL path segment.
+#[cfg(feature = "v2")]
+pub fn encode_path_segment(value: &str) -> String {
+    const ENCODE: &percent_encoding::AsciiSet =
+        &percent_encoding::NON_ALPHANUMERIC.remove(b'-').remove(b'.').remove(b'_').remove(b'~');
+    percent_encoding::utf8_percent_encode(value, ENCODE).to_string()
+}
 
 /// REST API methods used by Stripe.
 #[derive(Debug, Copy, Clone)]
@@ -81,15 +88,15 @@ pub trait StripeRequest {
 /// default configuration values.
 #[derive(Debug)]
 pub struct CustomizableStripeRequest<T> {
-    inner: CustomizedStripeRequest,
+    pub(crate) inner: CustomizedStripeRequest,
     _output: PhantomData<T>,
 }
 
 /// The request specification used by a compatible Stripe client to make a request.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct CustomizedStripeRequest {
-    request: RequestBuilder,
-    config_override: ConfigOverride,
+    pub(crate) request: RequestBuilder,
+    pub(crate) config_override: ConfigOverride,
 }
 
 impl CustomizedStripeRequest {
@@ -100,7 +107,7 @@ impl CustomizedStripeRequest {
 }
 
 impl<T> CustomizableStripeRequest<T> {
-    fn new(req_builder: RequestBuilder) -> Self {
+    pub(crate) fn new(req_builder: RequestBuilder) -> Self {
         Self {
             _output: PhantomData,
             inner: CustomizedStripeRequest {
@@ -119,8 +126,20 @@ impl<T> CustomizableStripeRequest<T> {
 
     /// Set an account id to use for this request, overriding the default set
     /// during configuration.
-    pub fn account_id(mut self, account_id: AccountId) -> Self {
-        self.inner.config_override.account_id = Some(account_id);
+    pub fn account_id(mut self, account_id: impl AsRef<str>) -> Self {
+        self.inner.config_override.account_id = Some(account_id.as_ref().to_owned());
+        self
+    }
+
+    /// Set the authentication context for an event or related resource.
+    pub fn context(mut self, context: impl Into<String>) -> Self {
+        self.inner.config_override.context = Some(context.into());
+        self
+    }
+
+    /// Override the dated API revision for this request.
+    pub fn api_version(mut self, version: impl Into<String>) -> Self {
+        self.inner.config_override.api_version = Some(version.into());
         self
     }
 
@@ -165,12 +184,16 @@ fn deserialize_bytes<T: miniserde::Deserialize, Err: StripeClientErr>(
 }
 
 /// A builder for specifying the possible pieces of a Stripe API request.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct RequestBuilder {
     /// The current query string to use, if provided.
     pub query: Option<String>,
-    /// The current form-encoded body to send, if provided.
+    /// The serialized body to send, if provided.
     pub body: Option<String>,
+    /// The media type of the serialized body.
+    pub content_type: &'static str,
+    /// Default dated API revision supplied by generated bindings.
+    pub api_version: Option<String>,
     /// The API endpoint to send the request to.
     pub path: String,
     /// The method type.
@@ -180,7 +203,62 @@ pub struct RequestBuilder {
 impl RequestBuilder {
     /// Construct a new `RequestBuilder`.
     pub fn new(method: StripeMethod, path: impl Into<String>) -> Self {
-        Self { path: path.into(), method, query: None, body: None }
+        Self {
+            path: path.into(),
+            method,
+            query: None,
+            body: None,
+            content_type: "application/x-www-form-urlencoded",
+            api_version: None,
+        }
+    }
+
+    /// Set the default dated API revision for these bindings.
+    pub fn api_version(mut self, version: impl Into<String>) -> Self {
+        self.api_version = Some(version.into());
+        self
+    }
+
+    /// Whether this request addresses the v2 API namespace.
+    pub fn is_v2(&self) -> bool {
+        self.path.starts_with("/v2/")
+    }
+
+    /// Resolve a relative API target. Legacy unqualified paths use v1.
+    ///
+    /// # Errors
+    /// Rejects targets containing an authority, fragment, or control characters.
+    pub fn url(&self, base: &str) -> Result<String, &'static str> {
+        if !self.path.starts_with('/')
+            || self.path.starts_with("//")
+            || self.path.contains("://")
+            || self.path.contains('#')
+            || self.path.chars().any(char::is_control)
+        {
+            return Err("request target must be a relative API path");
+        }
+        let prefix = if self.path.starts_with("/v1/") || self.is_v2() { "" } else { "/v1" };
+        let mut url = format!("{}{prefix}{}", base.trim_end_matches('/'), self.path);
+        if let Some(query) = &self.query {
+            url.push(if url.contains('?') { '&' } else { '?' });
+            url.push_str(query);
+        }
+        Ok(url)
+    }
+
+    /// Construct a JSON request body.
+    #[allow(clippy::missing_panics_doc)]
+    pub fn json<P: Serialize>(mut self, params: &P) -> Self {
+        self.body = Some(serde_json::to_string(params).expect("valid serialization"));
+        self.content_type = "application/json";
+        self
+    }
+
+    /// Construct an empty JSON object body.
+    pub fn json_empty(mut self) -> Self {
+        self.body = Some("{}".to_owned());
+        self.content_type = "application/json";
+        self
     }
 
     /// Set a query by serializing the params.
@@ -194,6 +272,7 @@ impl RequestBuilder {
     #[allow(clippy::missing_panics_doc)]
     pub fn form<F: Serialize>(mut self, form: &F) -> Self {
         self.body = Some(serde_qs::to_string(form).expect("valid serialization"));
+        self.content_type = "application/x-www-form-urlencoded";
         self
     }
 

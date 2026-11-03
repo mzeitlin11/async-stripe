@@ -17,7 +17,7 @@ edition.workspace = true
 name = "stripe_client_core"
 
 [dependencies]
-async-stripe-shared = { path = "../generated/async-stripe-shared", version = "1.0.0-rc.9" }
+async-stripe-shared = { path = "../generated/async-stripe-shared", version = "1.0.0-rc.9", optional = true }
 async-stripe-types = { path = "../async-stripe-types", version = "1.0.0-rc.9" }
 serde_json.workspace = true
 serde.workspace = true
@@ -28,6 +28,10 @@ futures-util = "0.3.28"
 uuid = { version = "1.6.1", optional = true, features = ["v4"] }
 tracing = "0.1.40"
 thiserror = "2.0.11"
+percent-encoding = { version = "2", optional = true }
 
 [features]
-redact-generated-debug = ["async-stripe-shared/redact-generated-debug", "async-stripe-types/redact-generated-debug"]
+default = ["v1"]
+v1 = ["dep:async-stripe-shared"]
+v2 = ["uuid", "dep:percent-encoding"]
+redact-generated-debug = ["async-stripe-shared?/redact-generated-debug", "async-stripe-types/redact-generated-debug"]

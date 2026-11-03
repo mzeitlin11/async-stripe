@@ -2,7 +2,6 @@ use std::time::Duration;
 
 use hyper::http::{HeaderValue, Uri};
 use stripe_client_core::{RequestStrategy, SharedConfigBuilder};
-use stripe_shared::{AccountId, ApplicationId};
 
 use crate::StripeError;
 use crate::hyper::client::Client;
@@ -25,9 +24,15 @@ impl ClientBuilder {
         Self { inner: SharedConfigBuilder::new(secret) }
     }
 
+    /// Set the dated API revision sent with requests.
+    pub fn api_version(mut self, version: impl Into<String>) -> Self {
+        self.inner = self.inner.api_version(version);
+        self
+    }
+
     /// Set the Stripe client id for the client. This will be sent to stripe
     /// with the "client-id" header.
-    pub fn client_id(mut self, client_id: ApplicationId) -> Self {
+    pub fn client_id(mut self, client_id: impl AsRef<str>) -> Self {
         self.inner = self.inner.client_id(client_id);
         self
     }
@@ -35,7 +40,7 @@ impl ClientBuilder {
     /// Set the default Stripe account id used for the client. This will be sent to stripe
     /// with the "stripe-account" header, unless it is overridden when customizing
     /// a request.
-    pub fn account_id(mut self, account_id: AccountId) -> Self {
+    pub fn account_id(mut self, account_id: impl AsRef<str>) -> Self {
         self.inner = self.inner.account_id(account_id);
         self
     }
@@ -109,8 +114,12 @@ impl ClientBuilder {
             .map_err(|_| cons_header_err("secret"))?;
         secret.set_sensitive(true);
         Ok(ClientConfig {
-            stripe_version: HeaderValue::from_str(self.inner.stripe_version.as_str())
-                .expect("all stripe versions produce valid header values"),
+            stripe_version: self
+                .inner
+                .stripe_version
+                .map(|version| HeaderValue::from_str(&version))
+                .transpose()
+                .map_err(|_| cons_header_err("stripe_version"))?,
             user_agent: user_agent_header,
             client_id: self
                 .inner
@@ -167,7 +176,7 @@ fn cons_header_err(config_name: &'static str) -> StripeError {
 /// cheaply clonable so that the client can be cheaply cloned.
 #[derive(Clone, Debug)]
 pub struct ClientConfig {
-    pub stripe_version: HeaderValue,
+    pub stripe_version: Option<HeaderValue>,
     pub user_agent: HeaderValue,
     pub client_id: Option<HeaderValue>,
     pub account_id: Option<HeaderValue>,

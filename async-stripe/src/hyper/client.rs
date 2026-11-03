@@ -1,4 +1,3 @@
-use std::fmt::Write as _;
 use std::time::Duration;
 
 use http_body_util::{BodyExt, Full};
@@ -9,10 +8,9 @@ use hyper::http::{HeaderName, HeaderValue};
 use hyper::{Request, StatusCode};
 use hyper_util::client::legacy::Client as HyperClient;
 use hyper_util::rt::TokioExecutor;
-use miniserde::json::from_str;
+use stripe_client_core::ConfigOverride;
 use stripe_client_core::{CustomizedStripeRequest, RequestBuilder, StripeMethod};
 use stripe_client_core::{Outcome, RequestStrategy};
-use stripe_shared::AccountId;
 
 use crate::StripeError;
 use crate::hyper::client_builder::{ClientBuilder, ClientConfig};
@@ -44,7 +42,7 @@ impl Client {
 
     fn get_account_id_header(
         &self,
-        account_id_override: Option<AccountId>,
+        account_id_override: Option<String>,
     ) -> Result<Option<HeaderValue>, StripeError> {
         if let Some(overridden) = account_id_override {
             return Ok(Some(HeaderValue::from_str(overridden.as_str()).map_err(|_| {
@@ -57,32 +55,55 @@ impl Client {
     fn construct_request(
         &self,
         req: RequestBuilder,
-        account_id: Option<AccountId>,
+        config: &ConfigOverride,
     ) -> Result<(Builder, Option<Bytes>), StripeError> {
-        let mut uri = format!("{}v1{}", self.config.api_base, req.path);
-        if let Some(query) = req.query {
-            let _ = write!(uri, "?{query}");
+        let uri = req
+            .url(&self.config.api_base.to_string())
+            .map_err(|error| StripeError::ConfigError(error.into()))?;
+        let version = config
+            .api_version
+            .as_deref()
+            .or_else(|| self.config.stripe_version.as_ref().and_then(|value| value.to_str().ok()))
+            .or(req.api_version.as_deref())
+            .or(crate::default_api_version());
+        if req.is_v2() && version.is_none_or(|version| version.trim().is_empty()) {
+            return Err(StripeError::ConfigError("v2 requests require Stripe-Version".into()));
         }
 
+        let user_agent = if req.is_v2() {
+            HeaderValue::from_str(
+                &self
+                    .config
+                    .user_agent
+                    .to_str()
+                    .map_err(|_| StripeError::ConfigError("invalid user agent".into()))?
+                    .replacen("Stripe/v1", "Stripe/v2", 1),
+            )
+            .map_err(|_| StripeError::ConfigError("invalid user agent".into()))?
+        } else {
+            self.config.user_agent.clone()
+        };
         let mut builder = Request::builder()
             .method(conv_stripe_method(req.method))
             .uri(uri)
             .header(AUTHORIZATION, self.config.secret.clone())
-            .header(USER_AGENT, self.config.user_agent.clone())
-            .header(HeaderName::from_static("stripe-version"), self.config.stripe_version.clone());
+            .header(USER_AGENT, user_agent);
+        if let Some(version) = version {
+            builder = builder.header("stripe-version", version);
+        }
+        if let Some(context) = &config.context {
+            builder = builder.header("stripe-context", context);
+        }
 
         if let Some(client_id) = &self.config.client_id {
             builder = builder.header(HeaderName::from_static("client-id"), client_id.clone());
         }
-        if let Some(account_id) = self.get_account_id_header(account_id)? {
+        if let Some(account_id) = self.get_account_id_header(config.account_id.clone())? {
             builder = builder.header(HeaderName::from_static("stripe-account"), account_id);
         }
 
         let body = if let Some(body) = req.body {
-            builder = builder.header(
-                CONTENT_TYPE,
-                HeaderValue::from_static("application/x-www-form-urlencoded"),
-            );
+            builder = builder.header(CONTENT_TYPE, HeaderValue::from_static(req.content_type));
             Some(Bytes::from(body))
         } else {
             None
@@ -97,13 +118,21 @@ impl Client {
         mut req_builder: Builder,
         strategy: RequestStrategy,
         timeout: Option<Duration>,
+        is_v2: bool,
     ) -> Result<Bytes, StripeError> {
         let mut tries = 0;
         let mut last_status: Option<StatusCode> = None;
         let mut last_retry_header: Option<bool> = None;
         let mut last_error = StripeError::ClientError("invalid strategy".into());
 
-        if let Some(key) = strategy.get_key() {
+        let v2_mutation = is_v2
+            && req_builder.method_ref().is_some_and(|method| {
+                matches!(*method, hyper::Method::POST | hyper::Method::DELETE)
+            });
+        if let Some(key) = strategy
+            .key_for_request(v2_mutation)
+            .map_err(|error| StripeError::ConfigError(error.into()))?
+        {
             const HEADER_NAME: HeaderName = HeaderName::from_static("idempotency-key");
             req_builder = req_builder.header(HEADER_NAME, key.as_str());
             tracing::debug!("using idempotency key");
@@ -157,18 +186,7 @@ impl Client {
                         tries += 1;
                         tracing::warn!("request returned error status: {}", status);
 
-                        let str = std::str::from_utf8(bytes.as_ref()).map_err(|_| {
-                            StripeError::JSONDeserialize("Response was not valid UTF-8".into())
-                        })?;
-                        last_error = from_str(str)
-                            .map(|e: stripe_shared::Error| {
-                                StripeError::Stripe(e.error, status.as_u16())
-                            })
-                            .unwrap_or_else(|_| {
-                                StripeError::JSONDeserialize(
-                                    "error deserializing Stripe error".into(),
-                                )
-                            });
+                        last_error = StripeError::from_api_response(status.as_u16(), &bytes, is_v2);
                         last_status = Some(status);
                         last_retry_header = retry;
                         continue;
@@ -199,11 +217,12 @@ impl stripe_client_core::StripeClient for Client {
         tracing::Span::current().record("method", tracing::field::debug(&req.method));
         tracing::Span::current().record("path", &req.path);
 
-        let (builder, body) = self.construct_request(req, config.account_id)?;
+        let is_v2 = req.is_v2();
+        let (builder, body) = self.construct_request(req, &config)?;
 
         let request_strategy =
             config.request_strategy.unwrap_or_else(|| self.config.request_strategy.clone());
         let timeout = config.timeout.or(self.config.timeout);
-        self.send_inner(body, builder, request_strategy, timeout).await
+        self.send_inner(body, builder, request_strategy, timeout, is_v2).await
     }
 }

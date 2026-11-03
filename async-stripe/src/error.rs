@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use stripe_client_core::StripeClientErr;
+#[cfg(feature = "v1")]
 use stripe_shared::ApiErrors;
 use thiserror::Error;
 
@@ -9,7 +10,11 @@ use thiserror::Error;
 pub enum StripeError {
     /// Stripe returned a client error.
     #[error("error reported by stripe: {0:#?}, status code: {1}")]
+    #[cfg(feature = "v1")]
     Stripe(Box<ApiErrors>, u16),
+    /// A model-independent API error, including v2 error responses.
+    #[error("error reported by stripe: {0:?}, status code: {1}")]
+    Api(Box<ApiError>, u16),
     /// An error occurred when parsing the Stripe response.
     #[error("error deserializing a request: {0}")]
     JSONDeserialize(String),
@@ -55,5 +60,67 @@ impl From<hyper::http::Error> for StripeError {
 impl From<http_types::Error> for StripeError {
     fn from(err: http_types::Error) -> StripeError {
         StripeError::ClientError(err.to_string())
+    }
+}
+
+/// API error information without dependencies on resource models.
+#[cfg_attr(not(feature = "redact-generated-debug"), derive(Debug))]
+pub struct ApiError {
+    /// Stripe's machine-readable error code.
+    pub code: Option<String>,
+    /// Description of the error.
+    pub message: Option<String>,
+    /// Full response body, retaining additional error information.
+    pub body: String,
+}
+
+#[cfg(any(feature = "__hyper", feature = "async-std-surf"))]
+#[derive(miniserde::Deserialize)]
+struct ErrorEnvelope {
+    error: ErrorFields,
+}
+
+#[cfg(any(feature = "__hyper", feature = "async-std-surf"))]
+#[derive(miniserde::Deserialize)]
+struct ErrorFields {
+    code: Option<String>,
+    message: Option<String>,
+}
+
+#[cfg(any(feature = "__hyper", feature = "async-std-surf"))]
+impl StripeError {
+    pub(crate) fn from_api_response(status: u16, bytes: &[u8], is_v2: bool) -> Self {
+        let Ok(body) = std::str::from_utf8(bytes) else {
+            return Self::JSONDeserialize("Response was not valid UTF-8".into());
+        };
+        #[cfg(feature = "v1")]
+        if !is_v2 {
+            return miniserde::json::from_str::<stripe_shared::Error>(body)
+                .map(|response| Self::Stripe(response.error, status))
+                .unwrap_or_else(|_| {
+                    Self::JSONDeserialize("error deserializing Stripe error".into())
+                });
+        }
+        #[cfg(not(feature = "v1"))]
+        let _ = is_v2;
+        miniserde::json::from_str::<ErrorEnvelope>(body)
+            .map(|response| {
+                Self::Api(
+                    Box::new(ApiError {
+                        code: response.error.code,
+                        message: response.error.message,
+                        body: body.to_owned(),
+                    }),
+                    status,
+                )
+            })
+            .unwrap_or_else(|_| Self::JSONDeserialize("error deserializing Stripe error".into()))
+    }
+}
+
+#[cfg(feature = "redact-generated-debug")]
+impl std::fmt::Debug for ApiError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ApiError").finish_non_exhaustive()
     }
 }

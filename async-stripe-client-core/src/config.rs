@@ -2,9 +2,6 @@ use std::fmt;
 use std::fmt::{Display, Formatter};
 use std::time::Duration;
 
-use stripe_shared::version::VERSION;
-use stripe_shared::{AccountId, ApiVersion, ApplicationId};
-
 use crate::RequestStrategy;
 
 /// Shared configuration utilities for implementing a Stripe client.
@@ -18,13 +15,13 @@ use crate::RequestStrategy;
 #[derive(Clone)]
 pub struct SharedConfigBuilder {
     /// The stripe version being used.
-    pub stripe_version: ApiVersion,
+    pub stripe_version: Option<String>,
     /// The user-provided part of the user-agent we'll use.
     pub app_info_str: Option<String>,
     /// The client id to send requests with.
-    pub client_id: Option<ApplicationId>,
+    pub client_id: Option<String>,
     /// The account id to send requests with.
-    pub account_id: Option<AccountId>,
+    pub account_id: Option<String>,
     /// The default request strategy to use.,
     pub request_strategy: Option<RequestStrategy>,
     /// The secret key for authorizing requests.
@@ -49,7 +46,7 @@ impl SharedConfigBuilder {
         }
 
         Self {
-            stripe_version: VERSION,
+            stripe_version: None,
             app_info_str: None,
             client_id: None,
             account_id: None,
@@ -60,18 +57,24 @@ impl SharedConfigBuilder {
         }
     }
 
+    /// Set the dated API revision used in the Stripe-Version header.
+    pub fn api_version(mut self, version: impl Into<String>) -> Self {
+        self.stripe_version = Some(version.into());
+        self
+    }
+
     /// Set the Stripe client id for the client. This will be sent to stripe
     /// with the "client-id" header.
-    pub fn client_id(mut self, client_id: ApplicationId) -> Self {
-        self.client_id = Some(client_id);
+    pub fn client_id(mut self, client_id: impl AsRef<str>) -> Self {
+        self.client_id = Some(client_id.as_ref().to_owned());
         self
     }
 
     /// Set the default Stripe account id used for the client. This will be sent to stripe
     /// with the "stripe-account" header, unless it is overridden when customizing
     /// a request.
-    pub fn account_id(mut self, account_id: AccountId) -> Self {
-        self.account_id = Some(account_id);
+    pub fn account_id(mut self, account_id: impl AsRef<str>) -> Self {
+        self.account_id = Some(account_id.as_ref().to_owned());
         self
     }
 
@@ -150,11 +153,15 @@ impl fmt::Debug for SharedConfigBuilder {
 }
 
 /// Per-request configuration overrides.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[non_exhaustive]
 pub struct ConfigOverride {
     /// Use a particular account id, instead of the client default.
-    pub account_id: Option<AccountId>,
+    pub account_id: Option<String>,
+    /// Authentication context for the event or related resource.
+    pub context: Option<String>,
+    /// Override the dated API revision for this request.
+    pub api_version: Option<String>,
     /// Use a particular `RequestStrategy`, instead of the client default.
     pub request_strategy: Option<RequestStrategy>,
     /// Use a particular timeout, instead of the client default.
@@ -163,6 +170,12 @@ pub struct ConfigOverride {
 
 impl ConfigOverride {
     pub(crate) fn new() -> Self {
-        Self { account_id: None, request_strategy: None, timeout: None }
+        Self {
+            account_id: None,
+            context: None,
+            api_version: None,
+            request_strategy: None,
+            timeout: None,
+        }
     }
 }

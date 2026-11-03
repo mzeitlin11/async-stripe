@@ -1,4 +1,4 @@
-#[cfg(feature = "async-std-surf")]
+#[cfg(all(feature = "async-std-surf", feature = "v1"))]
 mod async_std;
-#[cfg(feature = "__hyper")]
+#[cfg(all(feature = "__hyper", feature = "v1"))]
 mod hyper;

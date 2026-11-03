@@ -30,7 +30,7 @@ async-stripe-issuing = { path = "../generated/async-stripe-issuing", features = 
 async-stripe-misc = { path = "../generated/async-stripe-misc", features = ["serialize"] }
 async-stripe-reserve = { path = "../generated/async-stripe-reserve", features = ["serialize"] }
 
-async-stripe = { path = "../async-stripe", default-features = false, features = ["blocking", "async-std-surf"] }
+async-stripe = { path = "../async-stripe", default-features = false, features = ["v1", "blocking", "async-std-surf"] }
 
 # Copied from async-stripe/Cargo.toml features so that we can run with all those features too
 [features]

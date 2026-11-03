@@ -21,8 +21,8 @@ fn customer_create_and_delete_without_account() {
 #[test]
 fn customer_create_and_delete_with_account() {
     let client = get_base_test_config()
-        .client_id("ca_123".parse().unwrap())
-        .account_id("acct_123".parse().unwrap())
+        .client_id("ca_123".parse::<stripe::ApplicationId>().unwrap())
+        .account_id("acct_123".parse::<stripe::AccountId>().unwrap())
         .build_sync()
         .unwrap();
     customer_create_and_delete(&client);

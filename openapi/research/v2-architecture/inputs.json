@@ -58,5 +58,15 @@
   },
   "refactor_baseline": "5c0dafda38b01f022d1076c76cee4272f8f2dc5c",
   "inspected_on": "2026-11-03",
-  "production_pin_changed": false
+  "production_pin_changed": false,
+  "benchmark_reference": {
+    "branch": "expt/benchmarks-nullable-visitors",
+    "commit": "7e2dcb883452fed0eb83336bdb41ff01de4407b8",
+    "files": [
+      "bench/compile/README.md",
+      "bench/compile/collector/src/metrics.rs",
+      "bench/compile/collector/src/model.rs"
+    ],
+    "purpose": "Read-only reference for binary/library size, section, incremental-cache, and LLVM IR measurements; no repeated timings or benchmark execution at this planning checkpoint"
+  }
 }

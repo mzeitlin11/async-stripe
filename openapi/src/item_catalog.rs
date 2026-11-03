@@ -130,6 +130,33 @@ impl ItemRecord {
             RustItem::IdNewtype => None,
         }
     }
+
+    /// Visit the represented type uses in this declaration and its Object impl.
+    /// Structural children describe emission order; only actual references
+    /// create dependencies on declarations in other source modules.
+    pub(crate) fn visit_type_uses(
+        &self,
+        mut visit: impl FnMut(&RustType) -> anyhow::Result<()>,
+    ) -> anyhow::Result<()> {
+        let Some(object) = self.object() else { return Ok(()) };
+        match &object.definition {
+            RustObject::Struct(strukt) => {
+                for field in &strukt.fields {
+                    visit(&field.rust_type)?;
+                }
+            }
+            RustObject::Enum(variants) => {
+                for typ in variants.iter().filter_map(|variant| variant.rust_type.as_ref()) {
+                    visit(typ)?;
+                }
+            }
+            RustObject::FieldlessEnum(_) => {}
+        }
+        if let Some(ObjectIdentity::IdType(typ)) = &object.identity {
+            visit(typ)?;
+        }
+        Ok(())
+    }
 }
 
 #[derive(Debug, Copy, Clone, Default, Eq, PartialEq)]

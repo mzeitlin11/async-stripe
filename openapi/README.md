@@ -78,12 +78,17 @@ Types supplied by dependencies are likewise symbolic in the model; only `RenderC
 - `item-occurrences.csv`: original object locations and usages contributing to each declaration, including nested declarations inside shared parents. These are distinct from canonical declaration origins used by the default placement policy. Synthetic ID newtypes have no inferred object occurrences. Locations describe the inferred model after overrides, rather than raw OpenAPI nodes.
 - `dependencies.csv`: one row per parsed dependency fact, including its source, use, representation, field or variant path, target, and whether each endpoint survived retention.
 - `crate-inference-warnings.csv`: every placement that required fallback resolution and its candidates.
+- `model-module-dependencies.csv`: represented type uses between emitted source modules, including request signatures, constructor/setter fields, associated IDs, and references within one module.
+- `model-module-sccs.csv`: sorted strongly connected components of model-bearing modules, with canonical declaration, struct-field, and enum-variant counts. Request modules, webhook modules, ID-only modules, and references within one module are excluded from this projection; isolated model modules are retained.
+- `graphs/model-module-dependencies.dot`: that model-module projection, showing dependencies that constrain independently compiled model boundaries.
 - `graphs/crate-dependencies.dot`: crate dependencies required by the lowered Rust model, including mandatory domain-to-shared facade dependencies. This graph drives generated manifests. The handwritten webhook crate retains its own manifest.
 - `graphs/inferred-crate-dependencies.dot`: the spec dependency projection used to validate placement inference, before overrides and Rust-model lowering.
 - `graphs/component-dependencies.dot`: all component dependencies under the selected expandable policy.
 - `graphs/component-model-dependencies.dot`: model-field dependencies under the selected expandable policy.
 
 `--graphs all` additionally emits explicit `with-expandables` and `without-expandables` versions of both component graphs. `analyze --without-expandables` also computes placement under that counterfactual: it asks what placement pressure remains if expandable references become opaque. It does not alter generated API types. The lowered Rust crate graph still includes those references and may therefore contain cycles; the summary reports this, and generation rejects cyclic crate dependencies.
+
+The module reports follow the same represented type uses used to derive Cargo dependencies, after sharing and item placement. Their shape counts come from canonical declarations rather than repeated inferred occurrences. These reports describe generated type dependencies across the complete model; they do not evaluate feature activation or include handwritten code and module index files. Public facade reexports remain separate consumers in the crate graph. Actual compiler source closures require Cargo dependency information.
 
 Dependency facts distinguish direct fields, container references, expandable references, union members, and references to ID newtypes. They also distinguish model fields, request parameters, request returns, and webhook payloads. ID-only facts are visible in reports but remain opaque to current layout; `--graphs all` emits a `with-id-only` counterfactual. Component graphs and the inferred crate graph project this fact table, which is not rewritten by layout. The lowered Rust crate graph instead follows actual item references after rewrites, including references to ID items regardless of the layout edge policy.
 
@@ -109,3 +114,13 @@ Expandable references are recorded separately because an ID-typed, opaque repres
 `gen_crates.toml` declares generated crates and the explicit package or component assignments that seed inference. It is resolved once against the full component catalog. Duplicate crate names, package owners, component owners, missing `shared`, and unknown component names are errors; unknown names include nearby candidates. This file should state only intentional seed assignments—the remaining placement is derived from the dependency graph.
 
 Rare model exceptions live in `src/overrides.rs`. Each override selects one generated operation and request field, declares its output name, and includes a reason. Selectors, fields, and output names are validated before any rewrite is applied.
+
+## Isolated generated-workspace verification
+
+Validate normal generation and the resulting SDK in a disposable workspace:
+
+```console
+python3 tests/verify_generated_workspace.py
+```
+
+This generates without installing, checks the generated crates and webhooks, and runs the existing fixture and parser tests. Logs and analysis are retained. Add `--keep-workspace` to inspect formatted output; explicit `--target-dir` and `--generator-target-dir` paths retain caller-owned build caches. The source worktree must remain unchanged. This checks the current concrete API without requiring any experimental representation or feature planner.

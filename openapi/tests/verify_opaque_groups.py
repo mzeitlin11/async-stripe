@@ -195,6 +195,7 @@ def main():
         sources = compiled_generated_sources(result.stdout, workspace)
         extra_sources[feature] = sources
         (work / f"{feature}-compiled-sources.json").write_text(json.dumps(sources, indent=2) + "\n")
+    assert model_paths["DeletedCustomer"] in extra_sources["customer"], "Customer responses did not compile their concrete deleted variant"
     assert model_paths["PaymentMethodCard"] not in extra_sources["payment_method"], "PaymentMethod compiled its optional card decoder"
     assert model_paths["PaymentIntentPaymentMethodOptionsCard"] in extra_sources["payment_intent"], "PaymentIntent did not compile its ordinary typed card settings"
     assert model_paths["IssuingCard"] not in extra_sources["treasury_transaction"], "Treasury transaction compiled Issuing card through opaque flow details"

@@ -163,7 +163,7 @@ fn representation_preserves_item_ids_names_and_occurrence_history() {
     assert!(matches!(fixture.components.get_by_id(fixture.source).rust_obj(), RustObject::Enum(_)));
     assert!(matches!(
         fixture.items.get(fixture.items.component_root(fixture.source)).item,
-        RustItem::OpaqueObject(_)
+        RustItem::OpaqueObject
     ));
 }
 
@@ -293,7 +293,7 @@ fn availability_uses_representations_instead_of_semantic_relationships() {
         .items
         .iter()
         .filter_map(|(item, record)| {
-            (matches!(record.item, RustItem::IdNewtype | RustItem::OpaqueObject(_))
+            (matches!(record.item, RustItem::IdNewtype | RustItem::OpaqueObject)
                 || item == fixture.items.component_root(fixture.errors))
             .then_some(item)
         })

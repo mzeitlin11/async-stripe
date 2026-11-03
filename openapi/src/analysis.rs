@@ -477,7 +477,7 @@ fn summary(
         .filter(|(_, item)| {
             matches!(
                 item.item,
-                RustItem::Object(_) | RustItem::OpaqueObject(_) | RustItem::OpaqueRecord(_)
+                RustItem::Object(_) | RustItem::OpaqueObject | RustItem::OpaqueRecord(_)
             )
         })
         .count();

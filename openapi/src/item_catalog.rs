@@ -89,7 +89,7 @@ impl ItemKind {
                 RustObject::FieldlessEnum(_) => Self::FieldlessEnum,
             },
             RustItem::IdNewtype => Self::IdNewtype,
-            RustItem::OpaqueObject(_) => Self::OpaqueObject,
+            RustItem::OpaqueObject => Self::OpaqueObject,
             RustItem::OpaqueRecord(_) => Self::OpaqueRecord,
         }
     }
@@ -111,8 +111,8 @@ pub struct ObjectItem {
 pub enum RustItem {
     Object(Box<ObjectItem>),
     IdNewtype,
-    /// A nominal object family, with a fixed tag when its variants share one.
-    OpaqueObject(Option<String>),
+    /// A nominal object family whose alternatives have distinct wire tags.
+    OpaqueObject,
     /// A tagged record stored as raw JSON. Fields describe optional decoders,
     /// rather than storage references to their payload models.
     OpaqueRecord(Vec<StructField>),
@@ -150,7 +150,7 @@ impl ItemRecord {
     /// Lightweight declarations available independently of concrete model groups.
     pub(crate) fn is_reference_foundation(&self) -> bool {
         matches!(self.item, RustItem::IdNewtype)
-            || (matches!(self.item, RustItem::OpaqueObject(_) | RustItem::OpaqueRecord(_))
+            || (matches!(self.item, RustItem::OpaqueObject | RustItem::OpaqueRecord(_))
                 && self.origin.path.is_empty()
                 && matches!(
                     self.origin.type_root,
@@ -161,7 +161,7 @@ impl ItemRecord {
     pub fn object(&self) -> Option<&ObjectItem> {
         match &self.item {
             RustItem::Object(object) => Some(object),
-            RustItem::IdNewtype | RustItem::OpaqueObject(_) | RustItem::OpaqueRecord(_) => None,
+            RustItem::IdNewtype | RustItem::OpaqueObject | RustItem::OpaqueRecord(_) => None,
         }
     }
 
@@ -437,16 +437,6 @@ impl ItemCatalog {
             .iter()
             .map(|(item, _)| (item, polymorphism::deferred_fields(self, item)))
             .collect::<HashMap<_, _>>();
-        let mut union_tags = HashMap::new();
-        for (item, record) in self.iter() {
-            if let Some(object) = record.object()
-                && let Some(EnumOfObjects::MaybeDeleted(maybe)) = &object.enum_of_objects
-                && let Some(base) = self.get(self.component_root(maybe.base)).object()
-                && let RustObject::Struct(strukt) = &base.definition
-            {
-                union_tags.insert(item, strukt.object_field.clone());
-            }
-        }
         for (index, record) in self.items.iter_mut().enumerate() {
             let item = ItemId::from_index(index)?;
             let fields = deferred.remove(&item).expect("classified canonical item");
@@ -480,12 +470,16 @@ impl ItemCatalog {
                 );
                 object.deferred_fields = fields;
             }
-            if object.enum_of_objects.is_some() && !object.usage.used_as_request_param {
+            // A live/deleted pair adds only the small deleted model beside its
+            // live counterpart. Keep that distinction concrete and matchable.
+            if matches!(object.enum_of_objects, Some(EnumOfObjects::ObjectUnion(_)))
+                && !object.usage.used_as_request_param
+            {
                 anyhow::ensure!(
                     record.children.is_empty(),
                     "object union unexpectedly owns inline declarations"
                 );
-                record.item = RustItem::OpaqueObject(union_tags.remove(&item).flatten());
+                record.item = RustItem::OpaqueObject;
                 continue;
             }
             match &mut object.definition {
@@ -602,7 +596,7 @@ impl ItemCatalog {
                     }),
                     RustObject::Struct(_) | RustObject::FieldlessEnum(_) => None,
                 },
-                RustItem::IdNewtype | RustItem::OpaqueObject(_) | RustItem::OpaqueRecord(_) => None,
+                RustItem::IdNewtype | RustItem::OpaqueObject | RustItem::OpaqueRecord(_) => None,
             })
             .collect::<Vec<_>>();
         for (item, classification) in self.items.iter_mut().zip(classifications) {

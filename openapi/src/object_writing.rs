@@ -45,16 +45,9 @@ impl RenderContext<'_> {
             RustItem::IdNewtype => {
                 let _ = writeln!(out, "{STRIPE_TYPES}::def_id!({});", record.metadata.ident);
             }
-            RustItem::OpaqueObject(tag) => {
+            RustItem::OpaqueObject => {
                 let _ =
                     writeln!(out, "{STRIPE_TYPES}::def_object_value!({});", record.metadata.ident);
-                if let Some(tag) = tag {
-                    let _ = writeln!(
-                        out,
-                        "impl {STRIPE_TYPES}::ObjectType for {} {{ const OBJECT_TYPE: &'static str = {tag:?}; }}",
-                        record.metadata.ident
-                    );
-                }
             }
             RustItem::OpaqueRecord(_) => {
                 if let Some(doc) = &record.metadata.doc {

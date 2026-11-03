@@ -415,9 +415,6 @@ fn deserialize_customer_deleted_or_not() {
         "object": "customer"
     });
     let result: RetrieveCustomerReturned = from_str(&deleted_cust.to_string()).unwrap();
-    #[cfg(feature = "opaque-models")]
-    let deleted = result.into_typed::<stripe_core::DeletedCustomer>().unwrap();
-    #[cfg(not(feature = "opaque-models"))]
     let RetrieveCustomerReturned::DeletedCustomer(deleted) = result else {
         panic!("expected deleted variant");
     };
@@ -425,9 +422,6 @@ fn deserialize_customer_deleted_or_not() {
 
     let cust = mock_customer_with_card().to_string();
     let result: RetrieveCustomerReturned = from_str(&cust).unwrap();
-    #[cfg(feature = "opaque-models")]
-    let cust = result.into_typed::<Customer>().unwrap();
-    #[cfg(not(feature = "opaque-models"))]
     let RetrieveCustomerReturned::Customer(cust) = result else {
         panic!("did not expected deleted variant")
     };

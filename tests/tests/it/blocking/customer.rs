@@ -1,4 +1,3 @@
-#[cfg(not(feature = "opaque-models"))]
 use stripe_core::customer::RetrieveCustomerReturned;
 use stripe_core::{
     CustomerId,
@@ -35,9 +34,6 @@ fn retrieve_customer() {
     let client = get_client();
     let id = CustomerId::from("cus_123");
     let ret = RetrieveCustomer::new(&id).send_blocking(&client).unwrap();
-    #[cfg(feature = "opaque-models")]
-    let cust = ret.into_typed::<stripe_core::Customer>().unwrap();
-    #[cfg(not(feature = "opaque-models"))]
     let cust = match ret {
         RetrieveCustomerReturned::Customer(cust) => cust,
         RetrieveCustomerReturned::DeletedCustomer(_) => panic!("expected non-deleted response"),

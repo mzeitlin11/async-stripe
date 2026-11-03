@@ -269,48 +269,97 @@ mod shared_discriminator_tests {
 mod maybe_deleted_tests {
     use stripe::customer::RetrieveCustomerReturned;
 
+    fn assert_variant(family: &RetrieveCustomerReturned, deleted: bool) {
+        if deleted {
+            let RetrieveCustomerReturned::DeletedCustomer(customer) = family else {
+                panic!("expected the deleted Customer variant: {family:?}");
+            };
+            // Enabling the response enables its deleted model transitively.
+            let customer: &stripe::DeletedCustomer = customer;
+            assert_eq!(customer.id.as_str(), "cus_example");
+        } else {
+            let RetrieveCustomerReturned::Customer(customer) = family else {
+                panic!("expected the live Customer variant: {family:?}");
+            };
+            assert_eq!(customer.id.as_str(), "cus_example");
+            assert_eq!(customer.created, 1);
+        }
+    }
+
     #[test]
-    fn opaque_live_deleted_families_preserve_both_shapes() {
+    fn live_deleted_responses_decode_into_matchable_variants() {
         for (json, deleted) in [
             (r#"{"id":"cus_example","object":"customer","created":1,"livemode":false}"#, false),
             (r#"{"id":"cus_example","object":"customer","deleted":true}"#, true),
         ] {
             let family: RetrieveCustomerReturned = miniserde::json::from_str(json).unwrap();
-            assert_eq!(family.id(), "cus_example");
-            assert_eq!(family.object_type(), "customer");
-            let wire: serde_json::Value =
-                serde_json::from_str(&miniserde::json::to_string(family.as_value())).unwrap();
-            assert_eq!(
-                wire.get("deleted").and_then(serde_json::Value::as_bool).unwrap_or(false),
-                deleted
-            );
-            if !deleted {
-                assert_eq!(family.into_typed::<stripe::Customer>().unwrap().created, 1);
+            assert_variant(&family, deleted);
+            #[cfg(feature = "deserialize")]
+            {
+                let family: RetrieveCustomerReturned = serde_json::from_str(json).unwrap();
+                assert_variant(&family, deleted);
+            }
+            #[cfg(feature = "serialize")]
+            {
+                let wire = serde_json::to_value(&family).unwrap();
+                assert_eq!(wire["id"], "cus_example");
+                assert_eq!(wire["object"], "customer");
+                assert_eq!(wire["deleted"].as_bool().unwrap_or(false), deleted);
+                let reparsed = miniserde::json::from_str(&wire.to_string()).unwrap();
+                assert_variant(&reparsed, deleted);
             }
         }
     }
 
     #[test]
-    fn an_expanded_customer_keeps_its_typed_id_and_opaque_union_view() {
-        let object: stripe::ExpandableValue<stripe::CustomerId> =
-            miniserde::json::from_str(r#"{"id":"cus_example","object":"customer","deleted":true}"#)
-                .unwrap();
-        let id: &stripe::CustomerId = object.id();
-        assert_eq!(id.as_str(), "cus_example");
-        let family = object.into_expanded_as::<RetrieveCustomerReturned>().unwrap().unwrap();
-        assert_eq!(family.id(), "cus_example");
-        #[cfg(feature = "deleted_customer")]
-        assert_eq!(
-            family.into_typed::<stripe::DeletedCustomer>().unwrap().id.as_str(),
-            "cus_example"
-        );
+    fn overlapping_shapes_keep_the_existing_enum_decoder_behavior() {
+        // Restore the existing decoders as well as the enum's public shape.
+        // Miniserde selects the deleted flag; serde's untagged enum tries
+        // the live variant first when both schemas accept the payload.
+        let json = r#"{"id":"cus_example","object":"customer","created":1,"livemode":false,"deleted":true}"#;
+        let family: RetrieveCustomerReturned = miniserde::json::from_str(json).unwrap();
+        assert_variant(&family, true);
+        #[cfg(feature = "deserialize")]
+        {
+            let family: RetrieveCustomerReturned = serde_json::from_str(json).unwrap();
+            assert_variant(&family, false);
+        }
     }
 
     #[test]
-    fn opaque_family_defers_concrete_required_field_validation() {
-        let family: RetrieveCustomerReturned =
-            miniserde::json::from_str(r#"{"id":"cus_example","object":"customer"}"#).unwrap();
-        assert!(family.into_typed::<stripe::Customer>().is_err());
+    fn expanded_customers_decode_into_the_same_live_deleted_enum() {
+        for (json, deleted) in [
+            (r#"{"id":"cus_example","object":"customer","created":1,"livemode":false}"#, false),
+            (r#"{"id":"cus_example","object":"customer","deleted":true}"#, true),
+        ] {
+            let object: stripe::ExpandableValue<stripe::CustomerId> =
+                miniserde::json::from_str(json).unwrap();
+            let id: &stripe::CustomerId = object.id();
+            assert_eq!(id.as_str(), "cus_example");
+            let family = object.into_expanded_as::<RetrieveCustomerReturned>().unwrap().unwrap();
+            assert_variant(&family, deleted);
+            #[cfg(feature = "deserialize")]
+            {
+                let object: stripe::ExpandableValue<stripe::CustomerId> =
+                    serde_json::from_str(json).unwrap();
+                let family =
+                    object.into_expanded_as::<RetrieveCustomerReturned>().unwrap().unwrap();
+                assert_variant(&family, deleted);
+            }
+        }
+    }
+
+    #[test]
+    fn live_deleted_responses_validate_concrete_fields_during_initial_parsing() {
+        for json in [
+            r#"{"id":"cus_example","object":"customer"}"#,
+            r#"{"object":"customer","deleted":true}"#,
+            r#"{"id":17,"object":"customer","deleted":true}"#,
+        ] {
+            assert!(miniserde::json::from_str::<RetrieveCustomerReturned>(json).is_err());
+            #[cfg(feature = "deserialize")]
+            assert!(serde_json::from_str::<RetrieveCustomerReturned>(json).is_err());
+        }
     }
 
     #[test]

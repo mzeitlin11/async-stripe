@@ -78,7 +78,7 @@ fn optional_record_payload(items: &ItemCatalog, field: &StructField) -> bool {
                 && object.usage.kind != ObjectKind::RequestParam
                 && matches!(object.definition, RustObject::Struct(_) | RustObject::Enum(_))
         }
-        RustItem::OpaqueObject(_) | RustItem::OpaqueRecord(_) => true,
+        RustItem::OpaqueObject | RustItem::OpaqueRecord(_) => true,
         RustItem::IdNewtype => false,
     }
 }

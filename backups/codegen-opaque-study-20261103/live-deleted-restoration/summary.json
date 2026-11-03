@@ -1,0 +1,180 @@
+{
+  "baseline_commit": "951e1c207e380839686474bc039f12da6e531b7a",
+  "canonical_items_preserved": 6859,
+  "restored_live_deleted_enums": [
+    {
+      "ident": "DeleteCustomerBankAccountReturned",
+      "path": "crates/async-stripe-payment/src/bank_account/requests.rs",
+      "variants": [
+        [
+          "PaymentSource",
+          "PaymentSource"
+        ],
+        [
+          "DeletedPaymentSource",
+          "DeletedPaymentSource"
+        ]
+      ]
+    },
+    {
+      "ident": "DeleteCustomerCardReturned",
+      "path": "crates/async-stripe-payment/src/card/requests.rs",
+      "variants": [
+        [
+          "PaymentSource",
+          "PaymentSource"
+        ],
+        [
+          "DeletedPaymentSource",
+          "DeletedPaymentSource"
+        ]
+      ]
+    },
+    {
+      "ident": "RetrieveCustomerReturned",
+      "path": "crates/async-stripe-core/src/customer/requests.rs",
+      "variants": [
+        [
+          "Customer",
+          "Customer"
+        ],
+        [
+          "DeletedCustomer",
+          "DeletedCustomer"
+        ]
+      ]
+    },
+    {
+      "ident": "DetachSourceReturned",
+      "path": "crates/async-stripe-payment/src/source/requests.rs",
+      "variants": [
+        [
+          "PaymentSource",
+          "PaymentSource"
+        ],
+        [
+          "DeletedPaymentSource",
+          "DeletedPaymentSource"
+        ]
+      ]
+    },
+    {
+      "ident": "RetrieveTerminalConfigurationReturned",
+      "path": "crates/async-stripe-terminal/src/terminal_configuration/requests.rs",
+      "variants": [
+        [
+          "TerminalConfiguration",
+          "TerminalConfiguration"
+        ],
+        [
+          "DeletedTerminalConfiguration",
+          "DeletedTerminalConfiguration"
+        ]
+      ]
+    },
+    {
+      "ident": "UpdateTerminalConfigurationReturned",
+      "path": "crates/async-stripe-terminal/src/terminal_configuration/requests.rs",
+      "variants": [
+        [
+          "TerminalConfiguration",
+          "TerminalConfiguration"
+        ],
+        [
+          "DeletedTerminalConfiguration",
+          "DeletedTerminalConfiguration"
+        ]
+      ]
+    },
+    {
+      "ident": "RetrieveTerminalLocationReturned",
+      "path": "crates/async-stripe-terminal/src/terminal_location/requests.rs",
+      "variants": [
+        [
+          "TerminalLocation",
+          "TerminalLocation"
+        ],
+        [
+          "DeletedTerminalLocation",
+          "DeletedTerminalLocation"
+        ]
+      ]
+    },
+    {
+      "ident": "UpdateTerminalLocationReturned",
+      "path": "crates/async-stripe-terminal/src/terminal_location/requests.rs",
+      "variants": [
+        [
+          "TerminalLocation",
+          "TerminalLocation"
+        ],
+        [
+          "DeletedTerminalLocation",
+          "DeletedTerminalLocation"
+        ]
+      ]
+    },
+    {
+      "ident": "RetrieveTerminalReaderReturned",
+      "path": "crates/async-stripe-terminal/src/terminal_reader/requests.rs",
+      "variants": [
+        [
+          "TerminalReader",
+          "TerminalReader"
+        ],
+        [
+          "DeletedTerminalReader",
+          "DeletedTerminalReader"
+        ]
+      ]
+    },
+    {
+      "ident": "UpdateTerminalReaderReturned",
+      "path": "crates/async-stripe-terminal/src/terminal_reader/requests.rs",
+      "variants": [
+        [
+          "TerminalReader",
+          "TerminalReader"
+        ],
+        [
+          "DeletedTerminalReader",
+          "DeletedTerminalReader"
+        ]
+      ]
+    },
+    {
+      "ident": "CancelActionTerminalReaderReturned",
+      "path": "crates/async-stripe-terminal/src/terminal_reader/requests.rs",
+      "variants": [
+        [
+          "TerminalReader",
+          "TerminalReader"
+        ],
+        [
+          "DeletedTerminalReader",
+          "DeletedTerminalReader"
+        ]
+      ]
+    }
+  ],
+  "variant_names_and_models_match_normal_generation": true,
+  "all_item_placements_unchanged": true,
+  "semantic_dependencies_and_occurrence_provenance_unchanged": true,
+  "component_counts_and_decoder_methods_unchanged": true,
+  "all_model_feature_closure_counts_unchanged": true,
+  "crate_and_model_dependency_graphs_unchanged": true,
+  "normal_generation_byte_identical_artifacts": 1758,
+  "shared_model_modules": 166,
+  "shared_struct_fields": 655,
+  "model_graph_cycles": 0,
+  "existing_decoder_behavior": "Miniserde selects the deleted flag; serde's untagged enum can select the live variant for overlapping payloads. Both existing behaviors are retained and tested.",
+  "commit": "176c3f588c4e1553cad274c90f2f1a4a28e41772",
+  "branch": "expt/codegen-opaque-slice",
+  "checks": {
+    "generator_tests": 117,
+    "strict_generator_clippy": true,
+    "full_and_narrow_consumers": true,
+    "normal_artifacts_byte_identical": 1758,
+    "independent_review": "No introduced regressions found; existing decoder overlap behavior retained and tested."
+  }
+}

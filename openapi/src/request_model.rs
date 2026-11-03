@@ -68,6 +68,35 @@ impl RequestCatalog {
 }
 
 impl RequestModel {
+    /// Visit signature types and the parameter fields named directly by the
+    /// generated constructor/setters, even when their declaration is elsewhere.
+    pub(crate) fn visit_type_uses(
+        &self,
+        items: &ItemCatalog,
+        mut visit: impl FnMut(&RustType) -> anyhow::Result<()>,
+    ) -> anyhow::Result<()> {
+        for typ in self
+            .path_params
+            .iter()
+            .map(|param| &param.typ)
+            .chain(self.params.iter().map(|params| &params.typ))
+            .chain(std::iter::once(&self.returned.typ))
+        {
+            visit(typ)?;
+        }
+        if let Some(params) = &self.params
+            && let Some(crate::rust_object::RustObject::Struct(strukt)) =
+                items.object_for_type(&params.typ)
+        {
+            for field in &strukt.fields {
+                visit(&field.rust_type).with_context(|| {
+                    format!("invalid constructor dependencies for request {}", self.ident)
+                })?;
+            }
+        }
+        Ok(())
+    }
+
     fn lower(request: &RequestSpec, items: &ItemCatalog) -> anyhow::Result<Self> {
         let path_params = request
             .path_params

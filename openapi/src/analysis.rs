@@ -1,9 +1,12 @@
+mod modules;
+
 use std::collections::BTreeMap;
 use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 
 use petgraph::prelude::DiGraphMap;
 
+use self::modules::ModuleAnalysis;
 use crate::codegen::CodeGen;
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
@@ -74,15 +77,21 @@ impl CodeGen {
         let locations = self.output_locations();
         let component_stats = component_stats(&self.components);
         let crate_stats = crate_stats(self, &component_stats);
+        let modules = ModuleAnalysis::new(self);
+        let mut report_summary = summary(self, &component_stats, &crate_stats);
+        report_summary.push_str(&modules.summary());
         let mut bundle = AnalysisBundle::default();
-        bundle.insert("summary.md", summary(self, &component_stats, &crate_stats));
+        bundle.insert("summary.md", report_summary);
         bundle.insert("components.csv", components_csv(self, &component_stats));
         bundle.insert("items.csv", items_csv(self));
         bundle.insert("item-occurrences.csv", item_occurrences_csv(self));
         bundle.insert("dependencies.csv", dependencies_csv(&self.components));
         bundle.insert("crate-inference-warnings.csv", crate_warnings_csv(self));
+        bundle.insert("model-module-dependencies.csv", modules.dependencies_csv());
+        bundle.insert("model-module-sccs.csv", modules.sccs_csv());
 
         if graph_detail != GraphDetail::None {
+            bundle.insert("graphs/model-module-dependencies.dot", modules.graph_dot());
             bundle
                 .insert("graphs/crate-dependencies.dot", crate_graph_dot(&self.crate_dependencies));
             bundle.insert(

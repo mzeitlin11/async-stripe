@@ -14,6 +14,7 @@ mod item_layout;
 mod item_origin;
 mod item_properties;
 mod layout;
+mod module_dependencies;
 mod object_writing;
 mod operations;
 pub mod output;

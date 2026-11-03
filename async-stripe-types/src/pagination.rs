@@ -18,7 +18,7 @@ impl FromCursor for smol_str::SmolStr {
 
 impl<T: FromCursor> FromCursor for Option<T> {
     fn from_cursor(val: &str) -> Option<Self> {
-        Some(T::from_cursor(val))
+        Some(Some(T::from_cursor(val)?))
     }
 }
 
@@ -253,5 +253,35 @@ mod impl_deserialize {
             *self.out = Some(SearchList { data, has_more, total_count, url, next_page });
             Ok(())
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::FromCursor;
+
+    #[derive(Debug, PartialEq)]
+    struct NumericCursor(u64);
+
+    impl FromCursor for NumericCursor {
+        fn from_cursor(value: &str) -> Option<Self> {
+            value.parse().ok().map(Self)
+        }
+    }
+
+    #[test]
+    fn optional_cursor_propagates_rejected_strings() {
+        for value in ["", "invalid", "-1", "18446744073709551616"] {
+            assert_eq!(Option::<NumericCursor>::from_cursor(value), None, "{value:?}");
+        }
+    }
+
+    #[test]
+    fn optional_cursor_preserves_successful_conversions() {
+        assert_eq!(Option::<NumericCursor>::from_cursor("42"), Some(Some(NumericCursor(42))));
+        assert_eq!(
+            Option::<smol_str::SmolStr>::from_cursor("cus_example"),
+            Some(Some(smol_str::SmolStr::new("cus_example")))
+        );
     }
 }

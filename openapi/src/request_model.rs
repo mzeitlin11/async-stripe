@@ -5,7 +5,7 @@ use anyhow::Context as _;
 use crate::components::Components;
 use crate::item_catalog::{CanonicalTypeRoot, ItemCatalog};
 use crate::item_origin::TypeRoot;
-use crate::operations::{OperationType, RequestSpec};
+use crate::operations::{BodyEncoding, OperationType, RequestSpec};
 use crate::rust_type::RustType;
 use crate::types::RustIdent;
 
@@ -26,6 +26,9 @@ pub struct RequestModel {
     pub returned: CanonicalTypeRoot,
     pub doc_comment: Option<String>,
     pub req_path: String,
+    pub body_encoding: BodyEncoding,
+    pub api_version: Option<String>,
+    pub pagination_item: Option<RustType>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -81,6 +84,7 @@ impl RequestModel {
             .map(|param| &param.typ)
             .chain(self.params.iter().map(|params| &params.typ))
             .chain(std::iter::once(&self.returned.typ))
+            .chain(self.pagination_item.iter())
         {
             visit(typ)?;
         }
@@ -123,6 +127,24 @@ impl RequestModel {
             .transpose()?;
         let returned = lower_root(items, TypeRoot::OperationReturn(request.operation_id))?;
 
+        let pagination_item = if request.url_pagination {
+            let object = items
+                .object_for_type(&returned.typ)
+                .context("v2 list response must be a struct")?;
+            let data = object.get_struct_field("data").context("v2 list response has no data")?;
+            for name in ["next_page_url", "previous_page_url"] {
+                anyhow::ensure!(
+                    object.get_struct_field(name) == Some(&RustType::option(RustType::string())),
+                    "v2 list {name} must be a nullable string"
+                );
+            }
+            let RustType::Container(crate::rust_type::Container::Vec(item)) = data else {
+                anyhow::bail!("v2 list data must be an array");
+            };
+            Some((**item).clone())
+        } else {
+            None
+        };
         Ok(Self {
             ident: request.ident.clone(),
             path_params,
@@ -131,6 +153,9 @@ impl RequestModel {
             returned,
             doc_comment: request.doc_comment.clone(),
             req_path: request.req_path.clone(),
+            body_encoding: request.body_encoding,
+            api_version: request.api_version.clone(),
+            pagination_item,
         })
     }
 }

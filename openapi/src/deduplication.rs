@@ -386,6 +386,9 @@ mod tests {
             method_type: OperationType::Post,
             doc_comment: None,
             req_path: "/customers/{customer}".to_string(),
+            body_encoding: crate::operations::BodyEncoding::Form,
+            api_version: None,
+            url_pagination: false,
         }];
 
         let declarations = deduplicate_types(&mut model, &mut requests, component);

@@ -39,6 +39,14 @@ pub enum OperationType {
     Delete,
 }
 
+/// Serialization selected from the operation's request media type.
+#[derive(Debug, Copy, Clone, Default, Eq, PartialEq)]
+pub enum BodyEncoding {
+    #[default]
+    Form,
+    Json,
+}
+
 /// Stable identity for one operation declaration within a codegen run.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct OperationId(u32);
@@ -64,6 +72,9 @@ pub struct RequestSpec {
     pub returned: RustType,
     pub doc_comment: Option<String>,
     pub req_path: String,
+    pub body_encoding: BodyEncoding,
+    pub api_version: Option<String>,
+    pub url_pagination: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -260,21 +271,26 @@ impl OperationCatalog {
     }
 
     pub fn candidates(&self, selector: OperationSelector) -> &[OperationId] {
+        let path = normalize_path(selector.path);
         let candidates: &[OperationId] = self
             .by_method_and_path
             .get(&selector.method)
-            .and_then(|paths| paths.get(selector.path))
+            .and_then(|paths| paths.get(&path))
             .map_or(&[], Vec::as_slice);
         debug_assert!(candidates.iter().all(|id| {
             let record = self.record(*id);
-            record.method == selector.method && record.path == selector.path
+            record.method == selector.method && record.path == path
         }));
         candidates
     }
 }
 
-fn normalize_path(path: &str) -> &str {
-    path.strip_prefix("/v1").unwrap_or(path)
+fn normalize_path(path: &str) -> String {
+    if path.starts_with("/v1/") || path.starts_with("/v2/") {
+        path.to_owned()
+    } else {
+        format!("/v1{path}")
+    }
 }
 
 #[cfg(test)]
@@ -311,6 +327,9 @@ mod tests {
             returned: RustType::string(),
             doc_comment: None,
             req_path: "/accounts/{account}".to_string(),
+            body_encoding: super::BodyEncoding::Form,
+            api_version: None,
+            url_pagination: false,
         }
     }
 
@@ -339,6 +358,29 @@ mod tests {
         assert_ne!(candidates[0], candidates[1]);
         assert_eq!(operations.record(candidates[0]).component, account);
         assert_eq!(operations.record(candidates[1]).component, person);
+    }
+
+    #[test]
+    fn qualified_selectors_preserve_api_namespace() {
+        let components = ComponentCatalog::from_names([
+            ComponentName::new("account".into()),
+            ComponentName::new("v2.core.account".into()),
+        ])
+        .unwrap();
+        let v1 = component_id(&components, "account");
+        let v2 = component_id(&components, "v2.core.account");
+        let old = [operation("/v1/core/accounts/{id}")];
+        let new = [operation("/v2/core/accounts/{id}")];
+        let operations =
+            OperationCatalog::from_operations([(v1, old.as_slice()), (v2, new.as_slice())])
+                .unwrap();
+        for (path, expected) in [("/v1/core/accounts/{id}", v1), ("/v2/core/accounts/{id}", v2)] {
+            let candidates =
+                operations.candidates(OperationSelector { path, method: OperationType::Get });
+            assert_eq!(candidates.len(), 1);
+            assert_eq!(operations.record(candidates[0]).path, path);
+            assert_eq!(operations.record(candidates[0]).component, expected);
+        }
     }
 
     #[test]

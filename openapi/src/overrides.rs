@@ -20,11 +20,16 @@ pub struct Overrides {
 }
 
 impl Overrides {
-    pub fn new(components: &Components) -> anyhow::Result<Self> {
+    pub fn new(components: &Components, v2_experiment: bool) -> anyhow::Result<Self> {
         let mut overrides = IndexMap::new();
         let mut identifiers = IndexMap::new();
         let mut modules = IndexMap::new();
         for override_ in OVERRIDES {
+            // This rule extracts a v1 webhook request enum. An explicitly v2-only
+            // experiment does not contain that API; applicable selectors stay strict.
+            if v2_experiment && override_.source.operation.path.starts_with("/v1/") {
+                continue;
+            }
             if let Some(previous) = identifiers.insert(override_.ident, override_.reason) {
                 anyhow::bail!(
                     "override output identifier `{}` is duplicated (reasons: `{previous}` and `{}`)",
@@ -68,7 +73,7 @@ const OVERRIDES: &[OverrideData] = &[OverrideData {
     mod_path: "api_version",
     ident: "ApiVersion",
     source: RequestSource {
-        operation: OperationSelector { path: "/webhook_endpoints", method: OperationType::Post },
+        operation: OperationSelector { path: "/v1/webhook_endpoints", method: OperationType::Post },
         field_name: "api_version",
     },
     reason: "API versions form a shared public type rather than an anonymous request enum",

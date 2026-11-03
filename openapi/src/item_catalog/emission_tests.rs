@@ -99,6 +99,9 @@ impl Fixture {
                     returned,
                     doc_comment: None,
                     req_path: "/customers".to_string(),
+                    body_encoding: crate::operations::BodyEncoding::Form,
+                    api_version: None,
+                    url_pagination: false,
                 }],
             )
             .unwrap();
@@ -225,6 +228,7 @@ fn moving_an_id_changes_its_file_references_and_facade_export() {
         [(fixture.customer, std::slice::from_ref(&fixture.request))],
         &fixture.component_layout,
         &layout,
+        true,
     )
     .unwrap();
     validate_crate_dependencies(&graph).unwrap();
@@ -264,6 +268,7 @@ fn moved_request_declarations_and_nested_types_follow_their_own_placements() {
         [(fixture.customer, std::slice::from_ref(&fixture.request))],
         &fixture.component_layout,
         &layout,
+        true,
     )
     .unwrap();
     validate_crate_dependencies(&graph).unwrap();
@@ -303,6 +308,7 @@ fn moving_a_parent_does_not_make_its_local_children_visible_elsewhere() {
         [(fixture.customer, std::slice::from_ref(&fixture.request))],
         &fixture.component_layout,
         &layout,
+        true,
     )
     .unwrap_err();
     assert!(format!("{error:#}").contains("is not visible"));
@@ -368,6 +374,7 @@ fn request_setters_cannot_access_private_fields_in_another_module() {
         [(fixture.customer, std::slice::from_ref(&fixture.request))],
         &fixture.component_layout,
         &layout,
+        true,
     )
     .unwrap();
     // Optional values are set directly on the inner struct by the wrapper.
@@ -379,6 +386,7 @@ fn request_setters_cannot_access_private_fields_in_another_module() {
         [(fixture.customer, std::slice::from_ref(&fixture.request))],
         &fixture.component_layout,
         &layout,
+        true,
     )
     .unwrap_err();
     assert!(format!("{error:#}").contains("cannot set private parameter field mode"));
@@ -395,6 +403,7 @@ fn moving_a_model_and_its_id_keeps_the_request_module_and_public_facade() {
         [(fixture.customer, std::slice::from_ref(&fixture.request))],
         &fixture.component_layout,
         &layout,
+        true,
     )
     .unwrap();
     validate_crate_dependencies(&graph).unwrap();

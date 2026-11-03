@@ -156,13 +156,20 @@ pub struct WebhookObject {
 
 impl WebhookObject {
     pub fn is_webhook_schema(schema: &Schema) -> bool {
-        schema.schema_data.extensions.contains_key("x-stripeEvent")
+        schema.schema_data.extensions.get("x-stripeEvent").is_some_and(|event| {
+            event.get("kind").and_then(serde_json::Value::as_str) != Some("thin")
+        })
     }
 
     pub fn from_schema(
         schema: &Schema,
         catalog: &ComponentCatalog,
     ) -> anyhow::Result<Option<Self>> {
+        // Thin schemas describe full Events v2 responses, not the snapshot
+        // data.object wrapper expected by this extractor.
+        if !Self::is_webhook_schema(schema) {
+            return Ok(None);
+        }
         let Some(event_info) = schema.schema_data.extensions.get("x-stripeEvent") else {
             return Ok(None);
         };

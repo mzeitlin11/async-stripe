@@ -79,7 +79,7 @@ fn id_references_follow_the_id_item_instead_of_the_model() {
         placement(customer, billing),
         placement(other, payment),
     ]);
-    let graph = crate_dependencies(&items, [], &component_layout, &layout).unwrap();
+    let graph = crate_dependencies(&items, [], &component_layout, &layout, true).unwrap();
     assert!(graph.contains_edge(core, payment));
     assert!(!graph.contains_edge(core, billing));
     assert!(!graph.contains_edge(core, core));
@@ -136,11 +136,19 @@ fn model_and_request_dependencies_use_their_own_source_crates() {
             },
             doc_comment: None,
             req_path: "/charges".to_string(),
+            body_encoding: crate::operations::BodyEncoding::Form,
+            api_version: None,
+            pagination_item: None,
         };
         let requests = [request];
-        let graph =
-            crate_dependencies(&items, [(charge, requests.as_slice())], &component_layout, &layout)
-                .unwrap();
+        let graph = crate_dependencies(
+            &items,
+            [(charge, requests.as_slice())],
+            &component_layout,
+            &layout,
+            true,
+        )
+        .unwrap();
         assert!(graph.contains_edge(billing, payment), "{position}");
         assert!(graph.contains_edge(core, treasury), "{position}");
         assert!(!graph.contains_edge(core, payment), "{position}");
@@ -163,7 +171,7 @@ fn object_impl_associated_id_type_is_a_dependency() {
     let component_layout =
         ComponentLayout::for_test(&[(charge, core, core), (customer, billing, billing)]);
     let layout = ItemLayout::for_test(vec![placement(charge, core), placement(customer, billing)]);
-    let graph = crate_dependencies(&items, [], &component_layout, &layout).unwrap();
+    let graph = crate_dependencies(&items, [], &component_layout, &layout, true).unwrap();
     assert!(graph.contains_edge(core, billing));
 }
 
@@ -188,13 +196,13 @@ fn local_items_must_be_visible_from_the_emission_site_even_within_one_crate() {
         placement(charge, core),
         (EmissionSite::ComponentTypes(charge), ItemAddress::Local),
     ]);
-    let graph = crate_dependencies(&items, [], &component_layout, &same_module).unwrap();
+    let graph = crate_dependencies(&items, [], &component_layout, &same_module, true).unwrap();
     assert!(!graph.contains_edge(core, core));
     for site in [EmissionSite::ComponentTypes(customer), EmissionSite::ComponentRequests(charge)] {
         let different_module =
             ItemLayout::for_test(vec![placement(charge, core), (site, ItemAddress::Local)]);
         let error =
-            crate_dependencies(&items, [], &component_layout, &different_module).unwrap_err();
+            crate_dependencies(&items, [], &component_layout, &different_module, true).unwrap_err();
         assert!(format!("{error:#}").contains("is not visible"));
     }
 }
@@ -217,7 +225,7 @@ fn relocating_a_shared_override_includes_its_public_facade_dependency() {
         EmissionSite::Standalone { item, krate: core },
         ItemAddress::CrateRoot(core),
     )]);
-    let graph = crate_dependencies(&items, [], &component_layout, &layout).unwrap();
+    let graph = crate_dependencies(&items, [], &component_layout, &layout, true).unwrap();
     assert!(graph.contains_edge(Crate::SHARED, core));
     // Domain facades already require shared, so this placement must fail before
     // writing manifests or the VERSION constant that uses shared's ApiVersion.
@@ -243,7 +251,7 @@ fn counterfactual_cycles_are_reportable_but_rejected_before_generation() {
         ComponentLayout::for_test(&[(charge, core, Crate::SHARED), (customer, core, core)]);
     let layout =
         ItemLayout::for_test(vec![placement(charge, Crate::SHARED), placement(customer, core)]);
-    let graph = crate_dependencies(&items, [], &component_layout, &layout).unwrap();
+    let graph = crate_dependencies(&items, [], &component_layout, &layout, true).unwrap();
     assert!(graph.contains_edge(Crate::SHARED, core));
     assert!(graph.contains_edge(core, Crate::SHARED));
     assert!(validate_crate_dependencies(&graph).unwrap_err().to_string().contains("cycle"));

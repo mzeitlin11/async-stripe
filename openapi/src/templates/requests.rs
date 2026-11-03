@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use indoc::{formatdoc, writedoc};
 
-use crate::operations::OperationType;
+use crate::operations::{BodyEncoding, OperationType};
 use crate::render::{Lifetime, RenderContext};
 use crate::request_model::RequestModel;
 use crate::rust_object::{ObjectUsage, RustObject, Struct, StructField, Visibility};
@@ -34,7 +34,17 @@ impl RequestModel {
         let returned = &self.returned.typ;
         let return_type = context.display_type(returned);
         let mut paginate_str = String::new();
-        if let Some(pagination_kind) = as_pagination_kind(returned) {
+        if self.pagination_item.is_some() {
+            let _ = writedoc!(
+                paginate_str,
+                r#"
+                /// Paginate using the server's v2 page URLs.
+                pub fn paginate(&self) -> stripe_client_core::V2Paginator<{return_type}> {{
+                    stripe_client_core::V2Paginator::new(self.build())
+                }}
+            "#
+            );
+        } else if let Some(pagination_kind) = as_pagination_kind(returned) {
             self.gen_paginate(context, returned, pagination_kind, &mut paginate_str)
         }
 
@@ -64,6 +74,20 @@ impl RequestModel {
         "#
         );
 
+        if let Some(item) = &self.pagination_item {
+            let item = context.display_type(item);
+            let _ = writedoc!(
+                out,
+                r#"
+                impl stripe_client_core::V2Page for {return_type} {{
+                    type Item = {item};
+                    fn into_page(self) -> (Vec<Self::Item>, Option<String>) {{
+                        (self.data, self.next_page_url)
+                    }}
+                }}
+            "#
+            );
+        }
         out
     }
 
@@ -71,7 +95,14 @@ impl RequestModel {
         let mut out = String::new();
         for param in &self.path_params {
             let name = &param.name;
-            let _ = writeln!(out, r#"let {name} = &self.{name};"#);
+            if self.req_path.starts_with("/v2/") {
+                let _ = writeln!(
+                    out,
+                    "let {name} = stripe_client_core::encode_path_segment(self.{name}.as_str());"
+                );
+            } else {
+                let _ = writeln!(out, r#"let {name} = &self.{name};"#);
+            }
         }
         out
     }
@@ -87,14 +118,27 @@ impl RequestModel {
         let mut build_inner = self.gen_path_param_assignments();
         let _ = write!(build_inner, "RequestBuilder::new(StripeMethod::{method_enum}, {path_arg})");
 
+        if let Some(version) = &self.api_version {
+            let _ = write!(build_inner, ".api_version({version:?})");
+        }
         if self.params.is_some() {
             if matches!(self.method_type, OperationType::Get) {
                 let _ = write!(build_inner, ".query(&self.inner)");
             } else {
-                let _ = write!(build_inner, ".form(&self.inner)");
+                let method = match self.body_encoding {
+                    BodyEncoding::Form => "form",
+                    BodyEncoding::Json => "json",
+                };
+                let _ = write!(build_inner, ".{method}(&self.inner)");
             }
         }
 
+        if self.params.is_none()
+            && self.body_encoding == BodyEncoding::Json
+            && self.method_type == OperationType::Post
+        {
+            let _ = write!(build_inner, ".json_empty()");
+        }
         formatdoc!(
             r#"
         fn build(&self) -> RequestBuilder {{

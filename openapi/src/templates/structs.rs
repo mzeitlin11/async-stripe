@@ -168,8 +168,16 @@ impl ObjectWriter<'_> {
         for field in fields {
             let wire_name = field.rename_as.as_ref().unwrap_or(&field.field_name);
             let field_name = &field.variable_name();
-            let _ =
-                writeln!(fields_inner, r#"s.serialize_field("{wire_name}", &self.{field_name})?;"#);
+            let value = match FieldRenderPlan::new(field, self.usage).serde_with {
+                Some(SerdeWith::JsonValue) => {
+                    format!("stripe_types::serde_helpers::SerdeValue(&self.{field_name})")
+                }
+                Some(SerdeWith::OptionalJsonValue) => format!(
+                    "self.{field_name}.as_ref().map(stripe_types::serde_helpers::SerdeValue)"
+                ),
+                None => format!("self.{field_name}"),
+            };
+            let _ = writeln!(fields_inner, r#"s.serialize_field("{wire_name}", &{value})?;"#);
         }
 
         let _ = writedoc!(

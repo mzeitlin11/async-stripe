@@ -53,8 +53,8 @@ impl RetainedApi {
 }
 
 impl LaidOutApi {
-    fn apply_model_rewrites(mut self) -> anyhow::Result<PipelineOutput> {
-        self.components.apply_overrides()?;
+    fn apply_model_rewrites(mut self, spec: &Spec) -> anyhow::Result<PipelineOutput> {
+        self.components.apply_overrides(spec.is_v2_experiment())?;
         debug!("Finished applying overrides");
 
         self.components.run_deduplication_pass();
@@ -72,5 +72,5 @@ pub fn run_pipeline(spec: &Spec, policy: EdgePolicy) -> anyhow::Result<PipelineO
     InferredApi::from_spec(spec)?
         .retain_reachable()?
         .assign_component_layout(policy)?
-        .apply_model_rewrites()
+        .apply_model_rewrites(spec)
 }

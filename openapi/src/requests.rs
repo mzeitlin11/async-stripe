@@ -6,11 +6,11 @@ use openapiv3::{Parameter, ParameterData, ParameterSchemaOrContent, ReferenceOr,
 use tracing::debug;
 
 use crate::component_catalog::{ComponentCatalog, ComponentId};
-use crate::operations::OperationId;
+use crate::operations::{BodyEncoding, MethodType, OperationId};
 use crate::operations::{OperationType, PathParam, RequestParam, RequestSpec, StripeOperation};
 use crate::rust_object::{ObjectMetadata, RustObject, Struct, Visibility};
 use crate::rust_type::{PrimitiveType, RustType};
-use crate::spec::{Spec, get_ok_response_schema, get_request_form_parameters};
+use crate::spec::{Spec, get_ok_response_schema, get_request_body_parameters};
 use crate::spec_inference::{Borrowing, Inference};
 use crate::types::RustIdent;
 
@@ -115,7 +115,17 @@ fn get_req_details<'a>(
             _ => bail!("Unexpected parameter type {param:?}"),
         }
     }
-    let form_params = get_request_form_parameters(operation);
+    let is_v2 = op.path.starts_with("/v2/");
+    let body_encoding = if is_v2 { BodyEncoding::Json } else { BodyEncoding::Form };
+    let media = if is_v2 { "application/json" } else { "application/x-www-form-urlencoded" };
+    if let Some(body) = operation.request_body.as_ref().and_then(|body| body.as_item()) {
+        anyhow::ensure!(
+            body.content.contains_key(media),
+            "unsupported request media type for {}",
+            op.path
+        );
+    }
+    let form_params = get_request_body_parameters(operation, media);
     let params = match op.operation_type {
         OperationType::Get => {
             assert!(form_params.is_none(), "Body parameters not supported for GET");
@@ -141,6 +151,9 @@ fn get_req_details<'a>(
         operation_type: op.operation_type,
         path: &op.path,
         base_method_name: &op.method_name,
+        body_encoding,
+        api_version: is_v2.then(|| spec.version().to_owned()),
+        url_pagination: is_v2 && op.method_type == MethodType::List,
     })
 }
 
@@ -199,6 +212,9 @@ struct RequestDetails<'a> {
     operation_type: OperationType,
     path: &'a str,
     base_method_name: &'a str,
+    body_encoding: BodyEncoding,
+    api_version: Option<String>,
+    url_pagination: bool,
 }
 
 fn build_request(
@@ -301,6 +317,9 @@ fn build_request(
         params: param_typ.map(|typ| RequestParam { typ }),
         doc_comment: req.description.map(|d| d.to_string()),
         req_path: req_path.to_string(),
+        body_encoding: req.body_encoding,
+        api_version: req.api_version.clone(),
+        url_pagination: req.url_pagination,
         returned: return_type,
         method_type: req.operation_type,
     })
@@ -312,7 +331,8 @@ fn infer_id_path(
     req_path: &str,
     path_id_map: &HashMap<String, ComponentId>,
 ) -> anyhow::Result<Option<ComponentId>> {
-    let pieces = req_path.trim_matches('/').split('/');
+    let namespace = req_path.strip_prefix("/v2/");
+    let pieces = namespace.unwrap_or(req_path).trim_matches('/').split('/');
 
     // For now we only infer the first parametrized piece as an idea, so collect everything
     // that precedes it and return is this is not the first parameterized piece
@@ -345,6 +365,7 @@ fn infer_id_path(
         return Ok(None);
     };
 
+    let obj_name = if namespace.is_some() { format!("v2.{obj_name}") } else { obj_name };
     if let Some(comp) = path_id_map.get(&obj_name) {
         Ok(Some(*comp))
     } else {

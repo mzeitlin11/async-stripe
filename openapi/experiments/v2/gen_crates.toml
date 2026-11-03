@@ -1,0 +1,9 @@
+# Experimental placement only. Change this file to try another layout.
+[[crates]]
+name = "shared"
+description = "Reserved legacy shared placement; unused by the initial v2 slice."
+
+[[crates]]
+name = "v2"
+packages = ["v2_core"]
+description = "Concrete experimental Stripe API v2 bindings."

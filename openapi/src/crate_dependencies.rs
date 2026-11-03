@@ -19,6 +19,7 @@ pub(crate) fn crate_dependencies<'a>(
     requests: impl IntoIterator<Item = (ComponentId, &'a [RequestModel])>,
     component_layout: &ComponentLayout,
     item_layout: &ItemLayout,
+    shared_facades: bool,
 ) -> anyhow::Result<DiGraphMap<Crate, ()>> {
     let modules = module_dependencies(items, requests, item_layout)?;
     let mut graph = DiGraphMap::new();
@@ -26,7 +27,7 @@ pub(crate) fn crate_dependencies<'a>(
         graph.add_node(krate);
         // Preserve the mandatory shared dependency used by domain crate
         // facades. Their public reexports are not represented by RustType.
-        if krate != Crate::SHARED {
+        if shared_facades && krate != Crate::SHARED {
             graph.add_edge(krate, Crate::SHARED, ());
         }
     }

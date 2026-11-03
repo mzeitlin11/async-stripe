@@ -121,6 +121,7 @@ pub(crate) struct ItemEmitter<'a> {
     emitted: Vec<bool>,
     files: HashMap<PathBuf, EmissionSite>,
     modules: HashMap<(Crate, String), EmissionSite>,
+    request_features: bool,
 }
 
 impl<'a> ItemEmitter<'a> {
@@ -136,7 +137,13 @@ impl<'a> ItemEmitter<'a> {
             emitted: vec![false; items.len()],
             files: HashMap::new(),
             modules: HashMap::new(),
+            request_features: true,
         }
+    }
+
+    pub(crate) fn with_request_features(mut self, enabled: bool) -> Self {
+        self.request_features = enabled;
+        self
     }
 
     pub(crate) fn emit(
@@ -325,13 +332,17 @@ impl<'a> ItemEmitter<'a> {
                 )?;
                 output.append(
                     self.locations.requests_module_path(component),
-                    formatdoc! {
-                        r#"
+                    if self.request_features {
+                        formatdoc! {
+                            r#"
                     #[cfg(feature = "{module}")]
                     mod requests;
                     #[cfg(feature = "{module}")]
                     pub use requests::*;
                     "#
+                        }
+                    } else {
+                        "mod requests;\npub use requests::*;\n".into()
                     },
                 )?;
                 output.append(&path, "use stripe_client_core::{StripeClient, StripeBlockingClient, StripeRequest, RequestBuilder, StripeMethod};\n\n")?;

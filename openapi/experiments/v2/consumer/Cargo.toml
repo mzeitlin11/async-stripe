@@ -1,0 +1,23 @@
+[package]
+name = "v2-experiment"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+async-stripe = { path = "../async-stripe", default-features = false, features = ["default-tls", "v2", "blocking", "async-std-surf"] }
+async-stripe-client-core = { path = "../async-stripe-client-core", default-features = false, features = ["v2"] }
+async-stripe-v2 = { path = "../generated/async-stripe-v2", features = ["serialize", "deserialize"] }
+async-stripe-connect = { path = "../generated/async-stripe-connect", features = ["account"], optional = true }
+async-stripe-shared = { path = "../generated/async-stripe-shared", optional = true }
+miniserde.workspace = true
+serde_json.workspace = true
+futures-util = "0.3.28"
+tokio = { version = "1.24.1", features = ["rt", "macros"] }
+
+[dev-dependencies]
+httpmock = { version = "0.8.3", default-features = false }
+
+[features]
+accounts = []
+v1 = ["accounts", "async-stripe/v1", "dep:async-stripe-connect", "dep:async-stripe-shared"]

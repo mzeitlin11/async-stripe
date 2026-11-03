@@ -226,8 +226,8 @@ impl Components {
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub(crate) fn apply_overrides(&mut self) -> anyhow::Result<()> {
-        let mut overrides = Overrides::new(self)?;
+    pub(crate) fn apply_overrides(&mut self, v2_experiment: bool) -> anyhow::Result<()> {
+        let mut overrides = Overrides::new(self, v2_experiment)?;
         for comp in self.components.values_mut() {
             comp.visit_mut(&mut overrides);
         }

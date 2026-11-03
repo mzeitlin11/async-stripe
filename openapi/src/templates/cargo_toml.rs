@@ -17,6 +17,7 @@ pub fn gen_crate_toml(
     crate_deps: Vec<Crate>,
     crate_features: Vec<String>,
     version: &str,
+    v2: bool,
 ) -> String {
     let mut crate_dep_section = String::new();
 
@@ -31,12 +32,13 @@ pub fn gen_crate_toml(
     }
 
     // Dependencies only needed for libraries which implement Stripe requests
+    let client_options = if v2 { "default-features = false, features = [\"v2\"], " } else { "" };
     let request_deps = if krate == Crate::SHARED {
         None
     } else {
         Some(format!(
             // release-plz adds an extra space. let's add it here also to prevent churn
-            r#"async-stripe-client-core = {{path = "../../async-stripe-client-core", version = "{version}" }}"#,
+            r#"async-stripe-client-core = {{{client_options}path = "../../async-stripe-client-core", version = "{version}" }}"#,
         ))
     };
     let request_deps = request_deps.as_deref().unwrap_or_default();
@@ -46,7 +48,7 @@ pub fn gen_crate_toml(
     let redact_debug_features = get_serialization_feature(&crate_deps, "redact-generated-debug");
 
     let features =
-        if krate == Crate::SHARED { "".into() } else { gen_feature_section(crate_features) };
+        if krate == Crate::SHARED || v2 { "".into() } else { gen_feature_section(crate_features) };
 
     let crate_name = krate.crate_name();
     let lib_name = krate.lib_name();

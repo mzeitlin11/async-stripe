@@ -8,11 +8,31 @@ use crate::operations::OperationType;
 use crate::types::ComponentName;
 
 #[derive(Debug, Clone)]
-pub struct Spec(OpenAPI);
+pub struct Spec(OpenAPI, bool);
 
 impl Spec {
     pub fn new(spec: OpenAPI) -> Self {
-        Self(spec)
+        Self(spec, false)
+    }
+
+    /// Explicitly scope the development experiment to v2 schemas and operations.
+    pub fn v2_experiment(spec: OpenAPI) -> anyhow::Result<Self> {
+        anyhow::ensure!(
+            spec.paths.paths.keys().all(|path| path.starts_with("/v2/")),
+            "v2 experiment input contains a non-v2 operation path"
+        );
+        anyhow::ensure!(
+            spec.components.as_ref().is_some_and(|components| components
+                .schemas
+                .keys()
+                .all(|name| name.starts_with("v2."))),
+            "v2 experiment input contains a non-v2 component"
+        );
+        Ok(Self(spec, true))
+    }
+
+    pub const fn is_v2_experiment(&self) -> bool {
+        self.1
     }
 
     pub fn version(&self) -> &str {
@@ -109,14 +129,15 @@ pub fn get_ok_response_schema(operation: &Operation) -> Option<&ReferenceOr<Sche
 }
 
 pub fn get_request_form_parameters(operation: &Operation) -> Option<&ReferenceOr<Schema>> {
-    let schema = operation
-        .request_body
-        .as_ref()?
-        .as_item()?
-        .content
-        .get("application/x-www-form-urlencoded")?
-        .schema
-        .as_ref();
+    get_request_body_parameters(operation, "application/x-www-form-urlencoded")
+}
+
+pub fn get_request_body_parameters<'a>(
+    operation: &'a Operation,
+    media_type: &str,
+) -> Option<&'a ReferenceOr<Schema>> {
+    let schema =
+        operation.request_body.as_ref()?.as_item()?.content.get(media_type)?.schema.as_ref();
 
     // Treat empty object as `None`
     if let Some(obj_type) = schema.and_then(|s| s.as_item().and_then(as_object_type))

@@ -77,8 +77,13 @@ impl CodeGen {
         })?;
         let item_layout =
             ItemLayout::from_component_layout(&components, model.items(), &component_layout)?;
-        let crate_dependencies =
-            crate_dependencies(model.items(), model.requests(), &component_layout, &item_layout)?;
+        let crate_dependencies = crate_dependencies(
+            model.items(),
+            model.requests(),
+            &component_layout,
+            &item_layout,
+            !spec.is_v2_experiment(),
+        )?;
 
         Ok(Self {
             components,
@@ -115,6 +120,9 @@ impl CodeGen {
     }
 
     fn write_api_version_file(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
+        if self.spec.is_v2_experiment() {
+            return Ok(());
+        }
         let base_path = Crate::SHARED.get_path();
         let mut mod_rs_contents = String::new();
         let mod_rs_path = base_path.join("mod.rs");
@@ -132,7 +140,8 @@ impl CodeGen {
 
     fn write_declarations(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
         let items = self.model.items();
-        let mut emitter = ItemEmitter::new(items, &self.item_layout, self.output_locations());
+        let mut emitter = ItemEmitter::new(items, &self.item_layout, self.output_locations())
+            .with_request_features(!self.spec.is_v2_experiment());
         // This traversal preserves source order. Every declaration, including
         // recursively introduced children, is routed by its own item placement.
         for (&component, object) in &self.components.components {
@@ -177,6 +186,7 @@ impl CodeGen {
         let mut output = GeneratedWorkspace::default();
         self.write_crate_base(&mut output)?;
         self.write_declarations(&mut output)?;
+        self.write_namespace_facades(&mut output)?;
         self.write_api_version_file(&mut output)?;
         let context = self.render_context(EmissionSite::Webhooks);
         write_generated_for_webhooks(context, &self.components.webhook_objs, &mut output)
@@ -184,6 +194,50 @@ impl CodeGen {
         output.write("crate_info.md", generate_crate_table(self.output_locations()))?;
         self.write_object_info_for_testing(&mut output)?;
         Ok(output)
+    }
+
+    fn write_namespace_facades(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
+        if !self.spec.is_v2_experiment() {
+            return Ok(());
+        }
+        let mut groups = std::collections::BTreeMap::<(Crate, String), String>::new();
+        for (&component, object) in &self.components.components {
+            let Some((namespace, name)) =
+                object.path().strip_prefix("v2.").and_then(|path| path.rsplit_once('.'))
+            else {
+                continue;
+            };
+            anyhow::ensure!(
+                !namespace.contains('.'),
+                "unsupported nested public namespace: {namespace}"
+            );
+            let krate = self.component_layout.placement(component).request_crate();
+            let group = groups.entry((krate, namespace.to_owned())).or_default();
+            let alias = crate::types::RustIdent::create(name);
+            let ident = object.ident();
+            let _ = writeln!(group, "pub use crate::{ident} as {alias};");
+            if self.model.items().component_id_item(component).is_some() {
+                let _ = writeln!(group, "pub use crate::{ident}Id as {alias}Id;");
+            }
+            if self.components.has_requests(component) {
+                let module = object.mod_path();
+                let _ = writeln!(group, "pub mod {name} {{ pub use crate::{module}::*;");
+                for request in self.model.requests_for_component(component) {
+                    let short = request
+                        .ident
+                        .strip_suffix(ident.as_ref())
+                        .context("request name has no resource suffix")?;
+                    let _ =
+                        writeln!(group, "pub use crate::{module}::{} as {short};", request.ident);
+                }
+                group.push_str("}\n");
+            }
+        }
+        for ((krate, namespace), content) in groups {
+            output
+                .append(krate.get_path_to_mod(), format!("pub mod {namespace} {{ {content} }}"))?;
+        }
+        Ok(())
     }
 
     fn write_crate_base(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
@@ -199,7 +253,13 @@ impl CodeGen {
                 .map(|c| locations.components.get_by_id(c).mod_path())
                 .collect();
 
-            let toml = gen_crate_toml(*krate, dependencies, request_features, &self.version);
+            let toml = gen_crate_toml(
+                *krate,
+                dependencies,
+                request_features,
+                &self.version,
+                self.spec.is_v2_experiment(),
+            );
             output.write(base_path.join("Cargo.toml"), toml)?;
 
             let lib_name = krate.lib_name();

@@ -4,6 +4,8 @@ The experiment generates Event Destinations, Events, and the Accounts family thr
 
 Implementation commits are `f0700e0c` (runtime boundary) and `8c2f3c21` (codegen and verification). The input is the combined GA SDK specification at `v2494`, commit `3e5f190f81ef54900d83909fc733226b87afccb1`, API revision `2026-08-26.dahlia`. [Input hashes and source references](../../research/v2-architecture/inputs.json) and the [original investigation](../../research/v2-architecture/README.md) retain the discovery evidence.
 
+The follow-up [verified thin-event slice](webhooks/README.md) adds model-independent signature verification, selected typed event handling, and per-crate deserialization field counts as the first compilation indicator. Its separate results do not replace the artifact measurements below.
+
 **Using the prototype.** From `openapi`, generate the small slice with explicit input and output:
 
 ```console

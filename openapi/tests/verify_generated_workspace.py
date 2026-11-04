@@ -65,7 +65,7 @@ def run(work, name, command, cwd, env):
         raise RuntimeError(f"{name} failed with exit {result.returncode}; log: {log}\n{tail}")
 
 
-def compiled_generated_sources(log, workspace):
+def compiled_generated_sources(log, workspace, *, allow_empty=False):
     """Read rustc dep-info for generated packages, excluding runtime packages."""
     artifacts = []
     for line in log.read_text(errors="replace").splitlines():
@@ -84,6 +84,8 @@ def compiled_generated_sources(log, workspace):
         dep_info = artifact.with_name(artifact.name.removeprefix("lib").rsplit(".", 1)[0] + ".d")
         if dep_info.is_file():
             dependency_files.add(dep_info)
+    if not dependency_files and allow_empty and not artifacts:
+        return []
     if not dependency_files:
         raise RuntimeError(f"no generated-package rustc dep-info found from {log}")
     dependencies = "\n".join(path.read_text() for path in dependency_files)

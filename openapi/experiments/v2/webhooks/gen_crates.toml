@@ -1,0 +1,14 @@
+# Change placement here without changing event inference or resource APIs.
+[[crates]]
+name = "shared"
+description = "Reserved legacy placement, unused in this experiment."
+
+[[crates]]
+name = "v2"
+packages = ["v2_core"]
+description = "Concrete experimental Stripe API v2 resources."
+
+[[crates]]
+name = "events"
+paths = ["v2.core.account.updated", "v1.billing.meter.error_report_triggered"]
+description = "Selected thin event models and notification dispatch, independent of resource DTOs."

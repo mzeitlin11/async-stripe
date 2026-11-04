@@ -77,3 +77,5 @@ with tempfile.TemporaryDirectory(prefix='generated source smoke ') as directory:
 print('Source measurement smoke check passed')
 PY
 ```
+
+The compiler-source collector accepts `allow_empty=True` for consumers that intentionally compile no generated package. Its default remains strict; missing dep-info for an actual generated artifact still fails. The v2 checker uses this only for notification-only validation (`verify_v2_slice.py --webhooks`). Normal analysis now also reports canonical deserializable struct fields by item and physical crate; these reports exclude request-only parameter fields and generated decoder helpers.

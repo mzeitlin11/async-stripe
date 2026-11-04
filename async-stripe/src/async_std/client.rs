@@ -83,6 +83,9 @@ impl Client {
         if let Some(context) = &config.context {
             header("Stripe-Context", context)?;
         }
+        if let Some(event) = &builder.event_trigger {
+            header("Stripe-Request-Trigger", &format!("event={event}"))?;
+        }
         if let Some(account) = &config.account_id {
             header("Stripe-Account", account)?;
         }
@@ -148,7 +151,7 @@ impl Client {
                     let attempt_result = match timeout {
                         Some(t) => async_std::future::timeout(t, attempt)
                             .await
-                            .unwrap_or_else(|_| Err(StripeError::Timeout)),
+                            .unwrap_or(Err(StripeError::Timeout)),
                         None => attempt.await,
                     };
                     let (status, retry, bytes) = match attempt_result {

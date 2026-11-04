@@ -19,6 +19,9 @@ struct Args {
     layout: PathBuf,
     #[arg(long, value_delimiter = ',', default_value = "v2.core.event_destination,v2.core.event")]
     resources: Vec<String>,
+    /// Thin event schema names, independently of the related resource namespace.
+    #[arg(long, value_delimiter = ',')]
+    events: Vec<String>,
 }
 
 fn references(value: &Value, into: &mut VecDeque<String>) {
@@ -51,15 +54,18 @@ fn main() -> Result<()> {
     let all_schemas =
         document["components"]["schemas"].as_object().context("missing schemas")?.clone();
     let all_paths = document["paths"].as_object().context("missing paths")?.clone();
-    let mut pending = VecDeque::from(args.resources.clone());
+    let mut pending = VecDeque::from_iter(args.resources.iter().chain(&args.events).cloned());
     let mut selected = BTreeSet::new();
     let mut paths = serde_json::Map::new();
     while let Some(name) = pending.pop_front() {
-        ensure!(name.starts_with("v2."), "non-v2 schema in experimental closure: {name}");
         if !selected.insert(name.clone()) {
             continue;
         }
         let schema = all_schemas.get(&name).with_context(|| format!("unknown schema: {name}"))?;
+        ensure!(
+            name.starts_with("v2.") || schema["x-stripeEvent"]["kind"] == "thin",
+            "non-v2 resource in experimental closure: {name}"
+        );
         references(schema, &mut pending);
         if let Some(operations) = schema.get("x-stripeOperations").and_then(Value::as_array) {
             for operation in operations {
@@ -82,6 +88,9 @@ fn main() -> Result<()> {
             all_schemas[resource].get("x-stripeResource").is_some(),
             "not a resource: {resource}"
         );
+    }
+    for event in &args.events {
+        ensure!(all_schemas[event]["x-stripeEvent"]["kind"] == "thin", "not a thin event: {event}");
     }
     document["paths"] = Value::Object(paths);
     document["components"]["schemas"] = Value::Object(

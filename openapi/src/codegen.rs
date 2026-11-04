@@ -187,6 +187,7 @@ impl CodeGen {
         self.write_crate_base(&mut output)?;
         self.write_declarations(&mut output)?;
         self.write_namespace_facades(&mut output)?;
+        crate::thin_events::write(self, &mut output)?;
         self.write_api_version_file(&mut output)?;
         let context = self.render_context(EmissionSite::Webhooks);
         write_generated_for_webhooks(context, &self.components.webhook_objs, &mut output)
@@ -202,6 +203,9 @@ impl CodeGen {
         }
         let mut groups = std::collections::BTreeMap::<(Crate, String), String>::new();
         for (&component, object) in &self.components.components {
+            if self.components.thin_events.iter().any(|event| event.component == component) {
+                continue;
+            }
             let Some((namespace, name)) =
                 object.path().strip_prefix("v2.").and_then(|path| path.rsplit_once('.'))
             else {

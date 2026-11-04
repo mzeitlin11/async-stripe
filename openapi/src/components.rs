@@ -20,6 +20,7 @@ use crate::rust_object::{ObjectIdentity, ObjectKind, ObjectUsage, RustObject};
 use crate::rust_type::RustType;
 use crate::spec::Spec;
 use crate::stripe_object::{StripeObject, StripeResource};
+use crate::thin_events::ThinEvent;
 use crate::types::{ComponentName, RustIdent};
 use crate::webhook::WebhookObject;
 
@@ -37,6 +38,7 @@ pub struct Components {
     dependency_index: DependencyIndex,
     pub components: IndexMap<ComponentId, StripeObject>,
     pub webhook_objs: Vec<WebhookObject>,
+    pub(crate) thin_events: Vec<ThinEvent>,
     pub extra_types: IndexMap<RustIdent, TypeSpec>,
 }
 
@@ -59,6 +61,7 @@ impl Components {
             operation_catalog,
             dependency_index: DependencyIndex::default(),
             webhook_objs: Vec::new(),
+            thin_events: Vec::new(),
             extra_types: IndexMap::new(),
         }
     }
@@ -148,7 +151,10 @@ impl Components {
                 let path = self.component_name(component_id);
                 // The `error` component is a false positive since we don't include the error
                 // type in dependency calculations, but every request depends on `error`
-                if path.as_ref() == "error" || webhook_deps.contains(&component_id) {
+                if path.as_ref() == "error"
+                    || webhook_deps.contains(&component_id)
+                    || self.thin_events.iter().any(|event| event.component == component_id)
+                {
                     continue;
                 }
 
@@ -253,6 +259,7 @@ impl Components {
 #[tracing::instrument(skip_all)]
 pub(crate) fn infer_components(spec: &Spec) -> anyhow::Result<(Components, ComponentLayoutDraft)> {
     let mut webhook_objs = vec![];
+    let mut thin_events = vec![];
     let mut components = IndexMap::with_capacity(spec.component_schemas().len());
 
     let mut parsed_components = IndexMap::new();
@@ -295,6 +302,9 @@ pub(crate) fn infer_components(spec: &Spec) -> anyhow::Result<(Components, Compo
             }
         }
         let component = catalog.id(&path).expect("inferred component was missing from catalog");
+        if let Some(event) = ThinEvent::from_schema(component, schema)? {
+            thin_events.push(event);
+        }
         parsed_components.insert(
             component,
             ParsedComponent {
@@ -348,6 +358,7 @@ pub(crate) fn infer_components(spec: &Spec) -> anyhow::Result<(Components, Compo
         dependency_index: DependencyIndex::default(),
         components,
         webhook_objs,
+        thin_events,
         extra_types: Default::default(),
     };
     inferred.dependency_index = DependencyIndex::build(&inferred);

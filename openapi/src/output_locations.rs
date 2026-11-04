@@ -69,6 +69,10 @@ impl<'a> OutputLocations<'a> {
             .map_or_else(|| ident.to_snake_case(), |typ| typ.mod_path.clone())
     }
 
+    pub(crate) fn emission_crate(self, site: EmissionSite) -> Option<Crate> {
+        site.krate(self.component_layout)
+    }
+
     /// Resolve the selected emission site rather than the declaration's origin.
     pub(crate) fn emission_path(self, site: EmissionSite, items: &ItemCatalog) -> PathBuf {
         match site {

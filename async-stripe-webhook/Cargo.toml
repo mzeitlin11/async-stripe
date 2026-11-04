@@ -15,6 +15,7 @@ categories.workspace = true
 name = "stripe_webhook"
 
 [dependencies]
+async-stripe-client-core = { path = "../async-stripe-client-core", version = "1.0.0-rc.9", default-features = false, features = ["webhook-signatures"] }
 async-stripe-types = { path = "../async-stripe-types", version = "1.0.0-rc.9" }
 async-stripe-shared = { path = "../generated/async-stripe-shared", version = "1.0.0-rc.9" }
 hmac = "0.13"

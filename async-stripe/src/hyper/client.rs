@@ -94,6 +94,9 @@ impl Client {
         if let Some(context) = &config.context {
             builder = builder.header("stripe-context", context);
         }
+        if let Some(event) = &req.event_trigger {
+            builder = builder.header("stripe-request-trigger", format!("event={event}"));
+        }
 
         if let Some(client_id) = &self.config.client_id {
             builder = builder.header(HeaderName::from_static("client-id"), client_id.clone());

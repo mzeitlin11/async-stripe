@@ -1,0 +1,29 @@
+{
+  "id": "evt_account/encoded",
+  "object": "v2.core.event",
+  "type": "v2.core.account.updated",
+  "created": "2026-08-26T00:00:00.000Z",
+  "livemode": false,
+  "context": "org/account",
+  "related_object": {
+    "id": "acct_test",
+    "type": "v2.core.account",
+    "url": "/v2/core/accounts/acct_test"
+  },
+  "reason": {
+    "type": "request",
+    "request": {
+      "id": "req_123",
+      "idempotency_key": "operation-123"
+    }
+  },
+  "changes": {
+    "before": {
+      "display_name": "Before"
+    },
+    "after": {
+      "display_name": "After"
+    }
+  },
+  "data": {}
+}

@@ -1,0 +1,139 @@
+{
+  "implementation_base": "6cee8654383288f90bab0a1f972bde3a809d1fb9",
+  "implementation_revision": "same commit as this report",
+  "input_revision": "stripe/openapi v2494 (3e5f190f81ef54900d83909fc733226b87afccb1), latest GA SDK",
+  "api_revision": "2026-08-26.dahlia",
+  "primary_measure": "Canonical generated struct fields whose usage emits deserialization, intersected with actual compiler source files. Handwritten notification fields are reported separately.",
+  "thin_webhook_verification": {
+    "input_sha256": "92363b86025d012852f648554372bf5fa6146af1472fb63f3c29d7c5fe6bd19a",
+    "source_unchanged": true,
+    "success": true,
+    "cases": {
+      "webhooks": {
+        "workspace": "/private/tmp/async-stripe-v2-study-20261103/webhook-verification/webhooks/workspace",
+        "workloads": {
+          "notification": {
+            "generated_compiler_sources": [],
+            "generated_deserializable_fields_by_crate": {}
+          },
+          "typed-events": {
+            "generated_compiler_sources": [
+              "generated/async-stripe-events/src/mod.rs",
+              "generated/async-stripe-events/src/v1_billing_meter_error_report_triggered.rs",
+              "generated/async-stripe-events/src/v2_core_account_updated.rs"
+            ],
+            "generated_deserializable_fields_by_crate": {
+              "async-stripe-events": 46
+            }
+          },
+          "accounts": {
+            "generated_compiler_sources": [
+              "generated/async-stripe-events/src/mod.rs",
+              "generated/async-stripe-events/src/v1_billing_meter_error_report_triggered.rs",
+              "generated/async-stripe-events/src/v2_core_account_updated.rs",
+              "generated/async-stripe-v2/src/mod.rs",
+              "generated/async-stripe-v2/src/v2_core_account/mod.rs",
+              "generated/async-stripe-v2/src/v2_core_account/requests.rs",
+              "generated/async-stripe-v2/src/v2_core_account/types.rs",
+              "generated/async-stripe-v2/src/v2_core_account_link/mod.rs",
+              "generated/async-stripe-v2/src/v2_core_account_link/requests.rs",
+              "generated/async-stripe-v2/src/v2_core_account_link/types.rs",
+              "generated/async-stripe-v2/src/v2_core_account_person/mod.rs",
+              "generated/async-stripe-v2/src/v2_core_account_person/requests.rs",
+              "generated/async-stripe-v2/src/v2_core_account_person/types.rs",
+              "generated/async-stripe-v2/src/v2_core_account_person_token/mod.rs",
+              "generated/async-stripe-v2/src/v2_core_account_person_token/requests.rs",
+              "generated/async-stripe-v2/src/v2_core_account_person_token/types.rs",
+              "generated/async-stripe-v2/src/v2_core_account_token/mod.rs",
+              "generated/async-stripe-v2/src/v2_core_account_token/requests.rs",
+              "generated/async-stripe-v2/src/v2_core_account_token/types.rs",
+              "generated/async-stripe-v2/src/v2_core_event/mod.rs",
+              "generated/async-stripe-v2/src/v2_core_event/requests.rs",
+              "generated/async-stripe-v2/src/v2_core_event/types.rs",
+              "generated/async-stripe-v2/src/v2_core_event_destination/mod.rs",
+              "generated/async-stripe-v2/src/v2_core_event_destination/requests.rs",
+              "generated/async-stripe-v2/src/v2_core_event_destination/types.rs",
+              "generated/async-stripe-v2/src/v2_deleted_object.rs"
+            ],
+            "generated_deserializable_fields_by_crate": {
+              "async-stripe-events": 46,
+              "async-stripe-v2": 810
+            }
+          }
+        },
+        "handwritten_notification_fields": {
+          "EventNotification": 9,
+          "EventReasonRequest": 2,
+          "EventReason": 2,
+          "RelatedObject": 3
+        },
+        "success": true
+      }
+    }
+  },
+  "legacy_verification": {
+    "toolchain": "1.89.0",
+    "completed_checks": [
+      "generation",
+      "format",
+      "format-check",
+      "generated-and-webhook-check",
+      "webhook-tests",
+      "fixtures",
+      "deserialization-tests",
+      "parser-tests"
+    ],
+    "source_unchanged": true,
+    "success": true,
+    "generated_packages": [
+      "async-stripe-billing",
+      "async-stripe-checkout",
+      "async-stripe-connect",
+      "async-stripe-core",
+      "async-stripe-fraud",
+      "async-stripe-issuing",
+      "async-stripe-misc",
+      "async-stripe-payment",
+      "async-stripe-product",
+      "async-stripe-reserve",
+      "async-stripe-shared",
+      "async-stripe-terminal",
+      "async-stripe-treasury"
+    ],
+    "compiled_generated_crate_source_files": 1741,
+    "compiled_generated_crate_source_files_by_package": {
+      "async-stripe-billing": 116,
+      "async-stripe-checkout": 3,
+      "async-stripe-connect": 62,
+      "async-stripe-core": 71,
+      "async-stripe-fraud": 41,
+      "async-stripe-issuing": 17,
+      "async-stripe-misc": 172,
+      "async-stripe-payment": 39,
+      "async-stripe-product": 19,
+      "async-stripe-reserve": 9,
+      "async-stripe-shared": 1049,
+      "async-stripe-terminal": 59,
+      "async-stripe-treasury": 84
+    },
+    "workspace_retained": true
+  },
+  "resource_regression_success": true,
+  "validation": {
+    "generator_tests": 67,
+    "core_tests": 16,
+    "thin_flow_test_executions": 11,
+    "original_resource_test_executions": 24,
+    "generator_strict_all_target_clippy": true,
+    "core_strict_clippy_with_and_without_v2": true,
+    "consumer_runtime_strict_all_target_clippy": true,
+    "release_generator_build": true,
+    "nightly_formatting": true
+  },
+  "limitations": [
+    "Two selected thin event types; no complete typed event catalog.",
+    "Related-resource DTOs are selected by the caller; no automatic family adapters.",
+    "No cloud delivery wrapper extraction or live Stripe calls.",
+    "Field counts exclude decoder helper declarations, enums, ID wrappers, request-only fields, handwritten runtime structs, and contents of open JSON values. No benchmark timings collected."
+  ]
+}

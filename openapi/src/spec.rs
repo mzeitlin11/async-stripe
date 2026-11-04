@@ -5,6 +5,7 @@ use openapiv3::{
 };
 
 use crate::operations::OperationType;
+use crate::thin_events::is_thin_event_schema;
 use crate::types::ComponentName;
 
 #[derive(Debug, Clone)]
@@ -15,7 +16,7 @@ impl Spec {
         Self(spec, false)
     }
 
-    /// Explicitly scope the development experiment to v2 schemas and operations.
+    /// Scope development to v2 operations and models, plus explicitly classified thin events.
     pub fn v2_experiment(spec: OpenAPI) -> anyhow::Result<Self> {
         anyhow::ensure!(
             spec.paths.paths.keys().all(|path| path.starts_with("/v2/")),
@@ -24,8 +25,9 @@ impl Spec {
         anyhow::ensure!(
             spec.components.as_ref().is_some_and(|components| components
                 .schemas
-                .keys()
-                .all(|name| name.starts_with("v2."))),
+                .iter()
+                .all(|(name, schema)| name.starts_with("v2.")
+                    || schema.as_item().is_some_and(is_thin_event_schema))),
             "v2 experiment input contains a non-v2 component"
         );
         Ok(Self(spec, true))
@@ -170,5 +172,21 @@ impl ExpansionResources {
                 .map(|r| ReferenceOr::Reference { reference: r.reference })
                 .collect(),
         }
+    }
+}
+
+#[cfg(test)]
+mod experiment_tests {
+    use super::*;
+
+    #[test]
+    fn thin_event_classification_is_independent_of_resource_namespace() {
+        let mut raw = serde_json::json!({"openapi":"3.0.0","info":{"title":"test","version":"2026-08-26.dahlia"},"paths":{},"components":{"schemas":{"v1.billing.meter.error_report_triggered":{"type":"object","x-stripeEvent":{"kind":"thin","type":"v1.billing.meter.error_report_triggered"}}}}});
+        Spec::v2_experiment(serde_json::from_value(raw.clone()).unwrap()).unwrap();
+        raw["components"]["schemas"]["v1.billing.meter.error_report_triggered"]
+            .as_object_mut()
+            .unwrap()
+            .remove("x-stripeEvent");
+        assert!(Spec::v2_experiment(serde_json::from_value(raw).unwrap()).is_err());
     }
 }

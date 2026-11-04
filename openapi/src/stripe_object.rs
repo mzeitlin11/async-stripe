@@ -97,7 +97,15 @@ fn parse_stripe_schema_as_rust_object(
     let id_component = catalog
         .id(&not_deleted_path)
         .unwrap_or_else(|| panic!("id component was missing from catalog: {not_deleted_path}"));
-    let infer_ctx = Inference::new(ident, catalog).id_component(id_component).required(true);
+    // Thin event schemas share the v2.core.event object tag but describe
+    // different event types. Their identifiers are references in envelopes,
+    // not distinct resources with independently owned ID declarations.
+    let infer_ctx = Inference::new(ident, catalog).required(true);
+    let infer_ctx = if crate::thin_events::is_thin_event_schema(schema) {
+        infer_ctx
+    } else {
+        infer_ctx.id_component(id_component)
+    };
     let typ = infer_ctx.infer_schema_type(schema);
     let Some((mut rust_obj, _)) = typ.into_object() else {
         panic!("Unexpected top level schema type for {path}");

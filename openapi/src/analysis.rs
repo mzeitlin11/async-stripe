@@ -1,3 +1,4 @@
+mod deserialization;
 mod modules;
 
 use std::collections::BTreeMap;
@@ -84,6 +85,9 @@ impl CodeGen {
         bundle.insert("summary.md", report_summary);
         bundle.insert("components.csv", components_csv(self, &component_stats));
         bundle.insert("items.csv", items_csv(self));
+        let (fields, crates) = deserialization::reports(self);
+        bundle.insert("deserialization-fields.csv", fields);
+        bundle.insert("deserialization-crates.csv", crates);
         bundle.insert("item-occurrences.csv", item_occurrences_csv(self));
         bundle.insert("dependencies.csv", dependencies_csv(&self.components));
         bundle.insert("crate-inference-warnings.csv", crate_warnings_csv(self));

@@ -1,0 +1,24 @@
+[package]
+name = "v2-webhook-experiment"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+async-stripe = { path = "../async-stripe", default-features = false, features = ["default-tls", "v2", "blocking", "async-std-surf"] }
+async-stripe-client-core = { path = "../async-stripe-client-core", default-features = false, features = ["v2", "webhook-signatures"] }
+async-stripe-events = { path = "../generated/async-stripe-events", features = ["serialize", "deserialize"], optional = true }
+async-stripe-v2 = { path = "../generated/async-stripe-v2", features = ["deserialize"], optional = true }
+serde_json.workspace = true
+miniserde.workspace = true
+
+[dev-dependencies]
+httpmock = { version = "0.8.3", default-features = false }
+tokio = { version = "1.24.1", features = ["rt", "macros"] }
+hmac = "0.13"
+sha2 = "0.11"
+hex = "0.4"
+
+[features]
+typed-events = ["dep:async-stripe-events"]
+accounts = ["typed-events", "dep:async-stripe-v2"]

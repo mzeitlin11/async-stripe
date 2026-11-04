@@ -10,6 +10,8 @@ import hashlib
 import importlib.util
 import json
 import os
+import csv
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -41,6 +43,7 @@ def main():
     parser.add_argument("--generator-target-dir", type=Path, required=True)
     parser.add_argument("--target-dir", type=Path, required=True)
     parser.add_argument("--stage-only", action="store_true")
+    parser.add_argument("--webhooks", action="store_true", help="verify thin notifications, typed fetched events, and optional Account DTOs")
     args = parser.parse_args()
     work = args.work_dir.resolve()
     if work.is_relative_to(REPO) or REPO.is_relative_to(work):
@@ -52,7 +55,7 @@ def main():
     marker.write_text("async-stripe v2 experimental verification\n")
     for target in [args.target_dir.resolve(), args.generator_target_dir.resolve()]:
         if target.is_relative_to(REPO) or any(target.is_relative_to(work / name / "workspace")
-                                           for name in ["events", "combined"]):
+                                           for name in ["events", "combined", "webhooks"]):
             parser.error("target directory must be outside source workspaces")
     spec_bytes = args.spec.read_bytes()
     inputs = json.loads((REPO / "openapi/research/v2-architecture/inputs.json").read_text())
@@ -66,13 +69,15 @@ def main():
     before = helper.source_snapshot()
     summary = {"input_sha256": expected, "source_unchanged": False, "success": False, "cases": {}}
     try:
-        for name, resources in [("events", EVENTS), ("combined", EVENTS + ACCOUNTS)]:
+        cases = [("webhooks", EVENTS + ACCOUNTS)] if args.webhooks else [("events", EVENTS), ("combined", EVENTS + ACCOUNTS)]
+        for name, resources in cases:
             case = work / name
             case.mkdir(exist_ok=True)
             output, workspace = case / "output", case / "workspace"
             gen_env = dict(os.environ, CARGO_TARGET_DIR=str(args.generator_target_dir.resolve()))
+            extra = ["--events", "v2.core.account.updated,v1.billing.meter.error_report_triggered", "--layout", REPO / "openapi/experiments/v2/webhooks/gen_crates.toml"] if args.webhooks else []
             run(["cargo", "+1.89.0", "run", "--locked", "--offline", "--example", "v2_slice", "--",
-                 "--spec", args.spec.resolve(), "--out", output, "--resources", ",".join(resources)],
+                 "--spec", args.spec.resolve(), "--out", output, "--resources", ",".join(resources), *extra],
                 REPO / "openapi", gen_env, case / "generation.log")
             if workspace.exists():
                 shutil.rmtree(workspace)
@@ -86,9 +91,13 @@ def main():
                     shutil.copytree(package, workspace / "generated" / package.name)
                 elif any(path.name != "mod.rs" for path in (package / "src").rglob("*.rs")):
                     raise RuntimeError("v2 models reached reserved legacy Shared; choose explicit v2 ownership before staging")
-            shutil.copytree(REPO / "openapi/experiments/v2/consumer", workspace / "v2-experiment")
+            consumer = "webhooks/consumer" if args.webhooks else "consumer"
+            shutil.copytree(REPO / "openapi/experiments/v2" / consumer, workspace / "v2-experiment")
             fixtures = workspace / "v2-experiment/fixtures"
             fixtures.mkdir()
+            if args.webhooks:
+                for fixture in (REPO / "openapi/experiments/v2/webhooks/fixtures").glob("*.json"):
+                    shutil.copyfile(fixture, fixtures / fixture.name)
             for resource in EVENTS + ACCOUNTS:
                 samples = document["components"]["schemas"][resource].get("x-stripeDocsSamples", [])
                 if resource == "v2.core.account":
@@ -97,7 +106,10 @@ def main():
                     # The pinned update example satisfies the pinned schema.
                     samples = document["paths"]["/v2/core/accounts/{id}"]["post"]["x-stripeDocsSamples"]
                 if samples:
-                    (fixtures / f"{resource.rsplit('.', 1)[-1]}.json").write_text(json.dumps(samples[0]["response"]))
+                    sample = samples[0]["response"].copy()
+                    if args.webhooks and resource == "v2.core.account":
+                        sample["id"] = "acct_test"
+                    (fixtures / f"{resource.rsplit('.', 1)[-1]}.json").write_text(json.dumps(sample))
             legacy = json.loads((REPO / "openapi/fixtures.json").read_text())["resources"]["account"]
             legacy["id"] = document["components"]["schemas"]["v2.core.account"]["x-stripeDocsSamples"][0]["response"]["id"]
             (fixtures / "v1-account.json").write_text(json.dumps(legacy))
@@ -113,6 +125,35 @@ def main():
             result = {"workspace": str(workspace)}
             summary["cases"][name] = result
             if args.stage_only:
+                continue
+            if args.webhooks:
+                result["workloads"] = {}
+                for workload, selected in [("notification", []), ("typed-events", ["--features", "typed-events"]), ("accounts", ["--features", "accounts"])]:
+                    run(["cargo", "+1.89.0", "check", "--offline", "-p", "v2-webhook-experiment", *selected, "--message-format=json"],
+                        workspace, env, case / f"{workload}-check.log")
+                    sources = helper.compiled_generated_sources(case / f"{workload}-check.log", workspace, allow_empty=workload == "notification")
+                    if any("async-stripe-shared/" in source for source in sources):
+                        raise RuntimeError("thin events pulled in v1 Shared")
+                    compiled = set(sources)
+                    counts = {}
+                    with (output / "analysis/deserialization-fields.csv").open() as stream:
+                        for row in csv.DictReader(stream):
+                            source = row["emission_path"].replace("crates/", "generated/", 1)
+                            if source in compiled:
+                                counts[row["crate"]] = counts.get(row["crate"], 0) + int(row["fields"])
+                    expected_crates = set() if workload == "notification" else {"async-stripe-events"}
+                    if workload == "accounts": expected_crates.add("async-stripe-v2")
+                    if set(counts) != expected_crates:
+                        raise RuntimeError(f"unexpected generated DTO availability: {counts}; sources={sources}")
+                    run(["cargo", "+1.89.0", "test", "--offline", "-p", "v2-webhook-experiment", *selected],
+                        workspace, env, case / f"{workload}-wire.log")
+                    result["workloads"][workload] = {"generated_compiler_sources": sources, "generated_deserializable_fields_by_crate": counts}
+                # Count the four handwritten notification structs separately from canonical generated DTOs.
+                notification_source = (REPO / "async-stripe-client-core/src/event_notification.rs").read_text()
+                structs = dict(re.findall(r"pub struct (EventNotification|EventReason|EventReasonRequest|RelatedObject) \{(.*?)\n\}", notification_source, re.S))
+                if len(structs) != 4: raise RuntimeError("notification field counter needs updating")
+                result["handwritten_notification_fields"] = {name: len(re.findall(r"^    pub ", body, re.M)) for name, body in structs.items()}
+                result["success"] = True
                 continue
             features = ["--features", "accounts"] if name == "combined" else []
             run(["cargo", "+1.89.0", "check", "--offline", "-p", "v2-experiment", *features, "--message-format=json"],

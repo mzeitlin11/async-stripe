@@ -1,0 +1,20 @@
+{
+  "id": "evt_billing",
+  "object": "v2.core.event",
+  "type": "v1.billing.meter.error_report_triggered",
+  "created": "2026-08-26T00:00:00.000Z",
+  "livemode": false,
+  "context": "org/meter",
+  "related_object": {
+    "id": "mtr_test",
+    "type": "billing.meter",
+    "url": "/v1/billing/meters/mtr_test"
+  },
+  "reason": {
+    "type": "request",
+    "request": {
+      "id": "req_123",
+      "idempotency_key": "operation-123"
+    }
+  }
+}

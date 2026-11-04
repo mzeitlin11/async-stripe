@@ -33,6 +33,7 @@ pub mod spec_fetch;
 mod spec_inference;
 mod stripe_object;
 mod templates;
+mod thin_events;
 mod types;
 pub mod url_finder;
 mod visitor;

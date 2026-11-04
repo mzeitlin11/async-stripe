@@ -29,9 +29,13 @@ uuid = { version = "1.6.1", optional = true, features = ["v4"] }
 tracing = "0.1.40"
 thiserror = "2.0.11"
 percent-encoding = { version = "2", optional = true }
+hmac = { version = "0.13", optional = true }
+sha2 = { version = "0.11", optional = true }
+hex = { version = "0.4", optional = true }
 
 [features]
 default = ["v1"]
 v1 = ["dep:async-stripe-shared"]
 v2 = ["uuid", "dep:percent-encoding"]
+webhook-signatures = ["dep:hmac", "dep:sha2", "dep:hex"]
 redact-generated-debug = ["async-stripe-shared?/redact-generated-debug", "async-stripe-types/redact-generated-debug"]

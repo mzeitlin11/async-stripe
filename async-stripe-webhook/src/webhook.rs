@@ -279,23 +279,20 @@ impl Webhook {
         sig: &str,
         secret: &str,
     ) -> Result<Event, WebhookError> {
-        // Get Stripe signature from header
-        let signature = Signature::parse(sig)?;
-        let signed_payload = format!("{}.{}", signature.t, payload);
-
-        // Compute HMAC with the SHA256 hash function, using endpoint secret as key
-        // and signed_payload string as the message.
-        let mut mac =
-            Hmac::<Sha256>::new_from_slice(secret.as_bytes()).map_err(|_| WebhookError::BadKey)?;
-        mac.update(signed_payload.as_bytes());
-
-        let sig = hex::decode(signature.v1).map_err(|_| WebhookError::BadSignature)?;
-        mac.verify_slice(sig.as_slice()).map_err(|_| WebhookError::BadSignature)?;
-
-        // Get current timestamp to compare to signature timestamp
-        if (self.current_timestamp - signature.t).abs() > 300 {
-            return Err(WebhookError::BadTimestamp(signature.t));
-        }
+        use stripe_client_core::{SignatureError, WebhookSignature};
+        WebhookSignature::verify_at(
+            payload.as_bytes(),
+            sig,
+            secret,
+            self.current_timestamp,
+            std::time::Duration::from_secs(300),
+        )
+        .map_err(|error| match error {
+            SignatureError::BadHeader(error) => WebhookError::BadHeader(error),
+            SignatureError::BadKey => WebhookError::BadKey,
+            SignatureError::BadTimestamp(timestamp) => WebhookError::BadTimestamp(timestamp),
+            SignatureError::BadSignature | SignatureError::BadClock => WebhookError::BadSignature,
+        })?;
 
         self.parse_payload(payload)
     }
@@ -346,35 +343,6 @@ impl Webhook {
             pending_webhooks: base_evt.pending_webhooks,
             request: base_evt.request,
             type_: base_evt.type_,
-        })
-    }
-}
-
-#[derive(Debug)]
-struct Signature<'r> {
-    t: i64,
-    v1: &'r str,
-}
-
-impl<'r> Signature<'r> {
-    fn parse(raw: &'r str) -> Result<Signature<'r>, WebhookError> {
-        let mut t: Option<i64> = None;
-        let mut v1: Option<&'r str> = None;
-        for pair in raw.split(',') {
-            let (key, val) = pair.split_once('=').ok_or(WebhookError::BadSignature)?;
-            match key {
-                "t" => {
-                    t = Some(val.parse().map_err(WebhookError::BadHeader)?);
-                }
-                "v1" => {
-                    v1 = Some(val);
-                }
-                _ => {}
-            }
-        }
-        Ok(Signature {
-            t: t.ok_or(WebhookError::BadSignature)?,
-            v1: v1.ok_or(WebhookError::BadSignature)?,
         })
     }
 }
@@ -459,26 +427,6 @@ mod tests {
         assert!(output.contains("evt_object_parse"));
         assert!(output.contains("could not parse event object"));
         assert!(!output.contains("object_must_not_be_traced"));
-    }
-
-    #[test]
-    fn test_signature_parse() {
-        let raw_signature =
-            "t=1492774577,v1=5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd";
-        let signature = Signature::parse(raw_signature).unwrap();
-        assert_eq!(signature.t, 1492774577);
-        assert_eq!(
-            signature.v1,
-            "5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd"
-        );
-
-        let raw_signature_with_test_mode = "t=1492774577,v1=5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd,v0=6ffbb59b2300aae63f272406069a9788598b792a944a07aba816edb039989a39";
-        let signature = Signature::parse(raw_signature_with_test_mode).unwrap();
-        assert_eq!(signature.t, 1492774577);
-        assert_eq!(
-            signature.v1,
-            "5257a869e7ecebeda32affa62cdca3fa51cad7e77a0e56ff536d0ce8e108d8bd"
-        );
     }
 
     #[test]

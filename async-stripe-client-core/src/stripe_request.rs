@@ -186,6 +186,8 @@ fn deserialize_bytes<T: miniserde::Deserialize, Err: StripeClientErr>(
 /// A builder for specifying the possible pieces of a Stripe API request.
 #[derive(Clone, Debug)]
 pub struct RequestBuilder {
+    /// Event responsible for fetching this resource, for Stripe request correlation.
+    pub event_trigger: Option<String>,
     /// The current query string to use, if provided.
     pub query: Option<String>,
     /// The serialized body to send, if provided.
@@ -204,6 +206,7 @@ impl RequestBuilder {
     /// Construct a new `RequestBuilder`.
     pub fn new(method: StripeMethod, path: impl Into<String>) -> Self {
         Self {
+            event_trigger: None,
             path: path.into(),
             method,
             query: None,
@@ -216,6 +219,12 @@ impl RequestBuilder {
     /// Set the default dated API revision for these bindings.
     pub fn api_version(mut self, version: impl Into<String>) -> Self {
         self.api_version = Some(version.into());
+        self
+    }
+
+    /// Associate this fetch with a delivered event notification.
+    pub fn event_trigger(mut self, event: impl Into<String>) -> Self {
+        self.event_trigger = Some(event.into());
         self
     }
 

@@ -115,7 +115,7 @@ const _: () = {
         }
 
         fn finish(&mut self) -> Result<()> {
-            *self.out = self.builder.take_out();
+            *self.out = Some(self.builder.take_out().ok_or(miniserde::Error)?);
             Ok(())
         }
     }
@@ -151,6 +151,7 @@ pub enum InsightsResourcesPaymentEvaluationOutcomeType {
     Failed,
     MerchantBlocked,
     Rejected,
+    Rerouted,
     Succeeded,
     /// An unrecognized value from Stripe. Should not be used as a request parameter.
     Unknown(String),
@@ -162,6 +163,7 @@ impl InsightsResourcesPaymentEvaluationOutcomeType {
             Failed => "failed",
             MerchantBlocked => "merchant_blocked",
             Rejected => "rejected",
+            Rerouted => "rerouted",
             Succeeded => "succeeded",
             Unknown(v) => v,
         }
@@ -176,6 +178,7 @@ impl std::str::FromStr for InsightsResourcesPaymentEvaluationOutcomeType {
             "failed" => Ok(Failed),
             "merchant_blocked" => Ok(MerchantBlocked),
             "rejected" => Ok(Rejected),
+            "rerouted" => Ok(Rerouted),
             "succeeded" => Ok(Succeeded),
             v => {
                 tracing::warn!(

@@ -4,9 +4,9 @@
 #[cfg_attr(feature = "serialize", derive(serde::Serialize))]
 #[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
 pub struct InsightsResourcesPaymentEvaluationMoneyMovementDetails {
-    /// Describes card money movement details for the payment evaluation.
+    /// Describes card money movement details.
     pub card: Option<stripe_fraud::InsightsResourcesPaymentEvaluationMoneyMovementCard>,
-    /// Describes the type of money movement. Currently only `card` is supported.
+    /// Describes the type of money movement.
     pub money_movement_type:
         InsightsResourcesPaymentEvaluationMoneyMovementDetailsMoneyMovementType,
 }
@@ -91,7 +91,7 @@ const _: () = {
         }
 
         fn finish(&mut self) -> Result<()> {
-            *self.out = self.builder.take_out();
+            *self.out = Some(self.builder.take_out().ok_or(miniserde::Error)?);
             Ok(())
         }
     }
@@ -118,7 +118,7 @@ const _: () = {
         }
     }
 };
-/// Describes the type of money movement. Currently only `card` is supported.
+/// Describes the type of money movement.
 #[derive(Clone, Eq, PartialEq)]
 #[non_exhaustive]
 pub enum InsightsResourcesPaymentEvaluationMoneyMovementDetailsMoneyMovementType {

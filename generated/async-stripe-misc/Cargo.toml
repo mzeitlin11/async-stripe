@@ -21,10 +21,10 @@ serde_json = { workspace = true, optional = true }
 smol_str.workspace = true
 miniserde.workspace = true
 tracing = { version = "0.1", default-features = false }
-async-stripe-types = {path = "../../async-stripe-types", version = "1.0.0-rc.9" }
-async-stripe-client-core = {path = "../../async-stripe-client-core", version = "1.0.0-rc.9" }
+async-stripe-types = {path = "../../async-stripe-types", version = "1.0.0-rc.10" }
+async-stripe-client-core = {path = "../../async-stripe-client-core", version = "1.0.0-rc.10" }
 
-async-stripe-shared = {path = "../../generated/async-stripe-shared", version = "1.0.0-rc.9" }
+async-stripe-shared = {path = "../../generated/async-stripe-shared", version = "1.0.0-rc.10" }
 
 
 [features]
@@ -50,6 +50,7 @@ reporting_report_type = []
 scheduled_query_run = []
 tax_association = []
 tax_calculation = []
+tax_location = []
 tax_registration = []
 tax_settings = []
 tax_transaction = []
@@ -74,6 +75,7 @@ full = ["apple_pay_domain",
 "scheduled_query_run",
 "tax_association",
 "tax_calculation",
+"tax_location",
 "tax_registration",
 "tax_settings",
 "tax_transaction",

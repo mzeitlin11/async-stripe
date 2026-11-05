@@ -1,4 +1,4 @@
-/// You can reverse some [ReceivedDebits](https://api.stripe.com#received_debits) depending on their network and source flow.
+/// You can reverse some [ReceivedDebits](https://docs.stripe.com/api#received_debits) depending on their network and source flow.
 /// Reversing a ReceivedDebit leads to the creation of a new object known as a DebitReversal.
 #[derive(Clone)]
 #[cfg_attr(not(feature = "redact-generated-debug"), derive(Debug))]
@@ -200,7 +200,7 @@ const _: () = {
         }
 
         fn finish(&mut self) -> Result<()> {
-            *self.out = self.builder.take_out();
+            *self.out = Some(self.builder.take_out().ok_or(miniserde::Error)?);
             Ok(())
         }
     }

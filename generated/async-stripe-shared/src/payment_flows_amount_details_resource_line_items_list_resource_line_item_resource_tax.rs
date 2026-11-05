@@ -3,11 +3,11 @@
 #[cfg_attr(feature = "serialize", derive(serde::Serialize))]
 #[cfg_attr(feature = "deserialize", derive(serde::Deserialize))]
 pub struct PaymentFlowsAmountDetailsResourceLineItemsListResourceLineItemResourceTax {
-    /// The total amount of tax on the transaction represented in the [smallest currency unit](https://docs.stripe.com/currencies#zero-decimal).
-    /// Required for L2 rates.
+    /// The total amount of tax on a single line item represented in the [smallest currency unit](https://docs.stripe.com/currencies#zero-decimal).
+    /// Required for L3 rates.
     /// An integer greater than or equal to 0.
     ///
-    /// This field is mutually exclusive with the `amount_details[line_items][#][tax][total_tax_amount]` field.
+    /// This field is mutually exclusive with the `amount_details[tax][total_tax_amount]` field.
     pub total_tax_amount: i64,
 }
 #[cfg(feature = "redact-generated-debug")]
@@ -89,7 +89,7 @@ const _: () = {
         }
 
         fn finish(&mut self) -> Result<()> {
-            *self.out = self.builder.take_out();
+            *self.out = Some(self.builder.take_out().ok_or(miniserde::Error)?);
             Ok(())
         }
     }

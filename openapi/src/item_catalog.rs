@@ -174,8 +174,15 @@ pub struct ItemCatalog {
     property_analysis_rounds: usize,
 }
 
-impl ItemCatalog {
-    pub fn build(
+/// Canonical declarations under construction. Representation changes belong
+/// here, before properties and request models are derived. A completed
+/// ItemCatalog has no mutable access to its declarations.
+pub(crate) struct ItemCatalogDraft {
+    catalog: ItemCatalog,
+}
+
+impl ItemCatalogDraft {
+    pub(crate) fn build(
         components: &Components,
         component_metadata: impl Fn(ComponentId) -> ItemMetadata,
     ) -> anyhow::Result<Self> {
@@ -266,8 +273,13 @@ impl ItemCatalog {
 
         let mut catalog = builder.finish()?;
         catalog.lower_named_references()?;
-        catalog.validate_lowered_structure()?;
         catalog.classify_enums(components);
+        Ok(Self { catalog })
+    }
+
+    pub(crate) fn finish(self, components: &Components) -> anyhow::Result<ItemCatalog> {
+        let mut catalog = self.catalog;
+        catalog.validate_lowered_structure()?;
         catalog.analyze_properties()?;
         catalog.validate_component_lifetimes(components)?;
 
@@ -284,6 +296,16 @@ impl ItemCatalog {
             );
         }
         Ok(catalog)
+    }
+}
+
+impl ItemCatalog {
+    #[cfg(test)]
+    pub fn build(
+        components: &Components,
+        component_metadata: impl Fn(ComponentId) -> ItemMetadata,
+    ) -> anyhow::Result<Self> {
+        ItemCatalogDraft::build(components, component_metadata)?.finish(components)
     }
 
     pub fn len(&self) -> usize {

@@ -1,6 +1,6 @@
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
-use crate::item_catalog::{ItemCatalog, ItemMetadata};
+use crate::item_catalog::{ItemCatalog, ItemCatalogDraft, ItemMetadata};
 use crate::request_model::{RequestCatalog, RequestModel};
 
 /// The complete canonical Rust model produced from inferred components.
@@ -18,7 +18,16 @@ impl RustModel {
         components: &Components,
         component_metadata: impl Fn(ComponentId) -> ItemMetadata,
     ) -> anyhow::Result<Self> {
-        let items = ItemCatalog::build(components, component_metadata)?;
+        Self::from_draft(components, ItemCatalogDraft::build(components, component_metadata)?)
+    }
+
+    /// Finalize representation-dependent properties and canonical requests
+    /// together. Layout and rendering only receive this completed model.
+    pub(crate) fn from_draft(
+        components: &Components,
+        draft: ItemCatalogDraft,
+    ) -> anyhow::Result<Self> {
+        let items = draft.finish(components)?;
         let requests = RequestCatalog::build(components, &items)?;
         Ok(Self { items, requests })
     }

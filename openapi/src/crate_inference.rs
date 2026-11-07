@@ -12,7 +12,7 @@ use crate::components::Components;
 use crate::crates::Crate;
 use crate::dependencies::EdgePolicy;
 use crate::graph::{ComponentGraph, gen_inferred_crate_dep_graph};
-use crate::layout::ComponentLayoutDraft;
+use crate::layout::{ComponentLayout, ComponentLayoutDraft};
 use crate::types::ComponentName;
 
 /// A warning emitted when a component's crate had to be auto-resolved
@@ -44,7 +44,7 @@ impl fmt::Display for CrateInferenceWarning {
 
 impl Components {
     #[tracing::instrument(skip_all)]
-    pub(crate) fn infer_all_crate_assignments(
+    pub(crate) fn infer_request_owners(
         &self,
         layout: &mut ComponentLayoutDraft,
         policy: EdgePolicy,
@@ -96,9 +96,21 @@ impl Components {
         );
         infer_crates_using_deps(self, layout, &component_graph, Self::maybe_infer_crate_by_deps);
         let warnings = self.resolve_missing_crates(layout, &component_graph);
-        self.assign_paths_required_to_share_types(layout, &component_graph);
-        self.validate_crate_assignment(layout, policy)?;
         Ok(warnings)
+    }
+
+    /// Preserve the historical Shared promotions using the immutable parsed
+    /// dependency facts. Other placement policies can instead inspect the
+    /// finalized Rust model without first applying these promotions.
+    pub(crate) fn legacy_model_layout(
+        &self,
+        mut request_owners: ComponentLayoutDraft,
+        policy: EdgePolicy,
+    ) -> anyhow::Result<ComponentLayout> {
+        let graph = self.gen_component_dep_graph(policy);
+        self.assign_paths_required_to_share_types(&mut request_owners, &graph);
+        self.validate_crate_assignment(&request_owners, policy)?;
+        ComponentLayout::from_draft(self, &request_owners)
     }
 
     /// For components with no assigned crate, auto-resolve by picking the most

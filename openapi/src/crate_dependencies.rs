@@ -3,8 +3,9 @@ use petgraph::prelude::DiGraphMap;
 
 use crate::component_catalog::ComponentId;
 use crate::crates::{ALL_CRATES, Crate};
+use crate::exports::{PublicExport, component_exports};
 use crate::item_catalog::ItemCatalog;
-use crate::item_layout::{ItemAddress, ItemLayout};
+use crate::item_layout::ItemLayout;
 use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
 use crate::module_dependencies::module_dependencies;
@@ -32,24 +33,22 @@ pub(crate) fn crate_dependencies<'a>(
     }
 
     for (item, record) in items.iter() {
-        // Public facades are consumers too, including IDs emitted separately
-        // from their models and shared overrides such as ApiVersion.
-        let facade = if record.origin.path.is_empty() {
-            match &record.origin.type_root {
-                TypeRoot::Declaration(
-                    DeclarationRoot::Component(component) | DeclarationRoot::ObjectId(component),
-                ) => Some(component_layout.placement(*component).request_crate()),
-                TypeRoot::Declaration(DeclarationRoot::Shared(_)) => Some(Crate::SHARED),
-                _ => None,
+        if !record.origin.path.is_empty() {
+            continue;
+        }
+        let exports = match record.origin.type_root {
+            TypeRoot::Declaration(DeclarationRoot::Component(component)) => {
+                component_exports(component, items, item_layout, component_layout)?
             }
-        } else {
-            None
+            TypeRoot::Declaration(DeclarationRoot::Shared(_)) => {
+                vec![PublicExport::item(item, Crate::SHARED, item_layout)?]
+            }
+            _ => Vec::new(),
         };
-        if let Some(source) = facade
-            && let ItemAddress::CrateRoot(target) = item_layout.placement(item).address()
-            && source != target
-        {
-            graph.add_edge(source, target, ());
+        for export in exports {
+            if let Some((source, target)) = export.dependency() {
+                graph.add_edge(source, target, ());
+            }
         }
     }
     for (source, targets) in modules {

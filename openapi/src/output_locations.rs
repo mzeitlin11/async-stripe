@@ -14,7 +14,7 @@ use crate::layout::{ComponentLayout, ComponentPlacement};
 #[derive(Copy, Clone)]
 pub(crate) struct OutputLocations<'a> {
     pub(crate) components: &'a Components,
-    component_layout: &'a ComponentLayout,
+    pub(crate) component_layout: &'a ComponentLayout,
 }
 
 impl<'a> OutputLocations<'a> {

@@ -420,3 +420,54 @@ fn a_standalone_model_cannot_shadow_its_request_directory() {
     let layout = fixture.layout(&[(model, krate("core"))]);
     assert!(fixture.emit(&layout).unwrap_err().to_string().contains("conflicting owners"));
 }
+
+#[test]
+fn finalization_derives_properties_and_requests_from_the_selected_representation() {
+    let fixture = Fixture::new();
+    let mut draft = super::ItemCatalogDraft::build(&fixture.components, |component| {
+        ItemMetadata::new(fixture.components.get_by_id(component).ident().clone())
+    })
+    .unwrap();
+    let root = TypeRoot::OperationReturn(
+        fixture.components.requests_for_component(fixture.customer)[0].operation_id,
+    );
+    let returned = draft.catalog.root(&root).unwrap().declaration.unwrap();
+    assert!(fixture.items.properties(returned).is_copy);
+    let RustItem::Object(object) = &mut draft.catalog.items[returned.index()].item else {
+        panic!("expected response object");
+    };
+    let RustObject::Struct(strukt) = &mut object.definition else {
+        panic!("expected response struct");
+    };
+    strukt.fields.push(StructField::new("payload", RustType::string()));
+    let returned_root = draft.catalog.roots.get_mut(&root).unwrap();
+    returned_root.typ = RustType::option(returned_root.typ.clone());
+
+    let model = crate::rust_model::RustModel::from_draft(&fixture.components, draft).unwrap();
+    assert!(!model.items().properties(returned).is_copy);
+    assert_eq!(
+        model.requests_for_component(fixture.customer)[0].returned.typ,
+        RustType::option(RustType::Item(returned)),
+    );
+}
+
+#[test]
+fn finalization_rejects_a_representation_that_adds_a_component_lifetime() {
+    let fixture = Fixture::new();
+    let mut draft = super::ItemCatalogDraft::build(&fixture.components, |component| {
+        ItemMetadata::new(fixture.components.get_by_id(component).ident().clone())
+    })
+    .unwrap();
+    let customer = draft.catalog.component_root(fixture.customer);
+    let RustItem::Object(object) = &mut draft.catalog.items[customer.index()].item else {
+        panic!("expected customer object");
+    };
+    let RustObject::Struct(strukt) = &mut object.definition else {
+        panic!("expected customer struct");
+    };
+    strukt
+        .fields
+        .push(StructField::new("borrowed", RustType::Reference(Box::new(RustType::string()))));
+    let error = crate::rust_model::RustModel::from_draft(&fixture.components, draft).err().unwrap();
+    assert!(error.to_string().contains("top-level component unexpectedly requires a lifetime"));
+}

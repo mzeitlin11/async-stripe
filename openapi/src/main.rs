@@ -129,7 +129,7 @@ fn run_analyze(args: AnalyzeArgs) -> Result<()> {
 fn run_update_api_docs(args: UpdateApiDocsArgs) -> Result<()> {
     let spec = Spec::new(spec_fetch::load_pinned_spec()?);
     let codegen = build_codegen(None, EdgePolicy::current_layout(), spec)?;
-    update_api_doc_data(&args.api_docs_url, &codegen.components)
+    update_api_doc_data(&args.api_docs_url, codegen.components())
 }
 
 fn build_codegen(version: Option<String>, edge_policy: EdgePolicy, spec: Spec) -> Result<CodeGen> {
@@ -176,11 +176,11 @@ fn run_rustfmt(out: &Path) -> Result<()> {
 fn print_summary(codegen: &CodeGen) {
     println!(
         "Modeled {} components ({} with requests).",
-        codegen.components.components.len(),
+        codegen.components().components.len(),
         codegen.request_component_count()
     );
-    if !codegen.crate_inference_warnings.is_empty() {
-        println!("Crate inference warnings: {}", codegen.crate_inference_warnings.len());
+    if !codegen.crate_inference_warnings().is_empty() {
+        println!("Crate inference warnings: {}", codegen.crate_inference_warnings().len());
     }
 }
 

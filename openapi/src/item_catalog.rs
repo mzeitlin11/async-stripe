@@ -287,6 +287,7 @@ impl ItemCatalogDraft {
         catalog.classify_enums(components);
         catalog.validate_object_metadata()?;
         catalog.analyze_properties()?;
+        catalog.validate_enum_rendering()?;
         catalog.validate_component_lifetimes(components)?;
 
         for &component in components.components.keys() {
@@ -474,15 +475,50 @@ impl ItemCatalog {
         Ok(())
     }
 
+    fn validate_enum_rendering(&self) -> anyhow::Result<()> {
+        for (item, record) in self.iter() {
+            let Some(object) = record.object() else { continue };
+            if !matches!(object.definition, RustObject::Enum(_)) {
+                continue;
+            }
+            let ident = &record.metadata.ident;
+            if object.enum_of_objects.is_some() {
+                anyhow::ensure!(
+                    !object.usage.used_as_request_param,
+                    "object enum {ident} cannot be rendered as request parameters"
+                );
+                anyhow::ensure!(
+                    !self.properties(item).has_lifetime,
+                    "object enum {ident} cannot be rendered with borrowed fields"
+                );
+            } else {
+                anyhow::ensure!(
+                    object.usage.used_as_request_param,
+                    "response enum {ident} is not a supported object union or live/deleted pair"
+                );
+            }
+        }
+        Ok(())
+    }
+
     fn classify_enums(&mut self, components: &Components) {
         let classifications = self
             .items
             .iter()
             .map(|item| match &item.item {
                 RustItem::Object(object) => match &object.definition {
-                    RustObject::Enum(variants) => as_enum_of_objects(components, variants, |typ| {
-                        component_for_type(&self.items, typ)
-                    }),
+                    RustObject::Enum(variants) => as_enum_of_objects(
+                        components,
+                        variants,
+                        |typ| component_for_type(&self.items, typ),
+                        |component| {
+                            let object = self.get(self.component_root(component)).object()?;
+                            match &object.definition {
+                                RustObject::Struct(strukt) => strukt.object_field.as_deref(),
+                                RustObject::Enum(_) | RustObject::FieldlessEnum(_) => None,
+                            }
+                        },
+                    ),
                     RustObject::Struct(_) | RustObject::FieldlessEnum(_) => None,
                 },
                 RustItem::IdNewtype => None,
@@ -820,6 +856,9 @@ mod dependency_tests;
 
 #[cfg(test)]
 mod emission_tests;
+
+#[cfg(test)]
+mod finalization_tests;
 
 #[cfg(test)]
 mod tests {

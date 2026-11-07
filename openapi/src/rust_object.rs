@@ -312,17 +312,15 @@ impl StructField {
     }
 }
 
-fn as_object_union(
-    components: &Components,
+fn as_object_union<'a>(
     variants: &[EnumVariant],
     component_for_type: &impl Fn(&RustType) -> Option<ComponentId>,
+    object_name: &impl Fn(ComponentId) -> Option<&'a str>,
 ) -> Option<IndexMap<String, ComponentId>> {
     let mut objects = IndexMap::new();
     for variant in variants {
         let component = component_for_type(variant.rust_type.as_ref()?)?;
-        let obj = components.get_by_id(component);
-
-        let name = obj.object_name()?;
+        let name = object_name(component)?;
         // Union of objects cannot have duplicate object names since then we cannot discriminate
         // by the object key
         if objects.insert(name.to_string(), component).is_some() {
@@ -357,12 +355,13 @@ fn as_maybe_deleted(
     Some(MaybeDeleted { base: base?, deleted: deleted? })
 }
 
-pub fn as_enum_of_objects(
+pub fn as_enum_of_objects<'a>(
     components: &Components,
     variants: &[EnumVariant],
     component_for_type: impl Fn(&RustType) -> Option<ComponentId>,
+    object_name: impl Fn(ComponentId) -> Option<&'a str>,
 ) -> Option<EnumOfObjects> {
-    if let Some(obj_union) = as_object_union(components, variants, &component_for_type) {
+    if let Some(obj_union) = as_object_union(variants, &component_for_type, &object_name) {
         Some(EnumOfObjects::ObjectUnion(obj_union))
     } else {
         as_maybe_deleted(components, variants, &component_for_type).map(EnumOfObjects::MaybeDeleted)

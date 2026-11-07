@@ -5,6 +5,7 @@ use anyhow::{Context, Result, bail};
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use stripe_openapi_codegen::analysis::GraphDetail;
 use stripe_openapi_codegen::codegen::{CodeGen, CodeGenOptions, EdgePolicy};
+use stripe_openapi_codegen::crate_inference::CrateInferenceWarning;
 use stripe_openapi_codegen::crates::CrateConfig;
 use stripe_openapi_codegen::output::{GeneratedWorkspace, install_to_repository};
 use stripe_openapi_codegen::spec::Spec;
@@ -25,6 +26,8 @@ enum Command {
     Generate(GenerateArgs),
     /// Analyze the API model and write reports without installing generated files.
     Analyze(AnalyzeArgs),
+    /// Write the original component and crate graphs to out/graphs.
+    Graph(VersionArgs),
     /// Refresh the Stripe documentation URL mapping.
     UpdateApiDocs(UpdateApiDocsArgs),
 }
@@ -52,6 +55,9 @@ struct GenerateArgs {
     /// Write detailed analysis reports to this directory.
     #[arg(long)]
     report_dir: Option<PathBuf>,
+    /// Write crate inference warnings to <out>/crate_warnings.md.
+    #[arg(long)]
+    emit_warnings: bool,
 }
 
 #[derive(Debug, Copy, Clone, Default, ValueEnum)]
@@ -90,6 +96,11 @@ fn main() -> Result<()> {
     match cli.command {
         Command::Generate(args) => run_generate(args),
         Command::Analyze(args) => run_analyze(args),
+        Command::Graph(args) => {
+            let spec = Spec::new(spec_fetch::load_pinned_spec()?);
+            let codegen = build_codegen(args.version, EdgePolicy::current_layout(), spec)?;
+            codegen.legacy_graphs()?.materialize(Path::new("out"))
+        }
         Command::UpdateApiDocs(args) => run_update_api_docs(args),
     }
 }
@@ -102,6 +113,9 @@ fn run_generate(args: GenerateArgs) -> Result<()> {
 
     materialize_and_format(&workspace, &args.out, codegen.crate_config())?;
 
+    if args.emit_warnings {
+        write_crate_inference_warnings(codegen.crate_inference_warnings(), &args.out)?;
+    }
     if let Some(report_dir) = args.report_dir {
         write_analysis(&codegen, &report_dir, GraphSelection::Default)?;
     }
@@ -221,4 +235,67 @@ fn parse_workspace_version() -> Result<String> {
 
     let manifest = fs::read_to_string("../Cargo.toml")?;
     Ok(toml::from_str::<Manifest>(&manifest)?.workspace.package.version)
+}
+
+fn write_crate_inference_warnings(warnings: &[CrateInferenceWarning], output: &Path) -> Result<()> {
+    if !warnings.is_empty() {
+        let mut body = String::from(
+            "## Crate Inference Warnings\n\n\
+             The following components could not have their crate automatically inferred \
+             and were auto-assigned. Consider adding explicit path entries in \
+             `openapi/gen_crates.toml` to make these assignments permanent.\n\n\
+             | Component | Assigned Crate | Depended On By | Candidate Crates |\n\
+             |-----------|---------------|----------------|------------------|\n",
+        );
+        for w in warnings {
+            let deps =
+                w.depended_on_by.iter().map(|p| format!("`{p}`")).collect::<Vec<_>>().join(", ");
+            let crates = w
+                .candidate_crates
+                .iter()
+                .map(|c| format!("`{}`", c))
+                .collect::<Vec<_>>()
+                .join(", ");
+            body.push_str(&format!(
+                "| `{}` | `{}` | {} | {} |\n",
+                w.component, w.chosen_crate, deps, crates,
+            ));
+        }
+        body.push_str("\n### Suggested `gen_crates.toml` entries\n\n");
+        body.push_str(
+            "Add the following paths to the appropriate crate's `paths` array:\n\n```toml\n",
+        );
+        for w in warnings {
+            body.push_str(&format!(
+                "# currently auto-assigned to \"{}\"\n\"{}\",\n",
+                w.chosen_crate, w.component,
+            ));
+        }
+        body.push_str("```\n");
+        fs::write(output.join("crate_warnings.md"), body)?;
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use clap::Parser;
+
+    use super::{Cli, Command};
+
+    #[test]
+    fn accepts_existing_graph_and_warning_commands() {
+        assert!(matches!(
+            Cli::try_parse_from(["codegen", "graph"]).unwrap().command,
+            Command::Graph(_)
+        ));
+        let cli =
+            Cli::try_parse_from(["codegen", "generate", "--emit-warnings", "--dry-run"]).unwrap();
+        let Command::Generate(args) = cli.command else {
+            panic!("expected generation");
+        };
+        assert!(args.emit_warnings);
+        assert!(args.no_install);
+    }
 }

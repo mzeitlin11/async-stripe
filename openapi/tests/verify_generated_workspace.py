@@ -177,6 +177,8 @@ def main():
         commands = [
             ("format", ["cargo", "+nightly", "fmt", "--all"]),
             ("format-check", ["cargo", "+nightly", "fmt", "--all", "--check"]),
+            ("minimal-runtime-check", cargo + ["check", "--offline", "-p", "async-stripe-client-core", "--no-default-features"]),
+            ("narrow-v1-check", cargo + ["check", "--offline", "-p", "async-stripe-core", "--no-default-features", "--features", "customer"]),
             ("generated-and-webhook-check", cargo + ["check", "--offline", *selected, "--all-features", "--message-format=json"]),
             ("webhook-tests", cargo + ["test", "--offline", "-p", "async-stripe-webhook", "--all-features"]),
             ("fixtures", cargo + ["test", "--offline", "-p", "async-stripe-tests", "--test", "it", "deserialization_fixture::fixtures", "--", "--exact", "--nocapture"]),

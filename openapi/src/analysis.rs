@@ -73,6 +73,61 @@ struct ComponentStats {
 }
 
 impl CodeGen {
+    /// Preserve the original graph command's paths and DOT labels. The richer
+    /// analysis bundle is additive and does not replace this tooling interface.
+    pub fn legacy_graphs(&self) -> anyhow::Result<crate::output::GeneratedWorkspace> {
+        use petgraph::dot::{Config, Dot};
+        use petgraph::prelude::DiGraphMap;
+
+        #[derive(Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
+        struct CrateLabel<'a>(&'a str);
+        impl std::fmt::Debug for CrateLabel<'_> {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                f.debug_struct("Crate").field("base_name", &self.0).finish()
+            }
+        }
+
+        let source = self.components.gen_component_dep_graph(self.edge_policy());
+        let mut components = DiGraphMap::<_, ()>::new();
+        for node in source.nodes() {
+            components.add_node(self.components.component_name(node));
+        }
+        for (from, to, _) in source.all_edges() {
+            components.add_edge(
+                self.components.component_name(from),
+                self.components.component_name(to),
+                (),
+            );
+        }
+        let source = gen_inferred_crate_dep_graph(
+            &self.components,
+            &self.config,
+            self.edge_policy(),
+            |component| self.output_locations().placement(component),
+        );
+        let mut crates = DiGraphMap::<_, ()>::new();
+        for node in source.nodes() {
+            crates.add_node(CrateLabel(node.base_name(&self.config)));
+        }
+        for (from, to, _) in source.all_edges() {
+            crates.add_edge(
+                CrateLabel(from.base_name(&self.config)),
+                CrateLabel(to.base_name(&self.config)),
+                (),
+            );
+        }
+        let mut output = crate::output::GeneratedWorkspace::default();
+        output.write(
+            "graphs/components_graph.txt",
+            format!("{:?}", Dot::with_config(&components, &[Config::EdgeNoLabel])),
+        )?;
+        output.write(
+            "graphs/crate_graph.txt",
+            format!("{:?}", Dot::with_config(&crates, &[Config::EdgeNoLabel])),
+        )?;
+        Ok(output)
+    }
+
     pub fn analysis_bundle(&self, graph_detail: GraphDetail) -> AnalysisBundle {
         let locations = self.output_locations();
         let component_stats = component_stats(&self.components);

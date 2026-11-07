@@ -112,8 +112,10 @@ where
             let mut result = type_properties(inner, items, item_property)?;
             result.has_lifetime = true;
             result.is_copy = true;
-            if matches!(&**inner, RustType::Container(Container::Map { .. })) {
-                result.is_eq = true;
+            if let RustType::Container(Container::Map { value, .. }) = &**inner {
+                // Both supported map key types implement Eq. Borrowing the
+                // map does not remove the value type's equality requirements.
+                result.is_eq = type_properties(value, items, item_property)?.is_eq;
             }
             Ok(result)
         }
@@ -124,13 +126,13 @@ where
                     result.is_copy = false;
                     result.is_eq = false;
                 }
-                Container::Vec(_) => result.is_copy = false,
+                Container::Vec(_) | Container::Box(_) => result.is_copy = false,
                 Container::Slice(_) => result.is_copy = true,
                 Container::Expandable(_) => {
                     result.is_copy = false;
                     result.is_eq = false;
                 }
-                Container::Option(_) | Container::Box(_) => {}
+                Container::Option(_) => {}
                 Container::Map { .. } => {
                     result.is_copy = false;
                     result.is_eq = false;
@@ -138,5 +140,36 @@ where
             }
             Ok(result)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::resolve;
+    use crate::rust_type::RustType;
+
+    #[test]
+    fn boxes_do_not_inherit_copy_from_their_payloads() {
+        for typ in
+            [RustType::boxed(RustType::bool()), RustType::option(RustType::boxed(RustType::bool()))]
+        {
+            let properties = resolve(&[], &[], &typ).unwrap();
+            assert!(!properties.is_copy);
+            assert!(properties.is_eq);
+        }
+    }
+
+    #[test]
+    fn borrowed_maps_preserve_their_values_equality_requirements() {
+        for (value, expected_eq) in [(RustType::bool(), true), (RustType::float(), false)] {
+            let typ = RustType::reference(RustType::str_map(value));
+            let properties = resolve(&[], &[], &typ).unwrap();
+            assert_eq!(properties.is_eq, expected_eq);
+            assert!(properties.is_copy);
+            assert!(properties.has_lifetime);
+        }
+        // Keep the existing conservative policy for owned maps.
+        let owned = RustType::str_map(RustType::bool());
+        assert!(!resolve(&[], &[], &owned).unwrap().is_eq);
     }
 }

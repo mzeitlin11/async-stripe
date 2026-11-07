@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 use std::fs::File;
+use std::path::Path;
 
-use anyhow::{Result, anyhow, bail};
+use anyhow::{Context, Result, anyhow, bail};
 use heck::ToSnakeCase;
 use reqwest::blocking::Client;
 use tracing::{info, warn};
@@ -11,7 +12,7 @@ use crate::components::Components;
 // we use a common user agent, otherwise stripe rejects the connection
 const APP_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36";
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct UrlFinder {
     /// Map of object name to stripe URL path (unprefixed)
     doc_links: HashMap<String, String>,
@@ -19,7 +20,16 @@ pub struct UrlFinder {
 
 impl UrlFinder {
     pub fn new() -> Result<Self> {
-        let doc_links = serde_json::from_reader(File::open("doc_urls.json")?)?;
+        Self::load(Path::new("doc_urls.json"))
+    }
+
+    pub fn load(path: &Path) -> Result<Self> {
+        let file = File::open(path).with_context(|| {
+            format!("could not open documentation URL mapping {}", path.display())
+        })?;
+        let doc_links = serde_json::from_reader(file).with_context(|| {
+            format!("could not parse documentation URL mapping {}", path.display())
+        })?;
         Ok(Self { doc_links })
     }
 
@@ -81,5 +91,33 @@ fn fetch_flattened_api_data(api_url: &str) -> Result<serde_json::Map<String, ser
     } else {
         tracing::error!("{}", resp.text()?);
         Err(anyhow!("request to stripe api returned non-200 status code"))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::UrlFinder;
+
+    #[test]
+    fn default_mapping_needs_no_documentation_file() {
+        assert!(UrlFinder::default().url_for_object("customer").is_none());
+    }
+
+    #[test]
+    fn loads_documentation_mapping_from_an_explicit_path() {
+        let path = std::env::temp_dir().join(format!(
+            "async-stripe-doc-urls-{}-{}.json",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::write(&path, r#"{"customer":"/customers/object"}"#).unwrap();
+        let result = UrlFinder::load(&path);
+        std::fs::remove_file(path).unwrap();
+        let finder = result.unwrap();
+        assert_eq!(
+            finder.url_for_object("customer").as_deref(),
+            Some("https://stripe.com/docs/api/customers/object")
+        );
+        assert!(finder.url_for_object("unknown").is_none());
     }
 }

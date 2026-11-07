@@ -148,3 +148,19 @@ configuration and input pins stay unchanged. Results are retained separately in
 [neutral_refactor_review.json](neutral_refactor_review.json) and its
 [evidence archive](neutral_refactor_review_evidence.tar.gz); the original
 validation record remains historical evidence for the first implementation.
+
+## Second review
+
+The second review adds construction checks for the enum forms currently
+supported by rendering and derives union discriminator tags from represented
+structs. It also exercises canonical fixture names after rename/relocation and
+validated alternate placement tables. Artifact-write tests verify that rejecting
+a duplicate leaves the original bytes intact; documentation mapping tests use
+explicit files or an empty mapping without network access.
+
+Two inherited derived-trait bugs are corrected in a separate commit: `Box<T>`
+cannot be `Copy`, and borrowing a map does not make floating-point values `Eq`.
+The conservative policy for owned-map equality remains unchanged. These fixes
+are distinguished from the neutral construction changes in
+[neutral_refactor_review2.json](neutral_refactor_review2.json), with fresh logs
+in the [second review evidence archive](neutral_refactor_review2_evidence.tar.gz).

@@ -182,19 +182,17 @@ fn local_items_must_be_visible_from_the_emission_site_even_within_one_crate() {
     );
     collect(&mut builder, customer, RustObject::Struct(Struct::new(vec![])));
     let items = finish(builder);
-    let component_layout =
-        ComponentLayout::for_test(&[(charge, core, core), (customer, core, core)]);
     let same_module = ItemLayout::for_test(vec![
         placement(charge, core),
         (EmissionSite::ComponentTypes(charge), ItemAddress::Local),
     ]);
-    let graph = crate_dependencies(&items, [], &component_layout, &same_module).unwrap();
-    assert!(!graph.contains_edge(core, core));
+    let graph = crate::module_dependencies::module_dependencies(&items, [], &same_module).unwrap();
+    assert_eq!(graph.len(), 1);
     for site in [EmissionSite::ComponentTypes(customer), EmissionSite::ComponentRequests(charge)] {
         let different_module =
             ItemLayout::for_test(vec![placement(charge, core), (site, ItemAddress::Local)]);
         let error =
-            crate_dependencies(&items, [], &component_layout, &different_module).unwrap_err();
+            crate::module_dependencies::module_dependencies(&items, [], &different_module).unwrap_err();
         assert!(format!("{error:#}").contains("is not visible"));
     }
 }

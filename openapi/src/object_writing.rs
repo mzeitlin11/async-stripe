@@ -2,14 +2,15 @@ use std::collections::HashMap;
 use std::fmt::Write;
 use std::path::PathBuf;
 
-use anyhow::{bail, ensure};
+use anyhow::ensure;
 use indoc::formatdoc;
 
 use crate::STRIPE_TYPES;
 use crate::component_catalog::ComponentId;
 use crate::crates::Crate;
+use crate::exports::{PublicExport, component_exports};
 use crate::item_catalog::{ItemCatalog, ItemId, ItemMetadata, ItemProperties, RustItem};
-use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
+use crate::item_layout::{EmissionSite, ItemLayout};
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
 use crate::render::{Lifetime, RenderContext};
@@ -189,32 +190,10 @@ impl<'a> ItemEmitter<'a> {
         component: ComponentId,
         output: &mut GeneratedWorkspace,
     ) -> anyhow::Result<()> {
-        let facade = self.locations.request_crate(component);
-        let model = self.items.component_root(component);
-        let placement = self.layout.placement(model);
-        let mut wildcard_site = None;
-        // Keep the existing public component modules and their wildcard
-        // reexports when the model still occupies its component types module.
-        if let ItemAddress::CrateRoot(krate) = placement.address()
-            && krate != facade
-            && placement.emission_site() == EmissionSite::ComponentTypes(component)
+        for export in
+            component_exports(component, self.items, self.layout, self.locations.component_layout)?
         {
-            let module = self.locations.components.get_by_id(component).mod_path();
-            output.append(
-                facade.get_path_to_mod(),
-                format!("pub use {}::{module}::*;", krate.lib_name()),
-            )?;
-            wildcard_site = Some(placement.emission_site());
-        }
-        for item in std::iter::once(model).chain(self.items.component_id_item(component)) {
-            let placement = self.layout.placement(item);
-            ensure!(
-                matches!(placement.address(), ItemAddress::CrateRoot(_)),
-                "component public declaration is not exported: {item:?}"
-            );
-            if Some(placement.emission_site()) != wildcard_site {
-                self.reexport(item, facade, output)?;
-            }
+            self.write_export(export, output)?;
         }
         Ok(())
     }
@@ -225,14 +204,16 @@ impl<'a> ItemEmitter<'a> {
         facade: Crate,
         output: &mut GeneratedWorkspace,
     ) -> anyhow::Result<()> {
-        let ItemAddress::CrateRoot(krate) = self.layout.placement(item).address() else {
-            bail!("public declaration is not exported: {item:?}")
-        };
-        if krate != facade {
-            output.append(
-                facade.get_path_to_mod(),
-                format!("pub use {}::{};", krate.lib_name(), self.items.get(item).metadata.ident),
-            )?;
+        self.write_export(PublicExport::item(item, facade, self.layout)?, output)
+    }
+
+    fn write_export(
+        &self,
+        export: PublicExport,
+        output: &mut GeneratedWorkspace,
+    ) -> anyhow::Result<()> {
+        if let Some((facade, text)) = export.render(self.items, self.locations) {
+            output.append(facade.get_path_to_mod(), text)?;
         }
         Ok(())
     }
@@ -313,8 +294,10 @@ impl<'a> ItemEmitter<'a> {
                         self.locations.requests_module_path(component),
                         "pub(crate) mod types;",
                     )?;
-                    output
-                        .append(krate.get_path_to_mod(), format!("pub use {module}::types::*;"))?;
+                    output.append(
+                        krate.get_path_to_mod(),
+                        format!("pub use {module}::types::*;"),
+                    )?;
                 }
             }
             EmissionSite::ComponentRequests(component) => {

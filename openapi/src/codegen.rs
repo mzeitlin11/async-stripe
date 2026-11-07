@@ -30,14 +30,14 @@ use crate::url_finder::UrlFinder;
 use crate::webhook::write_generated_for_webhooks;
 
 pub struct CodeGen {
-    pub components: Components,
+    pub(crate) components: Components,
     pub(crate) model: RustModel,
     component_layout: ComponentLayout,
     pub(crate) item_layout: ItemLayout,
     pub(crate) crate_dependencies: DiGraphMap<Crate, ()>,
-    pub spec: Spec,
-    pub version: String,
-    pub crate_inference_warnings: Vec<CrateInferenceWarning>,
+    pub(crate) spec: Spec,
+    pub(crate) version: String,
+    pub(crate) crate_inference_warnings: Vec<CrateInferenceWarning>,
     edge_policy: EdgePolicy,
 }
 
@@ -59,7 +59,6 @@ impl CodeGen {
     ) -> anyhow::Result<Self> {
         let pipeline = run_pipeline(&spec, options.edge_policy)?;
         let mut components = pipeline.components;
-        let component_layout = pipeline.component_layout;
         let crate_inference_warnings = pipeline.crate_inference_warnings;
 
         // Attach doc urls for top-level components
@@ -75,6 +74,8 @@ impl CodeGen {
             let doc_comment = infer_doc_comment(schema, object.stripe_doc_url.as_deref());
             ItemMetadata::new(object.ident().clone()).doc(doc_comment)
         })?;
+        let component_layout =
+            components.legacy_model_layout(pipeline.request_owners, options.edge_policy)?;
         let item_layout =
             ItemLayout::from_component_layout(&components, model.items(), &component_layout)?;
         let crate_dependencies =
@@ -97,7 +98,14 @@ impl CodeGen {
         self.model.items().len()
     }
 
-    // TODO: too many useless helpers
+    pub fn components(&self) -> &Components {
+        &self.components
+    }
+
+    pub fn crate_inference_warnings(&self) -> &[CrateInferenceWarning] {
+        &self.crate_inference_warnings
+    }
+
     pub fn request_component_count(&self) -> usize {
         self.components.request_component_count()
     }

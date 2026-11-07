@@ -8,6 +8,7 @@ mod crate_table;
 pub mod crates;
 mod deduplication;
 mod dependencies;
+mod exports;
 mod graph;
 mod item_catalog;
 mod item_layout;

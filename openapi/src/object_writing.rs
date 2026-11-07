@@ -9,14 +9,14 @@ use crate::STRIPE_TYPES;
 use crate::component_catalog::ComponentId;
 use crate::crates::Crate;
 use crate::exports::{PublicExport, component_exports};
-use crate::item_catalog::{ItemCatalog, ItemId, ItemMetadata, ItemProperties, RustItem};
+use crate::item_catalog::{ItemCatalog, ItemId, RustItem};
 use crate::item_layout::{EmissionSite, ItemLayout};
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
 use crate::render::{Lifetime, RenderContext};
 use crate::request_model::RequestModel;
 use crate::rust_object::EnumOfObjects::ObjectUnion;
-use crate::rust_object::{ObjectIdentity, ObjectUsage, RustObject};
+use crate::rust_object::{ObjectIdentity, RustObject};
 use crate::templates::ObjectWriter;
 use crate::templates::object_trait::{write_object_trait, write_object_trait_for_enum};
 use crate::templates::utils::write_doc_comment;
@@ -26,59 +26,43 @@ impl RenderContext<'_> {
         self.assert_emits(item);
         let record = self.item(item);
         match &record.item {
-            RustItem::Object(object) => self.write_object_with_properties(
-                &object.definition,
-                &record.metadata,
-                object.usage,
-                self.item_properties(item),
-                object.enum_of_objects.as_ref(),
-                out,
-            ),
+            RustItem::Object(object) => {
+                if let Some(doc) = &record.metadata.doc {
+                    let comment = write_doc_comment(doc, 0);
+                    let _ = write!(out, "{comment}");
+                }
+
+                let properties = self.item_properties(item);
+                let lifetime = properties.has_lifetime.then_some(Lifetime);
+                let mut writer = ObjectWriter::new(*self, &record.metadata.ident, object.usage);
+                writer
+                    .lifetime(lifetime)
+                    .derive_copy(properties.is_copy)
+                    .derive_eq(properties.is_eq);
+
+                match &object.definition {
+                    RustObject::Struct(struct_) => {
+                        writer.write_struct_definition(out, struct_);
+                        if object.usage.used_as_request_param {
+                            writer.write_struct_constructor(out, struct_);
+                        }
+                    }
+                    RustObject::FieldlessEnum(variants) => {
+                        writer.provide_unknown_variant(object.definition.provide_unknown_variant());
+                        writer.use_underscore_unknown(object.definition.use_underscore_unknown());
+                        writer.write_fieldless_enum_variants(out, variants);
+                    }
+                    RustObject::Enum(variants) => {
+                        if let Some(objects) = &object.enum_of_objects {
+                            writer.write_enum_of_objects(out, objects);
+                        } else {
+                            writer.write_arbitrary_enum_variants(out, variants);
+                        }
+                    }
+                }
+            }
             RustItem::IdNewtype => {
                 let _ = writeln!(out, "{STRIPE_TYPES}::def_id!({});", record.metadata.ident);
-            }
-        }
-    }
-
-    fn write_object_with_properties(
-        &self,
-        obj: &RustObject,
-        metadata: &ItemMetadata,
-        usage: ObjectUsage,
-        properties: ItemProperties,
-        enum_of_objects: Option<&crate::rust_object::EnumOfObjects>,
-        out: &mut String,
-    ) {
-        if let Some(doc) = &metadata.doc {
-            let comment = write_doc_comment(doc, 0);
-            let _ = write!(out, "{comment}");
-        }
-
-        // If the object contains any references, we'll need to print with a lifetime
-        let lifetime = if properties.has_lifetime { Some(Lifetime) } else { None };
-        let ident = &metadata.ident;
-
-        let mut writer = ObjectWriter::new(*self, ident, usage);
-        writer.lifetime(lifetime).derive_copy(properties.is_copy).derive_eq(properties.is_eq);
-
-        match obj {
-            RustObject::Struct(struct_) => {
-                writer.write_struct_definition(out, struct_);
-                if usage.used_as_request_param {
-                    writer.write_struct_constructor(out, struct_);
-                }
-            }
-            RustObject::FieldlessEnum(variants) => {
-                writer.provide_unknown_variant(obj.provide_unknown_variant());
-                writer.use_underscore_unknown(obj.use_underscore_unknown());
-                writer.write_fieldless_enum_variants(out, variants);
-            }
-            RustObject::Enum(variants) => {
-                if let Some(objects) = enum_of_objects {
-                    writer.write_enum_of_objects(out, objects);
-                } else {
-                    writer.write_arbitrary_enum_variants(out, variants);
-                }
             }
         }
     }

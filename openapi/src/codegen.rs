@@ -4,8 +4,9 @@ use std::path::PathBuf;
 use anyhow::Context;
 use indoc::formatdoc;
 use petgraph::prelude::DiGraphMap;
+use tracing::{debug, info};
 
-use crate::components::Components;
+use crate::components::{Components, infer_components};
 use crate::crate_dependencies::{crate_dependencies, validate_crate_dependencies};
 use crate::crate_inference::CrateInferenceWarning;
 use crate::crate_table::generate_crate_table;
@@ -19,7 +20,6 @@ use crate::layout::ComponentLayout;
 use crate::object_writing::ItemEmitter;
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
-use crate::pipeline::run_pipeline;
 use crate::render::RenderContext;
 use crate::rust_model::RustModel;
 use crate::rust_type::DeclarationRoot;
@@ -43,27 +43,13 @@ pub struct CodeGen {
     edge_policy: EdgePolicy,
 }
 
-#[derive(Debug, Copy, Clone, Default)]
-pub struct CodeGenOptions {
-    pub edge_policy: EdgePolicy,
-}
-
 impl CodeGen {
     pub fn new(spec: Spec, url_finder: UrlFinder, version: String) -> anyhow::Result<Self> {
-        Self::new_with_options(spec, url_finder, version, CodeGenOptions::default())
-    }
-
-    pub fn new_with_options(
-        spec: Spec,
-        url_finder: UrlFinder,
-        version: String,
-        options: CodeGenOptions,
-    ) -> anyhow::Result<Self> {
         Self::with_config(
             spec,
             url_finder,
             version,
-            options,
+            EdgePolicy::default(),
             CrateConfig::load(std::path::Path::new("gen_crates.toml"))?,
         )
     }
@@ -72,12 +58,23 @@ impl CodeGen {
         spec: Spec,
         url_finder: UrlFinder,
         version: String,
-        options: CodeGenOptions,
+        edge_policy: EdgePolicy,
         config: CrateConfig,
     ) -> anyhow::Result<Self> {
-        let pipeline = run_pipeline(&spec, options.edge_policy, &config)?;
-        let mut components = pipeline.components;
-        let crate_inference_warnings = pipeline.crate_inference_warnings;
+        let (mut components, mut request_owners) = infer_components(&spec, &config)?;
+        components.filter_unused_components();
+        components.validate_catalog()?;
+
+        // Service ownership is inferred before rewrites for compatibility. Final
+        // model placement is selected separately, after Rust-model construction.
+        let crate_inference_warnings =
+            components.infer_request_owners(&mut request_owners, edge_policy, &config)?;
+        info!("Finished inferring request owners");
+
+        components.apply_overrides()?;
+        debug!("Finished applying overrides");
+        components.run_deduplication_pass();
+        info!("Finished deduplication pass");
 
         // Attach doc urls for top-level components
         for comp in components.components.values_mut() {
@@ -92,11 +89,8 @@ impl CodeGen {
             let doc_comment = infer_doc_comment(schema, object.stripe_doc_url.as_deref());
             ItemMetadata::new(object.ident().clone()).doc(doc_comment)
         })?;
-        let component_layout = components.legacy_model_layout(
-            pipeline.request_owners,
-            options.edge_policy,
-            &config,
-        )?;
+        let component_layout =
+            components.legacy_model_layout(request_owners, edge_policy, &config)?;
         let item_layout = ItemLayout::from_component_layout(
             &components,
             model.items(),
@@ -124,16 +118,12 @@ impl CodeGen {
             spec,
             version,
             crate_inference_warnings,
-            edge_policy: options.edge_policy,
+            edge_policy,
         })
     }
 
     pub fn crate_config(&self) -> &CrateConfig {
         &self.config
-    }
-
-    pub fn canonical_item_count(&self) -> usize {
-        self.model.items().len()
     }
 
     pub fn components(&self) -> &Components {
@@ -148,7 +138,7 @@ impl CodeGen {
         self.components.request_component_count()
     }
 
-    pub const fn edge_policy(&self) -> EdgePolicy {
+    pub(crate) const fn edge_policy(&self) -> EdgePolicy {
         self.edge_policy
     }
 

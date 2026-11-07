@@ -6,7 +6,6 @@ use crate::crates::{Crate, CrateConfig};
 use crate::item_catalog::{CanonicalTypeRoot, ItemCatalog, ItemId, ItemProperties, ItemRecord};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::item_origin::TypeRoot;
-use crate::render_plan::{ParameterConversion, constructor_parameter_conversion};
 use crate::rust_object::RustObject;
 use crate::rust_type::{Container, ExternalType, MapKey, PrimitiveType, RustType};
 use crate::types::RustIdent;
@@ -34,7 +33,7 @@ impl Display for Lifetime {
 #[derive(Debug, Copy, Clone, Default)]
 struct TypeUse {
     lifetime: Option<Lifetime>,
-    conversion: ParameterConversion,
+    impl_into: bool,
 }
 
 /// A context-bound display adapter for rendering one semantic `RustType`.
@@ -58,7 +57,12 @@ impl DisplayType<'_, '_> {
     pub fn constructor_parameter(mut self, lifetime: Option<Lifetime>) -> Self {
         self.use_site = TypeUse {
             lifetime,
-            conversion: constructor_parameter_conversion(self.typ, lifetime.is_some()),
+            impl_into: lifetime.is_none()
+                || !matches!(
+                    self.typ,
+                    RustType::Reference(_)
+                        | RustType::Container(Container::Slice(_) | Container::Expandable(_))
+                ),
         };
         self
     }
@@ -67,20 +71,6 @@ impl DisplayType<'_, '_> {
 impl Display for DisplayType<'_, '_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         fmt_type(f, self.context, self.typ, self.use_site)
-    }
-}
-
-/// A display adapter for a direct reference to a top-level component.
-#[derive(Copy, Clone)]
-pub struct DisplayComponent<'model> {
-    context: RenderContext<'model>,
-    component: ComponentId,
-}
-
-impl Display for DisplayComponent<'_> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let item = self.context.resolve_component(self.component);
-        fmt_named_type(f, self.context, &item, TypeUse::default())
     }
 }
 
@@ -141,8 +131,8 @@ impl<'model> RenderContext<'model> {
         DisplayType { context: self, typ, use_site: TypeUse::default() }
     }
 
-    pub fn display_component(self, component: ComponentId) -> DisplayComponent<'model> {
-        DisplayComponent { context: self, component }
+    pub(crate) fn component_item(self, component: ComponentId) -> ItemId {
+        self.items.component_root(component)
     }
 
     pub(crate) fn component_ident(self, component: ComponentId) -> &'model RustIdent {
@@ -187,10 +177,6 @@ impl<'model> RenderContext<'model> {
             .is_copy
     }
 
-    fn resolve_component(self, component: ComponentId) -> ResolvedTypeItem<'model> {
-        self.resolve_item(self.items.component_root(component))
-    }
-
     fn resolve_item(self, item: ItemId) -> ResolvedTypeItem<'model> {
         let record = self.items.get(item);
         let properties = self.items.properties(item);
@@ -222,14 +208,9 @@ fn fmt_type(
     typ: &RustType,
     use_site: TypeUse,
 ) -> std::fmt::Result {
-    if use_site.conversion == ParameterConversion::Into {
+    if use_site.impl_into {
         f.write_str("impl Into<")?;
-        fmt_type(
-            f,
-            context,
-            typ,
-            TypeUse { lifetime: use_site.lifetime, conversion: ParameterConversion::Direct },
-        )?;
+        fmt_type(f, context, typ, TypeUse { lifetime: use_site.lifetime, impl_into: false })?;
         return f.write_char('>');
     }
 
@@ -278,12 +259,7 @@ fn fmt_reference(
     } else {
         f.write_char('&')?;
     }
-    fmt_type(
-        f,
-        context,
-        inner,
-        TypeUse { lifetime: use_site.lifetime, conversion: ParameterConversion::Direct },
-    )
+    fmt_type(f, context, inner, TypeUse { lifetime: use_site.lifetime, impl_into: false })
 }
 
 fn fmt_type_name(
@@ -294,23 +270,11 @@ fn fmt_type_name(
     match item.location {
         ItemLocation::Local => {}
         ItemLocation::CrateRoot(krate) => {
-            write_crate_qualifier(f, context, krate)?;
+            write!(f, "{}::", krate.lib_name(context.config))?;
         }
         ItemLocation::ExternalModule(module) => write!(f, "{module}::")?,
     }
     write!(f, "{}", item.ident)
-}
-
-fn write_crate_qualifier(
-    f: &mut Formatter<'_>,
-    context: RenderContext<'_>,
-    target: Crate,
-) -> std::fmt::Result {
-    // The current output contract always uses the generated crate's absolute
-    // alias, including for same-crate references. The emission site is
-    // intentionally available here so a later, separate change can choose
-    // `crate::` without changing semantic item resolution.
-    write!(f, "{}::", target.lib_name(context.config))
 }
 
 fn fmt_primitive_type(f: &mut Formatter<'_>, typ: PrimitiveType) -> std::fmt::Result {
@@ -323,8 +287,7 @@ fn fmt_container(
     container: &Container,
     use_site: TypeUse,
 ) -> std::fmt::Result {
-    let nested_use =
-        TypeUse { lifetime: use_site.lifetime, conversion: ParameterConversion::Direct };
+    let nested_use = TypeUse { lifetime: use_site.lifetime, impl_into: false };
     match container {
         Container::List(inner) => {
             write!(f, "{STRIPE_TYPES}::List<")?;
@@ -379,6 +342,44 @@ fn fmt_map_key(f: &mut Formatter<'_>, context: RenderContext<'_>, key: MapKey) -
         MapKey::Currency => {
             let item = context.resolve_external(ExternalType::Currency);
             fmt_named_type(f, context, &item, TypeUse::default())
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Lifetime, RenderContext};
+    use crate::item_catalog::ItemCatalog;
+    use crate::item_layout::{EmissionSite, ItemLayout};
+    use crate::rust_type::{PrimitiveType, RustType};
+
+    #[test]
+    fn constructor_signatures_preserve_borrowing() {
+        let items = ItemCatalog::default();
+        let layout = ItemLayout::for_test(vec![]);
+        let config = crate::crates::test_config();
+        let context = RenderContext::new(&layout, &items, EmissionSite::Webhooks, &config);
+
+        for (typ, lifetime, expected) in [
+            (RustType::string(), Some(Lifetime), "impl Into<String>"),
+            (RustType::Primitive(PrimitiveType::Str).into_reference(), Some(Lifetime), "&'a str"),
+            (RustType::Primitive(PrimitiveType::Str).into_reference(), None, "impl Into<&str>"),
+            (RustType::slice(RustType::string()), Some(Lifetime), "[String]"),
+            (
+                RustType::expandable(RustType::json_value()),
+                Some(Lifetime),
+                "stripe_types::Expandable<miniserde::json::Value>",
+            ),
+            (
+                RustType::expandable(RustType::json_value()),
+                None,
+                "impl Into<stripe_types::Expandable<miniserde::json::Value>>",
+            ),
+        ] {
+            assert_eq!(
+                context.display_type(&typ).constructor_parameter(lifetime).to_string(),
+                expected
+            );
         }
     }
 }

@@ -2,9 +2,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result, bail};
-use clap::{Args, Parser, Subcommand, ValueEnum};
+use clap::{Args, Parser, Subcommand};
 use stripe_openapi_codegen::analysis::GraphDetail;
-use stripe_openapi_codegen::codegen::{CodeGen, CodeGenOptions, EdgePolicy};
+use stripe_openapi_codegen::codegen::{CodeGen, EdgePolicy};
 use stripe_openapi_codegen::crate_inference::CrateInferenceWarning;
 use stripe_openapi_codegen::crates::CrateConfig;
 use stripe_openapi_codegen::output::{GeneratedWorkspace, install_to_repository};
@@ -60,21 +60,13 @@ struct GenerateArgs {
     emit_warnings: bool,
 }
 
-#[derive(Debug, Copy, Clone, Default, ValueEnum)]
-enum GraphSelection {
-    None,
-    #[default]
-    Default,
-    All,
-}
-
 #[derive(Debug, Args)]
 struct AnalyzeArgs {
     #[command(flatten)]
     version: VersionArgs,
     /// Graph detail to include in the analysis bundle.
     #[arg(long, value_enum, default_value_t)]
-    graphs: GraphSelection,
+    graphs: GraphDetail,
     /// Analysis-only counterfactual: do not use Expandable<T> references for placement.
     #[arg(long)]
     without_expandables: bool,
@@ -117,7 +109,7 @@ fn run_generate(args: GenerateArgs) -> Result<()> {
         write_crate_inference_warnings(codegen.crate_inference_warnings(), &args.out)?;
     }
     if let Some(report_dir) = args.report_dir {
-        write_analysis(&codegen, &report_dir, GraphSelection::Default)?;
+        codegen.analysis_bundle(GraphDetail::Default).write_to(&report_dir)?;
     }
     if !args.no_install {
         install_to_repository(&args.out, Path::new(".."), codegen.crate_config())?;
@@ -135,7 +127,7 @@ fn run_analyze(args: AnalyzeArgs) -> Result<()> {
     let spec = Spec::new(spec_fetch::load_pinned_spec()?);
     let codegen = build_codegen(args.version.version, policy, spec)?;
     print_summary(&codegen);
-    write_analysis(&codegen, &args.report_dir, args.graphs)?;
+    codegen.analysis_bundle(args.graphs).write_to(&args.report_dir)?;
     println!("Analysis written to {}", args.report_dir.display());
     Ok(())
 }
@@ -153,7 +145,7 @@ fn build_codegen(version: Option<String>, edge_policy: EdgePolicy, spec: Spec) -
         spec,
         url_finder,
         version,
-        CodeGenOptions { edge_policy },
+        edge_policy,
         CrateConfig::load(Path::new("gen_crates.toml"))?,
     )
 }
@@ -206,15 +198,6 @@ fn print_summary(codegen: &CodeGen) {
     if !codegen.crate_inference_warnings().is_empty() {
         println!("Crate inference warnings: {}", codegen.crate_inference_warnings().len());
     }
-}
-
-fn write_analysis(codegen: &CodeGen, report_dir: &Path, graphs: GraphSelection) -> Result<()> {
-    let detail = match graphs {
-        GraphSelection::None => GraphDetail::None,
-        GraphSelection::Default => GraphDetail::Default,
-        GraphSelection::All => GraphDetail::All,
-    };
-    codegen.analysis_bundle(detail).write_to(report_dir)
 }
 
 fn parse_workspace_version() -> Result<String> {

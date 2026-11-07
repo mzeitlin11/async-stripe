@@ -67,27 +67,6 @@ impl From<&ObjectMetadata> for ItemMetadata {
     }
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub enum ItemKind {
-    Struct,
-    Enum,
-    FieldlessEnum,
-    IdNewtype,
-}
-
-impl ItemKind {
-    pub fn of(item: &RustItem) -> Self {
-        match item {
-            RustItem::Object(object) => match &object.definition {
-                RustObject::Struct(_) => Self::Struct,
-                RustObject::Enum(_) => Self::Enum,
-                RustObject::FieldlessEnum(_) => Self::FieldlessEnum,
-            },
-            RustItem::IdNewtype => Self::IdNewtype,
-        }
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct ObjectItem {
     pub definition: RustObject,
@@ -289,19 +268,6 @@ impl ItemCatalogDraft {
         catalog.analyze_properties()?;
         catalog.validate_enum_rendering()?;
         catalog.validate_component_lifetimes(components)?;
-
-        for &component in components.components.keys() {
-            let root = catalog.component_root(component);
-            anyhow::ensure!(
-                catalog.get(root).origin
-                    == ItemOrigin {
-                        type_root: TypeRoot::Declaration(DeclarationRoot::Component(component)),
-                        path: Vec::new(),
-                    },
-                "component root item did not retain its canonical origin: {}",
-                components.component_name(component)
-            );
-        }
         Ok(catalog)
     }
 }

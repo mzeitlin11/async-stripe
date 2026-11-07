@@ -3,6 +3,7 @@ use std::fmt::Write as _;
 use indoc::writedoc;
 
 use crate::rust_object::{EnumOfObjects, EnumVariant, FieldlessVariant};
+use crate::rust_type::RustType;
 use crate::templates::miniserde::gen_enum_of_objects_miniserde;
 use crate::templates::object_writer::{
     ObjectWriter, write_derives_line, write_redacted_debug_impl,
@@ -66,14 +67,16 @@ impl ObjectWriter<'_> {
             EnumOfObjects::MaybeDeleted(maybe_deleted) => {
                 for component in [maybe_deleted.base, maybe_deleted.deleted] {
                     let name = self.context.component_ident(component);
-                    let printable = self.context.display_component(component);
+                    let typ = RustType::Item(self.context.component_item(component));
+                    let printable = self.context.display_type(&typ);
                     let _ = writeln!(enum_body, "{name}({printable}),");
                 }
             }
             EnumOfObjects::ObjectUnion(objects) => {
                 for (obj_name, component) in objects {
                     let name = self.context.component_ident(*component);
-                    let printable = self.context.display_component(*component);
+                    let typ = RustType::Item(self.context.component_item(*component));
+                    let printable = self.context.display_type(&typ);
                     serde_derive.maybe_write_rename(&mut enum_body, obj_name);
                     let _ = writeln!(enum_body, "{name}({printable}),");
                 }

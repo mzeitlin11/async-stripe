@@ -79,46 +79,22 @@ impl ComponentLayout {
         components: &Components,
         draft: &ComponentLayoutDraft,
     ) -> anyhow::Result<Self> {
-        let mut placements = HashMap::with_capacity(components.components.len());
-        for &id in components.components.keys() {
-            let name = components.component_name(id);
-            let placement = draft
-                .placement(id)
-                .with_context(|| format!("component had no crate assignment: {name}"))?;
-            let previous = placements.insert(id, placement);
-            anyhow::ensure!(previous.is_none(), "duplicate layout placement for {name}");
-        }
-        let component_layout = Self { placements };
-        component_layout.validate(components, draft)?;
-        Ok(component_layout)
-    }
-
-    pub fn len(&self) -> usize {
-        self.placements.len()
+        let placements = components
+            .components
+            .keys()
+            .map(|&id| {
+                let name = components.component_name(id);
+                let placement = draft
+                    .placement(id)
+                    .with_context(|| format!("component had no crate assignment: {name}"))?;
+                Ok((id, placement))
+            })
+            .collect::<anyhow::Result<HashMap<_, _>>>()?;
+        Ok(Self { placements })
     }
 
     #[track_caller]
     pub(crate) fn placement(&self, component: ComponentId) -> ComponentPlacement {
         self.placements[&component]
-    }
-
-    fn validate(
-        &self,
-        components: &Components,
-        draft: &ComponentLayoutDraft,
-    ) -> anyhow::Result<()> {
-        anyhow::ensure!(
-            self.len() == components.components.len(),
-            "component layout and retained component counts differed"
-        );
-        for &id in components.components.keys() {
-            let name = components.component_name(id);
-            let placement = self.placement(id);
-            anyhow::ensure!(
-                draft.placement(id) == Some(placement),
-                "frozen component placement did not match draft for {name}"
-            );
-        }
-        Ok(())
     }
 }

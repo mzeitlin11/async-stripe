@@ -5,6 +5,7 @@ use crate::component_catalog::ComponentId;
 use crate::components::Components;
 use crate::crates::{Crate, CrateConfig};
 use crate::dependencies::EdgePolicy;
+use crate::exports::legacy_facade_dependencies;
 use crate::layout::ComponentPlacement;
 
 pub type ComponentGraph = DiGraphMap<ComponentId, ()>;
@@ -60,8 +61,8 @@ pub(crate) fn gen_inferred_crate_dep_graph(
     let mut graph = DiGraphMap::new();
     for krate in config.all() {
         graph.add_node(krate);
-        if krate != Crate::SHARED {
-            graph.add_edge(krate, Crate::SHARED, ());
+        for (source, target) in legacy_facade_dependencies([krate]) {
+            graph.add_edge(source, target, ());
         }
     }
 

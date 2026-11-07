@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-07",
+  "review_base": "211f370ec17589811227dc1aa04edf2fd837d860",
+  "review_areas": [
+    "Feature-author ergonomics against the v2 and opaque branches",
+    "Model invariants and rendering support",
+    "CLI, configuration, artifact handling, and verification"
+  ],
+  "inherited_trait_fix_commit": "68d00761eb3ab9114c019307f22bbc8e710eed00",
+  "construction_commit": "57e06f82263e696a34a0e99f74d79979e63968a0",
+  "code_file_sha256": {
+    "openapi/src/codegen.rs": "6ab49ed555f1c4073578033120a7d906acf818e26cbb3c1a257b60f288e92fcb",
+    "openapi/src/item_catalog.rs": "3de9041784f501a4464edcaca9ec3c9568d702aabcc566da12955921fadb19ce",
+    "openapi/src/item_catalog/emission_tests.rs": "d14bf4ce82935ef25dad3d1bc80c26df3b91078358b89cc8e4386f74337fa14b",
+    "openapi/src/item_catalog/finalization_tests.rs": "a0b29c989e743036b28e0df89ea3a05926019dc9a1356a9787526fd33249596f",
+    "openapi/src/item_layout.rs": "16b8d63179572ac98849c839e8ea3a1c2af539216cc328fc1860ac2dc47de559",
+    "openapi/src/item_properties.rs": "74ec6c8f89aea122a4f6580f8a30f5e46b8b355b9cd6bfc6c9a2334b19f1fd58",
+    "openapi/src/output.rs": "5e0ac17a892d5ce214c500943de581b9450b5a2ddffb8d894cab4e24976bc107",
+    "openapi/src/request_model.rs": "bb1ea295460366b78e13f2aa27515eec0dbefec23a845f47e628d4755d2d76d6",
+    "openapi/src/rust_object.rs": "0a1db711c66d955c2574db88b179ef3fdcabd576ef287e5b536f18cae25d1899",
+    "openapi/src/url_finder.rs": "2339fd0e8f72d4d54dbb4124d23cfe4b497eab5a85aea2c76e55c8c3bce2b013"
+  },
+  "resolved_findings": [
+    {
+      "finding": "Box payload properties could incorrectly make the owning Box Copy.",
+      "resolution": "Box always clears Copy; isolated inherited bug fix with regression."
+    },
+    {
+      "finding": "Borrowing a map incorrectly made floating-point values Eq.",
+      "resolution": "Borrowed-map equality follows value properties; conservative owned-map policy retained."
+    },
+    {
+      "finding": "A finalized enum could reach known unsupported-renderer panic paths.",
+      "resolution": "Finalization reports unsupported response/object enum usage and lifetime combinations."
+    },
+    {
+      "finding": "Final union tags still read original component discriminators after representation changes.",
+      "resolution": "Classification accepts an explicit tag provider and uses canonical represented structs; semantic Components remains separate."
+    },
+    {
+      "finding": "Fixture imports used inference-side names rather than canonical declaration names.",
+      "resolution": "Use canonical names and validate public addressability, preserving guaranteed legacy facade path spellings."
+    },
+    {
+      "finding": "Alternate item placement required mutating a default layout and remembering validation.",
+      "resolution": "Expose a validated from_placements constructor and reuse it for default placement and relocation tests."
+    },
+    {
+      "finding": "Request collection repeated a duplicate check guaranteed by unique source keys.",
+      "resolution": "Use a fallible collect and retain lowering errors."
+    },
+    {
+      "finding": "A rejected duplicate artifact write replaced the original bytes.",
+      "resolution": "Reject through BTreeMap::entry before replacement; materialization regression confirms original content."
+    },
+    {
+      "finding": "Documentation mapping had only a working-directory-dependent constructor.",
+      "resolution": "Add an empty Default and explicit-path load; CLI new() still reads doc_urls.json."
+    }
+  ],
+  "scope_notes": [
+    "The Box/borrowed-map corrections fix inherited trait-analysis bugs and are a separate commit from neutral construction changes.",
+    "Unsupported enum checks produce early errors; arbitrary response enum semantics are not added.",
+    "Default fixture path spellings are preserved instead of switching every reference to physical model crate paths.",
+    "No general placement/feature policy framework, crate-handle branding, or configuration naming normalization is introduced."
+  ],
+  "generator_library_tests": 87,
+  "generator_cli_tests": 1,
+  "parity_checker_tests": 3,
+  "strict_clippy": "passed",
+  "formatted_generation_parity": {
+    "before_files": 1758,
+    "after_files": 1758,
+    "removed": [],
+    "added": [],
+    "changed": [],
+    "before_tree_sha256": "09c4022fcbb4423ee2b6f4f0c10cac31e9cc5d36b487a72d8f9a53c526fb73ce",
+    "after_tree_sha256": "09c4022fcbb4423ee2b6f4f0c10cac31e9cc5d36b487a72d8f9a53c526fb73ce",
+    "equal": true
+  },
+  "legacy_cli_parity": {
+    "components_graph.txt": {
+      "equal": true,
+      "sha256": "34975824a8792689dffd40e2e569f6a95ca8ebc550b5f811206c96a5f477b242"
+    },
+    "crate_graph.txt": {
+      "equal": true,
+      "sha256": "54127d38f63713a2535d0d5eba96fbbdb461e029d8fbbf833afd6505ccba3d71"
+    },
+    "crate_warnings.md": {
+      "equal": true,
+      "sha256": "5b174eb61733c4842d9d565405fd30f1ab26bd6b08d40a178bf6d0f9d5450f3f"
+    }
+  },
+  "sdk_verification": {
+    "toolchain": "1.89.0",
+    "completed_checks": [
+      "generation",
+      "format",
+      "format-check",
+      "minimal-runtime-check",
+      "narrow-v1-check",
+      "generated-and-webhook-check",
+      "webhook-tests",
+      "fixtures",
+      "deserialization-tests",
+      "parser-tests"
+    ],
+    "source_unchanged": true,
+    "success": true,
+    "generated_packages": [
+      "async-stripe-billing",
+      "async-stripe-checkout",
+      "async-stripe-connect",
+      "async-stripe-core",
+      "async-stripe-fraud",
+      "async-stripe-issuing",
+      "async-stripe-misc",
+      "async-stripe-payment",
+      "async-stripe-product",
+      "async-stripe-reserve",
+      "async-stripe-shared",
+      "async-stripe-terminal",
+      "async-stripe-treasury"
+    ],
+    "compiled_generated_crate_source_files": 1741,
+    "compiled_generated_crate_source_files_by_package": {
+      "async-stripe-billing": 116,
+      "async-stripe-checkout": 3,
+      "async-stripe-connect": 62,
+      "async-stripe-core": 71,
+      "async-stripe-fraud": 41,
+      "async-stripe-issuing": 17,
+      "async-stripe-misc": 172,
+      "async-stripe-payment": 39,
+      "async-stripe-product": 19,
+      "async-stripe-reserve": 9,
+      "async-stripe-shared": 1049,
+      "async-stripe-terminal": 59,
+      "async-stripe-treasury": 84
+    },
+    "workspace_retained": true
+  },
+  "input_provenance": "Same pinned v2494 spec, fixtures, library version, Rust 1.89.0, and nightly formatter recorded in neutral_refactor_validation.json."
+}

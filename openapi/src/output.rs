@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::collections::btree_map::Entry;
 use std::fs;
 use std::path::{Component, Path, PathBuf};
 
@@ -24,8 +25,13 @@ impl ArtifactSet {
         content: C,
     ) -> anyhow::Result<()> {
         let path = normalized_relative_path(path.as_ref())?;
-        if self.files.insert(path.clone(), content.as_ref().to_vec()).is_some() {
-            bail!("generated file was written more than once: {}", path.display());
+        match self.files.entry(path) {
+            Entry::Vacant(entry) => {
+                entry.insert(content.as_ref().to_vec());
+            }
+            Entry::Occupied(entry) => {
+                bail!("generated file was written more than once: {}", entry.key().display());
+            }
         }
         Ok(())
     }
@@ -241,6 +247,18 @@ mod tests {
         ArtifactSet::default().materialize(&root.0).unwrap();
         assert!(!root.0.join("nested/file.rs").exists());
         assert!(root.0.join(MANAGED_MARKER).is_file());
+    }
+
+    #[test]
+    fn duplicate_writes_preserve_the_original_artifact() {
+        let root = TestDirectory::new();
+        let mut output = ArtifactSet::default();
+        output.write("file.txt", "first").unwrap();
+        let error = output.write("file.txt", "second").unwrap_err();
+        assert!(error.to_string().contains("generated file was written more than once"));
+
+        output.materialize(&root.0).unwrap();
+        assert_eq!(fs::read_to_string(root.0.join("file.txt")).unwrap(), "first");
     }
 
     #[test]

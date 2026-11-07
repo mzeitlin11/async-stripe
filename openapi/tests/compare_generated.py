@@ -37,9 +37,12 @@ def main():
     parser.add_argument("--result", type=Path)
     args = parser.parse_args()
     for root in [args.before, args.after]:
-        if not root.is_dir() or not any(root.rglob("*")):
-            parser.error(f"expected a nonempty generated tree: {root}")
+        if not root.is_dir():
+            parser.error(f"expected a generated tree directory: {root}")
     result = compare(args.before, args.after)
+    for root, count in [(args.before, result["before_files"]), (args.after, result["after_files"])]:
+        if count == 0:
+            parser.error(f"expected generated files in tree: {root}")
     document = json.dumps(result, indent=2) + "\n"
     if args.result:
         args.result.write_text(document)

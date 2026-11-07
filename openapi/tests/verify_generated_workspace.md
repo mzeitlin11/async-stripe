@@ -126,3 +126,25 @@ source, input hashes, comparison results, generator test/Clippy logs, SDK logs,
 and compiled-source inventory. These focused probes do not claim that the full
 v2 or opaque branches have been rebased. The neutral default continues to select
 the legacy representation and placement policy.
+
+## Review regressions
+
+Run the parity comparator's positive and negative command-line cases with:
+
+```sh
+python3 -B -m unittest discover -s openapi/tests -p test_compare_generated.py
+```
+
+An input tree must contain files; directories alone cannot establish parity.
+The generator tests also cover enum metadata refresh after representation
+changes, Object identity compatibility, and the distinction between represented
+dependencies and legacy package-facade requirements. Optional IDs remain valid
+for ordinary untagged structs.
+
+The review pass also exercises nonempty legacy warning output by removing the
+explicit Address assignment from a task-owned copy of `gen_crates.toml`, then
+comparing `generate --emit-warnings` on the predecessor and candidate. Production
+configuration and input pins stay unchanged. Results are retained separately in
+[neutral_refactor_review.json](neutral_refactor_review.json) and its
+[evidence archive](neutral_refactor_review_evidence.tar.gz); the original
+validation record remains historical evidence for the first implementation.

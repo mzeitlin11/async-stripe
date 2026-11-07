@@ -161,11 +161,13 @@ impl Components {
 
             let unique_crates: Vec<Crate> =
                 candidate_crates.iter().copied().collect::<IndexSet<_>>().into_iter().collect();
+            let candidate_crate_names =
+                unique_crates.iter().map(|c| c.base_name(config).to_owned()).collect::<Vec<_>>();
 
             let missing = self.component_name(*missing_id);
             warn!(
                 "Auto-assigning component {missing} to crate {} (depended on by {depended_on:?}, \
-                 candidate crates: {unique_crates:?}). Consider adding a path entry in gen_crates.toml.",
+                 candidate crates: {candidate_crate_names:?}). Consider adding a path entry in gen_crates.toml.",
                 chosen.base_name(config)
             );
 
@@ -176,10 +178,7 @@ impl Components {
                     component: missing.clone(),
                     chosen_crate: chosen.base_name(config).to_owned(),
                     depended_on_by: depended_on,
-                    candidate_crates: unique_crates
-                        .iter()
-                        .map(|c| c.base_name(config).to_owned())
-                        .collect(),
+                    candidate_crates: candidate_crate_names,
                 },
             ));
         }
@@ -200,7 +199,8 @@ impl Components {
         let graph = gen_inferred_crate_dep_graph(self, config, policy, |component| {
             layout.placement(component).expect("component had no crate assignment")
         });
-        let deps_for_shared_crate = graph.neighbors(Crate::SHARED).collect::<Vec<_>>();
+        let deps_for_shared_crate =
+            graph.neighbors(Crate::SHARED).map(|krate| krate.base_name(config)).collect::<Vec<_>>();
         if !deps_for_shared_crate.is_empty() {
             bail!(
                 "Shared types crate should not have dependencies, but has dependencies {deps_for_shared_crate:#?}!",

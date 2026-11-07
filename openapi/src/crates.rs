@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::fs::read_to_string;
 use std::path::{Path, PathBuf};
 
-use anyhow::{anyhow, bail, ensure};
+use anyhow::{Context, anyhow, bail, ensure};
 use serde::Deserialize;
 
 use crate::component_catalog::{ComponentCatalog, ComponentId};
@@ -68,7 +68,11 @@ pub struct CrateConfig {
 
 impl CrateConfig {
     pub fn load(path: &Path) -> anyhow::Result<Self> {
-        Self::new(toml::from_str(&read_to_string(path)?)?)
+        let contents = read_to_string(path)
+            .with_context(|| format!("could not read crate configuration {}", path.display()))?;
+        let info = toml::from_str(&contents)
+            .with_context(|| format!("could not parse crate configuration {}", path.display()))?;
+        Self::new(info).with_context(|| format!("invalid crate configuration {}", path.display()))
     }
 
     pub fn new(info: CrateInfo) -> anyhow::Result<Self> {
@@ -278,6 +282,31 @@ mod tests {
             packages: packages.iter().map(|value| (*value).into()).collect(),
             description: String::new(),
         }
+    }
+
+    #[test]
+    fn load_errors_identify_the_requested_configuration() {
+        let directory = std::env::temp_dir().join(format!(
+            "async-stripe-crate-config-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos()
+        ));
+        std::fs::create_dir(&directory).unwrap();
+        let missing = directory.join("missing.toml");
+        let error = CrateConfig::load(&missing).err().unwrap();
+        assert!(error.to_string().contains(&missing.display().to_string()));
+
+        let malformed = directory.join("malformed.toml");
+        std::fs::write(&malformed, "[[crates]").unwrap();
+        let error = CrateConfig::load(&malformed).err().unwrap();
+        assert!(error.to_string().contains(&malformed.display().to_string()));
+
+        let invalid = directory.join("invalid.toml");
+        std::fs::write(&invalid, "crates = []").unwrap();
+        let error = CrateConfig::load(&invalid).err().unwrap();
+        assert!(error.to_string().contains(&invalid.display().to_string()));
+        assert!(format!("{error:#}").contains("exactly one `shared` crate"));
+        std::fs::remove_dir_all(directory).unwrap();
     }
 
     #[test]

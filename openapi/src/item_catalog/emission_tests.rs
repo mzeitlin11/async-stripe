@@ -544,3 +544,210 @@ fn selecting_id_storage_updates_request_dependencies_without_rewriting_inference
     assert!(request.contains("stripe_shared::ChargeId"));
     assert!(!request.contains("stripe_billing::Charge>"));
 }
+
+fn object_union_draft() -> (Fixture, super::ItemCatalogDraft, ItemId) {
+    let mut fixture = Fixture::new();
+    let catalog = ComponentCatalog::from_names(
+        ["customer", "charge"].map(|name| ComponentName::new(name.to_string())),
+    )
+    .unwrap();
+    for component in [fixture.customer, fixture.charge] {
+        let name = catalog.name(component);
+        let schema = serde_json::from_value(serde_json::json!({
+            "type": "object",
+            "properties": {
+                "id": {"type": "string", "description": "Unique identifier for the object."},
+                "object": {"type": "string", "enum": [name.as_ref()]}
+            },
+            "required": ["id", "object"]
+        }))
+        .unwrap();
+        let resource = StripeResource::from_schema(&schema, name.clone()).unwrap();
+        fixture
+            .components
+            .components
+            .insert(component, StripeObject::from_schema(&schema, &resource, &catalog));
+    }
+    fixture.components.webhook_objs.push(WebhookObject {
+        event_type: "test.created".to_string(),
+        doc: "An event.".to_string(),
+        typ: RustType::Object(
+            RustObject::Enum(vec![
+                EnumVariant::new(
+                    RustIdent::create("customer"),
+                    RustType::component(fixture.customer),
+                ),
+                EnumVariant::new(RustIdent::create("charge"), RustType::component(fixture.charge)),
+            ]),
+            ObjectMetadata::new(RustIdent::create("test_created")),
+        ),
+    });
+    let draft = super::ItemCatalogDraft::build(&fixture.components, |component| {
+        ItemMetadata::new(fixture.components.get_by_id(component).ident().clone())
+    })
+    .unwrap();
+    let union = draft
+        .catalog
+        .root(&TypeRoot::Webhook("test.created".to_string()))
+        .unwrap()
+        .declaration
+        .unwrap();
+    assert!(matches!(
+        draft.catalog.get(union).object().unwrap().enum_of_objects,
+        Some(crate::rust_object::EnumOfObjects::ObjectUnion(_))
+    ));
+    (fixture, draft, union)
+}
+
+#[test]
+fn finalization_refreshes_object_enum_membership_before_rendering() {
+    let (fixture, mut draft, union) = object_union_draft();
+    let RustItem::Object(object) = &mut draft.catalog.items[union.index()].item else {
+        panic!("expected object enum");
+    };
+    let RustObject::Enum(variants) = &mut object.definition else {
+        panic!("expected enum");
+    };
+    variants.pop();
+    let model = crate::rust_model::RustModel::from_draft(&fixture.components, draft).unwrap();
+    let layout = ItemLayout::from_component_layout(
+        &fixture.components,
+        model.items(),
+        &fixture.component_layout,
+        &fixture.config,
+    )
+    .unwrap();
+    let mut output = GeneratedWorkspace::default();
+    let mut emitter = ItemEmitter::new(
+        model.items(),
+        &layout,
+        OutputLocations::new(&fixture.components, &fixture.component_layout, &fixture.config),
+    );
+    emitter.emit(union, &mut output).unwrap();
+    let rendered = contents(&output, "async-stripe-webhook/mod.rs");
+    assert!(rendered.contains("Customer(stripe_core::Customer)"));
+    assert!(!rendered.contains("stripe_billing::Charge"));
+}
+
+#[test]
+fn finalization_clears_object_enum_classification_after_shape_changes() {
+    let (fixture, mut draft, union) = object_union_draft();
+    let RustItem::Object(object) = &mut draft.catalog.items[union.index()].item else {
+        panic!("expected object enum");
+    };
+    let mut payload = StructField::new("payload", RustType::string());
+    payload.required = true;
+    object.definition = RustObject::Struct(Struct::new(vec![payload]));
+    let model = crate::rust_model::RustModel::from_draft(&fixture.components, draft).unwrap();
+    assert!(model.items().get(union).object().unwrap().enum_of_objects.is_none());
+    let layout = ItemLayout::from_component_layout(
+        &fixture.components,
+        model.items(),
+        &fixture.component_layout,
+        &fixture.config,
+    )
+    .unwrap();
+    let mut output = GeneratedWorkspace::default();
+    let mut emitter = ItemEmitter::new(
+        model.items(),
+        &layout,
+        OutputLocations::new(&fixture.components, &fixture.component_layout, &fixture.config),
+    );
+    emitter.emit(union, &mut output).unwrap();
+    let rendered = contents(&output, "async-stripe-webhook/mod.rs");
+    assert!(rendered.contains("pub struct TestCreated"));
+    assert!(rendered.contains("pub payload: String"));
+    assert!(!rendered.contains("stripe_billing::Charge"));
+}
+
+#[test]
+fn finalization_validates_identity_shape_and_id_field() {
+    for change in 0..4 {
+        let fixture = Fixture::new();
+        let mut draft = super::ItemCatalogDraft::build(&fixture.components, |component| {
+            ItemMetadata::new(fixture.components.get_by_id(component).ident().clone())
+        })
+        .unwrap();
+        let customer = draft.catalog.component_root(fixture.customer);
+        let RustItem::Object(object) = &mut draft.catalog.items[customer.index()].item else {
+            panic!("expected customer object");
+        };
+        match change {
+            0 => {
+                object.definition = RustObject::Enum(vec![EnumVariant::new(
+                    RustIdent::create("raw"),
+                    RustType::string(),
+                )])
+            }
+            1 => object.identity = Some(crate::rust_object::ObjectIdentity::ObjectUnion),
+            _ => {
+                let RustObject::Struct(strukt) = &mut object.definition else {
+                    panic!("expected struct");
+                };
+                if change == 2 {
+                    strukt.fields[0].rust_type = RustType::string();
+                } else {
+                    strukt.fields.clear();
+                }
+            }
+        }
+        let error =
+            crate::rust_model::RustModel::from_draft(&fixture.components, draft).err().unwrap();
+        assert!(error.to_string().contains("identity"), "{error}");
+    }
+}
+
+#[test]
+fn finalization_accepts_optional_identity_on_an_untagged_struct() {
+    let fixture = Fixture::new();
+    let mut draft = super::ItemCatalogDraft::build(&fixture.components, |component| {
+        ItemMetadata::new(fixture.components.get_by_id(component).ident().clone())
+    })
+    .unwrap();
+    let customer = draft.catalog.component_root(fixture.customer);
+    let RustItem::Object(object) = &mut draft.catalog.items[customer.index()].item else {
+        panic!("expected customer object");
+    };
+    let RustObject::Struct(strukt) = &mut object.definition else {
+        panic!("expected struct");
+    };
+    assert!(strukt.object_field.is_none());
+    let id = RustType::option(strukt.fields[0].rust_type.clone());
+    strukt.fields[0].rust_type = id.clone();
+    object.identity = Some(crate::rust_object::ObjectIdentity::IdType(id));
+    crate::rust_model::RustModel::from_draft(&fixture.components, draft).unwrap();
+}
+
+#[test]
+fn finalization_rejects_optional_ids_in_an_object_union_impl() {
+    let (fixture, mut draft, union) = object_union_draft();
+    let customer = draft.catalog.component_root(fixture.customer);
+    let RustItem::Object(object) = &mut draft.catalog.items[customer.index()].item else {
+        panic!("expected customer object");
+    };
+    let RustObject::Struct(strukt) = &mut object.definition else {
+        panic!("expected struct");
+    };
+    let id = RustType::option(strukt.fields[0].rust_type.clone());
+    strukt.fields[0].rust_type = id.clone();
+    object.identity = Some(crate::rust_object::ObjectIdentity::IdType(id));
+    let RustItem::Object(object) = &mut draft.catalog.items[union.index()].item else {
+        panic!("expected object enum");
+    };
+    object.identity = Some(crate::rust_object::ObjectIdentity::ObjectUnion);
+    let error = crate::rust_model::RustModel::from_draft(&fixture.components, draft).err().unwrap();
+    assert!(error.to_string().contains("must have a concrete ID newtype field"));
+}
+
+#[test]
+fn finalization_rejects_non_object_members_in_an_object_union_impl() {
+    let (fixture, mut draft, union) = object_union_draft();
+    let RustItem::Object(object) = &mut draft.catalog.items[union.index()].item else {
+        panic!("expected object enum");
+    };
+    object.identity = Some(crate::rust_object::ObjectIdentity::ObjectUnion);
+    object.definition =
+        RustObject::Enum(vec![EnumVariant::new(RustIdent::create("raw"), RustType::string())]);
+    let error = crate::rust_model::RustModel::from_draft(&fixture.components, draft).err().unwrap();
+    assert!(error.to_string().contains("identity requires a tagged object union"));
+}

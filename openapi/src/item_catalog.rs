@@ -92,6 +92,8 @@ impl ItemKind {
 pub struct ObjectItem {
     pub definition: RustObject,
     pub usage: ObjectUsage,
+    /// Specialized rendering uses referenced component identifiers for variant
+    /// names; inference-side variant labels can intentionally differ.
     pub enum_of_objects: Option<EnumOfObjects>,
     /// Canonical identity semantics used by a top-level component's `Object` impl.
     pub identity: Option<ObjectIdentity>,
@@ -280,6 +282,10 @@ impl ItemCatalogDraft {
     pub(crate) fn finish(self, components: &Components) -> anyhow::Result<ItemCatalog> {
         let mut catalog = self.catalog;
         catalog.validate_lowered_structure()?;
+        // Transforms can inspect the original classification, but rendering
+        // must use the membership and shape of the final representation.
+        catalog.classify_enums(components);
+        catalog.validate_object_metadata()?;
         catalog.analyze_properties()?;
         catalog.validate_component_lifetimes(components)?;
 
@@ -423,6 +429,47 @@ impl ItemCatalog {
                 "top-level component unexpectedly requires a lifetime: {}",
                 components.component_name(component)
             );
+        }
+        Ok(())
+    }
+
+    fn validate_object_metadata(&self) -> anyhow::Result<()> {
+        for (_, record) in self.iter() {
+            let Some(object) = record.object() else { continue };
+            let ident = &record.metadata.ident;
+            match (&object.definition, &object.identity) {
+                (_, None) => {}
+                (RustObject::Struct(strukt), Some(ObjectIdentity::IdType(id_type))) => {
+                    anyhow::ensure!(
+                        strukt.fields.iter().any(|field| {
+                            field.variable_name() == "id" && field.rust_type == *id_type
+                        }),
+                        "object {ident} identity does not match its represented id field"
+                    );
+                }
+                (RustObject::Enum(_), Some(ObjectIdentity::ObjectUnion)) => {
+                    let Some(EnumOfObjects::ObjectUnion(members)) = &object.enum_of_objects else {
+                        anyhow::bail!("object {ident} identity requires a tagged object union");
+                    };
+                    for component in members.values() {
+                        let member = self.get(self.component_root(*component));
+                        // This impl accesses each payload's id.inner() and
+                        // id.into_inner(); an optional ID cannot support it.
+                        let id = member
+                            .object()
+                            .and_then(|object| object.definition.get_struct_field("id"));
+                        anyhow::ensure!(
+                            matches!(id, Some(RustType::Item(id))
+                                if matches!(self.get(*id).item, RustItem::IdNewtype)),
+                            "object {ident} union member {} must have a concrete ID newtype field",
+                            member.metadata.ident
+                        );
+                    }
+                }
+                _ => anyhow::bail!(
+                    "object {ident} identity is incompatible with its represented definition"
+                ),
+            }
         }
         Ok(())
     }

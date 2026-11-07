@@ -7,7 +7,7 @@ use tracing::debug;
 
 use crate::component_catalog::{ComponentCatalog, ComponentId};
 use crate::operations::OperationId;
-use crate::operations::{OperationType, PathParam, RequestParam, RequestSpec, StripeOperation};
+use crate::operations::{OperationType, PathParam, RequestSpec, StripeOperation};
 use crate::rust_object::{ObjectMetadata, RustObject, Struct, Visibility};
 use crate::rust_type::{PrimitiveType, RustType};
 use crate::spec::{Spec, get_ok_response_schema, get_request_form_parameters};
@@ -298,7 +298,7 @@ fn build_request(
         operation_id: req.operation_id,
         ident: req_ident,
         path_params,
-        params: param_typ.map(|typ| RequestParam { typ }),
+        params: param_typ,
         doc_comment: req.description.map(|d| d.to_string()),
         req_path: req_path.to_string(),
         returned: return_type,

@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter, Write as _};
 
 use crate::STRIPE_TYPES;
 use crate::component_catalog::ComponentId;
-use crate::crates::{Crate, CrateConfig};
+use crate::crates::CrateConfig;
 use crate::item_catalog::{CanonicalTypeRoot, ItemCatalog, ItemId, ItemProperties, ItemRecord};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::item_origin::TypeRoot;
@@ -71,37 +71,6 @@ impl DisplayType<'_, '_> {
 impl Display for DisplayType<'_, '_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         fmt_type(f, self.context, self.typ, self.use_site)
-    }
-}
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
-enum ItemLocation {
-    Local,
-    CrateRoot(Crate),
-    ExternalModule(&'static str),
-}
-
-struct ResolvedTypeItem<'a> {
-    location: ItemLocation,
-    ident: &'a str,
-    has_lifetime: bool,
-}
-
-impl<'a> ResolvedTypeItem<'a> {
-    fn local(ident: &'a RustIdent, has_lifetime: bool) -> Self {
-        Self { location: ItemLocation::Local, ident: ident.as_ref(), has_lifetime }
-    }
-
-    fn crate_root(krate: Crate, ident: &'a RustIdent, has_lifetime: bool) -> Self {
-        Self { location: ItemLocation::CrateRoot(krate), ident: ident.as_ref(), has_lifetime }
-    }
-
-    fn external(module: &'static str, ident: &'static str) -> ResolvedTypeItem<'static> {
-        ResolvedTypeItem {
-            location: ItemLocation::ExternalModule(module),
-            ident,
-            has_lifetime: false,
-        }
     }
 }
 
@@ -176,30 +145,6 @@ impl<'model> RenderContext<'model> {
             .unwrap_or_else(|error| panic!("could not resolve canonical type properties: {error}"))
             .is_copy
     }
-
-    fn resolve_item(self, item: ItemId) -> ResolvedTypeItem<'model> {
-        let record = self.items.get(item);
-        let properties = self.items.properties(item);
-        match self.item_layout.placement(item).address() {
-            ItemAddress::Local => {
-                self.assert_emits(item);
-                ResolvedTypeItem::local(&record.metadata.ident, properties.has_lifetime)
-            }
-            ItemAddress::CrateRoot(krate) => {
-                ResolvedTypeItem::crate_root(krate, &record.metadata.ident, properties.has_lifetime)
-            }
-        }
-    }
-
-    fn resolve_external(self, typ: ExternalType) -> ResolvedTypeItem<'static> {
-        match typ {
-            ExternalType::Currency => ResolvedTypeItem::external(STRIPE_TYPES, "Currency"),
-            ExternalType::RangeQueryTs => ResolvedTypeItem::external(STRIPE_TYPES, "RangeQueryTs"),
-            ExternalType::Timestamp => ResolvedTypeItem::external(STRIPE_TYPES, "Timestamp"),
-            ExternalType::AlwaysTrue => ResolvedTypeItem::external(STRIPE_TYPES, "AlwaysTrue"),
-            ExternalType::Value => ResolvedTypeItem::external("miniserde::json", "Value"),
-        }
-    }
 }
 
 fn fmt_type(
@@ -216,36 +161,45 @@ fn fmt_type(
 
     match typ {
         RustType::Object(_, _) => panic!("inline object reached canonical type rendering"),
-        RustType::Primitive(primitive) => fmt_primitive_type(f, *primitive),
-        RustType::External(external) => {
-            let item = context.resolve_external(*external);
-            fmt_named_type(f, context, &item, use_site)
-        }
-        RustType::Item(item) => {
-            let item = context.resolve_item(*item);
-            fmt_named_type(f, context, &item, use_site)
-        }
+        RustType::Primitive(primitive) => f.write_str(primitive.ident()),
+        RustType::External(external) => fmt_external(f, *external),
+        RustType::Item(item) => fmt_item(f, context, *item, use_site.lifetime),
         RustType::Path(path) => panic!("unlowered named path reached type rendering: {path:?}"),
         RustType::Container(container) => fmt_container(f, context, container, use_site),
         RustType::Reference(inner) => fmt_reference(f, context, inner, use_site),
     }
 }
 
-fn fmt_named_type(
+fn fmt_item(
     f: &mut Formatter<'_>,
     context: RenderContext<'_>,
-    item: &ResolvedTypeItem<'_>,
-    use_site: TypeUse,
+    item: ItemId,
+    lifetime: Option<Lifetime>,
 ) -> std::fmt::Result {
-    if let Some(lifetime) = use_site.lifetime {
-        fmt_type_name(f, context, item)?;
-        if item.has_lifetime {
-            write!(f, "<{lifetime}>")?;
+    match context.item_address(item) {
+        ItemAddress::Local => context.assert_emits(item),
+        ItemAddress::CrateRoot(krate) => {
+            write!(f, "{}::", krate.lib_name(context.config))?;
         }
-        return Ok(());
     }
+    write!(f, "{}", context.item(item).metadata.ident)?;
+    if let Some(lifetime) = lifetime
+        && context.item_properties(item).has_lifetime
+    {
+        write!(f, "<{lifetime}>")?;
+    }
+    Ok(())
+}
 
-    fmt_type_name(f, context, item)
+fn fmt_external(f: &mut Formatter<'_>, typ: ExternalType) -> std::fmt::Result {
+    let (module, ident) = match typ {
+        ExternalType::Currency => (STRIPE_TYPES, "Currency"),
+        ExternalType::RangeQueryTs => (STRIPE_TYPES, "RangeQueryTs"),
+        ExternalType::Timestamp => (STRIPE_TYPES, "Timestamp"),
+        ExternalType::AlwaysTrue => (STRIPE_TYPES, "AlwaysTrue"),
+        ExternalType::Value => ("miniserde::json", "Value"),
+    };
+    write!(f, "{module}::{ident}")
 }
 
 fn fmt_reference(
@@ -260,25 +214,6 @@ fn fmt_reference(
         f.write_char('&')?;
     }
     fmt_type(f, context, inner, TypeUse { lifetime: use_site.lifetime, impl_into: false })
-}
-
-fn fmt_type_name(
-    f: &mut Formatter<'_>,
-    context: RenderContext<'_>,
-    item: &ResolvedTypeItem<'_>,
-) -> std::fmt::Result {
-    match item.location {
-        ItemLocation::Local => {}
-        ItemLocation::CrateRoot(krate) => {
-            write!(f, "{}::", krate.lib_name(context.config))?;
-        }
-        ItemLocation::ExternalModule(module) => write!(f, "{module}::")?,
-    }
-    write!(f, "{}", item.ident)
-}
-
-fn fmt_primitive_type(f: &mut Formatter<'_>, typ: PrimitiveType) -> std::fmt::Result {
-    f.write_str(typ.ident())
 }
 
 fn fmt_container(
@@ -326,7 +261,7 @@ fn fmt_container(
         }
         Container::Map { key, value } => {
             f.write_str("std::collections::HashMap<")?;
-            fmt_map_key(f, context, *key)?;
+            fmt_map_key(f, *key)?;
             f.write_str(", ")?;
             fmt_type(f, context, value, nested_use)?;
             f.write_char('>')?;
@@ -336,13 +271,10 @@ fn fmt_container(
     Ok(())
 }
 
-fn fmt_map_key(f: &mut Formatter<'_>, context: RenderContext<'_>, key: MapKey) -> std::fmt::Result {
+fn fmt_map_key(f: &mut Formatter<'_>, key: MapKey) -> std::fmt::Result {
     match key {
         MapKey::String => f.write_str(PrimitiveType::String.ident()),
-        MapKey::Currency => {
-            let item = context.resolve_external(ExternalType::Currency);
-            fmt_named_type(f, context, &item, TypeUse::default())
-        }
+        MapKey::Currency => fmt_external(f, ExternalType::Currency),
     }
 }
 

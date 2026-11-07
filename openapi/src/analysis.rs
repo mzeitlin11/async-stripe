@@ -230,7 +230,7 @@ fn component_stats(components: &Components) -> Vec<ComponentStats> {
                 requests.add(shape_for_type(&path_param.rust_type));
             }
             if let Some(params) = &request.params {
-                requests.add(shape_for_type(&params.typ));
+                requests.add(shape_for_type(params));
             }
             requests.add(shape_for_type(&request.returned));
         }

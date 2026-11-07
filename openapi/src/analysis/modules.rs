@@ -10,14 +10,6 @@ use crate::item_layout::EmissionSite;
 use crate::module_dependencies::module_dependencies;
 use crate::rust_object::RustObject;
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
-enum ModuleKind {
-    Model,
-    Requests,
-    References,
-    Webhooks,
-}
-
 /// Counts each canonical declaration once, without revisiting its children or
 /// contributing inferred occurrences. Fields count struct fields; variants
 /// count the explicitly represented enum variants.
@@ -47,15 +39,10 @@ impl DeclarationCounts {
     }
 }
 
-struct ModuleInfo {
-    kind: ModuleKind,
-    counts: DeclarationCounts,
-}
-
 /// A sorted report view of represented dependencies between emission modules.
 /// This describes type uses, without selecting a feature or placement policy.
 pub(super) struct ModuleAnalysis {
-    modules: BTreeMap<String, ModuleInfo>,
+    model_modules: BTreeMap<String, DeclarationCounts>,
     dependencies: BTreeSet<(String, String)>,
 }
 
@@ -74,18 +61,13 @@ impl ModuleAnalysis {
             counts.add_item(&record.item);
             *has_models |= matches!(record.item, RustItem::Object(_));
         }
-        let modules = graph
-            .keys()
-            .map(|&site| {
-                let (counts, has_models) = declarations.get(&site).copied().unwrap_or_default();
-                let kind = match site {
-                    EmissionSite::ComponentRequests(_) => ModuleKind::Requests,
-                    EmissionSite::Webhooks => ModuleKind::Webhooks,
-                    _ if has_models => ModuleKind::Model,
-                    _ => ModuleKind::References,
-                };
-                (path(site), ModuleInfo { kind, counts })
+        let model_modules = declarations
+            .into_iter()
+            .filter(|(site, (_, has_models))| {
+                *has_models
+                    && !matches!(site, EmissionSite::ComponentRequests(_) | EmissionSite::Webhooks)
             })
+            .map(|(site, (counts, _))| (path(site), counts))
             .collect();
         let dependencies = graph
             .iter()
@@ -93,7 +75,7 @@ impl ModuleAnalysis {
                 targets.iter().map(move |&target| (path(source), path(target)))
             })
             .collect();
-        Self { modules, dependencies }
+        Self { model_modules, dependencies }
     }
 
     pub(super) fn dependencies_csv(&self) -> String {
@@ -108,10 +90,8 @@ impl ModuleAnalysis {
     /// webhook, ID-only, and intra-module references do not constrain that view.
     fn model_graph(&self) -> DiGraphMap<&str, ()> {
         let mut graph = DiGraphMap::new();
-        for (path, module) in &self.modules {
-            if module.kind == ModuleKind::Model {
-                graph.add_node(path.as_str());
-            }
+        for path in self.model_modules.keys() {
+            graph.add_node(path.as_str());
         }
         for (source, target) in &self.dependencies {
             if source != target
@@ -141,7 +121,7 @@ impl ModuleAnalysis {
         for (index, group) in self.sccs().iter().enumerate() {
             let mut counts = DeclarationCounts::default();
             for path in group {
-                counts.add(self.modules[*path].counts);
+                counts.add(self.model_modules[*path]);
             }
             for path in group {
                 let _ = writeln!(
@@ -183,8 +163,8 @@ impl ModuleAnalysis {
         let graph = self.model_graph();
         let groups = self.sccs();
         let mut counts = DeclarationCounts::default();
-        for module in self.modules.values().filter(|module| module.kind == ModuleKind::Model) {
-            counts.add(module.counts);
+        for module in self.model_modules.values() {
+            counts.add(*module);
         }
         format!(
             "\n## Represented model modules\n\n- Model modules: {}\n- Canonical declarations in model modules: {}\n- Struct fields in model modules: {}\n- Enum variants in model modules: {}\n- Cross-module model dependencies: {}\n- Strongly connected components: {}\n- Components containing cross-module cycles: {}\n- Largest component: {} modules\n\nThese follow represented declaration and request type uses after placement. The model graph excludes request modules, webhook modules, ID-only modules, and intra-module references; isolated model modules are retained. `model-module-dependencies.csv` also includes the excluded edges.\n\nSCC module/item/field/variant counts cover the entire component and repeat for each membership row. Counts use canonical declarations once, rather than inferred occurrences, and exclude generated helper declarations and implicit unknown variants. The reports do not include facade reexports, handwritten code, or feature activation, and do not measure a consumer's compiled source closure.\n",
@@ -202,7 +182,7 @@ impl ModuleAnalysis {
 
 #[cfg(test)]
 mod tests {
-    use super::{DeclarationCounts, ModuleAnalysis, ModuleInfo, ModuleKind};
+    use super::{DeclarationCounts, ModuleAnalysis};
     use crate::item_catalog::{ObjectItem, RustItem};
     use crate::rust_object::{
         EnumVariant, FieldlessVariant, ObjectUsage, RustObject, Struct, StructField,
@@ -211,29 +191,10 @@ mod tests {
     use crate::types::RustIdent;
 
     fn fixture(reversed: bool) -> ModuleAnalysis {
-        let mut modules = vec![
-            ("a.rs", ModuleKind::Model, DeclarationCounts { items: 2, fields: 3, variants: 0 }),
-            ("b.rs", ModuleKind::Model, DeclarationCounts { items: 3, fields: 0, variants: 5 }),
-            (
-                "isolated.rs",
-                ModuleKind::Model,
-                DeclarationCounts { items: 1, fields: 0, variants: 0 },
-            ),
-            (
-                "ids.rs",
-                ModuleKind::References,
-                DeclarationCounts { items: 1, fields: 0, variants: 0 },
-            ),
-            (
-                "requests.rs",
-                ModuleKind::Requests,
-                DeclarationCounts { items: 4, fields: 99, variants: 0 },
-            ),
-            (
-                "webhooks.rs",
-                ModuleKind::Webhooks,
-                DeclarationCounts { items: 7, fields: 77, variants: 0 },
-            ),
+        let mut model_modules = vec![
+            ("a.rs", DeclarationCounts { items: 2, fields: 3, variants: 0 }),
+            ("b.rs", DeclarationCounts { items: 3, fields: 0, variants: 5 }),
+            ("isolated.rs", DeclarationCounts { items: 1, fields: 0, variants: 0 }),
         ];
         let mut dependencies = vec![
             ("a.rs", "a.rs"),
@@ -246,13 +207,13 @@ mod tests {
             ("b.rs", "webhooks.rs"),
         ];
         if reversed {
-            modules.reverse();
+            model_modules.reverse();
             dependencies.reverse();
         }
         ModuleAnalysis {
-            modules: modules
+            model_modules: model_modules
                 .into_iter()
-                .map(|(path, kind, counts)| (path.to_string(), ModuleInfo { kind, counts }))
+                .map(|(path, counts)| (path.to_string(), counts))
                 .collect(),
             dependencies: dependencies
                 .into_iter()

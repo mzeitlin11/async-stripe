@@ -75,7 +75,7 @@ Operation declarations and their generated request specifications are owned toge
 
 Inference also carries an explicit borrowing policy. Borrowed strings, slices, maps, and named items all use the same `RustType::Reference` representation; borrowing is not encoded independently in each type variant. The production pipeline currently selects owned request fields.
 
-Types supplied by dependencies are likewise symbolic in the model; only `RenderContext` maps them to source paths such as `stripe_types::Timestamp`. Constructor conversions and field-level serde attributes are rendered directly from the represented types and usage.
+Types supplied by dependencies are likewise symbolic in the model; rendering maps them to source paths such as `stripe_types::Timestamp`. Constructor conversions and field-level serde attributes are rendered directly from the represented types and usage.
 
 ## Analysis output
 

@@ -138,7 +138,7 @@ impl DependencyIndex {
                         DependencyUsage::RequestParam,
                     )
                     .with_root("params")
-                    .collect_type(&params.typ, ReferenceForm::Direct);
+                    .collect_type(params, ReferenceForm::Direct);
                 }
                 for path_param in &request.path_params {
                     Collector::new(

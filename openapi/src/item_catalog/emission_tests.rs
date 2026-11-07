@@ -8,7 +8,7 @@ use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
 use crate::object_writing::ItemEmitter;
 use crate::operations::{
-    MethodType, OperationCatalog, OperationType, RequestParam, RequestSpec, StripeOperation,
+    MethodType, OperationCatalog, OperationType, RequestSpec, StripeOperation,
 };
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
@@ -95,7 +95,7 @@ impl Fixture {
                     operation_id: operations.for_component(customer)[0],
                     ident: RustIdent::create("retrieve_customer"),
                     path_params: vec![],
-                    params: Some(RequestParam { typ: params }),
+                    params: Some(params),
                     method_type: OperationType::Get,
                     returned,
                     doc_comment: None,

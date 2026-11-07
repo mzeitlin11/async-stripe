@@ -3,7 +3,7 @@ use petgraph::prelude::DiGraphMap;
 
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
-use crate::crates::{ALL_CRATES, Crate};
+use crate::crates::{Crate, CrateConfig};
 use crate::dependencies::EdgePolicy;
 use crate::layout::ComponentPlacement;
 
@@ -53,21 +53,22 @@ impl Components {
 /// dependencies for layout inference. Emission uses lowered Rust dependencies.
 pub(crate) fn gen_inferred_crate_dep_graph(
     components: &Components,
+    config: &CrateConfig,
     policy: EdgePolicy,
     placement: impl Fn(ComponentId) -> ComponentPlacement,
 ) -> DiGraphMap<Crate, ()> {
     let mut graph = DiGraphMap::new();
-    for krate in &*ALL_CRATES {
-        graph.add_node(*krate);
-        if *krate != Crate::SHARED {
-            graph.add_edge(*krate, Crate::SHARED, ());
+    for krate in config.all() {
+        graph.add_node(krate);
+        if krate != Crate::SHARED {
+            graph.add_edge(krate, Crate::SHARED, ());
         }
     }
 
-    for krate in &*ALL_CRATES {
+    for krate in config.all() {
         let members = components.components.keys().copied().filter(|component| {
             let placement = placement(*component);
-            placement.request_crate() == *krate || placement.types_crate() == *krate
+            placement.request_crate() == krate || placement.types_crate() == krate
         });
         let mut dependencies = IndexSet::new();
         for member in members {
@@ -75,8 +76,8 @@ pub(crate) fn gen_inferred_crate_dep_graph(
         }
         for dependency in dependencies {
             let dependent_crate = placement(dependency).types_crate();
-            if dependent_crate != *krate {
-                graph.add_edge(*krate, dependent_crate, ());
+            if dependent_crate != krate {
+                graph.add_edge(krate, dependent_crate, ());
             }
         }
     }

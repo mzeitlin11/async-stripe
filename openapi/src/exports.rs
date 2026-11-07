@@ -39,13 +39,13 @@ impl PublicExport {
             Self::Item { item, .. } => {
                 format!(
                     "pub use {}::{};",
-                    target.lib_name(),
+                    target.lib_name(locations.config),
                     items.get(item).metadata.ident
                 )
             }
             Self::ComponentModule { component, .. } => {
                 let module = locations.components.get_by_id(component).mod_path();
-                format!("pub use {}::{module}::*;", target.lib_name())
+                format!("pub use {}::{module}::*;", target.lib_name(locations.config))
             }
         };
         Some((facade, text))

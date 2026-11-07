@@ -7,7 +7,7 @@ use petgraph::Direction;
 use tracing::debug;
 
 use crate::component_catalog::{ComponentCatalog, ComponentId};
-use crate::crates::ResolvedCrateConfig;
+use crate::crates::{CrateConfig, ResolvedCrateConfig};
 use crate::deduplication::deduplicate_types;
 use crate::dependencies::{Dependency, DependencyIndex, EdgePolicy};
 use crate::layout::ComponentLayoutDraft;
@@ -251,7 +251,10 @@ impl Components {
 }
 
 #[tracing::instrument(skip_all)]
-pub(crate) fn infer_components(spec: &Spec) -> anyhow::Result<(Components, ComponentLayoutDraft)> {
+pub(crate) fn infer_components(
+    spec: &Spec,
+    config: &CrateConfig,
+) -> anyhow::Result<(Components, ComponentLayoutDraft)> {
     let mut webhook_objs = vec![];
     let mut components = IndexMap::with_capacity(spec.component_schemas().len());
 
@@ -267,7 +270,7 @@ pub(crate) fn infer_components(spec: &Spec) -> anyhow::Result<(Components, Compo
         }
     }
     let catalog = ComponentCatalog::from_names(catalog_names)?;
-    let crate_config = ResolvedCrateConfig::from_catalog(&catalog)?;
+    let crate_config = ResolvedCrateConfig::from_catalog(config, &catalog)?;
 
     for path in spec.component_schemas().keys() {
         let path = ComponentName::new(path.clone());

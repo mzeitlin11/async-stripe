@@ -149,7 +149,7 @@ impl<'a> ItemEmitter<'a> {
         self.emitted[item.index()] = true;
         let site = self.layout.placement(item).emission_site();
         let path = self.open_site(site, output)?;
-        let context = RenderContext::new(self.layout, self.items, site);
+        let context = RenderContext::new(self.layout, self.items, site, self.locations.config);
         let mut text = String::new();
         context.write_item_definition(item, &mut text);
         output.append(&path, text)?;
@@ -172,7 +172,7 @@ impl<'a> ItemEmitter<'a> {
         }
         let site = EmissionSite::ComponentRequests(component);
         let path = self.open_site(site, output)?;
-        let context = RenderContext::new(self.layout, self.items, site);
+        let context = RenderContext::new(self.layout, self.items, site, self.locations.config);
         for request in requests {
             if let Some(item) = request.params.as_ref().and_then(|params| params.declaration) {
                 self.emit(item, output)?;
@@ -213,7 +213,7 @@ impl<'a> ItemEmitter<'a> {
         output: &mut GeneratedWorkspace,
     ) -> anyhow::Result<()> {
         if let Some((facade, text)) = export.render(self.items, self.locations) {
-            output.append(facade.get_path_to_mod(), text)?;
+            output.append(facade.get_path_to_mod(self.locations.config), text)?;
         }
         Ok(())
     }
@@ -271,7 +271,7 @@ impl<'a> ItemEmitter<'a> {
                 ensure!(
                     previous == owner,
                     "output module {}::{module} has conflicting owners: {previous:?} and {owner:?}",
-                    krate.lib_name()
+                    krate.lib_name(self.locations.config)
                 );
             }
         }
@@ -284,7 +284,7 @@ impl<'a> ItemEmitter<'a> {
                     || self.locations.types_split_from_requests(component)
                 {
                     output.append(
-                        krate.get_path_to_mod(),
+                        krate.get_path_to_mod(self.locations.config),
                         format!(
                             "#[doc(hidden)]\npub mod {module};#[doc(inline)]\npub use {module}::*;"
                         ),
@@ -295,7 +295,7 @@ impl<'a> ItemEmitter<'a> {
                         "pub(crate) mod types;",
                     )?;
                     output.append(
-                        krate.get_path_to_mod(),
+                        krate.get_path_to_mod(self.locations.config),
                         format!("pub use {module}::types::*;"),
                     )?;
                 }
@@ -303,7 +303,7 @@ impl<'a> ItemEmitter<'a> {
             EmissionSite::ComponentRequests(component) => {
                 let module = self.locations.components.get_by_id(component).mod_path();
                 output.append(
-                    self.locations.request_crate(component).get_path_to_mod(),
+                    self.locations.request_crate(component).get_path_to_mod(self.locations.config),
                     format!("pub mod {module};"),
                 )?;
                 output.append(
@@ -323,7 +323,7 @@ impl<'a> ItemEmitter<'a> {
                 let module = self.locations.standalone_module(item, self.items);
                 let ident = &self.items.get(item).metadata.ident;
                 output.append(
-                    krate.get_path_to_mod(),
+                    krate.get_path_to_mod(self.locations.config),
                     format!("pub mod {module}; pub use {module}::{ident};"),
                 )?;
             }

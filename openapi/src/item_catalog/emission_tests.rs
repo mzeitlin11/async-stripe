@@ -2,7 +2,7 @@ use super::{ItemCatalog, ItemId, ItemMetadata, RustItem};
 use crate::component_catalog::{ComponentCatalog, ComponentId};
 use crate::components::Components;
 use crate::crate_dependencies::{crate_dependencies, validate_crate_dependencies};
-use crate::crates::{ALL_CRATES, Crate};
+use crate::crates::Crate;
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
@@ -23,10 +23,11 @@ use crate::types::{ComponentName, RustIdent};
 use crate::webhook::{WebhookObject, write_generated_for_webhooks};
 
 fn krate(name: &str) -> Crate {
-    *ALL_CRATES.iter().find(|krate| krate.base_name() == name).unwrap()
+    crate::crates::test_config().find(name).unwrap()
 }
 
 struct Fixture {
+    config: crate::crates::CrateConfig,
     components: Components,
     component_layout: ComponentLayout,
     items: ItemCatalog,
@@ -114,7 +115,15 @@ impl Fixture {
             (customer, krate("core"), krate("core")),
             (charge, krate("billing"), krate("billing")),
         ]);
-        Self { components, component_layout, items, customer, charge, request }
+        Self {
+            config: crate::crates::test_config(),
+            components,
+            component_layout,
+            items,
+            customer,
+            charge,
+            request,
+        }
     }
 
     fn layout(&self, moved: &[(ItemId, Crate)]) -> ItemLayout {
@@ -122,6 +131,7 @@ impl Fixture {
             &self.components,
             &self.items,
             &self.component_layout,
+            &crate::crates::test_config(),
         )
         .unwrap();
         let layout = ItemLayout::for_test(
@@ -137,7 +147,7 @@ impl Fixture {
                 })
                 .collect(),
         );
-        layout.validate(&self.items, &self.component_layout).unwrap();
+        layout.validate(&self.items, &self.component_layout, &self.config).unwrap();
         layout
     }
 
@@ -146,7 +156,7 @@ impl Fixture {
         let mut emitter = ItemEmitter::new(
             &self.items,
             layout,
-            OutputLocations::new(&self.components, &self.component_layout),
+            OutputLocations::new(&self.components, &self.component_layout, &self.config),
         );
         for component in [self.customer, self.charge] {
             emitter.emit(self.items.component_root(component), &mut output)?;
@@ -197,7 +207,7 @@ fn webhook_union_references_and_feature_gates_follow_its_placement() {
         let layout = fixture.layout(&moved);
         let mut output = GeneratedWorkspace::default();
         write_generated_for_webhooks(
-            RenderContext::new(&layout, &fixture.items, EmissionSite::Webhooks),
+            RenderContext::new(&layout, &fixture.items, EmissionSite::Webhooks, &fixture.config),
             &fixture.components.webhook_objs,
             &mut output,
         )
@@ -205,7 +215,7 @@ fn webhook_union_references_and_feature_gates_follow_its_placement() {
         let webhook = contents(&output, "async-stripe-webhook/mod.rs");
         let name = target.map_or_else(
             || "TestCreated".to_string(),
-            |krate| format!("{}::TestCreated", krate.lib_name()),
+            |krate| format!("{}::TestCreated", krate.lib_name(&fixture.config)),
         );
         assert!(webhook.contains(&format!("TestCreated(Box<{name}>),")));
         assert_eq!(
@@ -225,6 +235,7 @@ fn moving_an_id_changes_its_file_references_and_facade_export() {
         [(fixture.customer, std::slice::from_ref(&fixture.request))],
         &fixture.component_layout,
         &layout,
+        &crate::crates::test_config(),
     )
     .unwrap();
     validate_crate_dependencies(&graph).unwrap();
@@ -264,6 +275,7 @@ fn moved_request_declarations_and_nested_types_follow_their_own_placements() {
         [(fixture.customer, std::slice::from_ref(&fixture.request))],
         &fixture.component_layout,
         &layout,
+        &crate::crates::test_config(),
     )
     .unwrap();
     validate_crate_dependencies(&graph).unwrap();
@@ -303,6 +315,7 @@ fn moving_a_parent_does_not_make_its_local_children_visible_elsewhere() {
         [(fixture.customer, std::slice::from_ref(&fixture.request))],
         &fixture.component_layout,
         &layout,
+        &crate::crates::test_config(),
     )
     .unwrap_err();
     assert!(format!("{error:#}").contains("is not visible"));
@@ -316,7 +329,7 @@ fn declarations_must_be_emitted_exactly_once() {
     let mut emitter = ItemEmitter::new(
         &fixture.items,
         &layout,
-        OutputLocations::new(&fixture.components, &fixture.component_layout),
+        OutputLocations::new(&fixture.components, &fixture.component_layout, &fixture.config),
     );
     let model = fixture.items.component_root(fixture.customer);
     emitter.emit(model, &mut output).unwrap();
@@ -346,7 +359,7 @@ fn placing_a_private_declaration_in_a_public_module_does_not_change_its_visibili
     strukt.vis = Visibility::Private;
     assert!(
         layout
-            .validate(&fixture.items, &fixture.component_layout)
+            .validate(&fixture.items, &fixture.component_layout, &fixture.config)
             .unwrap_err()
             .to_string()
             .contains("private declaration")
@@ -368,6 +381,7 @@ fn request_setters_cannot_access_private_fields_in_another_module() {
         [(fixture.customer, std::slice::from_ref(&fixture.request))],
         &fixture.component_layout,
         &layout,
+        &crate::crates::test_config(),
     )
     .unwrap();
     // Optional values are set directly on the inner struct by the wrapper.
@@ -379,6 +393,7 @@ fn request_setters_cannot_access_private_fields_in_another_module() {
         [(fixture.customer, std::slice::from_ref(&fixture.request))],
         &fixture.component_layout,
         &layout,
+        &crate::crates::test_config(),
     )
     .unwrap_err();
     assert!(format!("{error:#}").contains("cannot set private parameter field mode"));
@@ -395,6 +410,7 @@ fn moving_a_model_and_its_id_keeps_the_request_module_and_public_facade() {
         [(fixture.customer, std::slice::from_ref(&fixture.request))],
         &fixture.component_layout,
         &layout,
+        &crate::crates::test_config(),
     )
     .unwrap();
     validate_crate_dependencies(&graph).unwrap();
@@ -470,4 +486,61 @@ fn finalization_rejects_a_representation_that_adds_a_component_lifetime() {
         .push(StructField::new("borrowed", RustType::Reference(Box::new(RustType::string()))));
     let error = crate::rust_model::RustModel::from_draft(&fixture.components, draft).err().unwrap();
     assert!(error.to_string().contains("top-level component unexpectedly requires a lifetime"));
+}
+
+#[test]
+fn selecting_id_storage_updates_request_dependencies_without_rewriting_inference() {
+    let fixture = Fixture::new();
+    let mut draft = super::ItemCatalogDraft::build(&fixture.components, |component| {
+        ItemMetadata::new(fixture.components.get_by_id(component).ident().clone())
+    })
+    .unwrap();
+    let operation = fixture.components.requests_for_component(fixture.customer)[0].operation_id;
+    let params =
+        draft.catalog.root(&TypeRoot::OperationParam(operation)).unwrap().declaration.unwrap();
+    let charge_id = draft.catalog.component_id_item(fixture.charge).unwrap();
+    let RustItem::Object(object) = &mut draft.catalog.items[params.index()].item else {
+        panic!("expected parameters");
+    };
+    let RustObject::Struct(strukt) = &mut object.definition else {
+        panic!("expected struct");
+    };
+    strukt.fields[0].rust_type = RustType::Item(charge_id);
+    let model = crate::rust_model::RustModel::from_draft(&fixture.components, draft).unwrap();
+    let layout = fixture.layout(&[(charge_id, Crate::SHARED)]);
+    let before = crate_dependencies(
+        &fixture.items,
+        [(fixture.customer, std::slice::from_ref(&fixture.request))],
+        &fixture.component_layout,
+        &layout,
+        &fixture.config,
+    )
+    .unwrap();
+    let after = crate_dependencies(
+        model.items(),
+        model.requests(),
+        &fixture.component_layout,
+        &layout,
+        &fixture.config,
+    )
+    .unwrap();
+    assert!(before.contains_edge(krate("core"), krate("billing")));
+    assert!(!after.contains_edge(krate("core"), krate("billing")));
+    assert!(after.contains_edge(krate("core"), Crate::SHARED));
+    assert_eq!(
+        fixture.components.requests_for_component(fixture.customer)[0]
+            .param_struct_fields()
+            .unwrap()[0]
+            .rust_type,
+        RustType::component(fixture.charge),
+    );
+    let context = RenderContext::new(
+        &layout,
+        model.items(),
+        EmissionSite::ComponentRequests(fixture.customer),
+        &fixture.config,
+    );
+    let request = model.requests_for_component(fixture.customer)[0].generate(context);
+    assert!(request.contains("stripe_shared::ChargeId"));
+    assert!(!request.contains("stripe_billing::Charge>"));
 }

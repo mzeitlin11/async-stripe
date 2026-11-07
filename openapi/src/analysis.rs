@@ -10,7 +10,7 @@ use self::modules::ModuleAnalysis;
 use crate::codegen::CodeGen;
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
-use crate::crates::{ALL_CRATES, Crate};
+use crate::crates::{Crate, CrateConfig};
 use crate::dependencies::{Dependency, DependencySource, EdgePolicy};
 use crate::graph::{ComponentGraph, gen_inferred_crate_dep_graph};
 use crate::item_catalog::{ItemKind, RustItem};
@@ -92,15 +92,21 @@ impl CodeGen {
 
         if graph_detail != GraphDetail::None {
             bundle.insert("graphs/model-module-dependencies.dot", modules.graph_dot());
-            bundle
-                .insert("graphs/crate-dependencies.dot", crate_graph_dot(&self.crate_dependencies));
+            bundle.insert(
+                "graphs/crate-dependencies.dot",
+                crate_graph_dot(&self.crate_dependencies, &self.config),
+            );
             bundle.insert(
                 "graphs/inferred-crate-dependencies.dot",
-                crate_graph_dot(&gen_inferred_crate_dep_graph(
-                    &self.components,
-                    self.edge_policy(),
-                    |component| locations.placement(component),
-                )),
+                crate_graph_dot(
+                    &gen_inferred_crate_dep_graph(
+                        &self.components,
+                        &self.config,
+                        self.edge_policy(),
+                        |component| locations.placement(component),
+                    ),
+                    &self.config,
+                ),
             );
             bundle.insert(
                 "graphs/component-dependencies.dot",
@@ -182,25 +188,26 @@ fn crate_stats(
     codegen: &CodeGen,
     component_stats: &[ComponentStats],
 ) -> BTreeMap<String, CrateStats> {
+    let config = &codegen.config;
     let locations = codegen.output_locations();
     let mut crates = BTreeMap::new();
-    for krate in &*ALL_CRATES {
-        let name = krate.crate_name();
+    for krate in config.all() {
+        let name = krate.crate_name(config);
         crates.insert(name, CrateStats::default());
     }
     for stats in component_stats {
         let placement = locations.placement(stats.id);
-        let types = crates.get_mut(&placement.types_crate().crate_name()).unwrap();
+        let types = crates.get_mut(&placement.types_crate().crate_name(config)).unwrap();
         types.model_components += 1;
         types.shape.add(stats.model);
         if codegen.components.has_requests(stats.id) {
-            let requests = crates.get_mut(&placement.request_crate().crate_name()).unwrap();
+            let requests = crates.get_mut(&placement.request_crate().crate_name(config)).unwrap();
             requests.request_components += 1;
             requests.requests += codegen.components.requests_for_component(stats.id).len();
             requests.shape.add(stats.requests);
         }
     }
-    let shared = crates.get_mut(&Crate::SHARED.crate_name()).unwrap();
+    let shared = crates.get_mut(&Crate::SHARED.crate_name(config)).unwrap();
     for extra in codegen.components.extra_types.values() {
         shared.shape.add(shape_for_object(&extra.obj));
     }
@@ -321,6 +328,7 @@ fn summary(
 }
 
 fn items_csv(codegen: &CodeGen) -> String {
+    let config = &codegen.config;
     let mut out = String::from(
         "item_id,origin,ident,kind,usage,has_lifetime,is_copy,is_eq,sharing_rule,emission_path,public_crate\n",
     );
@@ -345,7 +353,7 @@ fn items_csv(codegen: &CodeGen) -> String {
                 .to_string(),
             match placement.address() {
                 ItemAddress::Local => String::new(),
-                ItemAddress::CrateRoot(krate) => krate.crate_name(),
+                ItemAddress::CrateRoot(krate) => krate.crate_name(config),
             },
         ];
         let _ =
@@ -405,6 +413,7 @@ fn item_origin(codegen: &CodeGen, origin: &ItemOrigin) -> String {
 }
 
 fn components_csv(codegen: &CodeGen, stats: &[ComponentStats]) -> String {
+    let config = &codegen.config;
     let locations = codegen.output_locations();
     let mut out = String::from(
         "component,ident,request_crate,types_crate,requests,model_objects,model_fields,request_objects,request_fields,dependencies,dependencies_without_expandables,dependencies_with_id_only,model_dependencies,model_dependencies_without_expandables,model_dependencies_with_id_only\n",
@@ -415,8 +424,8 @@ fn components_csv(codegen: &CodeGen, stats: &[ComponentStats]) -> String {
         let values = [
             codegen.components.component_name(stats.id).to_string(),
             component.ident().to_string(),
-            placement.request_crate().crate_name(),
-            placement.types_crate().crate_name(),
+            placement.request_crate().crate_name(config),
+            placement.types_crate().crate_name(config),
             codegen.components.requests_for_component(stats.id).len().to_string(),
             stats.model.objects.to_string(),
             stats.model.fields.to_string(),
@@ -519,7 +528,7 @@ fn crate_warnings_csv(codegen: &CodeGen) -> String {
         .map(|warning| {
             vec![
                 warning.component.to_string(),
-                warning.chosen_crate.crate_name(),
+                format!("async-stripe-{}", warning.chosen_crate),
                 warning
                     .depended_on_by
                     .iter()
@@ -529,7 +538,7 @@ fn crate_warnings_csv(codegen: &CodeGen) -> String {
                 warning
                     .candidate_crates
                     .iter()
-                    .map(|krate| krate.crate_name())
+                    .map(|krate| format!("async-stripe-{krate}"))
                     .collect::<Vec<_>>()
                     .join(";"),
             ]
@@ -614,12 +623,12 @@ fn component_graph_dot(
     out
 }
 
-fn crate_graph_dot(graph: &DiGraphMap<Crate, ()>) -> String {
-    let mut nodes = graph.nodes().map(Crate::crate_name).collect::<Vec<_>>();
+fn crate_graph_dot(graph: &DiGraphMap<Crate, ()>, config: &CrateConfig) -> String {
+    let mut nodes = graph.nodes().map(|krate| krate.crate_name(config)).collect::<Vec<_>>();
     nodes.sort();
     let mut edges = graph
         .all_edges()
-        .map(|(source, target, _)| (source.crate_name(), target.crate_name()))
+        .map(|(source, target, _)| (source.crate_name(config), target.crate_name(config)))
         .collect::<Vec<_>>();
     edges.sort();
 

@@ -1,6 +1,6 @@
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
-use crate::crates::Crate;
+use crate::crates::{Crate, CrateConfig};
 use crate::item_catalog::{ItemCatalog, ItemId};
 use crate::item_origin::{ItemOrigin, TypeRoot};
 use crate::layout::ComponentLayout;
@@ -89,6 +89,7 @@ impl ItemLayout {
         components: &Components,
         items: &ItemCatalog,
         component_layout: &ComponentLayout,
+        config: &CrateConfig,
     ) -> anyhow::Result<Self> {
         let mut placements = Vec::with_capacity(items.len());
         for (item, record) in items.iter() {
@@ -100,7 +101,7 @@ impl ItemLayout {
         }
 
         let item_layout = Self { placements };
-        item_layout.validate(items, component_layout)?;
+        item_layout.validate(items, component_layout, config)?;
         Ok(item_layout)
     }
 
@@ -113,6 +114,7 @@ impl ItemLayout {
         &self,
         items: &ItemCatalog,
         component_layout: &ComponentLayout,
+        config: &CrateConfig,
     ) -> anyhow::Result<()> {
         anyhow::ensure!(
             self.placements.len() == items.len(),
@@ -131,7 +133,7 @@ impl ItemLayout {
                 anyhow::ensure!(
                     public_names.insert((krate, &record.metadata.ident)),
                     "duplicate public item name in {}: {}",
-                    krate.crate_name(),
+                    krate.crate_name(config),
                     record.metadata.ident
                 );
                 if let Some(object) = record.object()

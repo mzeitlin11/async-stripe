@@ -4,7 +4,7 @@ use std::path::{Component, Path, PathBuf};
 
 use anyhow::{Context, bail, ensure};
 
-use crate::crates::ALL_CRATES;
+use crate::crates::CrateConfig;
 
 /// A complete, filesystem-independent set of files produced by one operation.
 #[derive(Debug, Default)]
@@ -144,10 +144,14 @@ fn prepare_staging_root(root: &Path) -> anyhow::Result<()> {
         .with_context(|| format!("could not create output directory {}", root.display()))
 }
 
-pub fn install_to_repository(staging_root: &Path, repo_root: &Path) -> anyhow::Result<()> {
+pub fn install_to_repository(
+    staging_root: &Path,
+    repo_root: &Path,
+    config: &CrateConfig,
+) -> anyhow::Result<()> {
     // Check the complete staging tree before replacing any repository directory.
-    for krate in &*ALL_CRATES {
-        let source = staging_root.join("crates").join(krate.crate_name());
+    for krate in config.all() {
+        let source = staging_root.join("crates").join(krate.crate_name(config));
         require_file(&source.join("src/mod.rs"))?;
         require_file(&source.join("Cargo.toml"))?;
     }
@@ -155,9 +159,9 @@ pub fn install_to_repository(staging_root: &Path, repo_root: &Path) -> anyhow::R
         require_file(&staging_root.join(path))?;
     }
 
-    for krate in &*ALL_CRATES {
-        let source = staging_root.join("crates").join(krate.crate_name());
-        let destination = repo_root.join("generated").join(krate.crate_name());
+    for krate in config.all() {
+        let source = staging_root.join("crates").join(krate.crate_name(config));
+        let destination = repo_root.join("generated").join(krate.crate_name(config));
         replace_directory(&source.join("src"), &destination.join("src"))?;
         fs::copy(source.join("Cargo.toml"), destination.join("Cargo.toml"))?;
     }
@@ -274,8 +278,9 @@ mod tests {
     }
 
     fn staging_fixture(root: &Path) {
-        for krate in &*ALL_CRATES {
-            let destination = root.join("crates").join(krate.crate_name());
+        let config = &crate::crates::test_config();
+        for krate in config.all() {
+            let destination = root.join("crates").join(krate.crate_name(config));
             fs::create_dir_all(destination.join("src")).unwrap();
             fs::write(destination.join("src/mod.rs"), "// generated").unwrap();
             fs::write(destination.join("Cargo.toml"), "# generated manifest").unwrap();
@@ -289,16 +294,17 @@ mod tests {
 
     #[test]
     fn installation_replaces_owned_files_and_preserves_other_crate_files() {
+        let config = &crate::crates::test_config();
         let root = TestDirectory::new();
         let staging = root.0.join("staging");
         let repository = root.0.join("repository");
         staging_fixture(&staging);
-        let first = ALL_CRATES[0].crate_name();
+        let first = config.all().next().unwrap().crate_name(config);
         let crate_root = repository.join("generated").join(first);
         fs::create_dir_all(crate_root.join("src")).unwrap();
         fs::write(crate_root.join("src/stale.rs"), "// stale").unwrap();
         fs::write(crate_root.join("README.md"), "keep").unwrap();
-        install_to_repository(&staging, &repository).unwrap();
+        install_to_repository(&staging, &repository, config).unwrap();
         assert!(!crate_root.join("src/stale.rs").exists());
         assert_eq!(fs::read_to_string(crate_root.join("README.md")).unwrap(), "keep");
         assert_eq!(
@@ -315,15 +321,17 @@ mod tests {
 
     #[test]
     fn incomplete_staging_does_not_modify_the_repository() {
+        let config = &crate::crates::test_config();
         let root = TestDirectory::new();
         let staging = root.0.join("staging");
         let repository = root.0.join("repository");
         staging_fixture(&staging);
         fs::remove_file(staging.join("tests/mod.rs")).unwrap();
-        let first = repository.join("generated").join(ALL_CRATES[0].crate_name());
+        let first =
+            repository.join("generated").join(config.all().next().unwrap().crate_name(config));
         fs::create_dir_all(first.join("src")).unwrap();
         fs::write(first.join("src/mod.rs"), "// existing").unwrap();
-        assert!(install_to_repository(&staging, &repository).is_err());
+        assert!(install_to_repository(&staging, &repository, config).is_err());
         assert_eq!(fs::read_to_string(first.join("src/mod.rs")).unwrap(), "// existing");
     }
 

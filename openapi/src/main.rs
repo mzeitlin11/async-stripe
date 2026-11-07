@@ -5,7 +5,7 @@ use anyhow::{Context, Result, bail};
 use clap::{Args, Parser, Subcommand, ValueEnum};
 use stripe_openapi_codegen::analysis::GraphDetail;
 use stripe_openapi_codegen::codegen::{CodeGen, CodeGenOptions, EdgePolicy};
-use stripe_openapi_codegen::crates::ALL_CRATES;
+use stripe_openapi_codegen::crates::CrateConfig;
 use stripe_openapi_codegen::output::{GeneratedWorkspace, install_to_repository};
 use stripe_openapi_codegen::spec::Spec;
 use stripe_openapi_codegen::spec_fetch;
@@ -100,13 +100,13 @@ fn run_generate(args: GenerateArgs) -> Result<()> {
     let workspace = codegen.render_workspace()?;
     print_summary(&codegen);
 
-    materialize_and_format(&workspace, &args.out)?;
+    materialize_and_format(&workspace, &args.out, codegen.crate_config())?;
 
     if let Some(report_dir) = args.report_dir {
         write_analysis(&codegen, &report_dir, GraphSelection::Default)?;
     }
     if !args.no_install {
-        install_to_repository(&args.out, Path::new(".."))?;
+        install_to_repository(&args.out, Path::new(".."), codegen.crate_config())?;
         info!("Installed generated files into the repository");
     }
     Ok(())
@@ -135,21 +135,31 @@ fn run_update_api_docs(args: UpdateApiDocsArgs) -> Result<()> {
 fn build_codegen(version: Option<String>, edge_policy: EdgePolicy, spec: Spec) -> Result<CodeGen> {
     let url_finder = UrlFinder::new().context("could not initialize URL finder")?;
     let version = version.map_or_else(parse_workspace_version, Ok)?;
-    CodeGen::new_with_options(spec, url_finder, version, CodeGenOptions { edge_policy })
+    CodeGen::with_config(
+        spec,
+        url_finder,
+        version,
+        CodeGenOptions { edge_policy },
+        CrateConfig::load(Path::new("gen_crates.toml"))?,
+    )
 }
 
-fn materialize_and_format(workspace: &GeneratedWorkspace, out: &Path) -> Result<()> {
+fn materialize_and_format(
+    workspace: &GeneratedWorkspace,
+    out: &Path,
+    config: &CrateConfig,
+) -> Result<()> {
     info!(output = %out.display(), "Materializing generated workspace");
     workspace.materialize(out)?;
-    run_rustfmt(out)
+    run_rustfmt(out, config)
 }
 
-fn run_rustfmt(out: &Path) -> Result<()> {
+fn run_rustfmt(out: &Path, config: &CrateConfig) -> Result<()> {
     let mut command = std::process::Command::new("rustfmt");
-    let config = Path::new("../.rustfmt.toml").canonicalize()?;
-    command.arg("+nightly").arg("--edition").arg("2024").arg("--config-path").arg(config);
-    for krate in &*ALL_CRATES {
-        command.arg(out.join(krate.generated_out_path()).join("src/mod.rs"));
+    let rustfmt_config = Path::new("../.rustfmt.toml").canonicalize()?;
+    command.arg("+nightly").arg("--edition").arg("2024").arg("--config-path").arg(rustfmt_config);
+    for krate in config.all() {
+        command.arg(out.join(krate.generated_out_path(config)).join("src/mod.rs"));
     }
     command.arg(out.join("async-stripe-webhook/mod.rs"));
     command.arg(out.join("tests/mod.rs"));

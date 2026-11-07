@@ -21,7 +21,7 @@ pub fn generate_crate_table(locations: OutputLocations<'_>) -> String {
             continue;
         }
         comps.push(CrateDisplay {
-            krate: locations.request_crate(component).crate_name(),
+            krate: locations.request_crate(component).crate_name(locations.config),
             feature_gate: obj.mod_path(),
             name_cell: name_cell(obj),
         })

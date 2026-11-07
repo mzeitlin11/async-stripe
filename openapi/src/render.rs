@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter, Write as _};
 
 use crate::STRIPE_TYPES;
 use crate::component_catalog::ComponentId;
-use crate::crates::Crate;
+use crate::crates::{Crate, CrateConfig};
 use crate::item_catalog::{CanonicalTypeRoot, ItemCatalog, ItemId, ItemProperties, ItemRecord};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::item_origin::TypeRoot;
@@ -80,7 +80,7 @@ pub struct DisplayComponent<'model> {
 impl Display for DisplayComponent<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let item = self.context.resolve_component(self.component);
-        fmt_named_type(f, self.context.emission_site, &item, TypeUse::default())
+        fmt_named_type(f, self.context, &item, TypeUse::default())
     }
 }
 
@@ -120,6 +120,7 @@ pub struct RenderContext<'a> {
     item_layout: &'a ItemLayout,
     items: &'a ItemCatalog,
     emission_site: EmissionSite,
+    pub(crate) config: &'a CrateConfig,
 }
 
 impl<'model> RenderContext<'model> {
@@ -127,8 +128,9 @@ impl<'model> RenderContext<'model> {
         item_layout: &'model ItemLayout,
         items: &'model ItemCatalog,
         emission_site: EmissionSite,
+        config: &'model CrateConfig,
     ) -> Self {
-        Self { item_layout, items, emission_site }
+        Self { item_layout, items, emission_site, config }
     }
 
     pub(crate) fn item_address(self, item: ItemId) -> ItemAddress {
@@ -236,11 +238,11 @@ fn fmt_type(
         RustType::Primitive(primitive) => fmt_primitive_type(f, *primitive),
         RustType::External(external) => {
             let item = context.resolve_external(*external);
-            fmt_named_type(f, context.emission_site, &item, use_site)
+            fmt_named_type(f, context, &item, use_site)
         }
         RustType::Item(item) => {
             let item = context.resolve_item(*item);
-            fmt_named_type(f, context.emission_site, &item, use_site)
+            fmt_named_type(f, context, &item, use_site)
         }
         RustType::Path(path) => panic!("unlowered named path reached type rendering: {path:?}"),
         RustType::Container(container) => fmt_container(f, context, container, use_site),
@@ -250,19 +252,19 @@ fn fmt_type(
 
 fn fmt_named_type(
     f: &mut Formatter<'_>,
-    emission_site: EmissionSite,
+    context: RenderContext<'_>,
     item: &ResolvedTypeItem<'_>,
     use_site: TypeUse,
 ) -> std::fmt::Result {
     if let Some(lifetime) = use_site.lifetime {
-        fmt_type_name(f, emission_site, item)?;
+        fmt_type_name(f, context, item)?;
         if item.has_lifetime {
             write!(f, "<{lifetime}>")?;
         }
         return Ok(());
     }
 
-    fmt_type_name(f, emission_site, item)
+    fmt_type_name(f, context, item)
 }
 
 fn fmt_reference(
@@ -286,13 +288,13 @@ fn fmt_reference(
 
 fn fmt_type_name(
     f: &mut Formatter<'_>,
-    emission_site: EmissionSite,
+    context: RenderContext<'_>,
     item: &ResolvedTypeItem<'_>,
 ) -> std::fmt::Result {
     match item.location {
         ItemLocation::Local => {}
         ItemLocation::CrateRoot(krate) => {
-            write_crate_qualifier(f, emission_site, krate)?;
+            write_crate_qualifier(f, context, krate)?;
         }
         ItemLocation::ExternalModule(module) => write!(f, "{module}::")?,
     }
@@ -301,14 +303,14 @@ fn fmt_type_name(
 
 fn write_crate_qualifier(
     f: &mut Formatter<'_>,
-    _emission_site: EmissionSite,
+    context: RenderContext<'_>,
     target: Crate,
 ) -> std::fmt::Result {
     // The current output contract always uses the generated crate's absolute
     // alias, including for same-crate references. The emission site is
     // intentionally available here so a later, separate change can choose
     // `crate::` without changing semantic item resolution.
-    write!(f, "{}::", target.lib_name())
+    write!(f, "{}::", target.lib_name(context.config))
 }
 
 fn fmt_primitive_type(f: &mut Formatter<'_>, typ: PrimitiveType) -> std::fmt::Result {
@@ -376,7 +378,7 @@ fn fmt_map_key(f: &mut Formatter<'_>, context: RenderContext<'_>, key: MapKey) -
         MapKey::String => f.write_str(PrimitiveType::String.ident()),
         MapKey::Currency => {
             let item = context.resolve_external(ExternalType::Currency);
-            fmt_named_type(f, context.emission_site, &item, TypeUse::default())
+            fmt_named_type(f, context, &item, TypeUse::default())
         }
     }
 }

@@ -2,7 +2,7 @@ use petgraph::algo::is_cyclic_directed;
 use petgraph::prelude::DiGraphMap;
 
 use crate::component_catalog::ComponentId;
-use crate::crates::{ALL_CRATES, Crate};
+use crate::crates::{Crate, CrateConfig};
 use crate::exports::{PublicExport, component_exports};
 use crate::item_catalog::ItemCatalog;
 use crate::item_layout::ItemLayout;
@@ -20,10 +20,11 @@ pub(crate) fn crate_dependencies<'a>(
     requests: impl IntoIterator<Item = (ComponentId, &'a [RequestModel])>,
     component_layout: &ComponentLayout,
     item_layout: &ItemLayout,
+    config: &CrateConfig,
 ) -> anyhow::Result<DiGraphMap<Crate, ()>> {
     let modules = module_dependencies(items, requests, item_layout)?;
     let mut graph = DiGraphMap::new();
-    for &krate in &*ALL_CRATES {
+    for krate in config.all() {
         graph.add_node(krate);
         // Preserve the mandatory shared dependency used by domain crate
         // facades. Their public reexports are not represented by RustType.

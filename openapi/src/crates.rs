@@ -1,48 +1,42 @@
 use std::collections::{HashMap, HashSet};
 use std::fs::read_to_string;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use anyhow::{anyhow, bail, ensure};
-use lazy_static::lazy_static;
 use serde::Deserialize;
 
 use crate::component_catalog::{ComponentCatalog, ComponentId};
 
+/// A crate identity scoped to one generator configuration. Names and package
+/// metadata live in that configuration, rather than process-global storage.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct Crate {
-    base_name: &'static str,
-}
+pub struct Crate(u32);
 
 impl Crate {
-    pub const SHARED: Self = Self { base_name: "shared" };
+    pub const SHARED: Self = Self(0);
 
-    pub fn generated_out_path(self) -> String {
-        format!("crates/{}", self.crate_name())
+    pub fn base_name(self, config: &CrateConfig) -> &str {
+        &config.get(self).name
     }
 
-    pub fn base_name(self) -> &'static str {
-        self.base_name
+    pub fn generated_out_path(self, config: &CrateConfig) -> String {
+        format!("crates/{}", self.crate_name(config))
     }
 
-    pub fn lib_name(self) -> String {
-        format!("stripe_{}", self.base_name)
+    pub fn lib_name(self, config: &CrateConfig) -> String {
+        format!("stripe_{}", self.base_name(config))
     }
 
-    pub fn crate_name(self) -> String {
-        format!("async-stripe-{}", self.base_name)
+    pub fn crate_name(self, config: &CrateConfig) -> String {
+        format!("async-stripe-{}", self.base_name(config))
     }
 
-    fn generate_to(self) -> String {
-        let out_path = self.generated_out_path();
-        format!("{out_path}/src")
+    pub fn get_path(self, config: &CrateConfig) -> PathBuf {
+        PathBuf::from(self.generated_out_path(config)).join("src")
     }
 
-    pub fn get_path(self) -> PathBuf {
-        PathBuf::from(self.generate_to())
-    }
-
-    pub fn get_path_to_mod(self) -> PathBuf {
-        self.get_path().join("mod.rs")
+    pub fn get_path_to_mod(self, config: &CrateConfig) -> PathBuf {
+        self.get_path(config).join("mod.rs")
     }
 }
 
@@ -66,27 +60,65 @@ pub struct CrateInfo {
     pub crates: Vec<CrateGen>,
 }
 
-fn load_crate_info() -> anyhow::Result<CrateInfo> {
-    let toml_str = read_to_string("gen_crates.toml")?;
-    let loaded = toml::from_str(&toml_str)?;
-    Ok(loaded)
+/// Owned package configuration for one generation run. Iteration retains the
+/// configuration's source order; crate identities have no ordering semantics.
+pub struct CrateConfig {
+    crates: Vec<(Crate, CrateGen)>,
 }
 
-lazy_static! {
-    /// Content of `gen_crates.toml`
-    pub static ref CRATE_INFO: CrateInfo = load_crate_info().expect("Could not load crate info");
-    /// All crate names
-    pub static ref ALL_CRATES: Vec<Crate> =
-        CRATE_INFO.crates.iter().map(|c| Crate {base_name: &c.name}).collect();
+impl CrateConfig {
+    pub fn load(path: &Path) -> anyhow::Result<Self> {
+        Self::new(toml::from_str(&read_to_string(path)?)?)
+    }
+
+    pub fn new(info: CrateInfo) -> anyhow::Result<Self> {
+        ensure!(info.crates.len() < u32::MAX as usize, "too many configured crates");
+        let mut names = HashSet::new();
+        for configured in &info.crates {
+            ensure!(!configured.name.is_empty(), "crate configuration contains an empty name");
+            ensure!(
+                names.insert(configured.name.as_str()),
+                "crate `{}` is configured more than once",
+                configured.name
+            );
+        }
+        ensure!(
+            names.contains("shared"),
+            "crate configuration must contain exactly one `shared` crate"
+        );
+        let crates = info
+            .crates
+            .into_iter()
+            .enumerate()
+            .map(|(index, info)| {
+                let krate =
+                    if info.name == "shared" { Crate::SHARED } else { Crate(index as u32 + 1) };
+                (krate, info)
+            })
+            .collect();
+        Ok(Self { crates })
+    }
+
+    pub fn all(&self) -> impl ExactSizeIterator<Item = Crate> + '_ {
+        self.crates.iter().map(|(krate, _)| *krate)
+    }
+
+    pub fn find(&self, name: &str) -> Option<Crate> {
+        self.crates.iter().find(|(_, info)| info.name == name).map(|(krate, _)| *krate)
+    }
+
+    fn get(&self, krate: Crate) -> &CrateGen {
+        &self.crates.iter().find(|(id, _)| *id == krate).expect("crate is not configured").1
+    }
+
+    pub fn doc_comment(&self, krate: Crate) -> &str {
+        &self.get(krate).description
+    }
 }
 
-#[track_caller]
-fn crate_info_unwrapped(krate: Crate) -> &'static CrateGen {
-    CRATE_INFO.crates.iter().find(|k| k.name == krate.base_name).expect("Crate not found")
-}
-
-pub fn get_crate_doc_comment(krate: Crate) -> &'static str {
-    &crate_info_unwrapped(krate).description
+#[cfg(test)]
+pub(crate) fn test_config() -> CrateConfig {
+    CrateConfig::new(toml::from_str(include_str!("../gen_crates.toml")).unwrap()).unwrap()
 }
 
 /// Validated, identity-based view of `gen_crates.toml` used during inference.
@@ -101,37 +133,30 @@ pub struct ResolvedCrateConfig {
 }
 
 impl ResolvedCrateConfig {
-    pub fn from_catalog(catalog: &ComponentCatalog) -> anyhow::Result<Self> {
-        Self::resolve(&CRATE_INFO, catalog)
+    pub fn from_catalog(config: &CrateConfig, catalog: &ComponentCatalog) -> anyhow::Result<Self> {
+        Self::resolve(config, catalog)
     }
 
-    fn resolve(info: &'static CrateInfo, catalog: &ComponentCatalog) -> anyhow::Result<Self> {
-        let mut crate_names = HashSet::new();
+    fn resolve(config: &CrateConfig, catalog: &ComponentCatalog) -> anyhow::Result<Self> {
         let mut by_component = HashMap::new();
         let mut by_package = HashMap::new();
 
-        for configured in &info.crates {
-            ensure!(!configured.name.is_empty(), "crate configuration contains an empty name");
-            ensure!(
-                crate_names.insert(configured.name.as_str()),
-                "crate `{}` is configured more than once",
-                configured.name
-            );
-            let krate = Crate { base_name: &configured.name };
+        for krate in config.all() {
+            let configured = config.get(krate);
 
             for path in &configured.paths {
                 ensure!(
                     !path.is_empty(),
                     "crate `{}` contains an empty component path",
-                    krate.base_name()
+                    krate.base_name(config)
                 );
                 let component =
                     catalog.id_str(path).ok_or_else(|| unknown_component(path, catalog))?;
                 if let Some(previous) = by_component.insert(component, krate) {
                     bail!(
                         "component `{path}` is assigned to both crate `{}` and crate `{}`",
-                        previous.base_name(),
-                        krate.base_name()
+                        previous.base_name(config),
+                        krate.base_name(config)
                     );
                 }
             }
@@ -140,22 +165,17 @@ impl ResolvedCrateConfig {
                 ensure!(
                     !package.is_empty(),
                     "crate `{}` contains an empty package name",
-                    krate.base_name()
+                    krate.base_name(config)
                 );
                 if let Some(previous) = by_package.insert(package.clone(), krate) {
                     bail!(
                         "package `{package}` is assigned to both crate `{}` and crate `{}`",
-                        previous.base_name(),
-                        krate.base_name()
+                        previous.base_name(config),
+                        krate.base_name(config)
                     );
                 }
             }
         }
-
-        ensure!(
-            info.crates.iter().filter(|krate| krate.name == Crate::SHARED.base_name()).count() == 1,
-            "crate configuration must contain exactly one `shared` crate"
-        );
 
         // Deleted object variants follow the explicit assignment of their
         // non-deleted object, preserving the existing placement rule while
@@ -175,8 +195,8 @@ impl ResolvedCrateConfig {
                 ensure!(
                     explicit == base_crate,
                     "deleted component `{name}` is assigned to crate `{}` but its base component `{base_name}` is assigned to crate `{}`",
-                    explicit.base_name(),
-                    base_crate.base_name()
+                    explicit.base_name(config),
+                    base_crate.base_name(config)
                 );
             }
         }
@@ -234,7 +254,7 @@ fn edit_distance(left: &str, right: &str) -> usize {
 
 #[cfg(test)]
 mod tests {
-    use super::{CrateGen, CrateInfo, ResolvedCrateConfig};
+    use super::{CrateConfig, CrateGen, CrateInfo, ResolvedCrateConfig};
     use crate::component_catalog::ComponentCatalog;
     use crate::types::ComponentName;
 
@@ -247,8 +267,8 @@ mod tests {
         .unwrap()
     }
 
-    fn config(crates: Vec<CrateGen>) -> &'static CrateInfo {
-        Box::leak(Box::new(CrateInfo { crates }))
+    fn config(crates: Vec<CrateGen>) -> CrateConfig {
+        CrateConfig::new(CrateInfo { crates }).unwrap()
     }
 
     fn krate(name: &str, paths: &[&str], packages: &[&str]) -> CrateGen {
@@ -264,13 +284,33 @@ mod tests {
     fn resolves_paths_to_component_ids_and_propagates_deleted_placement() {
         let catalog = catalog();
         let info = config(vec![krate("core", &["charge"], &["core"]), krate("shared", &[], &[])]);
-        let resolved = ResolvedCrateConfig::resolve(info, &catalog).unwrap();
+        let resolved = ResolvedCrateConfig::resolve(&info, &catalog).unwrap();
 
         let charge = catalog.id_str("charge").unwrap();
         let deleted_charge = catalog.id_str("deleted_charge").unwrap();
-        assert_eq!(resolved.crate_for_component(charge).unwrap().base_name(), "core");
-        assert_eq!(resolved.crate_for_component(deleted_charge).unwrap().base_name(), "core");
-        assert_eq!(resolved.crate_for_package("core").unwrap().base_name(), "core");
+        assert_eq!(resolved.crate_for_component(charge).unwrap().base_name(&info), "core");
+        assert_eq!(resolved.crate_for_component(deleted_charge).unwrap().base_name(&info), "core");
+        assert_eq!(resolved.crate_for_package("core").unwrap().base_name(&info), "core");
+    }
+
+    #[test]
+    fn configurations_resolve_independently_in_one_process() {
+        let catalog = catalog();
+        let first = config(vec![krate("core", &["charge"], &["api"]), krate("shared", &[], &[])]);
+        let second =
+            config(vec![krate("shared", &[], &[]), krate("payments", &["charge"], &["api"])]);
+        let a = ResolvedCrateConfig::from_catalog(&first, &catalog).unwrap();
+        let b = ResolvedCrateConfig::from_catalog(&second, &catalog).unwrap();
+        let component = catalog.id_str("charge").unwrap();
+        assert_eq!(a.crate_for_component(component).unwrap().base_name(&first), "core");
+        assert_eq!(b.crate_for_component(component).unwrap().base_name(&second), "payments");
+        assert_eq!(a.crate_for_package("api").unwrap().crate_name(&first), "async-stripe-core");
+        assert_eq!(
+            b.crate_for_package("api").unwrap().crate_name(&second),
+            "async-stripe-payments"
+        );
+        assert_eq!(super::Crate::SHARED.base_name(&first), "shared");
+        assert_eq!(super::Crate::SHARED.base_name(&second), "shared");
     }
 
     #[test]
@@ -280,7 +320,7 @@ mod tests {
             krate("payment", &["charge"], &[]),
             krate("shared", &[], &[]),
         ]);
-        let error = ResolvedCrateConfig::resolve(info, &catalog()).err().unwrap().to_string();
+        let error = ResolvedCrateConfig::resolve(&info, &catalog()).err().unwrap().to_string();
 
         assert!(error.contains("assigned to both crate `core` and crate `payment`"));
     }
@@ -288,7 +328,7 @@ mod tests {
     #[test]
     fn unknown_component_error_suggests_nearby_names() {
         let info = config(vec![krate("shared", &["charg"], &[])]);
-        let error = ResolvedCrateConfig::resolve(info, &catalog()).err().unwrap().to_string();
+        let error = ResolvedCrateConfig::resolve(&info, &catalog()).err().unwrap().to_string();
 
         assert!(error.contains("unknown component `charg`"));
         assert!(error.contains("`charge`"));

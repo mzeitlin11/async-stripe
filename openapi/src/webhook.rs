@@ -54,7 +54,9 @@ fn write_event_object(
         let payload_item = payload.item_id().context("expected a lowered webhook payload item")?;
         let printable = context.display_type(payload).to_string();
         let feature_gate = match context.item_address(payload_item) {
-            ItemAddress::CrateRoot(krate) if krate != Crate::SHARED => Some(krate.crate_name()),
+            ItemAddress::CrateRoot(krate) if krate != Crate::SHARED => {
+                Some(krate.crate_name(context.config))
+            }
             ItemAddress::CrateRoot(_) | ItemAddress::Local => None,
         };
 

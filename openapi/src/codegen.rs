@@ -9,7 +9,7 @@ use crate::components::Components;
 use crate::crate_dependencies::{crate_dependencies, validate_crate_dependencies};
 use crate::crate_inference::CrateInferenceWarning;
 use crate::crate_table::generate_crate_table;
-use crate::crates::{ALL_CRATES, Crate, get_crate_doc_comment};
+use crate::crates::{Crate, CrateConfig};
 pub use crate::dependencies::EdgePolicy;
 use crate::item_catalog::ItemMetadata;
 use crate::item_layout::{EmissionSite, ItemLayout};
@@ -30,6 +30,7 @@ use crate::url_finder::UrlFinder;
 use crate::webhook::write_generated_for_webhooks;
 
 pub struct CodeGen {
+    pub(crate) config: CrateConfig,
     pub(crate) components: Components,
     pub(crate) model: RustModel,
     component_layout: ComponentLayout,
@@ -57,7 +58,23 @@ impl CodeGen {
         version: String,
         options: CodeGenOptions,
     ) -> anyhow::Result<Self> {
-        let pipeline = run_pipeline(&spec, options.edge_policy)?;
+        Self::with_config(
+            spec,
+            url_finder,
+            version,
+            options,
+            CrateConfig::load(std::path::Path::new("gen_crates.toml"))?,
+        )
+    }
+
+    pub fn with_config(
+        spec: Spec,
+        url_finder: UrlFinder,
+        version: String,
+        options: CodeGenOptions,
+        config: CrateConfig,
+    ) -> anyhow::Result<Self> {
+        let pipeline = run_pipeline(&spec, options.edge_policy, &config)?;
         let mut components = pipeline.components;
         let crate_inference_warnings = pipeline.crate_inference_warnings;
 
@@ -74,14 +91,27 @@ impl CodeGen {
             let doc_comment = infer_doc_comment(schema, object.stripe_doc_url.as_deref());
             ItemMetadata::new(object.ident().clone()).doc(doc_comment)
         })?;
-        let component_layout =
-            components.legacy_model_layout(pipeline.request_owners, options.edge_policy)?;
-        let item_layout =
-            ItemLayout::from_component_layout(&components, model.items(), &component_layout)?;
-        let crate_dependencies =
-            crate_dependencies(model.items(), model.requests(), &component_layout, &item_layout)?;
+        let component_layout = components.legacy_model_layout(
+            pipeline.request_owners,
+            options.edge_policy,
+            &config,
+        )?;
+        let item_layout = ItemLayout::from_component_layout(
+            &components,
+            model.items(),
+            &component_layout,
+            &config,
+        )?;
+        let crate_dependencies = crate_dependencies(
+            model.items(),
+            model.requests(),
+            &component_layout,
+            &item_layout,
+            &config,
+        )?;
 
         Ok(Self {
+            config,
             components,
             model,
             component_layout,
@@ -92,6 +122,10 @@ impl CodeGen {
             crate_inference_warnings,
             edge_policy: options.edge_policy,
         })
+    }
+
+    pub fn crate_config(&self) -> &CrateConfig {
+        &self.config
     }
 
     pub fn canonical_item_count(&self) -> usize {
@@ -115,15 +149,16 @@ impl CodeGen {
     }
 
     pub(crate) fn render_context(&self, emission_site: EmissionSite) -> RenderContext<'_> {
-        RenderContext::new(&self.item_layout, self.model.items(), emission_site)
+        RenderContext::new(&self.item_layout, self.model.items(), emission_site, &self.config)
     }
 
     pub(crate) fn output_locations(&self) -> OutputLocations<'_> {
-        OutputLocations::new(&self.components, &self.component_layout)
+        OutputLocations::new(&self.components, &self.component_layout, &self.config)
     }
 
     fn write_api_version_file(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
-        let base_path = Crate::SHARED.get_path();
+        let config = &self.config;
+        let base_path = Crate::SHARED.get_path(config);
         let mut mod_rs_contents = String::new();
         let mod_rs_path = base_path.join("mod.rs");
 
@@ -195,23 +230,24 @@ impl CodeGen {
     }
 
     fn write_crate_base(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
+        let config = &self.config;
         let locations = self.output_locations();
-        for krate in &*ALL_CRATES {
-            let mut dependencies = self.crate_dependencies.neighbors(*krate).collect::<Vec<_>>();
-            dependencies.sort_unstable();
-            let base_path = PathBuf::from(krate.generated_out_path());
+        for krate in config.all() {
+            let mut dependencies = self.crate_dependencies.neighbors(krate).collect::<Vec<_>>();
+            dependencies.sort_by_key(|c| c.base_name(config));
+            let base_path = PathBuf::from(krate.generated_out_path(config));
             let request_features = locations
-                .crate_members(*krate)
+                .crate_members(krate)
                 .into_iter()
-                .filter(|c| locations.components.has_requests(*c) && *krate != Crate::SHARED)
+                .filter(|c| locations.components.has_requests(*c) && krate != Crate::SHARED)
                 .map(|c| locations.components.get_by_id(c).mod_path())
                 .collect();
 
-            let toml = gen_crate_toml(*krate, dependencies, request_features, &self.version);
+            let toml = gen_crate_toml(krate, dependencies, request_features, &self.version, config);
             output.write(base_path.join("Cargo.toml"), toml)?;
 
-            let lib_name = krate.lib_name();
-            let doc_comment = write_top_level_doc_comment(get_crate_doc_comment(*krate));
+            let lib_name = krate.lib_name(config);
+            let doc_comment = write_top_level_doc_comment(config.doc_comment(krate));
 
             // We set up some things in the base `mod.rs` file:
             // 1. Without this recursion limit increase, `cargo doc` fails
@@ -243,6 +279,7 @@ impl CodeGen {
     }
 
     fn write_object_info_for_testing(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
+        let config = &self.config;
         let mut checks = String::new();
         for (&component, obj) in &self.components.components {
             if obj.object_name().is_none() {
@@ -250,7 +287,7 @@ impl CodeGen {
             }
             let path = self.components.component_name(component);
             let krate = self.output_locations().request_crate(component);
-            let import_path = format!("{}::{}", krate.lib_name(), obj.ident());
+            let import_path = format!("{}::{}", krate.lib_name(config), obj.ident());
             let _ = writeln!(checks, r#"check_object::<{import_path}>(resources, "{path}");"#);
         }
         let content = formatdoc! {

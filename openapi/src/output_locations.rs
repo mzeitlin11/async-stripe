@@ -5,7 +5,7 @@ use indexmap::IndexSet;
 
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
-use crate::crates::Crate;
+use crate::crates::{Crate, CrateConfig};
 use crate::item_catalog::{ItemCatalog, ItemId};
 use crate::item_layout::EmissionSite;
 use crate::layout::{ComponentLayout, ComponentPlacement};
@@ -15,14 +15,16 @@ use crate::layout::{ComponentLayout, ComponentPlacement};
 pub(crate) struct OutputLocations<'a> {
     pub(crate) components: &'a Components,
     pub(crate) component_layout: &'a ComponentLayout,
+    pub(crate) config: &'a CrateConfig,
 }
 
 impl<'a> OutputLocations<'a> {
     pub(crate) const fn new(
         components: &'a Components,
         component_layout: &'a ComponentLayout,
+        config: &'a CrateConfig,
     ) -> Self {
-        Self { components, component_layout }
+        Self { components, component_layout, config }
     }
 
     pub(crate) fn placement(self, component: ComponentId) -> ComponentPlacement {
@@ -74,9 +76,9 @@ impl<'a> OutputLocations<'a> {
         match site {
             EmissionSite::ComponentTypes(component) => self.types_content_path(component),
             EmissionSite::ComponentRequests(component) => self.requests_content_path(component),
-            EmissionSite::Standalone { item, krate } => {
-                krate.get_path().join(format!("{}.rs", self.standalone_module(item, items)))
-            }
+            EmissionSite::Standalone { item, krate } => krate
+                .get_path(self.config)
+                .join(format!("{}.rs", self.standalone_module(item, items))),
             EmissionSite::Webhooks => PathBuf::from("async-stripe-webhook/mod.rs"),
         }
     }
@@ -84,7 +86,9 @@ impl<'a> OutputLocations<'a> {
     pub(crate) fn types_content_path(self, component: ComponentId) -> PathBuf {
         let object = self.components.get_by_id(component);
         if !self.components.has_requests(component) || self.types_split_from_requests(component) {
-            self.types_crate(component).get_path().join(format!("{}.rs", object.mod_path()))
+            self.types_crate(component)
+                .get_path(self.config)
+                .join(format!("{}.rs", object.mod_path()))
         } else {
             self.requests_folder_path(component).join("types.rs")
         }
@@ -92,6 +96,6 @@ impl<'a> OutputLocations<'a> {
 
     fn requests_folder_path(self, component: ComponentId) -> PathBuf {
         let object = self.components.get_by_id(component);
-        self.request_crate(component).get_path().join(object.mod_path())
+        self.request_crate(component).get_path(self.config).join(object.mod_path())
     }
 }

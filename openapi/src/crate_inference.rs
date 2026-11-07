@@ -9,7 +9,7 @@ use tracing::{debug, trace, warn};
 
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
-use crate::crates::Crate;
+use crate::crates::{Crate, CrateConfig};
 use crate::dependencies::EdgePolicy;
 use crate::graph::{ComponentGraph, gen_inferred_crate_dep_graph};
 use crate::layout::{ComponentLayout, ComponentLayoutDraft};
@@ -20,9 +20,9 @@ use crate::types::ComponentName;
 #[derive(Debug, Clone)]
 pub struct CrateInferenceWarning {
     pub component: ComponentName,
-    pub chosen_crate: Crate,
+    pub chosen_crate: String,
     pub depended_on_by: Vec<ComponentName>,
-    pub candidate_crates: Vec<Crate>,
+    pub candidate_crates: Vec<String>,
 }
 
 impl fmt::Display for CrateInferenceWarning {
@@ -31,13 +31,9 @@ impl fmt::Display for CrateInferenceWarning {
             f,
             "Auto-assigned `{}` to crate `{}` (depended on by: {}, candidate crates: {})",
             self.component,
-            self.chosen_crate.base_name(),
+            self.chosen_crate,
             self.depended_on_by.iter().map(|p| p.to_string()).collect::<Vec<_>>().join(", "),
-            self.candidate_crates
-                .iter()
-                .map(|c| c.base_name().to_string())
-                .collect::<Vec<_>>()
-                .join(", "),
+            self.candidate_crates.join(", "),
         )
     }
 }
@@ -48,6 +44,7 @@ impl Components {
         &self,
         layout: &mut ComponentLayoutDraft,
         policy: EdgePolicy,
+        config: &CrateConfig,
     ) -> anyhow::Result<Vec<CrateInferenceWarning>> {
         // If a component includes requests that have URLs building off another component,
         // place with that component. This automates determinations like `external_account`
@@ -95,7 +92,7 @@ impl Components {
             Self::maybe_infer_crate_by_what_depends_on_it,
         );
         infer_crates_using_deps(self, layout, &component_graph, Self::maybe_infer_crate_by_deps);
-        let warnings = self.resolve_missing_crates(layout, &component_graph);
+        let warnings = self.resolve_missing_crates(layout, &component_graph, config);
         Ok(warnings)
     }
 
@@ -106,10 +103,11 @@ impl Components {
         &self,
         mut request_owners: ComponentLayoutDraft,
         policy: EdgePolicy,
+        config: &CrateConfig,
     ) -> anyhow::Result<ComponentLayout> {
         let graph = self.gen_component_dep_graph(policy);
         self.assign_paths_required_to_share_types(&mut request_owners, &graph);
-        self.validate_crate_assignment(&request_owners, policy)?;
+        self.validate_crate_assignment(&request_owners, policy, config)?;
         ComponentLayout::from_draft(self, &request_owners)
     }
 
@@ -119,6 +117,7 @@ impl Components {
         &self,
         layout: &mut ComponentLayoutDraft,
         graph: &ComponentGraph,
+        config: &CrateConfig,
     ) -> Vec<CrateInferenceWarning> {
         let components_without_crates: Vec<ComponentId> = self
             .components
@@ -156,7 +155,7 @@ impl Components {
                 let max_count = *counts.values().max().unwrap();
                 let mut best: Vec<Crate> =
                     counts.into_iter().filter(|(_, c)| *c == max_count).map(|(k, _)| k).collect();
-                best.sort_by_key(|c| c.base_name());
+                best.sort_by_key(|c| c.base_name(config));
                 best[0]
             };
 
@@ -167,33 +166,38 @@ impl Components {
             warn!(
                 "Auto-assigning component {missing} to crate {} (depended on by {depended_on:?}, \
                  candidate crates: {unique_crates:?}). Consider adding a path entry in gen_crates.toml.",
-                chosen.base_name()
+                chosen.base_name(config)
             );
 
             resolutions.push((
                 *missing_id,
+                chosen,
                 CrateInferenceWarning {
                     component: missing.clone(),
-                    chosen_crate: chosen,
+                    chosen_crate: chosen.base_name(config).to_owned(),
                     depended_on_by: depended_on,
-                    candidate_crates: unique_crates,
+                    candidate_crates: unique_crates
+                        .iter()
+                        .map(|c| c.base_name(config).to_owned())
+                        .collect(),
                 },
             ));
         }
 
-        for (component, warning) in &resolutions {
-            layout.assign(*component, warning.chosen_crate);
+        for (component, chosen, _) in &resolutions {
+            layout.assign(*component, *chosen);
         }
 
-        resolutions.into_iter().map(|(_, warning)| warning).collect()
+        resolutions.into_iter().map(|(_, _, warning)| warning).collect()
     }
 
     fn validate_crate_assignment(
         &self,
         layout: &ComponentLayoutDraft,
         policy: EdgePolicy,
+        config: &CrateConfig,
     ) -> anyhow::Result<()> {
-        let graph = gen_inferred_crate_dep_graph(self, policy, |component| {
+        let graph = gen_inferred_crate_dep_graph(self, config, policy, |component| {
             layout.placement(component).expect("component had no crate assignment")
         });
         let deps_for_shared_crate = graph.neighbors(Crate::SHARED).collect::<Vec<_>>();

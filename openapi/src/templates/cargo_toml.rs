@@ -2,12 +2,12 @@ use std::fmt::Write;
 
 use indoc::formatdoc;
 
-use crate::crates::Crate;
+use crate::crates::{Crate, CrateConfig};
 
-fn get_serialization_feature(deps: &[Crate], kind: &str) -> String {
+fn get_serialization_feature(deps: &[Crate], kind: &str, config: &CrateConfig) -> String {
     let mut features = vec![format!("async-stripe-types/{kind}")];
     for dep in deps {
-        features.push(format!("{}/{kind}", dep.crate_name()));
+        features.push(format!("{}/{kind}", dep.crate_name(config)));
     }
     features.into_iter().map(|f| format!(r#""{f}""#)).collect::<Vec<_>>().join(",")
 }
@@ -17,11 +17,12 @@ pub fn gen_crate_toml(
     crate_deps: Vec<Crate>,
     crate_features: Vec<String>,
     version: &str,
+    config: &CrateConfig,
 ) -> String {
     let mut crate_dep_section = String::new();
 
     for dep in &crate_deps {
-        let dep_name = dep.crate_name();
+        let dep_name = dep.crate_name(config);
         let dep_path = format!("../../generated/{dep_name}");
         let _ = writeln!(
             crate_dep_section,
@@ -41,15 +42,16 @@ pub fn gen_crate_toml(
     };
     let request_deps = request_deps.as_deref().unwrap_or_default();
 
-    let ser_features = get_serialization_feature(&crate_deps, "serialize");
-    let deser_features = get_serialization_feature(&crate_deps, "deserialize");
-    let redact_debug_features = get_serialization_feature(&crate_deps, "redact-generated-debug");
+    let ser_features = get_serialization_feature(&crate_deps, "serialize", config);
+    let deser_features = get_serialization_feature(&crate_deps, "deserialize", config);
+    let redact_debug_features =
+        get_serialization_feature(&crate_deps, "redact-generated-debug", config);
 
     let features =
         if krate == Crate::SHARED { "".into() } else { gen_feature_section(crate_features) };
 
-    let crate_name = krate.crate_name();
-    let lib_name = krate.lib_name();
+    let crate_name = krate.crate_name(config);
+    let lib_name = krate.lib_name(config);
     formatdoc! {
         r#"
         [package]

@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
 use heck::ToSnakeCase;
-use indexmap::IndexSet;
 
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
@@ -43,16 +42,11 @@ impl<'a> OutputLocations<'a> {
         self.placement(component).types_split_from_requests()
     }
 
-    pub(crate) fn crate_members(self, krate: Crate) -> IndexSet<ComponentId> {
-        self.components
-            .components
-            .keys()
-            .copied()
-            .filter(|component| {
-                let placement = self.placement(*component);
-                placement.request_crate() == krate || placement.types_crate() == krate
-            })
-            .collect()
+    pub(crate) fn crate_members(self, krate: Crate) -> impl Iterator<Item = ComponentId> + 'a {
+        self.components.components.keys().copied().filter(move |component| {
+            let placement = self.placement(*component);
+            placement.request_crate() == krate || placement.types_crate() == krate
+        })
     }
 
     pub(crate) fn requests_module_path(self, component: ComponentId) -> PathBuf {

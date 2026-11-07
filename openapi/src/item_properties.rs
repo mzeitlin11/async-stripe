@@ -16,9 +16,9 @@ pub(crate) fn infer(items: &[ItemRecord]) -> anyhow::Result<(Vec<ItemProperties>
         let next = items
             .iter()
             .map(|item| match &item.item {
-                RustItem::Object(object) => object_properties(&object.definition, items, &|id| {
-                    properties.get(id.index()).copied()
-                }),
+                RustItem::Object(object) => {
+                    object_properties(&object.definition, items, &properties)
+                }
                 RustItem::IdNewtype => {
                     Ok(ItemProperties { has_lifetime: false, is_copy: false, is_eq: true })
                 }
@@ -33,33 +33,22 @@ pub(crate) fn infer(items: &[ItemRecord]) -> anyhow::Result<(Vec<ItemProperties>
     anyhow::bail!("canonical item property analysis did not converge")
 }
 
-pub(crate) fn resolve(
-    items: &[ItemRecord],
-    properties: &[ItemProperties],
-    typ: &RustType,
-) -> anyhow::Result<ItemProperties> {
-    type_properties(typ, items, &|id| properties.get(id.index()).copied())
-}
-
-fn object_properties<F>(
+fn object_properties(
     object: &RustObject,
     items: &[ItemRecord],
-    item_property: &F,
-) -> anyhow::Result<ItemProperties>
-where
-    F: Fn(crate::item_catalog::ItemId) -> Option<ItemProperties>,
-{
+    properties: &[ItemProperties],
+) -> anyhow::Result<ItemProperties> {
     let mut combined = ItemProperties { has_lifetime: false, is_copy: true, is_eq: true };
     match object {
         RustObject::Struct(struct_) => {
             for field in &struct_.fields {
-                combine(&mut combined, type_properties(&field.rust_type, items, item_property)?);
+                combine(&mut combined, resolve(items, properties, &field.rust_type)?);
             }
         }
         RustObject::Enum(variants) => {
             for variant in variants {
                 if let Some(typ) = &variant.rust_type {
-                    combine(&mut combined, type_properties(typ, items, item_property)?);
+                    combine(&mut combined, resolve(items, properties, typ)?);
                 }
             }
         }
@@ -74,24 +63,23 @@ fn combine(combined: &mut ItemProperties, next: ItemProperties) {
     combined.is_eq &= next.is_eq;
 }
 
-fn type_properties<F>(
-    typ: &RustType,
+pub(crate) fn resolve(
     items: &[ItemRecord],
-    item_property: &F,
-) -> anyhow::Result<ItemProperties>
-where
-    F: Fn(crate::item_catalog::ItemId) -> Option<ItemProperties>,
-{
+    properties: &[ItemProperties],
+    typ: &RustType,
+) -> anyhow::Result<ItemProperties> {
     let scalar = |is_copy, is_eq| ItemProperties { has_lifetime: false, is_copy, is_eq };
     match typ {
-        RustType::Object(object, _) => object_properties(object, items, item_property),
+        RustType::Object(object, _) => object_properties(object, items, properties),
         RustType::Primitive(primitive) => Ok(scalar(primitive.is_copy(), primitive.is_eq())),
         RustType::External(external) => Ok(scalar(external.is_copy(), external.is_eq())),
         RustType::Item(item) => {
             let target = items.get(item.index()).ok_or_else(|| {
                 anyhow::anyhow!("canonical type references missing item {item:?}")
             })?;
-            let mut result = item_property(*item)
+            let mut result = properties
+                .get(item.index())
+                .copied()
                 .ok_or_else(|| anyhow::anyhow!("canonical properties missing for item {item:?}"))?;
             // Preserve the existing API rule that top-level components do not
             // carry lifetimes through references to other components.
@@ -109,18 +97,18 @@ where
             anyhow::bail!("named path remained in canonical item model: {path:?}")
         }
         RustType::Reference(inner) => {
-            let mut result = type_properties(inner, items, item_property)?;
+            let mut result = resolve(items, properties, inner)?;
             result.has_lifetime = true;
             result.is_copy = true;
             if let RustType::Container(Container::Map { value, .. }) = &**inner {
                 // Both supported map key types implement Eq. Borrowing the
                 // map does not remove the value type's equality requirements.
-                result.is_eq = type_properties(value, items, item_property)?.is_eq;
+                result.is_eq = resolve(items, properties, value)?.is_eq;
             }
             Ok(result)
         }
         RustType::Container(container) => {
-            let mut result = type_properties(container.value_typ(), items, item_property)?;
+            let mut result = resolve(items, properties, container.value_typ())?;
             match container {
                 Container::List(_) | Container::SearchList(_) => {
                     result.is_copy = false;

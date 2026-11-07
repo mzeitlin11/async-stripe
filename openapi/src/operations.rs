@@ -59,43 +59,38 @@ pub struct RequestSpec {
     pub operation_id: OperationId,
     pub ident: RustIdent,
     pub path_params: Vec<PathParam>,
-    pub params: Option<RequestParam>,
+    pub params: Option<RustType>,
     pub method_type: OperationType,
     pub returned: RustType,
     pub doc_comment: Option<String>,
     pub req_path: String,
 }
 
-#[derive(Debug, Clone)]
-pub struct RequestParam {
-    pub typ: RustType,
-}
-
 impl RequestSpec {
     pub fn visit<'a, V: Visit<'a>>(&'a self, visitor: &mut V) {
         visitor.visit_typ(&self.returned, ObjectUsage::return_type());
         if let Some(params) = &self.params {
-            visitor.visit_typ(&params.typ, ObjectUsage::request_param());
+            visitor.visit_typ(params, ObjectUsage::request_param());
         }
     }
 
     pub fn visit_mut<V: VisitMut>(&mut self, visitor: &mut V) {
         visitor.visit_typ_mut(&mut self.returned, ObjectUsage::return_type());
         if let Some(params) = &mut self.params {
-            visitor.visit_typ_mut(&mut params.typ, ObjectUsage::request_param());
+            visitor.visit_typ_mut(params, ObjectUsage::request_param());
         }
     }
 
     pub fn param_struct_fields(&self) -> Option<&[StructField]> {
         let params = self.params.as_ref()?;
-        match &params.typ.as_rust_object()? {
+        match &params.as_rust_object()? {
             RustObject::Struct(struct_) => Some(&struct_.fields),
             _ => None,
         }
     }
 
     pub fn get_param_field(&self, field: &str) -> Option<&RustType> {
-        self.params.as_ref()?.typ.as_rust_object()?.get_struct_field(field)
+        self.params.as_ref()?.as_rust_object()?.get_struct_field(field)
     }
 }
 

@@ -237,7 +237,6 @@ impl CodeGen {
             let base_path = PathBuf::from(krate.generated_out_path(config));
             let request_features = locations
                 .crate_members(krate)
-                .into_iter()
                 .filter(|c| locations.components.has_requests(*c) && krate != Crate::SHARED)
                 .map(|c| locations.components.get_by_id(c).mod_path())
                 .collect();

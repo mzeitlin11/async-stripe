@@ -45,7 +45,7 @@ impl CollectDuplicateObjects {
         self.visit_typ(&request.returned, ObjectUsage::return_type());
         if let Some(params) = &request.params {
             self.origin.type_root = TypeRoot::OperationParam(request.operation_id);
-            self.visit_typ(&params.typ, ObjectUsage::request_param());
+            self.visit_typ(params, ObjectUsage::request_param());
         }
     }
 }
@@ -289,8 +289,7 @@ mod tests {
     use crate::component_catalog::{ComponentCatalog, ComponentId};
     use crate::item_origin::{ItemOrigin, TypeRoot};
     use crate::operations::{
-        MethodType, OperationCatalog, OperationId, OperationType, RequestParam, RequestSpec,
-        StripeOperation,
+        MethodType, OperationCatalog, OperationId, OperationType, RequestSpec, StripeOperation,
     };
     use crate::rust_object::{
         EnumVariant, FieldlessVariant, ObjectKind, ObjectMetadata, ObjectUsage, RustObject, Struct,
@@ -373,15 +372,13 @@ mod tests {
             operation_id: operation,
             ident: RustIdent::create("update_customer"),
             path_params: Vec::new(),
-            params: Some(RequestParam {
-                typ: RustType::Object(
-                    RustObject::Struct(Struct::new(vec![StructField::new(
-                        "status",
-                        RustType::option(request_status),
-                    )])),
-                    ObjectMetadata::new(RustIdent::create("update_customer")),
-                ),
-            }),
+            params: Some(RustType::Object(
+                RustObject::Struct(Struct::new(vec![StructField::new(
+                    "status",
+                    RustType::option(request_status),
+                )])),
+                ObjectMetadata::new(RustIdent::create("update_customer")),
+            )),
             returned: returned_status,
             method_type: OperationType::Post,
             doc_comment: None,

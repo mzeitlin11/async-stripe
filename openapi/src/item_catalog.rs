@@ -204,7 +204,7 @@ impl ItemCatalogDraft {
                 if let Some(params) = &request.params {
                     let _ = builder.collect_root_type(
                         TypeRoot::OperationParam(request.operation_id),
-                        &params.typ,
+                        params,
                         ObjectUsage::request_param(),
                     )?;
                 }

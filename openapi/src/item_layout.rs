@@ -85,6 +85,25 @@ impl ItemLayout {
         }
     }
 
+    /// Validate a complete placement table in canonical `ItemId` order.
+    /// Alternate policies can construct their final table directly rather than
+    /// mutating an already validated default and remembering to revalidate it.
+    pub(crate) fn from_placements(
+        placements: impl IntoIterator<Item = (EmissionSite, ItemAddress)>,
+        items: &ItemCatalog,
+        component_layout: &ComponentLayout,
+        config: &CrateConfig,
+    ) -> anyhow::Result<Self> {
+        let layout = Self {
+            placements: placements
+                .into_iter()
+                .map(|(emission_site, address)| ItemPlacement { emission_site, address })
+                .collect(),
+        };
+        layout.validate(items, component_layout, config)?;
+        Ok(layout)
+    }
+
     pub(crate) fn from_component_layout(
         components: &Components,
         items: &ItemCatalog,
@@ -97,12 +116,9 @@ impl ItemLayout {
             let address =
                 item_address(record.origin.path.is_empty(), emission_site, component_layout);
             debug_assert_eq!(item.index(), placements.len());
-            placements.push(ItemPlacement { emission_site, address });
+            placements.push((emission_site, address));
         }
-
-        let item_layout = Self { placements };
-        item_layout.validate(items, component_layout, config)?;
-        Ok(item_layout)
+        Self::from_placements(placements, items, component_layout, config)
     }
 
     #[track_caller]

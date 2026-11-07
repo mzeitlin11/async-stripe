@@ -41,19 +41,19 @@ impl RequestCatalog {
     }
 
     pub fn build(components: &Components, items: &ItemCatalog) -> anyhow::Result<Self> {
-        let mut catalog = Self::default();
-        for &component_id in components.components.keys() {
-            let models = components
-                .requests_for_component(component_id)
-                .iter()
-                .map(|request| RequestModel::lower(request, items))
-                .collect::<anyhow::Result<Vec<_>>>()?;
-            anyhow::ensure!(
-                catalog.by_component.insert(component_id, models).is_none(),
-                "component requests were lowered twice: {component_id:?}"
-            );
-        }
-        Ok(catalog)
+        let by_component = components
+            .components
+            .keys()
+            .map(|&component_id| {
+                let models = components
+                    .requests_for_component(component_id)
+                    .iter()
+                    .map(|request| RequestModel::lower(request, items))
+                    .collect::<anyhow::Result<Vec<_>>>()?;
+                Ok((component_id, models))
+            })
+            .collect::<anyhow::Result<HashMap<_, _>>>()?;
+        Ok(Self { by_component })
     }
 
     #[track_caller]

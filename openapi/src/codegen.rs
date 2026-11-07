@@ -12,8 +12,8 @@ use crate::crate_table::generate_crate_table;
 use crate::crates::{Crate, CrateConfig};
 pub use crate::dependencies::EdgePolicy;
 use crate::exports::legacy_facade_dependencies;
-use crate::item_catalog::ItemMetadata;
-use crate::item_layout::{EmissionSite, ItemLayout};
+use crate::item_catalog::{ItemCatalog, ItemMetadata};
+use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
 use crate::object_writing::ItemEmitter;
@@ -229,7 +229,12 @@ impl CodeGen {
         write_generated_for_webhooks(context, &self.components.webhook_objs, &mut output)
             .context("Could not write webhook generated code")?;
         output.write("crate_info.md", generate_crate_table(self.output_locations()))?;
-        self.write_object_info_for_testing(&mut output)?;
+        Self::write_object_info_for_testing(
+            self.model.items(),
+            &self.item_layout,
+            self.output_locations(),
+            &mut output,
+        )?;
         Ok(output)
     }
 
@@ -282,16 +287,31 @@ impl CodeGen {
         Ok(())
     }
 
-    fn write_object_info_for_testing(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
-        let config = &self.config;
+    pub(crate) fn write_object_info_for_testing(
+        items: &ItemCatalog,
+        item_layout: &ItemLayout,
+        locations: OutputLocations<'_>,
+        output: &mut GeneratedWorkspace,
+    ) -> anyhow::Result<()> {
+        let config = locations.config;
+        let components = locations.components;
         let mut checks = String::new();
-        for (&component, obj) in &self.components.components {
+        for (&component, obj) in &components.components {
             if obj.object_name().is_none() {
                 continue;
             }
-            let path = self.components.component_name(component);
-            let krate = self.output_locations().request_crate(component);
-            let import_path = format!("{}::{}", krate.lib_name(config), obj.ident());
+            let path = components.component_name(component);
+            let model = items.component_root(component);
+            anyhow::ensure!(
+                matches!(item_layout.placement(model).address(), ItemAddress::CrateRoot(_)),
+                "fixture model is not publicly addressable: {path}"
+            );
+            // Component exports keep the model available from its service
+            // facade even when its canonical declaration is placed elsewhere.
+            // Preserve that path spelling, using the actual declaration name.
+            let krate = locations.request_crate(component);
+            let import_path =
+                format!("{}::{}", krate.lib_name(config), items.get(model).metadata.ident);
             let _ = writeln!(checks, r#"check_object::<{import_path}>(resources, "{path}");"#);
         }
         let content = formatdoc! {

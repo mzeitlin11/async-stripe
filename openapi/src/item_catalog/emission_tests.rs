@@ -134,21 +134,20 @@ impl Fixture {
             &crate::crates::test_config(),
         )
         .unwrap();
-        let layout = ItemLayout::for_test(
-            self.items
-                .iter()
-                .map(|(item, _)| {
-                    if let Some(&(_, krate)) = moved.iter().find(|(moved, _)| *moved == item) {
-                        (EmissionSite::Standalone { item, krate }, ItemAddress::CrateRoot(krate))
-                    } else {
-                        let placement = default.placement(item);
-                        (placement.emission_site(), placement.address())
-                    }
-                })
-                .collect(),
-        );
-        layout.validate(&self.items, &self.component_layout, &self.config).unwrap();
-        layout
+        ItemLayout::from_placements(
+            self.items.iter().map(|(item, _)| {
+                if let Some(&(_, krate)) = moved.iter().find(|(moved, _)| *moved == item) {
+                    (EmissionSite::Standalone { item, krate }, ItemAddress::CrateRoot(krate))
+                } else {
+                    let placement = default.placement(item);
+                    (placement.emission_site(), placement.address())
+                }
+            }),
+            &self.items,
+            &self.component_layout,
+            &self.config,
+        )
+        .unwrap()
     }
 
     fn emit(&self, layout: &ItemLayout) -> anyhow::Result<GeneratedWorkspace> {
@@ -176,32 +175,88 @@ fn contents<'a>(output: &'a GeneratedWorkspace, path: &str) -> &'a str {
 }
 
 #[test]
-fn webhook_union_references_and_feature_gates_follow_its_placement() {
+fn production_layout_constructor_checks_complete_addresses() {
+    let fixture = Fixture::new();
+    let error =
+        ItemLayout::from_placements([], &fixture.items, &fixture.component_layout, &fixture.config)
+            .unwrap_err();
+    assert!(error.to_string().contains("item layout and canonical item counts differed"));
+
+    let default = fixture.layout(&[]);
+    let customer = fixture.items.component_root(fixture.customer);
+    let error = ItemLayout::from_placements(
+        fixture.items.iter().map(|(item, _)| {
+            let placement = default.placement(item);
+            let address = if item == customer {
+                ItemAddress::CrateRoot(krate("billing"))
+            } else {
+                placement.address()
+            };
+            (placement.emission_site(), address)
+        }),
+        &fixture.items,
+        &fixture.component_layout,
+        &fixture.config,
+    )
+    .unwrap_err();
+    assert!(error.to_string().contains("item crate differed from its emission site"));
+}
+
+#[test]
+fn fixture_checks_follow_the_canonical_model_name_through_its_facade() {
     let mut fixture = Fixture::new();
-    fixture.components.webhook_objs.push(WebhookObject {
-        event_type: "test.created".to_string(),
-        doc: "An event.".to_string(),
-        typ: RustType::Object(
-            RustObject::Enum(vec![
-                EnumVariant::new(
-                    RustIdent::create("customer"),
-                    RustType::component(fixture.customer),
-                ),
-                EnumVariant::new(RustIdent::create("charge"), RustType::component(fixture.charge)),
-            ]),
-            ObjectMetadata::new(RustIdent::create("test_created")),
-        ),
-    });
+    let catalog = ComponentCatalog::from_names(
+        ["customer", "charge"].map(|name| ComponentName::new(name.to_string())),
+    )
+    .unwrap();
+    let schema = serde_json::from_value(serde_json::json!({
+        "type": "object",
+        "properties": {
+            "id": {"type": "string", "description": "Unique identifier for the object."},
+            "object": {"type": "string", "enum": ["customer"]}
+        },
+        "required": ["id", "object"]
+    }))
+    .unwrap();
+    let resource =
+        StripeResource::from_schema(&schema, catalog.name(fixture.customer).clone()).unwrap();
+    fixture
+        .components
+        .components
+        .insert(fixture.customer, StripeObject::from_schema(&schema, &resource, &catalog));
     fixture.items = ItemCatalog::build(&fixture.components, |component| {
-        ItemMetadata::new(fixture.components.get_by_id(component).ident().clone())
+        let ident = if component == fixture.customer {
+            RustIdent::create("renamed_customer")
+        } else {
+            fixture.components.get_by_id(component).ident().clone()
+        };
+        ItemMetadata::new(ident)
     })
     .unwrap();
-    let item = fixture
-        .items
-        .root(&TypeRoot::Webhook("test.created".to_string()))
-        .unwrap()
-        .declaration
-        .unwrap();
+    let model = fixture.items.component_root(fixture.customer);
+    let id = fixture.items.component_id_item(fixture.customer).unwrap();
+    let layout = fixture.layout(&[(model, Crate::SHARED), (id, Crate::SHARED)]);
+    let mut output = fixture.emit(&layout).unwrap();
+    crate::codegen::CodeGen::write_object_info_for_testing(
+        &fixture.items,
+        &layout,
+        OutputLocations::new(&fixture.components, &fixture.component_layout, &fixture.config),
+        &mut output,
+    )
+    .unwrap();
+    assert!(
+        contents(&output, "crates/async-stripe-core/src/mod.rs")
+            .contains("pub use stripe_shared::RenamedCustomer;")
+    );
+    let checks = contents(&output, "tests/mod.rs");
+    assert!(checks.contains("check_object::<stripe_core::RenamedCustomer>"));
+    assert!(!checks.contains("check_object::<stripe_core::Customer>"));
+}
+
+#[test]
+fn webhook_union_references_and_feature_gates_follow_its_placement() {
+    let (mut fixture, draft, item) = object_union_draft();
+    fixture.items = draft.finish(&fixture.components).unwrap();
     for target in [None, Some(Crate::SHARED), Some(krate("payment"))] {
         let moved = target.map(|krate| (item, krate)).into_iter().collect::<Vec<_>>();
         let layout = fixture.layout(&moved);

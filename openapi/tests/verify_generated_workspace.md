@@ -17,7 +17,8 @@ its matching fixtures. The script does not update the pin or install bindings.
 The verifier stages runtime sources and generated artifacts outside the checkout,
 then formats the isolated workspace and checks every crate listed in
 `openapi/gen_crates.toml` together with the webhook crate, enabling all features.
-It also runs webhook unit tests, the generated deserialization fixtures, existing
+It first checks the runtime with default features disabled and a narrow v1
+Customer request configuration. It also runs webhook unit tests, the generated deserialization fixtures, existing
 deserialization tests, and parser tests. These checks do not require stripe-mock.
 
 Commands and their output are saved as individual logs. Analysis reports and
@@ -77,3 +78,51 @@ with tempfile.TemporaryDirectory(prefix='generated source smoke ') as directory:
 print('Source measurement smoke check passed')
 PY
 ```
+
+## Neutral refactor comparison
+
+The structural refactor is compared with `bc737f7c`, the output-handling stage
+before canonical item allocation was introduced. Generate into separate staging
+directories from that revision and the candidate, using the same cached spec,
+fixtures, library version, Rust toolchain, and nightly formatter. Do not update
+input pins during the comparison. The recorded input and toolchain hashes are in
+[neutral_refactor_validation.json](neutral_refactor_validation.json).
+
+From each checkout's `openapi` directory, use the appropriate output path:
+
+```sh
+CARGO_TARGET_DIR=/tmp/stripe-parity-generator cargo +1.89.0 run --locked --offline --release -- \
+  generate --no-install --version 1.0.0-rc.9 --out /tmp/stripe-before-output
+# Run the same command in the candidate, with --out /tmp/stripe-after-output.
+```
+
+Then, from the candidate repository root:
+
+```sh
+python3 openapi/tests/compare_generated.py /tmp/stripe-before-output /tmp/stripe-after-output
+```
+
+The comparator includes every file, including manifests, module exports, and the
+staging marker. It exits unsuccessfully for added, removed, or changed files.
+The recorded run matches all 1,757 SDK artifacts and the marker. Both original
+`graph` DOT files also match their predecessor byte for byte. The CLI accepts
+`--emit-warnings` and retains its Markdown warning output.
+
+The construction regressions cover representation-dependent properties and
+request types, validation after a transform, and a request field changed from a
+model reference to an independently placed ID. That last probe removes the
+model-crate dependency while retaining the inference-side relationship. This is
+the ordering needed by the expandable experiment. The feature can transform an
+`ItemCatalogDraft`, then call `RustModel::from_draft`; it no longer needs to
+recompute properties and canonical requests on a completed generator.
+
+Configuration tests resolve two layouts in one process. A separate full-input
+probe constructs two live `CodeGen` instances with different package names, then
+renders the first again. Its complete output remains identical. This exercises
+the explicit configuration input needed by the v2 layout experiment.
+
+The [evidence archive](neutral_refactor_evidence.tar.gz) retains the exact probe
+source, input hashes, comparison results, generator test/Clippy logs, SDK logs,
+and compiled-source inventory. These focused probes do not claim that the full
+v2 or opaque branches have been rebased. The neutral default continues to select
+the legacy representation and placement policy.

@@ -38,6 +38,10 @@ Write every graph projection, including the expandable counterfactuals:
 cargo run --release -- analyze --graphs all
 ```
 
+The original `graph` command still writes `out/graphs/components_graph.txt` and
+`out/graphs/crate_graph.txt`. `generate --emit-warnings` still writes
+`<out>/crate_warnings.md` when inference warnings exist. Analysis reports are additive.
+
 Commands use the OpenAPI release pinned in `version.json`. The managed `spec3.sdk.json` cache is downloaded automatically when it is missing, malformed, or tagged with another release. Generation also synchronizes `fixtures.json`. `generate --update-spec latest` or `generate --update-spec v2343` advances the pin after both inputs are available. Use `cargo run -- --help` or a subcommand's `--help` for the complete interface.
 
 CI verifies output compatibility by running `generate` and requiring the entire Git worktree to remain clean. This exercises the same input synchronization, formatting, and installation path used to update generated code.
@@ -48,11 +52,14 @@ Code generation has explicit stages:
 
 1. **Inference** parses schemas and operations, allocates `ComponentId` and `OperationId` identities, resolves crate configuration, and records an immutable dependency fact table.
 2. **Retention** removes unreachable components without changing catalog identity.
-3. **Component layout** infers model and request crate placement in a mutable `ComponentLayoutDraft`, validates crate-graph invariants, then freezes a `ComponentLayout`.
+3. **Request ownership** infers service crates in a mutable `ComponentLayoutDraft`. Ownership retains the historical inference order and is separate from final model placement.
 4. **Model rewrites** apply validated overrides and component-local deduplication. Candidate matching, shared public naming, and usage compatibility are separate decisions. Each shared declaration retains the selected rule and the original locations and usages that contributed to it.
-5. **Rust-model lowering** allocates a post-dedup `ItemId` for every declaration, replaces nested declarations and named paths with item references, and computes lifetime/`Copy`/`Eq` properties over the resulting canonical graph. Each item is then assigned an explicit emission site and either local or crate-root addressability under the frozen component layout. Crate dependencies follow these placements, including declarations, associated ID types, request signatures and constructor fields, and public facade reexports. Local references must stay within their emission site.
-6. **Rendering** validates that the lowered Rust crate dependencies are acyclic and uses them for generated Cargo dependencies and feature forwarding. One `ItemEmitter` routes every canonical declaration to its selected file and writes the corresponding module declarations and exports. The existing traversal preserves source order; IDs and nested declarations are emitted independently using their own placements. An emission-site-scoped `RenderContext` resolves references and writes Rust syntax directly. The current path policy deliberately preserves absolute generated-crate aliases; path shortening is a separate output-changing decision.
-7. **Materialization** writes generated bindings to the staging tree, runs rustfmt directly to a checked fixed point, and installs them unless `--no-install` was requested. Analysis stops after model construction and writes only its report bundle.
+5. **Rust-model construction** allocates a post-dedup `ItemId` for every declaration and replaces nested declarations and named paths with item references in an `ItemCatalogDraft`. Representation changes belong on this draft. `RustModel::from_draft` consumes it, validates the represented declarations, computes lifetime/`Copy`/`Eq` properties, and builds canonical requests together. Completed models provide read-only access.
+6. **Final placement** selects the legacy Shared promotions using the immutable parsed dependency facts, preserving existing output, then freezes component and item placement. Another policy can inspect the finalized representation before choosing placement. Each item has an explicit emission site and either local or crate-root addressability. Crate dependencies follow represented declarations, associated IDs, request signatures and constructor fields. Public export decisions are shared with rendering. Local references must stay within their emission site.
+7. **Rendering** validates that the lowered Rust crate dependencies are acyclic and uses them for generated Cargo dependencies and feature forwarding. One `ItemEmitter` routes every canonical declaration to its selected file and writes the corresponding module declarations and exports. The existing traversal preserves source order; IDs and nested declarations are emitted independently using their own placements. An emission-site-scoped `RenderContext` resolves references and writes Rust syntax directly. The current path policy deliberately preserves absolute generated-crate aliases; path shortening is a separate output-changing decision.
+8. **Materialization** writes generated bindings to the staging tree, runs rustfmt directly to a checked fixed point, and installs them unless `--no-install` was requested. Analysis stops after model construction and writes only its report bundle.
+
+Each `CodeGen` owns its `CrateConfig`. The CLI loads `gen_crates.toml`; library callers can pass another owned configuration to `CodeGen::with_config`. Crate handles are run-local and resolve names through their configuration. Multiple configurations can coexist without global initialization or changing the process working directory.
 
 Keeping identity, dependency facts, layout, and rendering separate is deliberate. A future layout or `Expandable` experiment should be expressible as a different projection or policy rather than by rewriting component names or rendered Rust paths early in the pipeline.
 

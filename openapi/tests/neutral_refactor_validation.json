@@ -1,0 +1,102 @@
+{
+  "date": "2026-11-07",
+  "structural_comparison_base": "bc737f7c7df641686b1e8fc415bb26b5738b184b",
+  "starting_refactor": "5c0dafda38b01f022d1076c76cee4272f8f2dc5c",
+  "model_finalization_commit": "f57ef750a7b3a6137e85da34ae3aa415c3cd9f1d",
+  "owned_configuration_commit": "059145c14df99884d3a7bd9c2fc454d5471c3255",
+  "input_release": "v2494",
+  "input_sha256": {
+    "spec3.sdk.json": "a6ce328f7669ee326a8a25d59a72da52bf47f6f45972eeb82f10d62ac9671c1b",
+    "fixtures.json": "d6fb2bae78e9bbc18e3f5a88d7f88be59d56fa3ee82b34231b5032c4dd22f720",
+    "version.json": "2d7d87f85c639de847d96b282e86e9e8a8b9fb19ac494f078f4a4aa777043f2e"
+  },
+  "rustc": "1.89.0 (29483883e 2025-08-04)",
+  "rustfmt": "1.11.0-nightly (c1070d6938 2026-09-28)",
+  "formatted_generation_parity": {
+    "before_files": 1758,
+    "after_files": 1758,
+    "removed": [],
+    "added": [],
+    "changed": [],
+    "before_tree_sha256": "09c4022fcbb4423ee2b6f4f0c10cac31e9cc5d36b487a72d8f9a53c526fb73ce",
+    "after_tree_sha256": "09c4022fcbb4423ee2b6f4f0c10cac31e9cc5d36b487a72d8f9a53c526fb73ce",
+    "equal": true
+  },
+  "legacy_graphs": {
+    "equal": true,
+    "sha256": {
+      "components_graph.txt": "34975824a8792689dffd40e2e569f6a95ca8ebc550b5f811206c96a5f477b242",
+      "crate_graph.txt": "54127d38f63713a2535d0d5eba96fbbdb461e029d8fbbf833afd6505ccba3d71"
+    }
+  },
+  "generator_library_tests": 68,
+  "generator_cli_tests": 1,
+  "strict_clippy": "passed",
+  "sdk_verification": {
+    "toolchain": "1.89.0",
+    "completed_checks": [
+      "generation",
+      "format",
+      "format-check",
+      "minimal-runtime-check",
+      "narrow-v1-check",
+      "generated-and-webhook-check",
+      "webhook-tests",
+      "fixtures",
+      "deserialization-tests",
+      "parser-tests"
+    ],
+    "source_unchanged": true,
+    "success": true,
+    "generated_packages": [
+      "async-stripe-billing",
+      "async-stripe-checkout",
+      "async-stripe-connect",
+      "async-stripe-core",
+      "async-stripe-fraud",
+      "async-stripe-issuing",
+      "async-stripe-misc",
+      "async-stripe-payment",
+      "async-stripe-product",
+      "async-stripe-reserve",
+      "async-stripe-shared",
+      "async-stripe-terminal",
+      "async-stripe-treasury"
+    ],
+    "compiled_generated_crate_source_files": 1741,
+    "compiled_generated_crate_source_files_by_package": {
+      "async-stripe-billing": 116,
+      "async-stripe-checkout": 3,
+      "async-stripe-connect": 62,
+      "async-stripe-core": 71,
+      "async-stripe-fraud": 41,
+      "async-stripe-issuing": 17,
+      "async-stripe-misc": 172,
+      "async-stripe-payment": 39,
+      "async-stripe-product": 19,
+      "async-stripe-reserve": 9,
+      "async-stripe-shared": 1049,
+      "async-stripe-terminal": 59,
+      "async-stripe-treasury": 84
+    },
+    "workspace_retained": true
+  },
+  "live_generator_configuration_probe": {
+    "first_configuration_unchanged_after_second": true,
+    "compared_files_including_marker": 1758,
+    "second_configuration_generated_package": "async-stripe-core_probe"
+  },
+  "representation_probes": [
+    "Finalization derives item properties and request types after a representation change.",
+    "Finalization rejects a representation that adds a top-level component lifetime.",
+    "Selecting ID storage removes a request-to-model crate edge and preserves the inferred relationship.",
+    "Existing relocation tests cover independently placed IDs, nested declarations, helpers, exports, local visibility, and cycles."
+  ],
+  "scope_notes": [
+    "Parity includes 1757 SDK artifacts plus the staging ownership marker. No files or byte differences were excluded.",
+    "Validation uses the recorded pinned input; this does not assert compatibility with a newer combined Stripe schema.",
+    "These are focused representation/configuration probes, not a replay of the entire v2 and opaque implementations.",
+    "Generator library internals change; generated SDK APIs, manifests, feature activation, and valid wire behavior are preserved.",
+    "The pre-existing Reserve serde forwarding fix remains separately identifiable as ad6027f1."
+  ]
+}

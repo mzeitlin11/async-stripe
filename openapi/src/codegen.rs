@@ -11,6 +11,7 @@ use crate::crate_inference::CrateInferenceWarning;
 use crate::crate_table::generate_crate_table;
 use crate::crates::{Crate, CrateConfig};
 pub use crate::dependencies::EdgePolicy;
+use crate::exports::legacy_facade_dependencies;
 use crate::item_catalog::ItemMetadata;
 use crate::item_layout::{EmissionSite, ItemLayout};
 use crate::item_origin::TypeRoot;
@@ -102,13 +103,16 @@ impl CodeGen {
             &component_layout,
             &config,
         )?;
-        let crate_dependencies = crate_dependencies(
+        let mut crate_dependencies = crate_dependencies(
             model.items(),
             model.requests(),
             &component_layout,
             &item_layout,
             &config,
         )?;
+        for (source, target) in legacy_facade_dependencies(config.all()) {
+            crate_dependencies.add_edge(source, target, ());
+        }
 
         Ok(Self {
             config,

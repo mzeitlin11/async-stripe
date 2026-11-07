@@ -2,6 +2,7 @@ use super::{CanonicalTypeRoot, CatalogBuilder, ItemCatalog, ItemId, ItemMetadata
 use crate::component_catalog::{ComponentCatalog, ComponentId};
 use crate::crate_dependencies::{crate_dependencies, validate_crate_dependencies};
 use crate::crates::Crate;
+use crate::exports::legacy_facade_dependencies;
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
@@ -49,6 +50,23 @@ fn finish(builder: CatalogBuilder) -> ItemCatalog {
 
 fn placement(component: ComponentId, krate: Crate) -> (EmissionSite, ItemAddress) {
     (EmissionSite::ComponentTypes(component), ItemAddress::CrateRoot(krate))
+}
+
+#[test]
+fn unused_configured_crates_do_not_add_represented_dependencies() {
+    let config = crate::crates::test_config();
+    let items = finish(CatalogBuilder::default());
+    let graph = crate_dependencies(
+        &items,
+        [],
+        &ComponentLayout::for_test(&[]),
+        &ItemLayout::for_test(vec![]),
+        &config,
+    )
+    .unwrap();
+    assert_eq!(graph.node_count(), config.all().len());
+    assert_eq!(graph.edge_count(), 0);
+    assert!(graph.contains_node(krate("core")));
 }
 
 #[test]
@@ -224,12 +242,16 @@ fn relocating_a_shared_override_includes_its_public_facade_dependency() {
         EmissionSite::Standalone { item, krate: core },
         ItemAddress::CrateRoot(core),
     )]);
-    let graph =
-        crate_dependencies(&items, [], &component_layout, &layout, &crate::crates::test_config())
-            .unwrap();
+    let config = crate::crates::test_config();
+    let mut graph = crate_dependencies(&items, [], &component_layout, &layout, &config).unwrap();
     assert!(graph.contains_edge(Crate::SHARED, core));
-    // Domain facades already require shared, so this placement must fail before
-    // writing manifests or the VERSION constant that uses shared's ApiVersion.
+    assert!(!graph.contains_edge(core, Crate::SHARED));
+    validate_crate_dependencies(&graph).unwrap();
+    // The legacy facade requirements turn this otherwise valid represented
+    // graph into a cycle. Other packaging can keep the represented DAG.
+    for (source, target) in legacy_facade_dependencies(config.all()) {
+        graph.add_edge(source, target, ());
+    }
     assert!(validate_crate_dependencies(&graph).is_err());
 }
 

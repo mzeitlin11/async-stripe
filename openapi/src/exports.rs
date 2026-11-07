@@ -5,6 +5,15 @@ use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::layout::ComponentLayout;
 use crate::output_locations::OutputLocations;
 
+/// Dependencies required by the legacy package facades independently of the
+/// represented declarations. Keep this compatibility choice at assembly sites;
+/// new packaging can use the represented graph without these extra edges.
+pub(crate) fn legacy_facade_dependencies(
+    crates: impl IntoIterator<Item = Crate>,
+) -> impl Iterator<Item = (Crate, Crate)> {
+    crates.into_iter().filter(|krate| *krate != Crate::SHARED).map(|krate| (krate, Crate::SHARED))
+}
+
 /// A public consumer of a generated declaration or its component module.
 /// Rendering and Cargo dependency calculation use these same decisions.
 pub(crate) enum PublicExport {

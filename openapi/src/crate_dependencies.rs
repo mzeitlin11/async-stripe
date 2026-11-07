@@ -26,11 +26,6 @@ pub(crate) fn crate_dependencies<'a>(
     let mut graph = DiGraphMap::new();
     for krate in config.all() {
         graph.add_node(krate);
-        // Preserve the mandatory shared dependency used by domain crate
-        // facades. Their public reexports are not represented by RustType.
-        if krate != Crate::SHARED {
-            graph.add_edge(krate, Crate::SHARED, ());
-        }
     }
 
     for (item, record) in items.iter() {

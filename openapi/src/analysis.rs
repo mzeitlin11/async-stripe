@@ -13,16 +13,17 @@ use crate::components::Components;
 use crate::crates::{Crate, CrateConfig};
 use crate::dependencies::{Dependency, DependencySource, EdgePolicy};
 use crate::graph::{ComponentGraph, gen_inferred_crate_dep_graph};
-use crate::item_catalog::{ItemKind, RustItem};
+use crate::item_catalog::RustItem;
 use crate::item_layout::ItemAddress;
 use crate::item_origin::{ItemOrigin, TypeRoot};
 use crate::output::ArtifactSet;
 use crate::rust_object::{ObjectKind, RustObject};
 use crate::rust_type::{DeclarationRoot, RustType};
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Default, Eq, PartialEq, clap::ValueEnum)]
 pub enum GraphDetail {
     None,
+    #[default]
     Default,
     All,
 }
@@ -326,7 +327,7 @@ fn summary(
     let _ = writeln!(out, "- Webhook event payloads: {}", codegen.components.webhook_objs.len());
     let _ = writeln!(out, "- Objects: {}", shape.objects);
     let _ = writeln!(out, "- Canonical Rust objects: {canonical_objects}");
-    let _ = writeln!(out, "- Canonical Rust items: {}", codegen.canonical_item_count());
+    let _ = writeln!(out, "- Canonical Rust items: {}", codegen.model.items().len());
     let lifetime_items = items.iter().filter(|(id, _)| items.properties(*id).has_lifetime).count();
     let copy_items = items.iter().filter(|(id, _)| items.properties(*id).is_copy).count();
     let eq_items = items.iter().filter(|(id, _)| items.properties(*id).is_eq).count();
@@ -395,7 +396,15 @@ fn items_csv(codegen: &CodeGen) -> String {
             id.index().to_string(),
             item_origin(codegen, &item.origin),
             item.metadata.ident.to_string(),
-            format!("{:?}", ItemKind::of(&item.item)),
+            match &item.item {
+                RustItem::Object(object) => match &object.definition {
+                    RustObject::Struct(_) => "Struct",
+                    RustObject::Enum(_) => "Enum",
+                    RustObject::FieldlessEnum(_) => "FieldlessEnum",
+                },
+                RustItem::IdNewtype => "IdNewtype",
+            }
+            .to_owned(),
             item.object().map(|object| format!("{:?}", object.usage)).unwrap_or_default(),
             properties.has_lifetime.to_string(),
             properties.is_copy.to_string(),

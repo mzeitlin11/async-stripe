@@ -164,3 +164,13 @@ The conservative policy for owned-map equality remains unchanged. These fixes
 are distinguished from the neutral construction changes in
 [neutral_refactor_review2.json](neutral_refactor_review2.json), with fresh logs
 in the [second review evidence archive](neutral_refactor_review2_evidence.tar.gz).
+
+The simplification pass following `2bcc0189` removes the single-caller pipeline
+wrapper, forwarding options, field render plans, and duplicate display/reporting
+adapters. Constructor borrowing is checked through rendered signatures. Fresh
+validation passes 86 library tests, one CLI test, three comparator tests, strict
+Clippy, and the complete isolated SDK verifier. All 1,758 staging files still
+match `bc737f7c` with the input and toolchain hashes recorded above. Default and
+counterfactual analysis bundles, CLI help, legacy graphs, and nonempty warning
+output also match the preceding candidate byte for byte. Historical evidence
+records remain attached to the revisions they tested.

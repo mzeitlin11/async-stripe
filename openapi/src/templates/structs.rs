@@ -2,8 +2,8 @@ use std::fmt::Write;
 
 use indoc::{formatdoc, writedoc};
 
-use crate::render_plan::{FieldRenderPlan, SerdeWith};
 use crate::rust_object::{ObjectKind, Struct, StructField};
+use crate::rust_type::{ExternalType, RustType};
 use crate::templates::ObjectWriter;
 use crate::templates::object_writer::{write_derives_line, write_redacted_debug_impl};
 use crate::templates::utils::{
@@ -121,8 +121,6 @@ impl ObjectWriter<'_> {
         field: &StructField,
         serde_derive: SerdeDeriveState,
     ) {
-        let plan = FieldRenderPlan::new(field, self.usage);
-
         // We skip writing the doc comment for private fields because we'll write them
         // later on the corresponding builder method.
         if field.vis.is_public()
@@ -130,24 +128,23 @@ impl ObjectWriter<'_> {
         {
             let _ = writeln!(out, "{}", write_doc_comment(doc_comment, 1).trim_end());
         }
-        if let Some(renamer) = plan.rename {
+        if let Some(renamer) = field.rename_name() {
             serde_derive.maybe_write_rename(out, renamer);
         }
 
-        if plan.skip_serializing_if_none {
+        let is_option = field.rust_type.is_option();
+        if !field.required && is_option && self.usage.used_as_request_param {
             serde_derive.maybe_write_tag(out, r#"skip_serializing_if = "Option::is_none""#);
         }
 
-        if let Some(serde_with) = plan.serde_with {
-            let with = match serde_with {
-                SerdeWith::JsonValue => "with_serde_json",
-                SerdeWith::OptionalJsonValue => "with_serde_json_opt",
-            };
+        if matches!(field.rust_type.with_option_stripped(), RustType::External(ExternalType::Value))
+        {
+            let with = if is_option { "with_serde_json_opt" } else { "with_serde_json" };
             serde_derive.maybe_write_tag(out, format!(r#"with = "stripe_types::{with}""#));
         }
 
         // This field is used as a discriminant for `serde(untagged)`
-        if plan.allow_dead_code {
+        if matches!(field.rust_type, RustType::External(ExternalType::AlwaysTrue)) {
             let _ = writeln!(out, "#[allow(dead_code)]");
         }
 

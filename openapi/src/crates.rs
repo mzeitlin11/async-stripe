@@ -131,17 +131,16 @@ pub(crate) fn test_config() -> CrateConfig {
 /// layout algorithm. Component assignments use catalog identities after this
 /// boundary; only package names remain strings because they are external spec
 /// labels rather than component identities.
-pub struct ResolvedCrateConfig {
+pub(crate) struct ResolvedCrateConfig {
     by_component: HashMap<ComponentId, Crate>,
     by_package: HashMap<String, Crate>,
 }
 
 impl ResolvedCrateConfig {
-    pub fn from_catalog(config: &CrateConfig, catalog: &ComponentCatalog) -> anyhow::Result<Self> {
-        Self::resolve(config, catalog)
-    }
-
-    fn resolve(config: &CrateConfig, catalog: &ComponentCatalog) -> anyhow::Result<Self> {
+    pub(crate) fn from_catalog(
+        config: &CrateConfig,
+        catalog: &ComponentCatalog,
+    ) -> anyhow::Result<Self> {
         let mut by_component = HashMap::new();
         let mut by_package = HashMap::new();
 
@@ -210,7 +209,7 @@ impl ResolvedCrateConfig {
 
     /// Assign the crate a package should live in. Every package is expected to
     /// be specified in `gen_crates.toml`.
-    pub fn crate_for_package(&self, package: &str) -> anyhow::Result<Crate> {
+    pub(crate) fn crate_for_package(&self, package: &str) -> anyhow::Result<Crate> {
         self.by_package.get(package).copied().ok_or_else(|| {
             let mut configured = self.by_package.keys().map(String::as_str).collect::<Vec<_>>();
             configured.sort_unstable();
@@ -221,7 +220,7 @@ impl ResolvedCrateConfig {
         })
     }
 
-    pub fn crate_for_component(&self, component: ComponentId) -> Option<Crate> {
+    pub(crate) fn crate_for_component(&self, component: ComponentId) -> Option<Crate> {
         self.by_component.get(&component).copied()
     }
 }
@@ -313,7 +312,7 @@ mod tests {
     fn resolves_paths_to_component_ids_and_propagates_deleted_placement() {
         let catalog = catalog();
         let info = config(vec![krate("core", &["charge"], &["core"]), krate("shared", &[], &[])]);
-        let resolved = ResolvedCrateConfig::resolve(&info, &catalog).unwrap();
+        let resolved = ResolvedCrateConfig::from_catalog(&info, &catalog).unwrap();
 
         let charge = catalog.id_str("charge").unwrap();
         let deleted_charge = catalog.id_str("deleted_charge").unwrap();
@@ -349,7 +348,7 @@ mod tests {
             krate("payment", &["charge"], &[]),
             krate("shared", &[], &[]),
         ]);
-        let error = ResolvedCrateConfig::resolve(&info, &catalog()).err().unwrap().to_string();
+        let error = ResolvedCrateConfig::from_catalog(&info, &catalog()).err().unwrap().to_string();
 
         assert!(error.contains("assigned to both crate `core` and crate `payment`"));
     }
@@ -357,7 +356,7 @@ mod tests {
     #[test]
     fn unknown_component_error_suggests_nearby_names() {
         let info = config(vec![krate("shared", &["charg"], &[])]);
-        let error = ResolvedCrateConfig::resolve(&info, &catalog()).err().unwrap().to_string();
+        let error = ResolvedCrateConfig::from_catalog(&info, &catalog()).err().unwrap().to_string();
 
         assert!(error.contains("unknown component `charg`"));
         assert!(error.contains("`charge`"));

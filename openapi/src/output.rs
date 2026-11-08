@@ -112,6 +112,33 @@ pub fn install_to_repository(
     config: &CrateConfig,
 ) -> anyhow::Result<()> {
     // Check the complete staging tree before replacing any repository directory.
+    let feature_files = [
+        ("async-stripe/Cargo.toml", "async-stripe/Cargo.toml"),
+        ("async-stripe/src/generated/mod.rs", "async-stripe/src/generated/mod.rs"),
+        ("manifests/async-stripe-webhook.toml", "async-stripe-webhook/Cargo.toml"),
+        ("manifests/tests.toml", "tests/Cargo.toml"),
+    ];
+    let has_features = feature_files.iter().any(|(source, _)| staging_root.join(source).exists());
+    if !has_features {
+        let facade = repo_root.join("async-stripe/Cargo.toml");
+        if facade.is_file() {
+            let manifest: toml::Value = toml::from_str(&fs::read_to_string(facade)?)?;
+            ensure!(
+                manifest
+                    .get("package")
+                    .and_then(|p| p.get("metadata"))
+                    .and_then(|m| m.get("async-stripe-codegen"))
+                    .and_then(|c| c.get("model-groups"))
+                    .is_none(),
+                "concrete bindings require concrete runtime manifests; use generate --opaque to regenerate the installed opaque SDK, or restore the concrete manifests before switching modes"
+            );
+        }
+    }
+    if has_features {
+        for (source, _) in feature_files {
+            require_file(&staging_root.join(source))?;
+        }
+    }
     for krate in config.all() {
         let source = staging_root.join("crates").join(krate.crate_name(config));
         require_file(&source.join("src/mod.rs"))?;
@@ -132,6 +159,13 @@ pub fn install_to_repository(
         &repo_root.join("async-stripe-webhook/src/generated"),
     )?;
     replace_directory(&staging_root.join("tests"), &repo_root.join("tests/tests/it/generated"))?;
+    if has_features {
+        for (source, destination) in feature_files {
+            let destination = repo_root.join(destination);
+            fs::create_dir_all(destination.parent().context("missing destination parent")?)?;
+            fs::copy(staging_root.join(source), destination)?;
+        }
+    }
     fs::copy(staging_root.join("crate_info.md"), repo_root.join("crate_info.md"))?;
     Ok(())
 }
@@ -291,6 +325,74 @@ mod tests {
             fs::read_to_string(repository.join("crate_info.md")).unwrap(),
             "generated table"
         );
+    }
+
+    #[test]
+    fn installation_routes_complete_feature_manifests_and_facade_sources() {
+        let root = TestDirectory::new();
+        let staging = root.0.join("staging");
+        let repository = root.0.join("repository");
+        staging_fixture(&staging);
+        for (path, content) in [
+            ("async-stripe/Cargo.toml", "facade manifest"),
+            ("async-stripe/src/generated/mod.rs", "facade source"),
+            ("manifests/async-stripe-webhook.toml", "webhook manifest"),
+            ("manifests/tests.toml", "fixture manifest"),
+        ] {
+            let path = staging.join(path);
+            fs::create_dir_all(path.parent().unwrap()).unwrap();
+            fs::write(path, content).unwrap();
+        }
+        install_to_repository(&staging, &repository, &crate::crates::test_config()).unwrap();
+        assert_eq!(
+            fs::read_to_string(repository.join("async-stripe/src/generated/mod.rs")).unwrap(),
+            "facade source"
+        );
+        assert_eq!(
+            fs::read_to_string(repository.join("async-stripe-webhook/Cargo.toml")).unwrap(),
+            "webhook manifest"
+        );
+        assert_eq!(
+            fs::read_to_string(repository.join("tests/Cargo.toml")).unwrap(),
+            "fixture manifest"
+        );
+        assert!(!repository.join("async-stripe-webhook/src/generated/Cargo.toml").exists());
+        assert!(!repository.join("tests/tests/it/generated/Cargo.toml").exists());
+    }
+
+    #[test]
+    fn concrete_installation_cannot_leave_opaque_facade_dependencies_behind() {
+        let root = TestDirectory::new();
+        let staging = root.0.join("staging");
+        let repository = root.0.join("repository");
+        staging_fixture(&staging);
+        fs::create_dir_all(repository.join("async-stripe")).unwrap();
+        fs::write(
+            repository.join("async-stripe/Cargo.toml"),
+            "[package.metadata.async-stripe-codegen]\nmodel-groups = [\"charge\"]\n",
+        )
+        .unwrap();
+        let error = install_to_repository(&staging, &repository, &crate::crates::test_config())
+            .unwrap_err();
+        assert!(error.to_string().contains("concrete runtime manifests"));
+        assert!(!repository.join("generated").exists());
+    }
+
+    #[test]
+    fn incomplete_feature_output_is_rejected_before_installation() {
+        let root = TestDirectory::new();
+        let staging = root.0.join("staging");
+        let repository = root.0.join("repository");
+        staging_fixture(&staging);
+        fs::create_dir_all(staging.join("async-stripe")).unwrap();
+        fs::write(staging.join("async-stripe/Cargo.toml"), "experimental facade").unwrap();
+        fs::create_dir_all(&repository).unwrap();
+        fs::write(repository.join("crate_info.md"), "existing table").unwrap();
+        let error = install_to_repository(&staging, &repository, &crate::crates::test_config())
+            .unwrap_err();
+        assert!(error.to_string().contains("missing generated file"));
+        assert_eq!(fs::read_to_string(repository.join("crate_info.md")).unwrap(), "existing table");
+        assert!(!repository.join("generated").exists());
     }
 
     #[test]

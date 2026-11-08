@@ -6,6 +6,7 @@ pub mod enums;
 mod miniserde;
 pub mod object_trait;
 pub mod object_writer;
+mod polymorphic;
 pub mod requests;
 pub mod structs;
 pub mod utils;

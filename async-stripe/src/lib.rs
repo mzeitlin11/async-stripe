@@ -57,6 +57,11 @@
 #![forbid(unsafe_code)]
 
 mod error;
+mod generated;
+
+// Opaque generation supplies the independently selected model and request exports.
+#[allow(unused_imports)]
+pub use generated::*;
 
 #[cfg(feature = "async-std-surf")]
 pub mod async_std;
@@ -70,5 +75,12 @@ pub use stripe_client_core::{
     CustomizedStripeRequest, IdempotencyKey, IdempotentKeyError, ListPaginator, PaginationExt,
     RequestStrategy, StripeRequest,
 };
+// Opaque facade exports can also expose these shared error helpers.
+#[allow(unused_imports)]
 pub use stripe_shared::api_errors::*;
 pub use stripe_shared::{AccountId, ApplicationId};
+pub use stripe_types::{
+    AlwaysTrue, AsCursor, AsCursorOpt, Currency, DeferredFields, ExpandableValue, ExpandedValue,
+    FromCursor, List, Object, ObjectDecodeError, ObjectType, ObjectValue, RangeBoundsTs,
+    RangeQueryTs, RecordDecodeError, RecordValue, SearchList, StripeParseError, Timestamp,
+};

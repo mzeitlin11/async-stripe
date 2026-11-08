@@ -92,8 +92,16 @@ impl<'model> RenderContext<'model> {
         Self { item_layout, items, emission_site, config }
     }
 
+    pub(crate) fn uses_opaque_relationships(self) -> bool {
+        self.items.uses_opaque_relationships()
+    }
+
     pub(crate) fn item_address(self, item: ItemId) -> ItemAddress {
         self.item_layout.placement(item).address()
+    }
+
+    pub(crate) fn item_site(self, item: ItemId) -> EmissionSite {
+        self.item_layout.placement(item).emission_site()
     }
 
     pub fn display_type<'type_>(self, typ: &'type_ RustType) -> DisplayType<'model, 'type_> {
@@ -193,6 +201,8 @@ fn fmt_item(
 
 fn fmt_external(f: &mut Formatter<'_>, typ: ExternalType) -> std::fmt::Result {
     let (module, ident) = match typ {
+        ExternalType::SmolStr => ("smol_str", "SmolStr"),
+        ExternalType::ObjectValue => (STRIPE_TYPES, "ObjectValue"),
         ExternalType::Currency => (STRIPE_TYPES, "Currency"),
         ExternalType::RangeQueryTs => (STRIPE_TYPES, "RangeQueryTs"),
         ExternalType::Timestamp => (STRIPE_TYPES, "Timestamp"),
@@ -246,6 +256,16 @@ fn fmt_container(
         }
         Container::Expandable(inner) => {
             write!(f, "{STRIPE_TYPES}::Expandable<")?;
+            fmt_type(f, context, inner, nested_use)?;
+            f.write_char('>')?;
+        }
+        Container::OpaqueExpandable(inner) => {
+            write!(f, "{STRIPE_TYPES}::ExpandableValue<")?;
+            fmt_type(f, context, inner, nested_use)?;
+            f.write_char('>')?;
+        }
+        Container::UntaggedExpandable(inner) => {
+            write!(f, "{STRIPE_TYPES}::ExpandedValue<")?;
             fmt_type(f, context, inner, nested_use)?;
             f.write_char('>')?;
         }

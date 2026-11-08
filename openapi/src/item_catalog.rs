@@ -5,10 +5,13 @@ use crate::components::Components;
 use crate::deduplication::SharingRule;
 use crate::item_origin::{ItemOccurrence, ItemOrigin, TypeRoot};
 use crate::rust_object::{
-    EnumOfObjects, ObjectIdentity, ObjectMetadata, ObjectUsage, RustObject, as_enum_of_objects,
+    EnumOfObjects, ObjectIdentity, ObjectMetadata, ObjectUsage, RustObject, StructField,
+    as_enum_of_objects,
 };
 use crate::rust_type::{DeclarationRoot, RustType};
 use crate::types::RustIdent;
+
+mod polymorphism;
 
 /// Dense, run-local identity for a canonical Rust declaration.
 ///
@@ -76,12 +79,28 @@ pub struct ObjectItem {
     pub enum_of_objects: Option<EnumOfObjects>,
     /// Canonical identity semantics used by a top-level component's `Object` impl.
     pub identity: Option<ObjectIdentity>,
+    /// Optional polymorphic payloads stored in the record's raw field bag.
+    /// These describe decoders, not dependencies of the common stored fields.
+    pub deferred_fields: Vec<StructField>,
 }
 
 #[derive(Debug, Clone)]
 pub enum RustItem {
     Object(Box<ObjectItem>),
     IdNewtype,
+    /// A nominal object family whose alternatives have distinct wire tags.
+    OpaqueObject,
+    /// A tagged record stored as raw JSON. Fields describe optional decoders,
+    /// rather than storage references to their payload models.
+    OpaqueRecord(Vec<StructField>),
+}
+
+/// An optional typed decoder exported by the public facade's extension trait.
+#[derive(Debug, Copy, Clone)]
+pub(crate) struct RecordAccessor<'a> {
+    pub owner: ItemId,
+    pub field: &'a StructField,
+    pub payload: ItemId,
 }
 
 #[derive(Debug, Clone)]
@@ -105,10 +124,21 @@ pub struct ItemRecord {
 }
 
 impl ItemRecord {
+    /// Lightweight declarations available independently of concrete model groups.
+    pub(crate) fn is_reference_foundation(&self) -> bool {
+        matches!(self.item, RustItem::IdNewtype)
+            || (matches!(self.item, RustItem::OpaqueObject | RustItem::OpaqueRecord(_))
+                && self.origin.path.is_empty()
+                && matches!(
+                    self.origin.type_root,
+                    TypeRoot::Declaration(DeclarationRoot::Component(_))
+                ))
+    }
+
     pub fn object(&self) -> Option<&ObjectItem> {
         match &self.item {
             RustItem::Object(object) => Some(object),
-            RustItem::IdNewtype => None,
+            RustItem::IdNewtype | RustItem::OpaqueObject | RustItem::OpaqueRecord(_) => None,
         }
     }
 
@@ -153,6 +183,7 @@ pub struct ItemCatalog {
     roots: HashMap<TypeRoot, CanonicalTypeRoot>,
     properties: Vec<ItemProperties>,
     property_analysis_rounds: usize,
+    opaque_relationships: bool,
 }
 
 /// Canonical declarations under construction. Representation changes belong
@@ -258,6 +289,130 @@ impl ItemCatalogDraft {
         Ok(Self { catalog })
     }
 
+    /// Select wire storage after sharing and allocation, preserving item IDs and
+    /// occurrence provenance. Only represented types change; the parsed
+    /// dependency facts remain available on Components.
+    pub(crate) fn use_opaque_relationships(
+        &mut self,
+        components: &Components,
+    ) -> anyhow::Result<()> {
+        self.catalog.opaque_relationships = true;
+        use crate::rust_object::EnumOfObjects;
+        use crate::rust_type::ExternalType;
+
+        let mut ids = HashMap::new();
+        for (item, record) in self.catalog.iter() {
+            let Some(object) = record.object() else { continue };
+            // Value-backed objects require the tagged Stripe envelope. Some
+            // expandable resources have an ID but no `object` discriminator.
+            let tagged = match &object.enum_of_objects {
+                Some(EnumOfObjects::ObjectUnion(_)) => true,
+                Some(EnumOfObjects::MaybeDeleted(maybe)) => {
+                    self.catalog.get(self.catalog.component_root(maybe.base)).object().is_some_and(
+                        |base| {
+                            matches!(&base.definition,
+                        RustObject::Struct(strukt) if strukt.object_field.is_some())
+                        },
+                    )
+                }
+                None => matches!(&object.definition,
+                    RustObject::Struct(strukt) if strukt.object_field.is_some()),
+            };
+            let id = match &object.identity {
+                Some(ObjectIdentity::IdType(id)) => Some(id.clone()),
+                Some(ObjectIdentity::ObjectUnion) => {
+                    Some(RustType::External(ExternalType::SmolStr))
+                }
+                None => match &object.enum_of_objects {
+                    Some(EnumOfObjects::ObjectUnion(_)) => {
+                        Some(RustType::External(ExternalType::SmolStr))
+                    }
+                    Some(EnumOfObjects::MaybeDeleted(maybe)) => self
+                        .catalog
+                        .get(self.catalog.component_root(maybe.base))
+                        .object()
+                        .and_then(|base| base.identity.as_ref())
+                        .and_then(ObjectIdentity::id_type)
+                        .cloned(),
+                    None => None,
+                },
+            };
+            if let Some(id) = id {
+                ids.insert(item, (id, tagged));
+            }
+        }
+        let item_count = self.catalog.items.len();
+        let mut deferred = self
+            .catalog
+            .iter()
+            .map(|(item, _)| (item, polymorphism::deferred_fields(&self.catalog, item)))
+            .collect::<HashMap<_, _>>();
+        for (index, record) in self.catalog.items.iter_mut().enumerate() {
+            let item = ItemId::from_index(index)?;
+            let fields = deferred.remove(&item).expect("classified canonical item");
+            let diagnostic = matches!(&record.origin.type_root,
+                TypeRoot::Declaration(DeclarationRoot::Component(component))
+                if components.component_name(*component).as_ref() == "api_errors");
+            let RustItem::Object(object) = &mut record.item else { continue };
+            if !fields.is_empty() {
+                for field in &fields {
+                    validate_record_field(field, item_count)?;
+                }
+                let RustObject::Struct(strukt) = &mut object.definition else { unreachable!() };
+                let only_type = record.children.is_empty()
+                    && object.identity.is_none()
+                    && strukt.fields.len() == fields.len() + 1
+                    && strukt.fields.iter().any(|field| {
+                        field.wire_name() == "type"
+                            && field.required
+                            && field.rust_type == RustType::string()
+                    });
+                if only_type {
+                    record.item = RustItem::OpaqueRecord(fields);
+                    continue;
+                }
+                strukt.fields.retain(|field| {
+                    !fields.iter().any(|lazy| lazy.wire_name() == field.wire_name())
+                });
+                anyhow::ensure!(
+                    !strukt.fields.iter().any(|field| field.variable_name() == "variant_fields"),
+                    "polymorphic record already declares variant_fields"
+                );
+                object.deferred_fields = fields;
+            }
+            // A live/deleted pair adds only the small deleted model beside its
+            // live counterpart. Keep that distinction concrete and matchable.
+            if matches!(object.enum_of_objects, Some(EnumOfObjects::ObjectUnion(_)))
+                && !object.usage.used_as_request_param
+            {
+                anyhow::ensure!(
+                    record.children.is_empty(),
+                    "object union unexpectedly owns inline declarations"
+                );
+                record.item = RustItem::OpaqueObject;
+                continue;
+            }
+            match &mut object.definition {
+                RustObject::Struct(strukt) => {
+                    for field in &mut strukt.fields {
+                        lower_opaque_type(&mut field.rust_type, &ids, diagnostic)?;
+                    }
+                }
+                RustObject::Enum(variants) => {
+                    for typ in variants.iter_mut().filter_map(|variant| variant.rust_type.as_mut())
+                    {
+                        lower_opaque_type(typ, &ids, false)?;
+                    }
+                }
+                RustObject::FieldlessEnum(_) => {}
+            }
+        }
+        for root in self.catalog.roots.values_mut() {
+            lower_opaque_type(&mut root.typ, &ids, false)?;
+        }
+        Ok(())
+    }
+
     pub(crate) fn finish(self, components: &Components) -> anyhow::Result<ItemCatalog> {
         let mut catalog = self.catalog;
         catalog.validate_lowered_structure()?;
@@ -274,11 +429,26 @@ impl ItemCatalogDraft {
 
 impl ItemCatalog {
     #[cfg(test)]
+    pub(crate) fn use_opaque_relationships(
+        &mut self,
+        components: &Components,
+    ) -> anyhow::Result<()> {
+        let mut draft = ItemCatalogDraft { catalog: std::mem::take(self) };
+        draft.use_opaque_relationships(components)?;
+        *self = draft.finish(components)?;
+        Ok(())
+    }
+
+    #[cfg(test)]
     pub fn build(
         components: &Components,
         component_metadata: impl Fn(ComponentId) -> ItemMetadata,
     ) -> anyhow::Result<Self> {
         ItemCatalogDraft::build(components, component_metadata)?.finish(components)
+    }
+
+    pub(crate) fn uses_opaque_relationships(&self) -> bool {
+        self.opaque_relationships
     }
 
     pub fn len(&self) -> usize {
@@ -328,6 +498,24 @@ impl ItemCatalog {
         self.property_analysis_rounds
     }
 
+    pub(crate) fn record_accessors(&self) -> impl Iterator<Item = RecordAccessor<'_>> {
+        self.iter().flat_map(|(owner, record)| {
+            let fields = match &record.item {
+                RustItem::OpaqueRecord(fields) => fields.as_slice(),
+                RustItem::Object(object) => object.deferred_fields.as_slice(),
+                _ => &[],
+            };
+            fields.iter().map(move |field| RecordAccessor {
+                owner,
+                field,
+                payload: field
+                    .rust_type
+                    .item_id()
+                    .expect("validated record decoder has no payload"),
+            })
+        })
+    }
+
     fn lower_named_references(&mut self) -> anyhow::Result<()> {
         let declarations = self
             .roots
@@ -349,7 +537,7 @@ impl ItemCatalog {
         Ok(())
     }
 
-    fn analyze_properties(&mut self) -> anyhow::Result<()> {
+    pub(crate) fn analyze_properties(&mut self) -> anyhow::Result<()> {
         let (inferred, rounds) = crate::item_properties::infer(&self.items)?;
         self.properties = inferred;
         self.property_analysis_rounds = rounds;
@@ -366,6 +554,14 @@ impl ItemCatalog {
                     validate_lowered_type(id_type, self.items.len()).map_err(|error| {
                         anyhow::anyhow!("invalid canonical ID type for item {id:?}: {error}")
                     })?;
+                }
+                for field in &object.deferred_fields {
+                    validate_record_field(field, self.items.len())?;
+                }
+            }
+            if let RustItem::OpaqueRecord(fields) = &item.item {
+                for field in fields {
+                    validate_record_field(field, self.items.len())?;
                 }
             }
             for child in &item.children {
@@ -488,7 +684,7 @@ impl ItemCatalog {
                     ),
                     RustObject::Struct(_) | RustObject::FieldlessEnum(_) => None,
                 },
-                RustItem::IdNewtype => None,
+                RustItem::IdNewtype | RustItem::OpaqueObject | RustItem::OpaqueRecord(_) => None,
             })
             .collect::<Vec<_>>();
         for (item, classification) in self.items.iter_mut().zip(classifications) {
@@ -497,6 +693,53 @@ impl ItemCatalog {
             }
         }
     }
+}
+
+fn validate_record_field(field: &StructField, item_count: usize) -> anyhow::Result<()> {
+    use crate::rust_type::Container;
+    anyhow::ensure!(
+        field.vis.is_public()
+            && matches!(&field.rust_type,
+                RustType::Container(Container::Option(inner)) if matches!(**inner, RustType::Item(_))),
+        "lazy record decoder {} must be an optional public item field",
+        field.field_name
+    );
+    validate_lowered_type(&field.rust_type, item_count)
+}
+
+fn lower_opaque_type(
+    typ: &mut RustType,
+    ids: &HashMap<ItemId, (RustType, bool)>,
+    diagnostic: bool,
+) -> anyhow::Result<()> {
+    use crate::rust_type::{Container, ExternalType};
+    match typ {
+        RustType::Container(Container::Expandable(target)) => {
+            let item = target.item_id().ok_or_else(|| {
+                anyhow::anyhow!("expandable target has no canonical item: {target:?}")
+            })?;
+            let (id, tagged) = ids
+                .get(&item)
+                .ok_or_else(|| anyhow::anyhow!("expandable target has no identity: {item:?}"))?;
+            let container = if *tagged {
+                Container::OpaqueExpandable(Box::new(id.clone()))
+            } else {
+                Container::UntaggedExpandable(Box::new(id.clone()))
+            };
+            *typ = RustType::Container(container);
+        }
+        RustType::Item(item) if diagnostic && ids.get(item).is_some_and(|(_, tagged)| *tagged) => {
+            // Error context can contain resources from many API families. Keep
+            // the error's scalar fields typed without requiring every model.
+            *typ = RustType::External(ExternalType::ObjectValue);
+        }
+        RustType::Container(container) => {
+            lower_opaque_type(container.value_typ_mut(), ids, diagnostic)?
+        }
+        RustType::Reference(inner) => lower_opaque_type(inner, ids, diagnostic)?,
+        _ => {}
+    }
+    Ok(())
 }
 
 fn validate_lowered_object(object: &RustObject, item_count: usize) -> anyhow::Result<()> {
@@ -766,6 +1009,7 @@ impl CatalogBuilder {
                     definition: lowered,
                     usage,
                     enum_of_objects: None,
+                    deferred_fields: Vec::new(),
                     identity: None,
                 })),
             },
@@ -826,6 +1070,8 @@ mod emission_tests;
 
 #[cfg(test)]
 mod finalization_tests;
+#[cfg(test)]
+mod opaque_tests;
 
 #[cfg(test)]
 mod tests {

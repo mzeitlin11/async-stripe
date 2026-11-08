@@ -25,7 +25,7 @@ pub struct Event {
     pub created: stripe_types::Timestamp,
     pub data: EventData,
     /// Unique identifier for the object.
-    pub id: stripe_shared::event::EventId,
+    pub id: stripe_shared::EventId,
     /// Has the value `true` if the object exists in live mode or the value `false` if the object exists in test mode.
     pub livemode: bool,
     /// String representing the object's type. Always has the value "event".
@@ -86,7 +86,7 @@ impl<'de> serde::Deserialize<'de> for Event {
             pub account: Option<String>,
             pub api_version: Option<ApiVersion>,
             pub created: stripe_types::Timestamp,
-            pub id: stripe_shared::event::EventId,
+            pub id: stripe_shared::EventId,
             pub livemode: bool,
             #[serde(rename = "object")]
             #[allow(dead_code)]
@@ -392,7 +392,7 @@ mod tests {
     use serde_json::{Value, json};
 
     use super::*;
-    use crate::{AccountExternalAccountCreated, EventType};
+    use crate::EventType;
 
     const WEBHOOK_SECRET: &str = "secret";
 
@@ -572,6 +572,12 @@ mod tests {
             })
         }
 
+        #[cfg(feature = "serialize")]
+        fn assert_redirect(action: impl serde::Serialize) {
+            let value = serde_json::to_value(action).unwrap();
+            assert_eq!(value["redirect_to_url"]["url"], "https://example.com/authenticate");
+        }
+
         fn assert_optional_value(actual: Option<miniserde::json::Value>, expected: Value) {
             let actual = actual.map(|value| {
                 serde_json::from_str::<Value>(&miniserde::json::to_string(&value)).unwrap()
@@ -607,14 +613,10 @@ mod tests {
             let setup: SetupIntentNextAction = serde_json::from_str(&payload).unwrap();
             assert!(payment.use_stripe_sdk.is_none());
             assert!(setup.use_stripe_sdk.is_none());
-            assert_eq!(
-                payment.redirect_to_url.unwrap().url.as_deref(),
-                Some("https://example.com/authenticate")
-            );
-            assert_eq!(
-                setup.redirect_to_url.unwrap().url.as_deref(),
-                Some("https://example.com/authenticate")
-            );
+            #[cfg(feature = "serialize")]
+            assert_redirect(payment);
+            #[cfg(feature = "serialize")]
+            assert_redirect(setup);
         }
 
         #[test]
@@ -658,10 +660,8 @@ mod tests {
             };
             let action = payment.next_action.unwrap();
             assert!(action.use_stripe_sdk.is_none());
-            assert_eq!(
-                action.redirect_to_url.unwrap().url.as_deref(),
-                Some("https://example.com/authenticate")
-            );
+            #[cfg(feature = "serialize")]
+            assert_redirect(action);
         }
 
         #[test]
@@ -868,6 +868,25 @@ mod tests {
         })
     }
 
+    #[test]
+    fn unknown_events_preserve_the_complete_payload() {
+        let object = json!({
+            "object": "future_resource",
+            "nested": [null, true, {"large_unsigned": u64::MAX, "large_signed": i64::MIN}]
+        });
+        let payload = mock_webhook_event(
+            &EventType::Unknown("future_resource.created".to_string()),
+            object.clone(),
+        );
+        let event = Webhook::insecure(&payload.to_string()).unwrap();
+        assert_eq!(event.type_.as_str(), "future_resource.created");
+        let EventObject::Unknown(raw) = event.data.object else {
+            panic!("expected an unknown event payload");
+        };
+        let preserved: Value = serde_json::from_str(&miniserde::json::to_string(&raw)).unwrap();
+        assert_eq!(preserved, object);
+    }
+
     #[track_caller]
     fn parse_mock_webhook_event(event_type: EventType, data: Value) -> EventObject {
         let now = Utc::now().timestamp();
@@ -881,7 +900,7 @@ mod tests {
     }
 
     #[test]
-    #[cfg(feature = "async-stripe-billing")]
+    #[cfg(any(feature = "async-stripe-billing", feature = "invoice_item"))]
     fn test_webhook_construct_event() {
         let object = json!({
             "id": "ii_123",
@@ -927,7 +946,7 @@ mod tests {
         assert_eq!(invoice.quantity, 3);
     }
 
-    #[cfg(feature = "async-stripe-billing")]
+    #[cfg(any(feature = "async-stripe-billing", feature = "billing_portal_session"))]
     #[test]
     // https://github.com/arlyon/async-stripe/issues/455
     fn test_billing_portal_session() {
@@ -959,18 +978,25 @@ mod tests {
             "status": "status",
         });
         let result = parse_mock_webhook_event(EventType::AccountExternalAccountCreated, object);
-        let EventObject::AccountExternalAccountCreated(bank_account) = result else {
-            panic!("unexpected type parsed");
-        };
-        let AccountExternalAccountCreated::BankAccount(bank_account) = *bank_account else {
-            panic!("unexpected type parsed");
-        };
-        assert_eq!(bank_account.id.as_str(), "ba_123");
-        assert_eq!(bank_account.last4, "1234");
+        assert!(matches!(&result, EventObject::AccountExternalAccountCreated(_)));
+        #[cfg(feature = "serialize")]
+        {
+            let object = serde_json::to_value(&result).unwrap();
+            assert_eq!(object["id"], "ba_123");
+            assert_eq!(object["object"], "bank_account");
+            assert_eq!(object["last4"], "1234");
+        }
     }
 
     #[test]
-    #[cfg(all(feature = "async-stripe-reserve", feature = "serialize", feature = "deserialize"))]
+    #[cfg(all(
+        any(
+            feature = "async-stripe-reserve",
+            all(feature = "reserve_hold", feature = "reserve_plan", feature = "reserve_release")
+        ),
+        feature = "serialize",
+        feature = "deserialize"
+    ))]
     fn reserve_events_round_trip_with_serde() {
         let fixtures: Value =
             serde_json::from_str(include_str!("../../openapi/fixtures.json")).unwrap();

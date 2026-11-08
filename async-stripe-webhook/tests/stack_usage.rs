@@ -63,7 +63,8 @@ fn signed_webhook_on_small_stack() {
         assert_eq!(event.id.as_str(), "evt_stack_test");
         assert!(matches!(event.data.object, EventObject::AccountExternalAccountCreated(_)));
 
-        let invalid = PAYLOAD.replace("\"bank_account\"", "\"invalid_object\"");
+        // Both concrete and opaque payloads require a string object discriminator.
+        let invalid = PAYLOAD.replace("\"bank_account\"", "null");
         let signature = Webhook::generate_test_header(&invalid, secret, Some(timestamp));
         assert!(
             Webhook::construct_event_with_timestamp(&invalid, &signature, secret, timestamp)
@@ -80,7 +81,8 @@ fn serde_webhook_on_small_stack() {
         assert_eq!(event.id.as_str(), "evt_stack_test");
         assert!(matches!(event.data.object, EventObject::AccountExternalAccountCreated(_)));
 
-        let invalid = PAYLOAD.replace("\"bank_account\"", "\"invalid_object\"");
+        // Both concrete and opaque payloads require a string object discriminator.
+        let invalid = PAYLOAD.replace("\"bank_account\"", "null");
         assert!(serde_json::from_str::<stripe_webhook::Event>(&invalid).is_err());
     });
 }

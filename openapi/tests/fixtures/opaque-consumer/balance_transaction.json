@@ -1,0 +1,18 @@
+{
+  "object": "balance_transaction",
+  "id": "txn_example",
+  "amount": 1000,
+  "available_on": 1700000000,
+  "balance_type": "payments",
+  "created": 1700000000,
+  "currency": "usd",
+  "description": null,
+  "exchange_rate": null,
+  "fee": 30,
+  "fee_details": [],
+  "net": 970,
+  "reporting_category": "charge",
+  "source": "SOURCE",
+  "status": "available",
+  "type": "charge"
+}

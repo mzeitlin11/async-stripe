@@ -75,6 +75,30 @@ pub(crate) struct ItemLayout {
 }
 
 impl ItemLayout {
+    pub(crate) fn with_reference_types(
+        self,
+        items: &ItemCatalog,
+        component_layout: &ComponentLayout,
+        config: &CrateConfig,
+    ) -> anyhow::Result<Self> {
+        Self::from_placements(
+            items.iter().map(|(item, record)| {
+                if record.is_reference_foundation() {
+                    (
+                        EmissionSite::Standalone { item, krate: Crate::SHARED },
+                        ItemAddress::CrateRoot(Crate::SHARED),
+                    )
+                } else {
+                    let placement = self.placement(item);
+                    (placement.emission_site(), placement.address())
+                }
+            }),
+            items,
+            component_layout,
+            config,
+        )
+    }
+
     #[cfg(test)]
     pub(crate) fn for_test(placements: Vec<(EmissionSite, ItemAddress)>) -> Self {
         Self {

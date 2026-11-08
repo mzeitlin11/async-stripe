@@ -52,6 +52,12 @@ struct GenerateArgs {
     /// Write crate inference warnings to <out>/crate_warnings.md.
     #[arg(long)]
     emit_warnings: bool,
+    /// Retain expandable/polymorphic payloads and enable model groups independently.
+    #[arg(long)]
+    opaque: bool,
+    /// Place opaque model modules by their represented consumers.
+    #[arg(long, requires = "opaque")]
+    consumer_layout: bool,
 }
 
 #[derive(Debug, Args)]
@@ -77,7 +83,17 @@ fn main() -> Result<()> {
 
 fn run_generate(args: GenerateArgs) -> Result<()> {
     let spec = Spec::new(spec_fetch::load_generation_spec(args.update_spec)?);
-    let codegen = build_codegen(args.version.version, EdgePolicy::current_layout(), spec)?;
+    let version = args.version.version.map_or_else(parse_workspace_version, Ok)?;
+    let config = CrateConfig::load(Path::new("gen_crates.toml"))?;
+    let urls = UrlFinder::new().context("could not initialize URL finder")?;
+    let mut codegen = if args.opaque {
+        CodeGen::with_opaque_config(spec, urls, version, EdgePolicy::current_layout(), config)?
+    } else {
+        CodeGen::with_config(spec, urls, version, EdgePolicy::current_layout(), config)?
+    };
+    if args.consumer_layout {
+        codegen = codegen.with_consumer_model_layout()?;
+    }
     let workspace = codegen.render_workspace()?;
     print_summary(&codegen);
 
@@ -130,6 +146,9 @@ fn run_rustfmt(out: &Path, config: &CrateConfig) -> Result<()> {
     }
     command.arg(out.join("async-stripe-webhook/mod.rs"));
     command.arg(out.join("tests/mod.rs"));
+    if out.join("async-stripe/src/generated/mod.rs").exists() {
+        command.arg(out.join("async-stripe/src/generated/mod.rs"));
+    }
 
     let formatted = command.output().context("failed to invoke rustfmt")?;
     if !formatted.status.success() {
@@ -227,6 +246,21 @@ mod tests {
     use clap::Parser;
 
     use super::{Cli, Command};
+
+    #[test]
+    fn opaque_generation_and_consumer_layout_are_explicit() {
+        let cli = Cli::try_parse_from([
+            "codegen",
+            "generate",
+            "--opaque",
+            "--consumer-layout",
+            "--no-install",
+        ])
+        .unwrap();
+        let Command::Generate(args) = cli.command else { panic!("expected generation") };
+        assert!(args.opaque && args.consumer_layout && args.no_install);
+        assert!(Cli::try_parse_from(["codegen", "generate", "--consumer-layout"]).is_err());
+    }
 
     #[test]
     fn accepts_existing_graph_and_warning_commands() {

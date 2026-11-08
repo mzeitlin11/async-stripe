@@ -1,10 +1,15 @@
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 use anyhow::Context;
 
 use crate::component_catalog::ComponentId;
 use crate::components::Components;
 use crate::crates::Crate;
+use crate::item_catalog::ItemCatalog;
+use crate::item_layout::{EmissionSite, ItemLayout};
+use crate::item_origin::TypeRoot;
+use crate::model_availability::{Availability, ModelAvailability};
+use crate::rust_type::DeclarationRoot;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct ComponentPlacement {
@@ -63,6 +68,105 @@ impl ComponentLayoutDraft {
 }
 
 impl ComponentLayout {
+    /// Place model modules by their represented consumers while retaining the
+    /// existing request crates and public component facades.
+    ///
+    /// The baseline supplies service-owner labels, not semantic dependency
+    /// edges. Availability already contains the actual emitted module graph.
+    pub(crate) fn with_consumer_model_crates(
+        &self,
+        components: &Components,
+        items: &ItemCatalog,
+        item_layout: &ItemLayout,
+        availability: &ModelAvailability,
+        feature_crates: &HashMap<String, Crate>,
+    ) -> anyhow::Result<Self> {
+        for feature in availability.features() {
+            anyhow::ensure!(
+                feature_crates.contains_key(feature),
+                "model feature has no consumer crate: {feature}"
+            );
+        }
+        let mut consumers = availability
+            .dependencies()
+            .keys()
+            .map(|&site| {
+                let mut users = BTreeSet::new();
+                if let EmissionSite::ComponentRequests(component) = site {
+                    users.insert(self.placement(component).request_crate());
+                }
+                match availability.site(site) {
+                    Availability::Always | Availability::Disabled => {
+                        if !matches!(site, EmissionSite::ComponentRequests(_)) {
+                            users.insert(Crate::SHARED);
+                        }
+                    }
+                    Availability::Features(features) => {
+                        users.extend(features.iter().map(|feature| feature_crates[feature]));
+                    }
+                }
+                (site, users)
+            })
+            .collect::<HashMap<_, _>>();
+        for (item, record) in items.iter() {
+            let site = item_layout.placement(item).emission_site();
+            let users = consumers.get_mut(&site).context("item has no availability site")?;
+            if record.is_reference_foundation()
+                || matches!(
+                    record.origin.type_root,
+                    TypeRoot::Declaration(DeclarationRoot::Shared(_))
+                )
+            {
+                users.insert(Crate::SHARED);
+            }
+            // A public alias consumes a type even when its service has no
+            // request or model field referring to that type.
+            if record.origin.path.is_empty()
+                && let TypeRoot::Declaration(
+                    DeclarationRoot::Component(component) | DeclarationRoot::ObjectId(component),
+                ) = record.origin.type_root
+            {
+                users.insert(self.placement(component).request_crate());
+            }
+        }
+        loop {
+            let mut changed = false;
+            for (source, targets) in availability.dependencies() {
+                let required = consumers
+                    .get(source)
+                    .context("placement dependency has no source module")?
+                    .clone();
+                for target in targets {
+                    let users = consumers
+                        .get_mut(target)
+                        .context("placement dependency has no target module")?;
+                    let before = users.len();
+                    users.extend(required.iter().copied());
+                    changed |= users.len() != before;
+                }
+            }
+            if !changed {
+                break;
+            }
+        }
+        let mut placed = self.clone();
+        for &component in components.components.keys() {
+            let site = item_layout.placement(items.component_root(component)).emission_site();
+            let users = consumers.get(&site).context("component has no availability site")?;
+            let types_crate = if users.len() == 1 {
+                *users.first().expect("single consumer disappeared")
+            } else {
+                Crate::SHARED
+            };
+            placed
+                .placements
+                .get_mut(&component)
+                .context("component has no placement")?
+                .types_crate = types_crate;
+        }
+        Ok(placed)
+    }
+
     #[cfg(test)]
     pub(crate) fn for_test(placements: &[(ComponentId, Crate, Crate)]) -> Self {
         Self {
@@ -98,3 +202,6 @@ impl ComponentLayout {
         self.placements[&component]
     }
 }
+
+#[cfg(test)]
+mod tests;

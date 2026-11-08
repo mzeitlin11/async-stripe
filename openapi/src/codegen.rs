@@ -6,6 +6,7 @@ use indoc::formatdoc;
 use petgraph::prelude::DiGraphMap;
 use tracing::{debug, info};
 
+use crate::component_catalog::ComponentId;
 use crate::components::{Components, infer_components};
 use crate::crate_dependencies::{crate_dependencies, validate_crate_dependencies};
 use crate::crate_inference::CrateInferenceWarning;
@@ -13,10 +14,11 @@ use crate::crate_table::generate_crate_table;
 use crate::crates::{Crate, CrateConfig};
 pub use crate::dependencies::EdgePolicy;
 use crate::exports::legacy_facade_dependencies;
-use crate::item_catalog::{ItemCatalog, ItemMetadata};
+use crate::item_catalog::{ItemCatalog, ItemCatalogDraft, ItemMetadata};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
+use crate::model_availability::{ModelAvailability, ModelFeature, model_feature_name};
 use crate::object_writing::ItemEmitter;
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
@@ -41,6 +43,8 @@ pub struct CodeGen {
     pub(crate) version: String,
     pub(crate) crate_inference_warnings: Vec<CrateInferenceWarning>,
     edge_policy: EdgePolicy,
+    pub(crate) availability: Option<ModelAvailability>,
+    model_groups: Vec<ModelFeature>,
 }
 
 impl CodeGen {
@@ -60,6 +64,17 @@ impl CodeGen {
         version: String,
         edge_policy: EdgePolicy,
         config: CrateConfig,
+    ) -> anyhow::Result<Self> {
+        Self::build(spec, url_finder, version, edge_policy, config, false)
+    }
+
+    fn build(
+        spec: Spec,
+        url_finder: UrlFinder,
+        version: String,
+        edge_policy: EdgePolicy,
+        config: CrateConfig,
+        opaque: bool,
     ) -> anyhow::Result<Self> {
         let (mut components, mut request_owners) = infer_components(&spec, &config)?;
         components.filter_unused_components();
@@ -83,12 +98,16 @@ impl CodeGen {
             }
         }
 
-        let model = RustModel::build(&components, |component| {
+        let mut draft = ItemCatalogDraft::build(&components, |component| {
             let object = components.get_by_id(component);
             let schema = spec.get_component_schema(object.path());
             let doc_comment = infer_doc_comment(schema, object.stripe_doc_url.as_deref());
             ItemMetadata::new(object.ident().clone()).doc(doc_comment)
         })?;
+        if opaque {
+            draft.use_opaque_relationships(&components)?;
+        }
+        let model = RustModel::from_draft(&components, draft)?;
         let component_layout =
             components.legacy_model_layout(request_owners, edge_policy, &config)?;
         let item_layout = ItemLayout::from_component_layout(
@@ -97,6 +116,11 @@ impl CodeGen {
             &component_layout,
             &config,
         )?;
+        let item_layout = if opaque {
+            item_layout.with_reference_types(model.items(), &component_layout, &config)?
+        } else {
+            item_layout
+        };
         let mut crate_dependencies = crate_dependencies(
             model.items(),
             model.requests(),
@@ -119,19 +143,249 @@ impl CodeGen {
             version,
             crate_inference_warnings,
             edge_policy,
+            availability: None,
+            model_groups: Vec::new(),
         })
     }
 
     pub fn crate_config(&self) -> &CrateConfig {
         &self.config
     }
-
     pub fn components(&self) -> &Components {
         &self.components
     }
-
     pub fn crate_inference_warnings(&self) -> &[CrateInferenceWarning] {
         &self.crate_inference_warnings
+    }
+
+    /// Generate the complete v1 surface with retained expandable payloads and independently enabled models.
+    pub fn with_opaque_config(
+        spec: Spec,
+        url_finder: UrlFinder,
+        version: String,
+        edge_policy: EdgePolicy,
+        config: CrateConfig,
+    ) -> anyhow::Result<Self> {
+        let generated = Self::build(spec, url_finder, version, edge_policy, config, true)?;
+        let groups = generated.resource_model_groups();
+        let names = groups.iter().map(|(name, _)| name.as_str()).collect::<Vec<_>>();
+        generated.with_opaque_model_groups(&names)
+    }
+
+    /// Build an experimental set of independently compiled v1 resource groups.
+    /// Normal generation retains its existing concrete representations.
+    pub fn new_opaque_model_groups(
+        spec: Spec,
+        url_finder: UrlFinder,
+        version: String,
+        groups: &[&str],
+    ) -> anyhow::Result<Self> {
+        Self::build(
+            spec,
+            url_finder,
+            version,
+            EdgePolicy::default(),
+            CrateConfig::load(std::path::Path::new("gen_crates.toml"))?,
+            true,
+        )?
+        .with_opaque_model_groups(groups)
+    }
+
+    /// Build the opaque representation for every v1 resource and
+    /// endpoint group. Supporting schemas follow their actual dependencies.
+    pub fn new_opaque_v1(
+        spec: Spec,
+        url_finder: UrlFinder,
+        version: String,
+    ) -> anyhow::Result<Self> {
+        Self::with_opaque_config(
+            spec,
+            url_finder,
+            version,
+            EdgePolicy::default(),
+            CrateConfig::load(std::path::Path::new("gen_crates.toml"))?,
+        )
+    }
+
+    fn resource_model_groups(&self) -> Vec<(String, ComponentId)> {
+        self.components
+            .components
+            .iter()
+            .filter(|(component, object)| {
+                object.object_name().is_some()
+                    || object.identity().is_some()
+                    || self.components.has_requests(**component)
+            })
+            .map(|(&component, object)| (object.mod_path(), component))
+            .collect()
+    }
+
+    fn with_opaque_model_groups(mut self, groups: &[&str]) -> anyhow::Result<Self> {
+        let generated = &mut self;
+        anyhow::ensure!(!groups.is_empty(), "at least one model group is required");
+        let items = generated.model.items();
+        for name in groups {
+            let (&component, object) = generated
+                .components
+                .components
+                .iter()
+                .find(|(_, object)| object.mod_path() == *name)
+                .with_context(|| format!("unknown model group {name}"))?;
+            generated.model_groups.push(ModelFeature {
+                name: object.mod_path(),
+                items: vec![items.component_root(component)],
+                requests: generated
+                    .components
+                    .has_requests(component)
+                    .then_some(component)
+                    .into_iter()
+                    .collect(),
+                consumer_crate: generated.component_layout.placement(component).request_crate(),
+            });
+        }
+        let mut availability = generated.model_availability()?;
+        let mut registered_decoders = std::collections::HashSet::new();
+        loop {
+            let before = registered_decoders.len();
+            for accessor in items.record_accessors() {
+                if registered_decoders.contains(&accessor.payload)
+                    || *availability
+                        .site(generated.item_layout.placement(accessor.owner).emission_site())
+                        == crate::model_availability::Availability::Disabled
+                {
+                    continue;
+                }
+                let TypeRoot::Declaration(DeclarationRoot::Component(component)) =
+                    items.get(accessor.payload).origin.type_root
+                else {
+                    anyhow::bail!("record decoder has no component root: {:?}", accessor.payload);
+                };
+                let consumer_crate =
+                    generated.component_layout.placement(component).request_crate();
+                let owner = items.get(accessor.owner);
+                let individual = owner.origin.path.is_empty()
+                    && matches!(owner.origin.type_root,
+                        TypeRoot::Declaration(DeclarationRoot::Component(owner))
+                        if generated.components.component_name(owner).as_ref() == "payment_method_details");
+                let name = if individual {
+                    generated.components.get_by_id(component).mod_path()
+                } else {
+                    format!("{}_decoders", consumer_crate.base_name(&generated.config))
+                };
+                if let Some(group) =
+                    generated.model_groups.iter_mut().find(|group| group.name == name)
+                {
+                    anyhow::ensure!(
+                        group.consumer_crate == consumer_crate && group.requests.is_empty(),
+                        "decoder group conflicts with an existing resource group: {name}"
+                    );
+                    if !group.items.contains(&accessor.payload) {
+                        group.items.push(accessor.payload);
+                    }
+                } else {
+                    generated.model_groups.push(ModelFeature {
+                        name,
+                        items: vec![accessor.payload],
+                        requests: vec![],
+                        consumer_crate,
+                    });
+                }
+                registered_decoders.insert(accessor.payload);
+            }
+            if registered_decoders.len() == before {
+                break;
+            }
+            // Enabling one payload can reveal another lazy record whose own
+            // optional decoders were unavailable in the previous closure.
+            availability = generated.model_availability()?;
+        }
+        generated.availability = Some(availability);
+        generated.crate_dependencies = crate_dependencies(
+            items,
+            generated.model.requests(),
+            &generated.component_layout,
+            &generated.item_layout,
+            &generated.config,
+        )?;
+        Ok(self)
+    }
+
+    fn model_availability(&self) -> anyhow::Result<ModelAvailability> {
+        let items = self.model.items();
+        let unconditional = items.iter().filter_map(|(item, record)| {
+            let support = record.is_reference_foundation()
+                || matches!(&record.origin.type_root, TypeRoot::Declaration(DeclarationRoot::Shared(_)))
+                || matches!(record.origin.type_root, TypeRoot::Webhook(_))
+                || (record.origin.path.is_empty() && matches!(record.origin.type_root,
+                    TypeRoot::Declaration(DeclarationRoot::Component(component))
+                    if matches!(self.components.component_name(component).as_ref(), "error" | "event")));
+            support.then_some(item)
+        }).collect::<Vec<_>>();
+        ModelAvailability::build(
+            items,
+            self.model.requests(),
+            &self.item_layout,
+            &unconditional,
+            &self.model_groups,
+        )
+    }
+
+    /// Place complete v1 model modules using their represented consumers and
+    /// retained domain exports, preserving existing package names.
+    ///
+    /// This experiment requires the complete resource surface so placement does
+    /// not change according to a consumer's subset of enabled features.
+    pub fn with_consumer_model_layout(mut self) -> anyhow::Result<Self> {
+        let availability = self
+            .availability
+            .as_ref()
+            .context("consumer model layout requires opaque v1 generation")?;
+        anyhow::ensure!(
+            self.resource_model_groups().iter().all(|(name, component)| {
+                self.model_groups.iter().any(|group| {
+                    group.name == *name
+                        && group.items.contains(&self.model.items().component_root(*component))
+                })
+            }),
+            "consumer model layout requires every v1 resource group; use --all"
+        );
+        let feature_crates = self
+            .model_groups
+            .iter()
+            .map(|group| (group.name.clone(), group.consumer_crate))
+            .collect();
+        self.component_layout = self.component_layout.with_consumer_model_crates(
+            &self.components,
+            self.model.items(),
+            &self.item_layout,
+            availability,
+            &feature_crates,
+        )?;
+        self.item_layout = ItemLayout::from_component_layout(
+            &self.components,
+            self.model.items(),
+            &self.component_layout,
+            &self.config,
+        )?;
+        self.item_layout = self.item_layout.with_reference_types(
+            self.model.items(),
+            &self.component_layout,
+            &self.config,
+        )?;
+        self.availability = Some(self.model_availability()?);
+        self.crate_dependencies = crate_dependencies(
+            self.model.items(),
+            self.model.requests(),
+            &self.component_layout,
+            &self.item_layout,
+            &self.config,
+        )?;
+        validate_crate_dependencies(&self.crate_dependencies)?;
+        Ok(self)
+    }
+
+    pub fn canonical_item_count(&self) -> usize {
+        self.model.items().len()
     }
 
     pub fn request_component_count(&self) -> usize {
@@ -170,6 +424,9 @@ impl CodeGen {
     fn write_declarations(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
         let items = self.model.items();
         let mut emitter = ItemEmitter::new(items, &self.item_layout, self.output_locations());
+        if let Some(plan) = &self.availability {
+            emitter = emitter.with_availability(plan);
+        }
         // This traversal preserves source order. Every declaration, including
         // recursively introduced children, is routed by its own item placement.
         for (&component, object) in &self.components.components {
@@ -216,8 +473,13 @@ impl CodeGen {
         self.write_declarations(&mut output)?;
         self.write_api_version_file(&mut output)?;
         let context = self.render_context(EmissionSite::Webhooks);
-        write_generated_for_webhooks(context, &self.components.webhook_objs, &mut output)
-            .context("Could not write webhook generated code")?;
+        write_generated_for_webhooks(
+            context,
+            &self.components.webhook_objs,
+            self.availability.as_ref(),
+            &mut output,
+        )
+        .context("Could not write webhook generated code")?;
         output.write("crate_info.md", generate_crate_table(self.output_locations()))?;
         Self::write_object_info_for_testing(
             self.model.items(),
@@ -225,6 +487,43 @@ impl CodeGen {
             self.output_locations(),
             &mut output,
         )?;
+        if self.availability.is_some() {
+            let request_groups = self
+                .model_groups
+                .iter()
+                .flat_map(|group| {
+                    group.requests.iter().map(|&component| (group.name.clone(), component))
+                })
+                .collect::<Vec<_>>();
+            crate::facade::write_facade(
+                self.output_locations(),
+                self.model.items(),
+                &self.item_layout,
+                self.availability.as_ref().expect("opaque model availability"),
+                &request_groups,
+                &self.version,
+                &mut output,
+            )?;
+            crate::webhook::write_manifest(
+                context,
+                self.output_locations(),
+                &self.components.webhook_objs,
+                self.availability.as_ref().expect("opaque model availability"),
+                &self.version,
+                &mut output,
+            )?;
+            self.write_fixture_manifest(&mut output)?;
+            let locations = self.output_locations();
+            let items = self.model.items();
+            let manifest = items.iter().map(|(item, record)| {
+                let fields = record.object().and_then(|object| match &object.definition {
+                    crate::rust_object::RustObject::Struct(strukt) if object.usage.should_impl_deserialize() => Some(strukt.fields.len()),
+                    _ => None,
+                }).unwrap_or(0);
+                serde_json::json!({"ident": record.metadata.ident.as_ref(), "path": locations.emission_path(self.item_layout.placement(item).emission_site(), items), "deserialization_fields": fields})
+            }).collect::<Vec<_>>();
+            output.write("model_manifest.json", serde_json::to_vec_pretty(&manifest)?)?;
+        }
         Ok(output)
     }
 
@@ -235,13 +534,59 @@ impl CodeGen {
             let mut dependencies = self.crate_dependencies.neighbors(krate).collect::<Vec<_>>();
             dependencies.sort_by_key(|c| c.base_name(config));
             let base_path = PathBuf::from(krate.generated_out_path(config));
-            let request_features = locations
-                .crate_members(krate)
-                .filter(|c| locations.components.has_requests(*c) && krate != Crate::SHARED)
-                .map(|c| locations.components.get_by_id(c).mod_path())
-                .collect();
-
-            let toml = gen_crate_toml(krate, dependencies, request_features, &self.version, config);
+            let features = if let Some(plan) = &self.availability {
+                let mut features = std::collections::BTreeMap::new();
+                for feature in plan.features() {
+                    let requests_here = plan
+                        .request_components(feature)
+                        .iter()
+                        .any(|component| locations.request_crate(*component) == krate);
+                    let model_feature = model_feature_name(feature, requests_here);
+                    let forwarded = dependencies
+                        .iter()
+                        .map(|dep| {
+                            let requests_there = plan
+                                .request_components(feature)
+                                .iter()
+                                .any(|component| locations.request_crate(*component) == *dep);
+                            format!(
+                                "{}/{}",
+                                dep.crate_name(config),
+                                model_feature_name(feature, requests_there)
+                            )
+                        })
+                        .collect();
+                    features.insert(model_feature.clone(), forwarded);
+                    if requests_here {
+                        features
+                            .insert(feature.clone(), vec!["__requests".to_string(), model_feature]);
+                    }
+                }
+                if krate != Crate::SHARED {
+                    features
+                        .insert("__requests".into(), vec!["dep:async-stripe-client-core".into()]);
+                }
+                features.insert("full".into(), plan.features().iter().cloned().collect());
+                Some(features)
+            } else if krate == Crate::SHARED {
+                None
+            } else {
+                let mut features = locations
+                    .crate_members(krate)
+                    .filter(|c| locations.components.has_requests(*c))
+                    .map(|c| (locations.components.get_by_id(c).mod_path(), Vec::new()))
+                    .collect::<std::collections::BTreeMap<_, _>>();
+                features.insert("full".into(), features.keys().cloned().collect());
+                Some(features)
+            };
+            let toml = gen_crate_toml(
+                krate,
+                dependencies,
+                features,
+                self.availability.is_some(),
+                &self.version,
+                config,
+            );
             output.write(base_path.join("Cargo.toml"), toml)?;
 
             let lib_name = krate.lib_name(config);
@@ -274,6 +619,50 @@ impl CodeGen {
             // type names causing `rustfmt` errors (https://github.com/rust-lang/rustfmt/issues/5315)
         }
         Ok(())
+    }
+
+    fn write_fixture_manifest(&self, output: &mut GeneratedWorkspace) -> anyhow::Result<()> {
+        let template = include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/../tests/Cargo.toml"));
+        let mut manifest: toml::Value = toml::from_str(template)?;
+        let dependencies = manifest
+            .get_mut("dev-dependencies")
+            .and_then(toml::Value::as_table_mut)
+            .context("fixture manifest has no dev-dependencies table")?;
+        for krate in self.config.all() {
+            let package = krate.crate_name(&self.config);
+            let features = dependencies
+                .get_mut(&package)
+                .and_then(toml::Value::as_table_mut)
+                .with_context(|| format!("fixture manifest has no generated dependency {package}"))?
+                .entry("features")
+                .or_insert_with(|| toml::Value::Array(vec![]))
+                .as_array_mut()
+                .with_context(|| {
+                    format!("fixture dependency features are not an array: {package}")
+                })?;
+            let full = toml::Value::String("full".into());
+            features.retain(|feature| {
+                matches!(
+                    feature.as_str(),
+                    Some("serialize" | "deserialize" | "redact-generated-debug")
+                )
+            });
+            features.push(full);
+        }
+        let features = manifest
+            .get_mut("features")
+            .and_then(toml::Value::as_table_mut)
+            .context("fixture manifest has no feature table")?;
+        features.insert("opaque-models".into(), toml::Value::Array(vec![]));
+        let defaults = features
+            .get_mut("default")
+            .and_then(toml::Value::as_array_mut)
+            .context("fixture manifest has no default feature list")?;
+        let opaque = toml::Value::String("opaque-models".into());
+        if !defaults.contains(&opaque) {
+            defaults.push(opaque);
+        }
+        output.write("manifests/tests.toml", toml::to_string_pretty(&manifest)?)
     }
 
     pub(crate) fn write_object_info_for_testing(

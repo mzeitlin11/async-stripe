@@ -557,7 +557,6 @@ mod tests {
     // These cases need both payment/setup intent models as well as the envelope.
     #[cfg(all(feature = "deserialize", feature = "full"))]
     mod optional_json {
-        use stripe_core::{PaymentIntentNextAction, SetupIntentNextAction};
         use stripe_shared::NotificationEventData;
 
         use super::*;
@@ -606,29 +605,58 @@ mod tests {
             }
         }
 
+        fn next_action_event(resource: &str, kind: EventType, sdk: Option<Value>) -> Event {
+            let fixtures: Value =
+                serde_json::from_str(include_str!("../../openapi/fixtures.json")).unwrap();
+            let mut object = fixtures["resources"][resource].clone();
+            let mut action = redirect_action();
+            if let Some(sdk) = sdk {
+                action["use_stripe_sdk"] = sdk;
+            }
+            object["next_action"] = action;
+            serde_json::from_value(mock_webhook_event(&kind, object)).unwrap()
+        }
+
+        fn assert_next_action(event: Event, expected: Value) {
+            match event.data.object {
+                EventObject::PaymentIntentRequiresAction(payment) => {
+                    let action = payment.next_action.unwrap();
+                    assert_optional_value(action.use_stripe_sdk.clone(), expected);
+                    #[cfg(feature = "serialize")]
+                    assert_redirect(action);
+                }
+                EventObject::SetupIntentRequiresAction(setup) => {
+                    let action = setup.next_action.unwrap();
+                    assert_optional_value(action.use_stripe_sdk.clone(), expected);
+                    #[cfg(feature = "serialize")]
+                    assert_redirect(action);
+                }
+                _ => panic!("expected an intent requiring action"),
+            }
+        }
+
         #[test]
         fn next_actions_default_missing_sdk_data() {
-            let payload = redirect_action().to_string();
-            let payment: PaymentIntentNextAction = serde_json::from_str(&payload).unwrap();
-            let setup: SetupIntentNextAction = serde_json::from_str(&payload).unwrap();
-            assert!(payment.use_stripe_sdk.is_none());
-            assert!(setup.use_stripe_sdk.is_none());
-            #[cfg(feature = "serialize")]
-            assert_redirect(payment);
-            #[cfg(feature = "serialize")]
-            assert_redirect(setup);
+            for (kind, resource) in [
+                (EventType::PaymentIntentRequiresAction, "payment_intent"),
+                (EventType::SetupIntentRequiresAction, "setup_intent"),
+            ] {
+                assert_next_action(next_action_event(resource, kind, None), Value::Null);
+            }
         }
 
         #[test]
         fn next_actions_preserve_explicit_sdk_data() {
             for sdk in [Value::Null, json!({"sdk": "opaque data"})] {
-                let mut payload = redirect_action();
-                payload["use_stripe_sdk"] = sdk.clone();
-                let payment: PaymentIntentNextAction =
-                    serde_json::from_value(payload.clone()).unwrap();
-                let setup: SetupIntentNextAction = serde_json::from_value(payload).unwrap();
-                assert_optional_value(payment.use_stripe_sdk, sdk.clone());
-                assert_optional_value(setup.use_stripe_sdk, sdk);
+                for (kind, resource) in [
+                    (EventType::PaymentIntentRequiresAction, "payment_intent"),
+                    (EventType::SetupIntentRequiresAction, "setup_intent"),
+                ] {
+                    assert_next_action(
+                        next_action_event(resource, kind, Some(sdk.clone())),
+                        sdk.clone(),
+                    );
+                }
             }
         }
 
@@ -645,23 +673,6 @@ mod tests {
                 let data: EventData = serde_json::from_value(payload).unwrap();
                 assert_optional_value(data.previous_attributes, previous.unwrap_or(Value::Null));
             }
-        }
-
-        #[test]
-        fn webhook_accepts_redirect_next_action_without_sdk_data() {
-            let fixtures: Value =
-                serde_json::from_str(include_str!("../../openapi/fixtures.json")).unwrap();
-            let mut payment = fixtures["resources"]["payment_intent"].clone();
-            payment["next_action"] = redirect_action();
-            let payload = mock_webhook_event(&EventType::PaymentIntentRequiresAction, payment);
-            let event: Event = serde_json::from_value(payload).unwrap();
-            let EventObject::PaymentIntentRequiresAction(payment) = event.data.object else {
-                panic!("expected payment intent requiring action");
-            };
-            let action = payment.next_action.unwrap();
-            assert!(action.use_stripe_sdk.is_none());
-            #[cfg(feature = "serialize")]
-            assert_redirect(action);
         }
 
         #[test]

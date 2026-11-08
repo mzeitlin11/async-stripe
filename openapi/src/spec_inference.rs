@@ -472,7 +472,7 @@ fn build_enum_variants(options: &[Option<String>]) -> Vec<FieldlessVariant> {
 }
 
 #[cfg(test)]
-mod tests {
+mod borrowing_tests {
     use openapiv3::Schema;
     use serde_json::json;
 
@@ -585,7 +585,11 @@ mod tests {
         }))
         .unwrap();
         let parent = RustIdent::create("CreateExample");
-        Inference::new(&parent).field_name(field_name).required(true).infer_schema_type(&schema)
+        let catalog = ComponentCatalog::from_names([]).unwrap();
+        Inference::new(&parent, &catalog)
+            .field_name(field_name)
+            .required(true)
+            .infer_schema_type(&schema)
     }
 
     fn payload_ident(variant: &EnumVariant) -> &RustIdent {

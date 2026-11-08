@@ -1,3 +1,4 @@
+pub mod analysis;
 pub mod codegen;
 mod component_catalog;
 mod components;

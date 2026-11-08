@@ -323,7 +323,6 @@ impl ItemCatalog {
         })
     }
 
-    #[cfg(test)]
     pub const fn property_analysis_rounds(&self) -> usize {
         self.property_analysis_rounds
     }

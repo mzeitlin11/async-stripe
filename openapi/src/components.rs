@@ -9,7 +9,7 @@ use tracing::debug;
 use crate::component_catalog::{ComponentCatalog, ComponentId};
 use crate::crates::{CrateConfig, ResolvedCrateConfig};
 use crate::deduplication::deduplicate_types;
-use crate::dependencies::{DependencyIndex, EdgePolicy};
+use crate::dependencies::{Dependency, DependencyIndex, EdgePolicy};
 use crate::layout::ComponentLayoutDraft;
 use crate::operations::{
     OperationCatalog, OperationId, OperationRecord, OperationSelector, RequestSpec, StripeOperation,
@@ -75,6 +75,10 @@ impl Components {
         self.operation_catalog.len()
     }
 
+    pub(crate) fn dependencies(&self) -> &[Dependency] {
+        self.dependency_index.facts()
+    }
+
     pub(crate) fn operation_record(&self, operation: OperationId) -> &OperationRecord {
         self.operation_catalog.record(operation)
     }
@@ -85,6 +89,10 @@ impl Components {
 
     pub(crate) fn has_requests(&self, component: ComponentId) -> bool {
         !self.requests_for_component(component).is_empty()
+    }
+
+    pub(crate) fn request_count(&self) -> usize {
+        self.operation_catalog.request_count()
     }
 
     pub(crate) fn request_component_count(&self) -> usize {
@@ -98,6 +106,10 @@ impl Components {
     #[track_caller]
     pub(crate) fn component_name(&self, id: ComponentId) -> &ComponentName {
         self.catalog.name(id)
+    }
+
+    pub(crate) fn is_retained(&self, id: ComponentId) -> bool {
+        self.components.contains_key(&id)
     }
 
     #[track_caller]

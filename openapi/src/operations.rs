@@ -250,7 +250,6 @@ impl OperationCatalog {
         self.by_component.values_mut().flat_map(|operations| operations.requests_mut().iter_mut())
     }
 
-    #[cfg(test)]
     pub fn request_count(&self) -> usize {
         self.by_component.values().map(|operations| operations.requests().len()).sum()
     }

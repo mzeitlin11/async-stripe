@@ -136,6 +136,19 @@ impl<I> ObjectValue<I> {
         self.value
     }
 
+    /// Decode the retained payload without consuming this object.
+    ///
+    /// This validates the selected model's tag before cloning the JSON tree.
+    /// Each successful call clones and decodes that tree again; no result is
+    /// cached. The cached ID does not need to implement Clone.
+    ///
+    /// # Errors
+    /// Returns an error if the model requires another discriminator or the
+    /// payload does not satisfy that model's required fields.
+    pub fn to_typed<T: ObjectType + FromValueOpt>(&self) -> Result<T, ObjectDecodeError> {
+        decode_object::<T>(&self.object_type, || self.value.clone())
+    }
+
     /// Decode the retained payload as a concrete model after checking its tag.
     ///
     /// This consumes the JSON tree directly, without serializing and reparsing it.
@@ -144,15 +157,21 @@ impl<I> ObjectValue<I> {
     /// Returns an error if the model requires another discriminator or the
     /// payload does not satisfy that model's required fields.
     pub fn into_typed<T: ObjectType + FromValueOpt>(self) -> Result<T, ObjectDecodeError> {
-        if self.object_type != T::OBJECT_TYPE {
-            return Err(ObjectDecodeError::UnexpectedObjectType {
-                expected: T::OBJECT_TYPE,
-                actual: self.object_type,
-            });
-        }
-        T::from_value(self.value)
-            .ok_or(ObjectDecodeError::InvalidObject { object_type: T::OBJECT_TYPE })
+        decode_object::<T>(&self.object_type, || self.value)
     }
+}
+
+fn decode_object<T: ObjectType + FromValueOpt>(
+    object_type: &str,
+    value: impl FnOnce() -> Value,
+) -> Result<T, ObjectDecodeError> {
+    if object_type != T::OBJECT_TYPE {
+        return Err(ObjectDecodeError::UnexpectedObjectType {
+            expected: T::OBJECT_TYPE,
+            actual: object_type.into(),
+        });
+    }
+    T::from_value(value()).ok_or(ObjectDecodeError::InvalidObject { object_type: T::OBJECT_TYPE })
 }
 
 impl<I: fmt::Debug> fmt::Debug for ObjectValue<I> {
@@ -264,6 +283,21 @@ impl<I> ExpandableValue<I> {
             ExpandableState::Id(_) => None,
             ExpandableState::Object(object) => Some(object),
         }
+    }
+
+    /// Decode an expanded payload without consuming this reference.
+    ///
+    /// Returns None without decoding when Stripe supplied only an ID. For an
+    /// expanded object, validates its tag and then clones and decodes its JSON
+    /// tree on each call. The cached ID does not need to implement Clone.
+    ///
+    /// # Errors
+    /// Returns an error if an expanded payload has the wrong discriminator or
+    /// does not satisfy the selected model.
+    pub fn to_expanded_as<T: ObjectType + FromValueOpt>(
+        &self,
+    ) -> Result<Option<T>, ObjectDecodeError> {
+        self.as_object().map(|object| object.to_typed::<T>()).transpose()
     }
 
     /// Decode an expanded payload, returning `None` when only an ID was supplied.
@@ -397,6 +431,19 @@ macro_rules! def_object_value {
             /// Recover the full JSON object.
             pub fn into_value(self) -> miniserde::json::Value {
                 self.0.into_value()
+            }
+
+            /// Decode this object while retaining its complete payload.
+            ///
+            /// Each successful call clones and decodes the JSON tree again.
+            /// A mismatched discriminator fails before cloning the payload.
+            ///
+            /// # Errors
+            /// Returns an error for a different discriminator or malformed model.
+            pub fn to_typed<T: $crate::ObjectType + $crate::miniserde_helpers::FromValueOpt>(
+                &self,
+            ) -> Result<T, $crate::ObjectDecodeError> {
+                self.0.to_typed()
             }
 
             /// Decode the object after validating the selected model's tag.

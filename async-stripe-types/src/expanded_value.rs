@@ -65,6 +65,24 @@ impl<I> ExpandedValue<I> {
         }
     }
 
+    /// Decode an expanded payload without consuming this reference.
+    ///
+    /// Returns None without decoding for an unexpanded ID. Otherwise each call
+    /// clones and decodes the retained JSON tree; no result is cached, and the
+    /// cached ID does not need to implement Clone. As with consuming conversion,
+    /// validation follows the selected decoder without an object tag check.
+    ///
+    /// # Errors
+    /// Returns an error if the expanded payload does not satisfy T.
+    pub fn to_expanded_as<T: FromValueOpt>(&self) -> Result<Option<T>, ObjectDecodeError> {
+        match &self.value {
+            ExpandedState::Id(_) => Ok(None),
+            ExpandedState::Object { value, .. } => T::from_value(value.clone())
+                .map(Some)
+                .ok_or(ObjectDecodeError::InvalidUntaggedObject),
+        }
+    }
+
     /// Decode an expanded payload, or return `None` for an unexpanded ID.
     ///
     /// This follows the selected model decoder's structural acceptance rules.

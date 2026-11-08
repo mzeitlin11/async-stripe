@@ -72,7 +72,7 @@ fn named_accessors_borrow_the_record_and_leave_its_payload_unchanged() {
     );
     assert_eq!(
         record.field_as::<Card>("ach_debit"),
-        Err(RecordDecodeError::InvalidField { field: "ach_debit" })
+        Err(RecordDecodeError::InvalidField { field: "ach_debit".into() })
     );
 }
 
@@ -94,7 +94,7 @@ fn malformed_fields_fail_when_accessed_without_consuming_the_record() {
     for field in ["false", "1", "[]", "{}", r#"{"last4":false}"#] {
         let json = format!(r#"{{"type":"card","card":{field}}}"#);
         let record: PaymentMethodDetails = miniserde::json::from_str(&json).unwrap();
-        assert_eq!(record.card(), Err(RecordDecodeError::InvalidField { field: "card" }));
+        assert_eq!(record.card(), Err(RecordDecodeError::InvalidField { field: "card".into() }));
         assert_eq!(record.type_(), "card");
         assert_eq!(
             miniserde::json::to_string(record.as_value()),
@@ -171,4 +171,20 @@ fn record_and_nominal_debug_output_respect_redaction() {
         assert!(!debug.contains("sensitive"));
         assert!(!debug.contains("4242"));
     }
+}
+
+#[test]
+fn dynamically_selected_field_names_need_not_outlive_the_call() {
+    let record: PaymentMethodDetails =
+        miniserde::json::from_str(r#"{"type":"future","card":{"last4":"4242"},"invalid":false}"#)
+            .unwrap();
+    let field = ["ca", "rd"].concat();
+    assert_eq!(record.field_as::<Card>(&field).unwrap().unwrap().last4, "4242");
+    let error = {
+        let field = String::from("invalid");
+        record.field_as::<Card>(&field).unwrap_err()
+    };
+    assert_eq!(error, RecordDecodeError::InvalidField { field: "invalid".into() });
+    assert_eq!(record.field_as::<Card>(&String::from("missing")).unwrap(), None);
+    assert_eq!(record.card().unwrap().unwrap().last4, "4242");
 }

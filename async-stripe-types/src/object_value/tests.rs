@@ -360,3 +360,82 @@ fn object_debug_respects_redaction() {
         assert!(!debug.contains("sensitive"));
     }
 }
+
+#[test]
+fn borrowed_decoding_keeps_non_clone_ids_and_payloads_available() {
+    struct NonCloneId(String);
+    impl FromCursor for NonCloneId {
+        fn from_cursor(id: &str) -> Option<Self> {
+            Some(Self(id.to_owned()))
+        }
+    }
+
+    let id_only = ExpandableValue::from_id(NonCloneId("ch_123".into()));
+    assert!(id_only.to_expanded_as::<Charge>().unwrap().is_none());
+    assert_eq!(id_only.id().0, "ch_123");
+
+    for amount in ["120", "false"] {
+        let json = format!(
+            r#"{{"id":"ch_123","object":"charge","amount":{amount},"future":[true,null]}}"#
+        );
+        let reference = ExpandableValue::<NonCloneId>::try_from_value(value(&json)).unwrap();
+        let before = miniserde::json::to_string(reference.as_object().unwrap().as_value());
+        for _ in 0..2 {
+            if amount == "120" {
+                let mut charge = reference.to_expanded_as::<Charge>().unwrap().unwrap();
+                assert_eq!(charge.amount, 120);
+                charge.amount = 999;
+                assert_eq!(charge.amount, 999);
+            } else {
+                assert!(matches!(
+                    reference.to_expanded_as::<Charge>(),
+                    Err(ObjectDecodeError::InvalidObject { object_type: "charge" })
+                ));
+            }
+            assert!(matches!(
+                reference.to_expanded_as::<Customer>(),
+                Err(ObjectDecodeError::UnexpectedObjectType { expected: "customer", .. })
+            ));
+            assert_eq!(reference.id().0, "ch_123");
+            assert_eq!(
+                miniserde::json::to_string(reference.as_object().unwrap().as_value()),
+                before
+            );
+        }
+
+        let object = reference.into_object().unwrap();
+        for _ in 0..2 {
+            if amount == "120" {
+                assert_eq!(object.to_typed::<Charge>().unwrap().amount, 120);
+            } else {
+                assert!(matches!(
+                    object.to_typed::<Charge>(),
+                    Err(ObjectDecodeError::InvalidObject { object_type: "charge" })
+                ));
+            }
+            assert_eq!(object.id().0, "ch_123");
+            assert_eq!(miniserde::json::to_string(object.as_value()), before);
+        }
+    }
+}
+
+#[test]
+fn named_object_families_support_repeatable_borrowed_decoding() {
+    for amount in ["120", "false"] {
+        let json = format!(r#"{{"id":"ch_123","object":"charge","amount":{amount}}}"#);
+        let object: PaymentSource = miniserde::json::from_str(&json).unwrap();
+        let before = miniserde::json::to_string(object.as_value());
+        for _ in 0..2 {
+            if amount == "120" {
+                assert_eq!(object.to_typed::<Charge>().unwrap().amount, 120);
+            } else {
+                assert!(matches!(
+                    object.to_typed::<Charge>(),
+                    Err(ObjectDecodeError::InvalidObject { object_type: "charge" })
+                ));
+            }
+            assert_eq!(miniserde::json::to_string(object.as_value()), before);
+        }
+        assert_eq!(object.id(), "ch_123");
+    }
+}

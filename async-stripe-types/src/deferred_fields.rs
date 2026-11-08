@@ -5,6 +5,7 @@ use serde::{Serialize, Serializer};
 
 use crate::RecordDecodeError;
 use crate::miniserde_helpers::FromValueOpt;
+use crate::record_value::decode_field;
 
 /// Retained JSON fields alongside the typed common fields of a Stripe model.
 ///
@@ -49,17 +50,8 @@ impl DeferredFields {
     ///
     /// # Errors
     /// Returns an error if a present, non-null field does not satisfy `T`.
-    pub fn field_as<T: FromValueOpt>(
-        &self,
-        field: &'static str,
-    ) -> Result<Option<T>, RecordDecodeError> {
-        let Value::Object(object) = &self.value else { return Err(RecordDecodeError::NotObject) };
-        match object.get(field) {
-            None | Some(Value::Null) => Ok(None),
-            Some(value) => T::from_value(value.clone())
-                .map(Some)
-                .ok_or(RecordDecodeError::InvalidField { field }),
-        }
+    pub fn field_as<T: FromValueOpt>(&self, field: &str) -> Result<Option<T>, RecordDecodeError> {
+        decode_field(&self.value, field)
     }
 
     /// Serialize these entries into a generated model's existing object map.

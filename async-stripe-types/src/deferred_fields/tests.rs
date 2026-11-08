@@ -134,7 +134,7 @@ fn invalid_payloads_fail_only_on_access_and_remain_available_after_failure() {
         .unwrap();
         assert_eq!(
             record.fields.field_as::<Card>("card"),
-            Err(RecordDecodeError::InvalidField { field: "card" })
+            Err(RecordDecodeError::InvalidField { field: "card".into() })
         );
         assert_eq!(record.id, "pm_example");
         assert!(matches!(record.fields.as_value(), Value::Object(_)));
@@ -214,4 +214,22 @@ fn debug_respects_redaction() {
     let debug = format!("{fields:?}");
     assert!(!debug.contains("sensitive"));
     assert!(!debug.contains("4242"));
+}
+
+#[test]
+fn dynamic_field_names_are_owned_only_by_decoding_errors() {
+    let fields: DeferredFields =
+        miniserde::json::from_str(r#"{"card":{"last4":"4242"},"invalid":false,"empty":null}"#)
+            .unwrap();
+    let field = ["ca", "rd"].concat();
+    assert_eq!(fields.field_as::<Card>(&field).unwrap().unwrap().last4, "4242");
+    let error = {
+        let field = String::from("invalid");
+        fields.field_as::<Card>(&field).unwrap_err()
+    };
+    assert_eq!(error, RecordDecodeError::InvalidField { field: "invalid".into() });
+    for field in [String::from("missing"), String::from("empty")] {
+        assert_eq!(fields.field_as::<Card>(&field).unwrap(), None);
+    }
+    assert_eq!(fields.field_as::<Card>("card").unwrap().unwrap().last4, "4242");
 }

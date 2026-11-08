@@ -16,7 +16,7 @@ pub enum RecordDecodeError {
     /// A present, non-null field did not satisfy the requested model.
     InvalidField {
         /// The field whose retained payload could not be decoded.
-        field: &'static str,
+        field: String,
     },
 }
 
@@ -83,17 +83,21 @@ impl RecordValue {
     ///
     /// # Errors
     /// Returns an error if a present, non-null field cannot be decoded as `T`.
-    pub fn field_as<T: FromValueOpt>(
-        &self,
-        field: &'static str,
-    ) -> Result<Option<T>, RecordDecodeError> {
-        let Value::Object(object) = &self.value else { return Err(RecordDecodeError::NotObject) };
-        match object.get(field) {
-            None | Some(Value::Null) => Ok(None),
-            Some(value) => T::from_value(value.clone())
-                .map(Some)
-                .ok_or(RecordDecodeError::InvalidField { field }),
-        }
+    pub fn field_as<T: FromValueOpt>(&self, field: &str) -> Result<Option<T>, RecordDecodeError> {
+        decode_field(&self.value, field)
+    }
+}
+
+pub(crate) fn decode_field<T: FromValueOpt>(
+    value: &Value,
+    field: &str,
+) -> Result<Option<T>, RecordDecodeError> {
+    let Value::Object(object) = value else { return Err(RecordDecodeError::NotObject) };
+    match object.get(field) {
+        None | Some(Value::Null) => Ok(None),
+        Some(value) => T::from_value(value.clone())
+            .map(Some)
+            .ok_or_else(|| RecordDecodeError::InvalidField { field: field.to_owned() }),
     }
 }
 
@@ -177,7 +181,7 @@ macro_rules! def_record_value {
             /// Returns an error if a present, non-null field cannot be decoded as `T`.
             pub fn field_as<T: $crate::miniserde_helpers::FromValueOpt>(
                 &self,
-                field: &'static str,
+                field: &str,
             ) -> Result<Option<T>, $crate::RecordDecodeError> {
                 self.0.field_as(field)
             }

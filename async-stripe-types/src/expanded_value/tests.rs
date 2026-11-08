@@ -195,3 +195,39 @@ fn id_and_expanded_debug_output_respect_redaction() {
         assert!(!format!("{reference:?}").contains("sensitive"));
     }
 }
+
+#[test]
+fn borrowed_tagless_decoding_requires_no_clone_id_and_retains_payloads() {
+    struct NonCloneId(String);
+    impl FromCursor for NonCloneId {
+        fn from_cursor(id: &str) -> Option<Self> {
+            Some(Self(id.to_owned()))
+        }
+    }
+
+    let id_only = ExpandedValue::from_id(NonCloneId("r_123".into()));
+    assert_eq!(id_only.to_expanded_as::<Rule>().unwrap(), None);
+    assert_eq!(id_only.id().0, "r_123");
+
+    for action in [r#""block""#, "false"] {
+        let json = format!(r#"{{"id":"r_123","action":{action},"predicate":"true","future":123}}"#);
+        let reference = ExpandedValue::<NonCloneId>::try_from_value(value(&json)).unwrap();
+        let before = miniserde::json::to_string(reference.as_object().unwrap());
+        for _ in 0..2 {
+            if action == r#""block""# {
+                let mut rule = reference.to_expanded_as::<Rule>().unwrap().unwrap();
+                assert_eq!(rule.action, "block");
+                rule.action = "changed".into();
+                assert_eq!(rule.action, "changed");
+            } else {
+                assert_eq!(
+                    reference.to_expanded_as::<Rule>(),
+                    Err(ObjectDecodeError::InvalidUntaggedObject)
+                );
+            }
+            assert_eq!(reference.id().0, "r_123");
+            assert_eq!(miniserde::json::to_string(reference.as_object().unwrap()), before);
+        }
+        assert_eq!(reference.into_id().0, "r_123");
+    }
+}

@@ -186,20 +186,7 @@ impl<'a> ItemEmitter<'a> {
                 return plan.site(site).clone();
             }
         };
-        self.model_condition(plan, site, krate)
-    }
-
-    fn model_condition(
-        &self,
-        plan: &ModelAvailability,
-        site: EmissionSite,
-        krate: Crate,
-    ) -> Availability {
-        plan.site(site).for_models(|feature| {
-            plan.request_components(feature)
-                .iter()
-                .any(|component| self.locations.request_crate(*component) == krate)
-        })
+        plan.model_condition(site, krate, self.locations.component_layout)
     }
 
     pub(crate) fn emit(
@@ -286,7 +273,9 @@ impl<'a> ItemEmitter<'a> {
                 format!(
                     "{}{text}",
                     self.availability
-                        .map(|plan| self.model_condition(plan, site, facade).cfg_attribute())
+                        .map(|plan| plan
+                            .model_condition(site, facade, self.locations.component_layout)
+                            .cfg_attribute())
                         .unwrap_or_default()
                 ),
             )?;

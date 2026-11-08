@@ -11,7 +11,7 @@ impl ObjectWriter<'_> {
     pub(crate) fn write_polymorphic_struct(&self, out: &mut String, record: &Struct) {
         let name = self.ident;
         write_derives_line(out, self.derives.copy(false).eq(false));
-        let _ = writeln!(out, "pub struct {name} {{");
+        let _ = writeln!(out, "{} struct {name} {{", record.vis);
         for field in &record.fields {
             if let Some(doc) = &field.doc_comment {
                 out.push_str(&write_doc_comment(doc, 4));
@@ -30,7 +30,7 @@ impl ObjectWriter<'_> {
         out.push_str(&write_doc_comment("Borrow the retained variant and unknown fields.", 4));
         out.push_str("pub fn variant_fields(&self) -> &stripe_types::DeferredFields { &self.variant_fields }\n");
         out.push_str(&write_doc_comment("Decode a retained field without consuming this record.\n\n# Errors\nReturns an error when a present non-null field does not satisfy T.", 4));
-        out.push_str("pub fn field_as<T: stripe_types::miniserde_helpers::FromValueOpt>(&self, field: &'static str) -> Result<Option<T>, stripe_types::RecordDecodeError> { self.variant_fields.field_as(field) }\n}\n");
+        out.push_str("pub fn field_as<T: stripe_types::miniserde_helpers::FromValueOpt>(&self, field: &str) -> Result<Option<T>, stripe_types::RecordDecodeError> { self.variant_fields.field_as(field) }\n}\n");
 
         // Parse one JSON object, moving common fields into their typed slots.
         // The remainder is the authoritative raw bag; no duplicate root cache

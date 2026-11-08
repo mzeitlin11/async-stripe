@@ -3,23 +3,23 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 use anyhow::{Context as _, ensure};
 
 use crate::component_catalog::ComponentId;
+use crate::crates::{Crate, CrateConfig};
 use crate::item_catalog::{ItemCatalog, ItemId};
 use crate::item_layout::{EmissionSite, ItemLayout};
+use crate::layout::ComponentLayout;
 use crate::request_model::RequestModel;
 
 /// A useful public feature and the model/request roots it makes available.
-/// Dependencies follow the selected Rust representation, rather than the
-/// original semantic relationships recorded during inference.
 #[derive(Debug, Clone)]
 pub(crate) struct ModelFeature {
     pub name: String,
     pub items: Vec<ItemId>,
     pub requests: Vec<ComponentId>,
-    pub consumer_crate: crate::crates::Crate,
+    pub consumer_crate: Crate,
 }
 
 /// Internal flags enable model declarations without their HTTP request builders.
-pub(crate) fn model_feature_name(group: &str, has_requests_here: bool) -> String {
+fn model_feature_name(group: &str, has_requests_here: bool) -> String {
     if has_requests_here { format!("__model_{group}") } else { group.to_string() }
 }
 
@@ -44,8 +44,6 @@ impl Availability {
         }
     }
 
-    /// A component's outer module can contain independently enabled model and
-    /// request modules. It must exist whenever either child is compiled.
     pub(crate) fn union(&self, other: &Self) -> Self {
         match (self, other) {
             (Self::Always, _) | (_, Self::Always) => Self::Always,
@@ -56,7 +54,6 @@ impl Availability {
         }
     }
 
-    /// Prefix a module or public reexport with its compilation condition.
     pub(crate) fn cfg_attribute(&self) -> String {
         match self {
             Self::Always => String::new(),
@@ -76,16 +73,17 @@ impl Availability {
     }
 }
 
-/// Compile-time availability at the granularity of emitted source modules.
-///
-/// Every declaration in a module is compiled together. Closing dependencies at
-/// item granularity alone would miss references in siblings that share a file.
-/// This plan is built after representation and placement have been selected.
+/// Availability closes actual uses at emitted-module granularity. Model flags
+/// close model roots only. Public API flags additionally expose the models
+/// returned/accepted by requests, without enabling those models' own endpoints.
 #[derive(Debug, Clone)]
 pub(crate) struct ModelAvailability {
     sites: HashMap<EmissionSite, Availability>,
+    public_sites: HashMap<EmissionSite, Availability>,
     features: BTreeSet<String>,
     request_components: HashMap<String, Vec<ComponentId>>,
+    request_models: HashMap<ComponentId, Vec<(EmissionSite, String)>>,
+    required_request_models: BTreeSet<ComponentId>,
     dependencies: HashMap<EmissionSite, HashSet<EmissionSite>>,
 }
 
@@ -98,18 +96,20 @@ impl ModelAvailability {
         features: &[ModelFeature],
     ) -> anyhow::Result<Self> {
         let graph = crate::module_dependencies::module_dependencies(items, requests, layout)?;
-
         let always = closure(
             &graph,
             unconditional.iter().map(|item| layout.placement(*item).emission_site()),
         )?;
         let mut sites =
             graph.keys().map(|&site| (site, Availability::Disabled)).collect::<HashMap<_, _>>();
-        for site in always {
+        for &site in &always {
             sites.insert(site, Availability::Always);
         }
+        let mut public_sites = sites.clone();
         let mut names = BTreeSet::new();
         let mut request_components = HashMap::new();
+        let mut model_closures = HashMap::new();
+        let mut roots: HashMap<EmissionSite, BTreeSet<String>> = HashMap::new();
         for feature in features {
             ensure!(!feature.name.is_empty(), "model feature name cannot be empty");
             ensure!(
@@ -118,42 +118,173 @@ impl ModelAvailability {
                 feature.name
             );
             request_components.insert(feature.name.clone(), feature.requests.clone());
-            let roots = feature
-                .items
-                .iter()
-                .map(|item| layout.placement(*item).emission_site())
-                .chain(feature.requests.iter().copied().map(EmissionSite::ComponentRequests));
-            for site in closure(&graph, roots)? {
-                match sites.get_mut(&site).expect("closed site was not registered") {
-                    Availability::Always => {}
-                    availability @ Availability::Disabled => {
-                        *availability =
-                            Availability::Features(BTreeSet::from([feature.name.clone()]));
+            let models = closure(
+                &graph,
+                feature.items.iter().map(|item| layout.placement(*item).emission_site()),
+            )?;
+            for &site in &models {
+                enable(&mut sites, site, &feature.name);
+            }
+            let api = closure(
+                &graph,
+                models
+                    .iter()
+                    .copied()
+                    .chain(feature.requests.iter().copied().map(EmissionSite::ComponentRequests)),
+            )?;
+            // Request source files compile under the public flag, never the
+            // internal model flag. Their DTO requirements are forwarded below.
+            for &component in &feature.requests {
+                enable(&mut sites, EmissionSite::ComponentRequests(component), &feature.name);
+            }
+            for site in api {
+                enable(&mut public_sites, site, &feature.name);
+            }
+            model_closures.insert(feature.name.clone(), models);
+            // A single root owns exactly this source module's dependency
+            // closure. A batched decoder feature could introduce unrelated DTOs.
+            if let [root] = feature.items.as_slice() {
+                roots
+                    .entry(layout.placement(*root).emission_site())
+                    .or_default()
+                    .insert(feature.name.clone());
+            }
+        }
+
+        let mut request_models: HashMap<ComponentId, Vec<(EmissionSite, String)>> = HashMap::new();
+        let mut required_request_models = BTreeSet::new();
+        for feature in features {
+            let models = &model_closures[&feature.name];
+            for &component in &feature.requests {
+                let source = EmissionSite::ComponentRequests(component);
+                for &target in graph
+                    .get(&source)
+                    .with_context(|| format!("request group has no emitted source: {source:?}"))?
+                {
+                    if target == source || always.contains(&target) || models.contains(&target) {
+                        continue;
                     }
-                    Availability::Features(groups) => {
-                        groups.insert(feature.name.clone());
+                    if let Some(group) = roots.get(&target).and_then(|names| names.first()) {
+                        request_models.entry(component).or_default().push((target, group.clone()));
+                    } else if let EmissionSite::ComponentTypes(component) = target {
+                        // Group assembly registers these component roots as
+                        // model-only features and rebuilds the availability plan.
+                        required_request_models.insert(component);
+                    } else {
+                        anyhow::bail!(
+                            "request {component:?} needs an independently selectable model for {target:?}"
+                        );
                     }
                 }
             }
         }
-        Ok(Self { sites, features: names, request_components, dependencies: graph })
+
+        Ok(Self {
+            sites,
+            public_sites,
+            features: names,
+            request_components,
+            request_models,
+            required_request_models,
+            dependencies: graph,
+        })
     }
 
+    /// Conditions for model declarations; request sites retain public API flags.
     pub(crate) fn site(&self, site: EmissionSite) -> &Availability {
         self.sites.get(&site).unwrap_or(&Availability::Disabled)
+    }
+
+    /// Facade exports include model types exposed by an enabled HTTP API.
+    pub(crate) fn public_site(&self, site: EmissionSite) -> &Availability {
+        self.public_sites.get(&site).unwrap_or(&Availability::Disabled)
     }
 
     pub(crate) fn features(&self) -> &BTreeSet<String> {
         &self.features
     }
-
     pub(crate) fn request_components(&self, feature: &str) -> &[ComponentId] {
         self.request_components.get(feature).map(Vec::as_slice).unwrap_or_default()
     }
+    pub(crate) fn required_request_models(&self) -> &BTreeSet<ComponentId> {
+        &self.required_request_models
+    }
 
-    /// The represented module dependencies used to compute these conditions.
+    pub(crate) fn has_requests_in(
+        &self,
+        feature: &str,
+        krate: Crate,
+        layout: &ComponentLayout,
+    ) -> bool {
+        self.request_components(feature)
+            .iter()
+            .any(|component| layout.placement(*component).request_crate() == krate)
+    }
+
+    pub(crate) fn model_flag(
+        &self,
+        feature: &str,
+        krate: Crate,
+        layout: &ComponentLayout,
+    ) -> String {
+        model_feature_name(feature, self.has_requests_in(feature, krate, layout))
+    }
+
+    pub(crate) fn model_condition(
+        &self,
+        site: EmissionSite,
+        krate: Crate,
+        layout: &ComponentLayout,
+    ) -> Availability {
+        self.site(site).for_models(|feature| self.has_requests_in(feature, krate, layout))
+    }
+
+    /// Extra DTO flags needed by this crate's endpoint implementations. Each
+    /// target uses its model flag, so returning B never enables B's endpoints.
+    pub(crate) fn request_model_flags(
+        &self,
+        feature: &str,
+        krate: Crate,
+        layout: &ComponentLayout,
+        config: &CrateConfig,
+    ) -> anyhow::Result<Vec<String>> {
+        ensure!(
+            self.required_request_models.is_empty(),
+            "request model roots must be registered before emitting Cargo features: {:?}",
+            self.required_request_models
+        );
+        let mut flags = BTreeSet::new();
+        for &component in self.request_components(feature) {
+            if layout.placement(component).request_crate() != krate {
+                continue;
+            }
+            for (site, group) in self.request_models.get(&component).into_iter().flatten() {
+                let target = site.krate(layout).context("request model has no generated crate")?;
+                let flag = self.model_flag(group, target, layout);
+                flags.insert(if target == krate {
+                    flag
+                } else {
+                    format!("{}/{flag}", target.crate_name(config))
+                });
+            }
+        }
+        Ok(flags.into_iter().collect())
+    }
+
     pub(crate) fn dependencies(&self) -> &HashMap<EmissionSite, HashSet<EmissionSite>> {
         &self.dependencies
+    }
+}
+
+fn enable(sites: &mut HashMap<EmissionSite, Availability>, site: EmissionSite, feature: &str) {
+    match sites.get_mut(&site).expect("closed site was not registered") {
+        Availability::Always => {}
+        availability @ Availability::Disabled => {
+            *availability = Availability::Features(BTreeSet::from([feature.to_string()]));
+        }
+        Availability::Features(groups) => {
+            groups.insert(feature.to_string());
+        }
     }
 }
 
@@ -219,6 +350,7 @@ mod tests {
     struct Fixture {
         items: ItemCatalog,
         layout: ItemLayout,
+        component_layout: ComponentLayout,
         charge: ComponentId,
         customer: ComponentId,
         other: ComponentId,
@@ -305,7 +437,7 @@ mod tests {
                     .collect(),
             );
             layout.validate(&items, &component_layout, &crate::crates::test_config()).unwrap();
-            Self { items, layout, charge, customer, other }
+            Self { items, layout, component_layout, charge, customer, other }
         }
 
         fn feature(&self, name: &str, component: ComponentId) -> ModelFeature {
@@ -407,7 +539,7 @@ mod tests {
     }
 
     #[test]
-    fn request_features_follow_path_parameter_and_return_types() {
+    fn request_requirements_are_public_without_broadening_model_conditions() {
         let fixture = Fixture::new(false);
         let request = RequestModel {
             ident: RustIdent::create("retrieve_charge"),
@@ -443,14 +575,28 @@ mod tests {
         .unwrap();
         assert_eq!(plan.request_components("retrieve"), &[fixture.charge]);
         assert!(plan.request_components("unknown").is_empty());
-        for site in [
-            EmissionSite::ComponentRequests(fixture.charge),
-            EmissionSite::ComponentTypes(fixture.charge),
-            EmissionSite::ComponentTypes(fixture.customer),
-            EmissionSite::ComponentTypes(fixture.other),
-        ] {
-            assert_eq!(plan.site(site), &enabled_by(&["retrieve"]));
+        assert_eq!(
+            plan.site(EmissionSite::ComponentRequests(fixture.charge)),
+            &enabled_by(&["retrieve"])
+        );
+        for component in [fixture.charge, fixture.customer, fixture.other] {
+            let site = EmissionSite::ComponentTypes(component);
+            assert_eq!(plan.site(site), &Availability::Disabled);
+            assert_eq!(plan.public_site(site), &enabled_by(&["retrieve"]));
         }
+        assert_eq!(
+            plan.required_request_models(),
+            &[fixture.charge, fixture.customer, fixture.other,].into_iter().collect()
+        );
+        assert!(
+            plan.request_model_flags(
+                "retrieve",
+                fixture.component_layout.placement(fixture.charge).request_crate(),
+                &fixture.component_layout,
+                &crate::crates::test_config()
+            )
+            .is_err()
+        );
     }
 
     #[test]
@@ -472,5 +618,80 @@ mod tests {
         for component in [fixture.charge, fixture.customer, fixture.other] {
             assert_eq!(plan.site(EmissionSite::ComponentTypes(component)), &Availability::Disabled);
         }
+    }
+    #[test]
+    fn returning_another_model_enables_its_data_without_its_http_api() {
+        let fixture = Fixture::new(false);
+        let request = |component| RequestModel {
+            ident: RustIdent::create("retrieve"),
+            path_params: vec![],
+            params: None,
+            method_type: OperationType::Get,
+            returned: CanonicalTypeRoot {
+                typ: RustType::Item(fixture.items.component_root(fixture.other)),
+                declaration: None,
+            },
+            doc_comment: None,
+            req_path: format!("/{component:?}"),
+        };
+        let request_a = request(fixture.customer);
+        let request_b = request(fixture.other);
+        let groups = [
+            ModelFeature {
+                name: "customer".into(),
+                items: vec![fixture.items.component_root(fixture.customer)],
+                requests: vec![fixture.customer],
+                consumer_crate: fixture
+                    .component_layout
+                    .placement(fixture.customer)
+                    .request_crate(),
+            },
+            ModelFeature {
+                name: "other".into(),
+                items: vec![fixture.items.component_root(fixture.other)],
+                requests: vec![fixture.other],
+                consumer_crate: fixture.component_layout.placement(fixture.other).request_crate(),
+            },
+        ];
+        let plan = ModelAvailability::build(
+            &fixture.items,
+            [
+                (fixture.customer, std::slice::from_ref(&request_a)),
+                (fixture.other, std::slice::from_ref(&request_b)),
+            ],
+            &fixture.layout,
+            &[],
+            &groups,
+        )
+        .unwrap();
+        let b = EmissionSite::ComponentTypes(fixture.other);
+        assert_eq!(plan.site(b), &enabled_by(&["other"]));
+        assert_eq!(plan.public_site(b), &enabled_by(&["customer", "other"]));
+        assert_eq!(
+            plan.site(EmissionSite::ComponentRequests(fixture.other)),
+            &enabled_by(&["other"])
+        );
+        assert!(plan.required_request_models().is_empty());
+        let krate = fixture.component_layout.placement(fixture.customer).request_crate();
+        assert_eq!(
+            plan.model_flag("customer", krate, &fixture.component_layout),
+            "__model_customer"
+        );
+        assert_eq!(
+            plan.request_model_flags(
+                "customer",
+                krate,
+                &fixture.component_layout,
+                &crate::crates::test_config()
+            )
+            .unwrap(),
+            ["__model_other"]
+        );
+        assert!(
+            !plan
+                .model_condition(b, krate, &fixture.component_layout)
+                .cfg_attribute()
+                .contains("__model_customer")
+        );
     }
 }

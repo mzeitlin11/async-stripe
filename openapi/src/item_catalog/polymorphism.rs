@@ -1,8 +1,9 @@
 use std::collections::HashSet;
 
 use super::{ItemCatalog, ItemId, RustItem};
+use crate::item_origin::TypeRoot;
 use crate::rust_object::{ObjectKind, RustObject, StructField};
-use crate::rust_type::{Container, RustType};
+use crate::rust_type::{Container, DeclarationRoot, RustType};
 
 /// Identify response record fields selected by a sibling string discriminator.
 /// Common fields keep their ordinary types; request construction stays eager.
@@ -72,7 +73,16 @@ fn optional_record_payload(items: &ItemCatalog, field: &StructField) -> bool {
     }
     let RustType::Container(Container::Option(inner)) = &field.rust_type else { return false };
     let RustType::Item(payload) = **inner else { return false };
-    match &items.get(payload).item {
+    let payload = items.get(payload);
+    // Inline and deduplicated declarations compile in their owner's module.
+    // Deferring their field would not remove those compilation dependencies,
+    // and they have no independently addressable decoder capability.
+    if !payload.origin.path.is_empty()
+        || !matches!(payload.origin.type_root, TypeRoot::Declaration(DeclarationRoot::Component(_)))
+    {
+        return false;
+    }
+    match &payload.item {
         RustItem::Object(object) => {
             !object.usage.used_as_request_param
                 && object.usage.kind != ObjectKind::RequestParam
@@ -210,6 +220,21 @@ mod tests {
             }, "required":["type","created"]
         }));
         assert!(fields(&items, owner).is_empty());
+    }
+
+    #[test]
+    fn inline_payloads_stay_typed_while_named_payloads_can_be_decoded_independently() {
+        let (items, owner) = catalog(serde_json::json!({
+            "type":"object", "properties": {
+                "type":{"type":"string", "enum":["card","bank"]},
+                "card":{
+                    "type":"object", "properties":{"last4":{"type":"string"}},
+                    "required":["last4"]
+                },
+                "bank":{"$ref":"#/components/schemas/payload_b"}
+            }, "required":["type"]
+        }));
+        assert_eq!(fields(&items, owner), ["bank".to_string()].into());
     }
 
     #[test]

@@ -122,6 +122,21 @@ def compiled_generated_sources_from_messages(messages, workspace):
     return sorted(sources)
 
 
+
+def validate_verification_paths(work, caches, repo=REPO):
+    """Reject overlapping source/build paths before creating or clearing files."""
+    work, repo = work.resolve(), repo.resolve()
+    if work.is_relative_to(repo) or repo.is_relative_to(work):
+        raise ValueError("--work-dir must be outside the repository and cannot contain it")
+    disposable = [(work / name).resolve() for name in ["workspace", "generated-output"]]
+    for cache in caches:
+        cache = cache.resolve()
+        if cache.is_relative_to(repo) or repo.is_relative_to(cache):
+            raise ValueError(f"build cache overlaps repository source directory: {cache}")
+        if any(cache.is_relative_to(owned) or owned.is_relative_to(cache) for owned in disposable):
+            raise ValueError(f"build cache overlaps disposable source directory: {cache}")
+
+
 def remove_directory(path):
     if path.is_symlink():
         raise RuntimeError(f"refusing to remove a symlink: {path}")
@@ -158,20 +173,18 @@ def main():
     parser.add_argument("--keep-workspace", action="store_true", help="retain formatted SDK sources after success")
     args = parser.parse_args()
     work = (args.work_dir or Path(tempfile.mkdtemp(prefix="async-stripe-generated-check-"))).resolve()
-    if work.is_relative_to(REPO) or REPO.is_relative_to(work):
-        parser.error("--work-dir must be outside the repository and cannot contain it")
+    workspace, output = work / "workspace", work / "generated-output"
+    target = (args.target_dir or work / "sdk-target").resolve()
+    generator_target = (args.generator_target_dir or work / "generator-target").resolve()
+    try:
+        validate_verification_paths(work, [target, generator_target])
+    except ValueError as error:
+        parser.error(str(error))
     work.mkdir(parents=True, exist_ok=True)
     marker = work / MARKER
     if not marker.is_file() and any(work.iterdir()):
         parser.error(f"verification work directory must be empty or managed: {work}")
     marker.write_text("async-stripe generated workspace verification\n")
-    workspace, output = work / "workspace", work / "generated-output"
-    target = (args.target_dir or work / "sdk-target").resolve()
-    generator_target = (args.generator_target_dir or work / "generator-target").resolve()
-    for cache in [target, generator_target]:
-        for owned in [workspace, output]:
-            if cache.is_relative_to(owned) or owned.is_relative_to(cache):
-                parser.error(f"build cache overlaps disposable source directory: {cache}")
     # Only our marked work directory owns disposable SDK sources. Codegen
     # independently checks its staging marker before replacing generated output.
     remove_directory(workspace)

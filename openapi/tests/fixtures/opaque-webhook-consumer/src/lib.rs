@@ -61,6 +61,31 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "customer")]
+    #[test]
+    fn customer_model_decodes_without_its_endpoints_return_models() {
+        let object = json!({
+            "object": "customer", "id": "cus_model_only", "created": 1700000000,
+            "default_source": null, "description": null, "email": null,
+            "livemode": false, "shipping": null
+        });
+        let payload = payload("customer.created", object);
+        let event = Webhook::insecure(&payload.to_string()).unwrap();
+        let EventObject::CustomerCreated(customer) = event.data.object else {
+            panic!("expected a typed Customer payload");
+        };
+        assert_eq!(customer.id.as_str(), "cus_model_only");
+
+        #[cfg(feature = "deserialize")]
+        {
+            let event: Event = serde_json::from_value(payload).unwrap();
+            let EventObject::CustomerCreated(customer) = event.data.object else {
+                panic!("expected a typed Customer payload");
+            };
+            assert_eq!(customer.created, 1700000000);
+        }
+    }
+
     #[cfg(feature = "charge")]
     fn assert_charge(event: &Event) {
         let EventObject::ChargeSucceeded(charge) = &event.data.object else {

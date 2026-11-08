@@ -60,7 +60,7 @@ pub(crate) fn write_facade(
         if !emitted_sites.insert(site) {
             continue;
         }
-        let condition = availability.site(site);
+        let condition = availability.public_site(site);
         if *condition == Availability::Disabled {
             continue;
         }
@@ -192,9 +192,9 @@ fn write_record_extensions(
     };
     let mut records = BTreeMap::<ItemId, Vec<_>>::new();
     for accessor in items.record_accessors() {
-        if *availability.site(layout.placement(accessor.owner).emission_site())
+        if *availability.public_site(layout.placement(accessor.owner).emission_site())
             != Availability::Disabled
-            && *availability.site(layout.placement(accessor.payload).emission_site())
+            && *availability.public_site(layout.placement(accessor.payload).emission_site())
                 != Availability::Disabled
         {
             records.entry(accessor.owner).or_default().push(accessor);
@@ -206,14 +206,15 @@ fn write_record_extensions(
     for (owner, fields) in records {
         let owner_type = public_type(owner)?;
         let name = format!("{}Ext", items.get(owner).metadata.ident);
-        let owner_cfg = availability.site(layout.placement(owner).emission_site()).cfg_attribute();
+        let owner_cfg =
+            availability.public_site(layout.placement(owner).emission_site()).cfg_attribute();
         let mut declarations = String::new();
         let mut implementations = String::new();
         for accessor in fields {
             let payload_type = public_type(accessor.payload)?;
             let method = accessor.field.variable_name();
             let cfg = availability
-                .site(layout.placement(accessor.payload).emission_site())
+                .public_site(layout.placement(accessor.payload).emission_site())
                 .cfg_attribute();
             let signature = format!(
                 "fn {method}(&self) -> Result<Option<{payload_type}>, stripe_types::RecordDecodeError>"

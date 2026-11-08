@@ -18,7 +18,7 @@ use crate::item_catalog::{ItemCatalog, ItemCatalogDraft, ItemMetadata};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
-use crate::model_availability::{ModelAvailability, ModelFeature, model_feature_name};
+use crate::model_availability::{ModelAvailability, ModelFeature};
 use crate::object_writing::ItemEmitter;
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
@@ -128,8 +128,10 @@ impl CodeGen {
             &item_layout,
             &config,
         )?;
-        for (source, target) in legacy_facade_dependencies(config.all()) {
-            crate_dependencies.add_edge(source, target, ());
+        if !opaque {
+            for (source, target) in legacy_facade_dependencies(config.all()) {
+                crate_dependencies.add_edge(source, target, ());
+            }
         }
 
         Ok(Self {
@@ -207,14 +209,24 @@ impl CodeGen {
         )
     }
 
+    fn needs_model_group(&self, component: ComponentId) -> bool {
+        self.components.has_requests(component)
+            || !self
+                .model
+                .items()
+                .get(self.model.items().component_root(component))
+                .is_reference_foundation()
+    }
+
     fn resource_model_groups(&self) -> Vec<(String, ComponentId)> {
         self.components
             .components
             .iter()
             .filter(|(component, object)| {
-                object.object_name().is_some()
-                    || object.identity().is_some()
-                    || self.components.has_requests(**component)
+                self.needs_model_group(**component)
+                    && (object.object_name().is_some()
+                        || object.identity().is_some()
+                        || self.components.has_requests(**component))
             })
             .map(|(&component, object)| (object.mod_path(), component))
             .collect()
@@ -231,6 +243,11 @@ impl CodeGen {
                 .iter()
                 .find(|(_, object)| object.mod_path() == *name)
                 .with_context(|| format!("unknown model group {name}"))?;
+            // Explicit selection can name a raw family, but unconditional
+            // reference support does not need a globally forwarded no-op flag.
+            if !generated.needs_model_group(component) {
+                continue;
+            }
             generated.model_groups.push(ModelFeature {
                 name: object.mod_path(),
                 items: vec![items.component_root(component)],
@@ -243,10 +260,39 @@ impl CodeGen {
                 consumer_crate: generated.component_layout.placement(component).request_crate(),
             });
         }
+        // A payload can occur under several records. Choose its independent
+        // decoder capability before traversing owners so input order cannot
+        // accidentally put it in a broader domain decoder group.
+        let individual_decoders = items
+            .record_accessors()
+            .filter(|accessor| {
+                let owner = items.get(accessor.owner);
+                owner.origin.path.is_empty()
+                    && matches!(owner.origin.type_root,
+                        TypeRoot::Declaration(DeclarationRoot::Component(component))
+                        if generated.components.component_name(component).as_ref() == "payment_method_details")
+            })
+            .map(|accessor| accessor.payload)
+            .collect::<std::collections::HashSet<_>>();
         let mut availability = generated.model_availability()?;
         let mut registered_decoders = std::collections::HashSet::new();
         loop {
-            let before = registered_decoders.len();
+            let before = (registered_decoders.len(), generated.model_groups.len());
+            for &component in availability.required_request_models() {
+                let object = generated.components.get_by_id(component);
+                let name = object.mod_path();
+                let root = items.component_root(component);
+                anyhow::ensure!(
+                    !generated.model_groups.iter().any(|group| group.name == name),
+                    "request model {name} needs an independent model group, but that name is already used"
+                );
+                generated.model_groups.push(ModelFeature {
+                    name,
+                    items: vec![root],
+                    requests: vec![],
+                    consumer_crate: generated.component_layout.placement(component).request_crate(),
+                });
+            }
             for accessor in items.record_accessors() {
                 if registered_decoders.contains(&accessor.payload)
                     || *availability
@@ -262,12 +308,7 @@ impl CodeGen {
                 };
                 let consumer_crate =
                     generated.component_layout.placement(component).request_crate();
-                let owner = items.get(accessor.owner);
-                let individual = owner.origin.path.is_empty()
-                    && matches!(owner.origin.type_root,
-                        TypeRoot::Declaration(DeclarationRoot::Component(owner))
-                        if generated.components.component_name(owner).as_ref() == "payment_method_details");
-                let name = if individual {
+                let name = if individual_decoders.contains(&accessor.payload) {
                     generated.components.get_by_id(component).mod_path()
                 } else {
                     format!("{}_decoders", consumer_crate.base_name(&generated.config))
@@ -292,7 +333,7 @@ impl CodeGen {
                 }
                 registered_decoders.insert(accessor.payload);
             }
-            if registered_decoders.len() == before {
+            if (registered_decoders.len(), generated.model_groups.len()) == before {
                 break;
             }
             // Enabling one payload can reveal another lazy record whose own
@@ -300,13 +341,6 @@ impl CodeGen {
             availability = generated.model_availability()?;
         }
         generated.availability = Some(availability);
-        generated.crate_dependencies = crate_dependencies(
-            items,
-            generated.model.requests(),
-            &generated.component_layout,
-            &generated.item_layout,
-            &generated.config,
-        )?;
         Ok(self)
     }
 
@@ -382,10 +416,6 @@ impl CodeGen {
         )?;
         validate_crate_dependencies(&self.crate_dependencies)?;
         Ok(self)
-    }
-
-    pub fn canonical_item_count(&self) -> usize {
-        self.model.items().len()
     }
 
     pub fn request_component_count(&self) -> usize {
@@ -537,29 +567,29 @@ impl CodeGen {
             let features = if let Some(plan) = &self.availability {
                 let mut features = std::collections::BTreeMap::new();
                 for feature in plan.features() {
-                    let requests_here = plan
-                        .request_components(feature)
-                        .iter()
-                        .any(|component| locations.request_crate(*component) == krate);
-                    let model_feature = model_feature_name(feature, requests_here);
+                    let requests_here =
+                        plan.has_requests_in(feature, krate, &self.component_layout);
+                    let model_feature = plan.model_flag(feature, krate, &self.component_layout);
                     let forwarded = dependencies
                         .iter()
                         .map(|dep| {
-                            let requests_there = plan
-                                .request_components(feature)
-                                .iter()
-                                .any(|component| locations.request_crate(*component) == *dep);
                             format!(
                                 "{}/{}",
                                 dep.crate_name(config),
-                                model_feature_name(feature, requests_there)
+                                plan.model_flag(feature, *dep, &self.component_layout)
                             )
                         })
                         .collect();
                     features.insert(model_feature.clone(), forwarded);
                     if requests_here {
-                        features
-                            .insert(feature.clone(), vec!["__requests".to_string(), model_feature]);
+                        let mut request_features = vec!["__requests".to_string(), model_feature];
+                        request_features.extend(plan.request_model_flags(
+                            feature,
+                            krate,
+                            &self.component_layout,
+                            config,
+                        )?);
+                        features.insert(feature.clone(), request_features);
                     }
                 }
                 if krate != Crate::SHARED {
@@ -705,3 +735,6 @@ impl CodeGen {
         output.write("tests/mod.rs", content)
     }
 }
+
+#[cfg(test)]
+mod tests;

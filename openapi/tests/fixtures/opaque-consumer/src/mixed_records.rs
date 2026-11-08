@@ -36,7 +36,7 @@ mod payment_methods {
         #[cfg(feature = "payment_decoders")]
         assert!(matches!(
             method.card(),
-            Err(stripe::RecordDecodeError::InvalidField { field: "card" })
+            Err(stripe::RecordDecodeError::InvalidField { field }) if field == "card"
         ));
         #[cfg(feature = "deserialize")]
         {
@@ -47,7 +47,7 @@ mod payment_methods {
             #[cfg(feature = "payment_decoders")]
             assert!(matches!(
                 method.card(),
-                Err(stripe::RecordDecodeError::InvalidField { field: "card" })
+                Err(stripe::RecordDecodeError::InvalidField { field }) if field == "card"
             ));
         }
     }
@@ -149,11 +149,11 @@ mod sources {
         {
             assert!(matches!(
                 source.card(),
-                Err(stripe::RecordDecodeError::InvalidField { field: "card" })
+                Err(stripe::RecordDecodeError::InvalidField { field }) if field == "card"
             ));
             assert!(matches!(
                 source.redirect(),
-                Err(stripe::RecordDecodeError::InvalidField { field: "redirect" })
+                Err(stripe::RecordDecodeError::InvalidField { field }) if field == "redirect"
             ));
         }
         #[cfg(feature = "deserialize")]
@@ -165,11 +165,11 @@ mod sources {
             {
                 assert!(matches!(
                     source.card(),
-                    Err(stripe::RecordDecodeError::InvalidField { field: "card" })
+                    Err(stripe::RecordDecodeError::InvalidField { field }) if field == "card"
                 ));
                 assert!(matches!(
                     source.redirect(),
-                    Err(stripe::RecordDecodeError::InvalidField { field: "redirect" })
+                    Err(stripe::RecordDecodeError::InvalidField { field }) if field == "redirect"
                 ));
             }
         }
@@ -257,7 +257,7 @@ mod treasury_flows {
         #[cfg(feature = "issuing_decoders")]
         assert!(matches!(
             flow.issuing_authorization(),
-            Err(stripe::RecordDecodeError::InvalidField { field: "issuing_authorization" })
+            Err(stripe::RecordDecodeError::InvalidField { field }) if field == "issuing_authorization"
         ));
         #[cfg(feature = "serialize")]
         assert_eq!(serde_json::to_value(&flow).unwrap(), value);
@@ -269,7 +269,7 @@ mod treasury_flows {
             #[cfg(feature = "issuing_decoders")]
             assert!(matches!(
                 flow.issuing_authorization(),
-                Err(stripe::RecordDecodeError::InvalidField { field: "issuing_authorization" })
+                Err(stripe::RecordDecodeError::InvalidField { field }) if field == "issuing_authorization"
             ));
         }
     }

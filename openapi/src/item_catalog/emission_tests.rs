@@ -982,6 +982,10 @@ fn facade_exports_reachable_model_helpers_once_with_their_actual_feature_conditi
     let groups =
         [("customer".to_string(), fixture.customer), ("charge".to_string(), fixture.charge)];
     let availability = fixture.availability(&layout, &groups);
+    let charge_site =
+        layout.placement(fixture.items.component_root(fixture.charge)).emission_site();
+    assert!(!availability.site(charge_site).cfg_attribute().contains("customer"));
+    assert!(availability.public_site(charge_site).cfg_attribute().contains("customer"));
     let mut output = GeneratedWorkspace::default();
     crate::facade::write_facade(
         OutputLocations::new(

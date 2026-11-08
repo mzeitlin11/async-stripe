@@ -20,7 +20,11 @@ import sys
 # Importing the shared verifier must not create files in the source checkout.
 sys.dont_write_bytecode = True
 
-from verify_generated_workspace import compiled_generated_sources_from_messages as compiled_generated_sources
+from verify_generated_workspace import (
+    compiled_generated_sources_from_messages as compiled_generated_sources,
+    remove_directory,
+    validate_verification_paths,
+)
 
 
 REPO = Path(__file__).resolve().parents[2]
@@ -69,20 +73,23 @@ def main():
     if args.consumer_layout and not args.full_v1:
         parser.error("--consumer-layout requires --full-v1")
     work = (args.work_dir or Path(tempfile.mkdtemp(prefix="async-stripe-opaque-check-"))).resolve()
-    work.mkdir(parents=True, exist_ok=True)
-    marker = work / ".opaque-groups-verification"
-    if not marker.exists() and any(work.iterdir()):
-        raise AssertionError(f"verification work directory must be empty or managed: {work}")
-    marker.write_text("opaque model group verification\n")
     workspace, output = work / "workspace", work / "generated-output"
-    for path in [workspace, output, work / "analysis"]:
-        if path.exists():
-            shutil.rmtree(path)
     generator_target = (args.generator_target_dir or work / "generator-target").resolve()
     target = (args.target_dir or work / "consumer-target").resolve()
+    try:
+        validate_verification_paths(work, [target, generator_target])
+    except ValueError as error:
+        parser.error(str(error))
+    work.mkdir(parents=True, exist_ok=True)
+    marker = work / ".opaque-groups-verification"
+    if not marker.is_file() and any(work.iterdir()):
+        parser.error(f"verification work directory must be empty or managed: {work}")
+    marker.write_text("opaque model group verification\n")
+    for path in [workspace, output]:
+        remove_directory(path)
     before = source_snapshot()
     env = dict(os.environ, CARGO_TARGET_DIR=str(generator_target))
-    groups = ["--all"] if args.full_v1 else ["balance_transaction", "charge", "invoice", "balance_transaction_source", "application", "deleted_customer", "customer", "rule", "payment_method", "payment_intent", "source", "treasury_transaction"]
+    groups = ["--all"] if args.full_v1 else ["balance_transaction", "charge", "invoice", "application", "deleted_customer", "customer", "rule", "payment_method", "payment_intent", "source", "treasury_transaction"]
     if args.consumer_layout:
         groups.append("--consumer-layout")
     generation = ["cargo", f"+{args.toolchain}", "run", "--locked", "--offline"]
@@ -164,6 +171,13 @@ def main():
         except json.JSONDecodeError:
             continue
         assert message.get("target", {}).get("name") != "stripe_core", "standalone card decoder activated HTTP request package"
+    card_present = run(work, "record-card-present-only", cargo + ["test", "--offline", "--no-default-features", "--features", "payment_method_details_card_present", "--message-format=json"], fixture, env)
+    card_present_sources = compiled_generated_sources(card_present.stdout, workspace)
+    assert model_paths["PaymentMethodDetailsCardPresent"] in card_present_sources
+    assert all(path not in card_present_sources for path in [charge_file, card_file, ideal_file])
+    assert not any(json.loads(line).get("target", {}).get("name") == "stripe_core"
+                   for line in card_present.stdout.splitlines() if line.startswith("{"))
+    (work / "card-present-compiled-sources.json").write_text(json.dumps(card_present_sources, indent=2) + "\n")
     ideal = run(work, "record-ideal", cargo + ["test", "--offline", "--no-default-features", "--features", "charge,payment_method_details_ideal", "--message-format=json"], fixture, env)
     ideal_sources = compiled_generated_sources(ideal.stdout, workspace)
     assert ideal_file in ideal_sources and card_file not in ideal_sources
@@ -171,7 +185,7 @@ def main():
     charge_only_sources = compiled_generated_sources(charge_only.stdout, workspace)
     assert charge_file in charge_only_sources
     assert balance_file not in charge_only_sources, "charge alone compiled the balance transaction model"
-    run(work, "model-only", cargo + ["test", "--offline", "--no-default-features", "--features", "balance_transaction_source"], fixture, env)
+    run(work, "reference-foundations", cargo + ["test", "--offline", "--no-default-features"], fixture, env)
     run(work, "typed-model-only", cargo + ["test", "--offline", "--no-default-features", "--features", "application"], fixture, env)
     run(work, "shared-tag-models", cargo + ["test", "--offline", "--no-default-features", "--features", "application,deleted_customer,customer,deserialize"], fixture, env)
     run(work, "optional-invoice-identity", cargo + ["test", "--offline", "--no-default-features", "--features", "invoice,serialize,deserialize"], fixture, env)
@@ -201,6 +215,15 @@ def main():
     webhook_base = run(work, "webhook-base", cargo + ["test", "--offline", "--message-format=json"], webhook_fixture, env)
     webhook_base_sources = compiled_generated_sources(webhook_base.stdout, workspace)
     assert charge_file not in webhook_base_sources, "base webhook compiled Charge"
+    webhook_customer = run(work, "webhook-customer", cargo + ["test", "--offline", "--features", "customer,deserialize,serialize", "--message-format=json"], webhook_fixture, env)
+    webhook_customer_sources = compiled_generated_sources(webhook_customer.stdout, workspace)
+    assert model_paths["Customer"] in webhook_customer_sources
+    for model in ["PaymentMethod", "FundingInstructions", "CustomerBalanceTransaction", "CustomerCashBalanceTransaction"]:
+        assert model_paths[model] not in webhook_customer_sources, f"model-only Customer compiled endpoint return {model}"
+    assert not any(path.endswith("/requests.rs") for path in webhook_customer_sources)
+    assert not any(json.loads(line).get("target", {}).get("name") == "stripe_client_core"
+                   for line in webhook_customer.stdout.splitlines() if line.startswith("{"))
+    (work / "webhook-customer-compiled-sources.json").write_text(json.dumps(webhook_customer_sources, indent=2) + "\n")
     webhook_charge = run(work, "webhook-charge", cargo + ["test", "--offline", "--features", "charge,deserialize,serialize", "--message-format=json"], webhook_fixture, env)
     webhook_charge_sources = compiled_generated_sources(webhook_charge.stdout, workspace)
     assert charge_file in webhook_charge_sources
@@ -219,7 +242,7 @@ def main():
         run(work, "exhaustive-fixtures", cargo + ["test", "--offline", "-p", "async-stripe-tests", "--test", "it", "deserialization_fixture::fixtures", "--", "--nocapture"], workspace, env)
         run(work, "parser", cargo + ["test", "--offline", "-p", "async-stripe-parser"], workspace, env)
     assert source_snapshot() == before, "verification modified product source"
-    source_sets = {"base": base_sources, "charge": charge_sources, "charge_only": charge_only_sources, "card_decoder": card_sources, "ideal_decoder": ideal_sources, "webhook_base": webhook_base_sources, "webhook_charge": webhook_charge_sources}
+    source_sets = {"base": base_sources, "charge": charge_sources, "charge_only": charge_only_sources, "card_decoder": card_sources, "card_present_decoder": card_present_sources, "ideal_decoder": ideal_sources, "webhook_base": webhook_base_sources, "webhook_charge": webhook_charge_sources, "webhook_customer": webhook_customer_sources}
     source_sets.update(extra_sources)
     def field_counts(sources=None):
         counts = {}
@@ -235,7 +258,7 @@ def main():
         "compiled_fields_per_consumer": {name: field_counts(set(sources)) for name, sources in source_sets.items()},
         "scope": "Canonical structs with generated miniserde deserialization; raw JSON contents, request-only fields, IDs, and enum variants excluded.",
     }, indent=2, sort_keys=True) + "\n")
-    summary = {"full_v1": args.full_v1, "consumer_layout": args.consumer_layout, "workspace_retained": args.keep_workspace, "maximum_published_feature_count": max(feature_counts.values()), "charge_absent_from_base": True, "detail_decoders_compile_independently": True, "webhook_charge_does_not_compile_requests_or_client_interfaces": True, "source_unchanged": True}
+    summary = {"full_v1": args.full_v1, "consumer_layout": args.consumer_layout, "workspace_retained": args.keep_workspace, "maximum_published_feature_count": max(feature_counts.values()), "charge_absent_from_base": True, "detail_decoders_compile_independently": True, "webhook_charge_does_not_compile_requests_or_client_interfaces": True, "source_unchanged": True, "webhook_customer_excludes_endpoint_return_models": True}
     for name, sources in source_sets.items():
         summary[f"{name}_generated_source_files"] = len(sources)
         summary[f"{name}_shared_source_files"] = sum(path.startswith("generated/async-stripe-shared/") for path in sources)

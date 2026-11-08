@@ -15,6 +15,7 @@ serde_json = "1.0"
 
 [features]
 charge = ["stripe-webhook/charge"]
+customer = ["stripe-webhook/customer"]
 serialize = ["stripe-webhook/serialize"]
 deserialize = ["stripe-webhook/deserialize"]
 redact-generated-debug = ["stripe-webhook/redact-generated-debug"]

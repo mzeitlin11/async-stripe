@@ -9,7 +9,7 @@ use crate::component_catalog::ComponentCatalog;
 use crate::crates::Crate;
 use crate::item_layout::ItemAddress;
 use crate::item_origin::TypeRoot;
-use crate::model_availability::{Availability, ModelAvailability, model_feature_name};
+use crate::model_availability::{Availability, ModelAvailability};
 use crate::output::GeneratedWorkspace;
 use crate::output_locations::OutputLocations;
 use crate::render::RenderContext;
@@ -209,11 +209,7 @@ pub(crate) fn write_manifest(
             let targets = crates
                 .into_iter()
                 .map(|krate| {
-                    let has_requests_here = availability
-                        .request_components(&name)
-                        .iter()
-                        .any(|component| locations.request_crate(*component) == krate);
-                    (krate, model_feature_name(&name, has_requests_here))
+                    (krate, availability.model_flag(&name, krate, locations.component_layout))
                 })
                 .collect();
             (name, targets)

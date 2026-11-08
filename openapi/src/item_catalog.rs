@@ -342,14 +342,12 @@ impl ItemCatalogDraft {
             }
         }
         let item_count = self.catalog.items.len();
-        let mut deferred = self
+        let deferred = self
             .catalog
             .iter()
-            .map(|(item, _)| (item, polymorphism::deferred_fields(&self.catalog, item)))
-            .collect::<HashMap<_, _>>();
-        for (index, record) in self.catalog.items.iter_mut().enumerate() {
-            let item = ItemId::from_index(index)?;
-            let fields = deferred.remove(&item).expect("classified canonical item");
+            .map(|(item, _)| polymorphism::deferred_fields(&self.catalog, item))
+            .collect::<Vec<_>>();
+        for (record, fields) in self.catalog.items.iter_mut().zip(deferred) {
             let diagnostic = matches!(&record.origin.type_root,
                 TypeRoot::Declaration(DeclarationRoot::Component(component))
                 if components.component_name(*component).as_ref() == "api_errors");

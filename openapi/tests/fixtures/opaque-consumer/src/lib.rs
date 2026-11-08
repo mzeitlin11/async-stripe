@@ -203,10 +203,10 @@ mod combined_group_tests {
     }
 }
 
-#[cfg(all(test, feature = "balance_transaction_source"))]
-mod model_only_tests {
+#[cfg(test)]
+mod reference_foundation_tests {
     #[test]
-    fn selecting_a_lightweight_family_does_not_duplicate_its_export() {
+    fn a_lightweight_family_is_available_without_a_feature() {
         let source: stripe::BalanceTransactionSource =
             miniserde::json::from_str(r#"{"id":"future_123","object":"future_source"}"#).unwrap();
         assert_eq!(source.object_type(), "future_source");
@@ -457,7 +457,7 @@ mod record_tests {
         let details = record(json!({"type":"card", "card":{"exp_month":"invalid"}}));
         assert_eq!(
             details.card().unwrap_err(),
-            stripe::RecordDecodeError::InvalidField { field: "card" }
+            stripe::RecordDecodeError::InvalidField { field: "card".into() }
         );
         assert_eq!(details.type_(), "card");
     }
@@ -561,5 +561,35 @@ mod optional_invoice_id_tests {
         assert_eq!(reference.id().as_ref().unwrap().as_str(), "in_example");
         assert!(!reference.is_object());
         assert!(reference.into_expanded_as::<stripe::Invoice>().unwrap().is_none());
+    }
+}
+
+#[cfg(all(test, feature = "payment_method_details_card_present"))]
+mod standalone_card_present_decoder_tests {
+    use stripe::prelude::*;
+
+    #[test]
+    fn shared_card_present_payload_has_one_independent_decoder_for_both_records() {
+        let payload = r#"{
+            "type":"card_present",
+            "card_present":{
+                "amount_authorized":null,"brand":"visa","brand_product":null,
+                "cardholder_name":null,"country":null,"emv_auth_data":null,
+                "exp_month":12,"exp_year":2030,"fingerprint":null,"funding":null,
+                "generated_card":null,"incremental_authorization_supported":false,
+                "last4":"4242","network":null,"network_transaction_id":null,
+                "offline":null,"overcapture_supported":false,"preferred_locales":null,
+                "read_method":null,"receipt":null
+            }
+        }"#;
+        let details: stripe::PaymentMethodDetails = miniserde::json::from_str(payload).unwrap();
+        let generated: stripe::CardGeneratedFromPaymentMethodDetails =
+            miniserde::json::from_str(payload).unwrap();
+        let first: stripe::PaymentMethodDetailsCardPresent =
+            details.card_present().unwrap().unwrap();
+        let second: stripe::PaymentMethodDetailsCardPresent =
+            generated.card_present().unwrap().unwrap();
+        assert_eq!(first.last4.as_deref(), Some("4242"));
+        assert_eq!(second.exp_year, 2030);
     }
 }

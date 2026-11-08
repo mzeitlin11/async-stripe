@@ -1073,3 +1073,39 @@ fn facade_does_not_promote_local_children_of_a_standalone_owner() {
     assert!(!exports.contains("pub use stripe_shared::CustomerStatus;"));
     assert!(!exports.contains("pub use stripe_shared::customer::*;"));
 }
+
+#[test]
+fn service_model_reexports_use_the_destinations_model_flags() {
+    let mut fixture = Fixture::new();
+    fixture.component_layout = ComponentLayout::for_test(&[
+        (fixture.customer, krate("core"), Crate::SHARED),
+        (fixture.charge, krate("billing"), krate("billing")),
+    ]);
+    for standalone in [false, true] {
+        let mut moved = [fixture.customer, fixture.charge]
+            .map(|component| (fixture.items.component_id_item(component).unwrap(), Crate::SHARED))
+            .to_vec();
+        if standalone {
+            moved.push((fixture.items.component_root(fixture.customer), Crate::SHARED));
+        }
+        let layout = fixture.layout(&moved);
+        let plan = fixture.availability(&layout, &[("customer".into(), fixture.customer)]);
+        let emitter = ItemEmitter::new(
+            &fixture.items,
+            &layout,
+            OutputLocations::new(&fixture.components, &fixture.component_layout, &fixture.config),
+        )
+        .with_availability(&plan);
+        let mut output = GeneratedWorkspace::default();
+        emitter.component_reexports(fixture.customer, &mut output).unwrap();
+        let exports = contents(&output, "crates/async-stripe-core/src/mod.rs");
+        let target = if standalone { "Customer" } else { "customer::*" };
+        assert!(
+            exports.contains(&format!(
+                "#[cfg(feature = \"__model_customer\")]\npub use stripe_shared::{target};"
+            )),
+            "{exports}"
+        );
+        assert!(!exports.contains("#[cfg(feature = \"customer\")]"));
+    }
+}

@@ -186,6 +186,15 @@ impl<'a> ItemEmitter<'a> {
                 return plan.site(site).clone();
             }
         };
+        self.model_condition(plan, site, krate)
+    }
+
+    fn model_condition(
+        &self,
+        plan: &ModelAvailability,
+        site: EmissionSite,
+        krate: Crate,
+    ) -> Availability {
         plan.site(site).for_models(|feature| {
             plan.request_components(feature)
                 .iter()
@@ -274,7 +283,12 @@ impl<'a> ItemEmitter<'a> {
             };
             output.append(
                 facade.get_path_to_mod(self.locations.config),
-                format!("{}{text}", self.cfg(site)),
+                format!(
+                    "{}{text}",
+                    self.availability
+                        .map(|plan| self.model_condition(plan, site, facade).cfg_attribute())
+                        .unwrap_or_default()
+                ),
             )?;
         }
         Ok(())

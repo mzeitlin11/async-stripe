@@ -102,6 +102,8 @@ python3 tests/verify_generated_workspace.py
 This generates without installing, checks the generated crates and webhooks, and runs the existing fixture and parser tests. Logs are retained. Add `--keep-workspace` to inspect formatted output; explicit `--target-dir` and `--generator-target-dir` paths retain caller-owned build caches. The source worktree must remain unchanged. This checks the current concrete API without requiring any experimental representation or feature planner.
 ## Opaque expandable models
 
+See the [landing review guide and validation results](experiments/expandables/README.md) for the full implementation and its comparison with the neutral base.
+
 Opaque generation applies to the complete pinned v1 surface. It retains expandable and polymorphic payloads, lets consumers enable concrete models independently, and keeps request builders separate from webhook model dependencies. Concrete generation remains the default.
 
 Generate and install the full opaque SDK with `cargo run --release -- generate --opaque`. Add `--no-install --out <DIR>` to review formatted output in staging. The installer owns the extra facade source and facade, webhook, and fixture manifest updates. Add `--consumer-layout` to select placement by represented consumers within the existing packages. Run the isolated consumer check from this directory:
@@ -128,7 +130,7 @@ Add `--keep-workspace` to retain the formatted SDK sources for reviewing the act
 
 This candidate keeps the existing package names, request ownership, and domain reexports. It assigns model modules to a single consuming domain when possible, with cross-domain support remaining shared. Consumer sets propagate through actual model dependencies and retained domain exports before placement. Optional decoder methods live in facade extension traits and do not couple model placement. It requires the complete supported surface so changing a consumer's feature selection does not change the inferred organization.
 
-Full v1 generation selects every resource with a wire object tag or identity, plus components with HTTP operations. Supporting schemas follow their actual dependencies rather than receiving an individual public feature. Fixture validation deliberately enables all selected groups and uses actual model addresses. The staged test manifest declares its representation-specific test feature; normal tests keep their concrete behavior, including under `--all-features`.
+Full v1 generation selects every resource with a wire object tag or identity, plus components with HTTP operations. Supporting schemas follow their actual dependencies rather than receiving an individual public feature. Fixture validation deliberately enables all selected groups and follows canonical model names through the retained service exports. The staged test manifest declares its representation-specific test feature; normal tests keep their concrete behavior, including under `--all-features`.
 
 For selecting a smaller development surface or inspecting unformatted output:
 
@@ -172,3 +174,5 @@ Where a generated package implements a group's HTTP requests, it distinguishes a
 The default opaque layout keeps the current crate map; consumer placement changes model locations within the same packages. Manifests record generated model groups so regeneration can remove stale flags and dependencies while preserving runtime settings. Schema pins and fixtures remain unchanged. Opaque storage changes SDK field types and intentionally defers validation of those subtrees until typed access; it is a separate feature commit after the behavior-neutral generator core.
 
 After installing opaque output, regenerate it with `generate --opaque` (and the same layout flag). Concrete installation requires concrete runtime manifests; the installer rejects mixing those modes before replacing any files. Use separate source checkouts to compare concrete and opaque SDKs. The isolated verifiers handle this automatically.
+
+Reuse an SDK target cache for one generated workspace path at a time. Across workspace paths or layouts, use separate SDK targets or clean local SDK packages between runs. The compiler-source collector rejects artifacts from another generated workspace. Default verifier-owned caches are isolated automatically.

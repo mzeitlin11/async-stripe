@@ -1,0 +1,345 @@
+{
+  "checks": {
+    "compiler_source_collector_regression_tests": 2,
+    "concrete": {
+      "compiled_generated_crate_source_files": 1834,
+      "compiled_generated_crate_source_files_by_package": {
+        "async-stripe-billing": 115,
+        "async-stripe-checkout": 3,
+        "async-stripe-connect": 66,
+        "async-stripe-core": 71,
+        "async-stripe-fraud": 41,
+        "async-stripe-issuing": 17,
+        "async-stripe-misc": 183,
+        "async-stripe-payment": 60,
+        "async-stripe-product": 26,
+        "async-stripe-reserve": 10,
+        "async-stripe-shared": 1099,
+        "async-stripe-terminal": 59,
+        "async-stripe-treasury": 84
+      },
+      "completed_checks": [
+        "generation",
+        "format",
+        "format-check",
+        "minimal-runtime-check",
+        "narrow-v1-check",
+        "generated-and-webhook-check",
+        "webhook-tests",
+        "fixtures",
+        "deserialization-tests",
+        "parser-tests"
+      ],
+      "generated_packages": [
+        "async-stripe-billing",
+        "async-stripe-checkout",
+        "async-stripe-connect",
+        "async-stripe-core",
+        "async-stripe-fraud",
+        "async-stripe-issuing",
+        "async-stripe-misc",
+        "async-stripe-payment",
+        "async-stripe-product",
+        "async-stripe-reserve",
+        "async-stripe-shared",
+        "async-stripe-terminal",
+        "async-stripe-treasury"
+      ],
+      "source_unchanged": true,
+      "success": true,
+      "toolchain": "1.89.0",
+      "workspace_retained": true
+    },
+    "generator_cli_tests": 2,
+    "generator_library_tests": 139,
+    "generator_release_build_and_full_consumer_layout_generation": true,
+    "generator_strict_clippy_all_targets": true,
+    "negative_compile_checks_expected_to_fail": [
+      "charge-unavailable",
+      "record-card-unavailable"
+    ],
+    "opaque_consumer_layout": {
+      "base_generated_source_files": 165,
+      "base_shared_source_files": 162,
+      "card_decoder_generated_source_files": 188,
+      "card_decoder_shared_source_files": 166,
+      "charge_absent_from_base": true,
+      "charge_generated_source_files": 180,
+      "charge_only_generated_source_files": 176,
+      "charge_only_shared_source_files": 165,
+      "charge_shared_source_files": 167,
+      "consumer_layout": true,
+      "customer_generated_source_files": 249,
+      "customer_shared_source_files": 235,
+      "detail_decoders_compile_independently": true,
+      "full_v1": true,
+      "ideal_decoder_generated_source_files": 178,
+      "ideal_decoder_shared_source_files": 165,
+      "maximum_published_feature_count": 290,
+      "payment_intent_generated_source_files": 264,
+      "payment_intent_shared_source_files": 216,
+      "payment_method_generated_source_files": 167,
+      "payment_method_shared_source_files": 164,
+      "source_unchanged": true,
+      "treasury_transaction_generated_source_files": 169,
+      "treasury_transaction_shared_source_files": 160,
+      "webhook_base_generated_source_files": 160,
+      "webhook_base_shared_source_files": 160,
+      "webhook_charge_does_not_compile_requests_or_client_interfaces": true,
+      "webhook_charge_generated_source_files": 175,
+      "webhook_charge_shared_source_files": 165,
+      "workspace_retained": true
+    },
+    "opaque_facade_strict_clippy": true,
+    "opaque_legacy": {
+      "base_generated_source_files": 165,
+      "base_shared_source_files": 162,
+      "card_decoder_generated_source_files": 186,
+      "card_decoder_shared_source_files": 183,
+      "charge_absent_from_base": true,
+      "charge_generated_source_files": 179,
+      "charge_only_generated_source_files": 175,
+      "charge_only_shared_source_files": 172,
+      "charge_shared_source_files": 174,
+      "consumer_layout": false,
+      "customer_generated_source_files": 246,
+      "customer_shared_source_files": 243,
+      "detail_decoders_compile_independently": true,
+      "full_v1": true,
+      "ideal_decoder_generated_source_files": 176,
+      "ideal_decoder_shared_source_files": 173,
+      "maximum_published_feature_count": 290,
+      "payment_intent_generated_source_files": 263,
+      "payment_intent_shared_source_files": 260,
+      "payment_method_generated_source_files": 167,
+      "payment_method_shared_source_files": 164,
+      "source_unchanged": true,
+      "treasury_transaction_generated_source_files": 169,
+      "treasury_transaction_shared_source_files": 160,
+      "webhook_base_generated_source_files": 160,
+      "webhook_base_shared_source_files": 160,
+      "webhook_charge_does_not_compile_requests_or_client_interfaces": true,
+      "webhook_charge_generated_source_files": 172,
+      "webhook_charge_shared_source_files": 172,
+      "workspace_retained": true
+    },
+    "runtime_all_features_tests": 60,
+    "runtime_default_tests": 48,
+    "runtime_strict_clippy_all_targets": true
+  },
+  "compiler_evidence": {
+    "dep_info_from_another_generated_sdk_rejected": true,
+    "local_sdk_packages_cleaned_between_workspaces": true,
+    "prior_interleaved_diagnostic_results_superseded": true,
+    "sdk_modes_built_sequentially": true
+  },
+  "concrete_parity": {
+    "artifact_index_sha256": "f85d0cbc8f695fde6f248fd8c90015e6ba23bf06d896ec65e0a40afcd9b27563",
+    "byte_equal_artifact_sets": true,
+    "final_webhook_tests_rechecked_after_event_based_test_changes": true,
+    "index_encoding": "SHA256 of sorted compact JSON mapping relative paths to SHA256",
+    "later_opaque_export_fix_has_identical_concrete_output": true,
+    "sdk_artifacts": 1850,
+    "sdk_verification_commit": "eb1d8c7f36025bd83fb80c406725e04f3fc553d4",
+    "staged_files_including_ownership_marker": 1851
+  },
+  "deserialization_fields": {
+    "compilation_timings_measured": false,
+    "compiled_fields": {
+      "concrete_customer": {
+        "async-stripe-core": 81,
+        "async-stripe-shared": 4863
+      },
+      "opaque_consumer_layout": {
+        "base": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 51
+        },
+        "card_decoder": {
+          "async-stripe-core": 97,
+          "async-stripe-payment": 49,
+          "async-stripe-shared": 53
+        },
+        "charge": {
+          "async-stripe-core": 97,
+          "async-stripe-shared": 70
+        },
+        "charge_only": {
+          "async-stripe-core": 97,
+          "async-stripe-shared": 50
+        },
+        "customer": {
+          "async-stripe-core": 69,
+          "async-stripe-shared": 378
+        },
+        "ideal_decoder": {
+          "async-stripe-core": 97,
+          "async-stripe-payment": 7,
+          "async-stripe-shared": 50
+        },
+        "payment_intent": {
+          "async-stripe-core": 220,
+          "async-stripe-shared": 163
+        },
+        "payment_method": {
+          "async-stripe-payment": 0,
+          "async-stripe-shared": 53
+        },
+        "treasury_transaction": {
+          "async-stripe-shared": 31,
+          "async-stripe-treasury": 32
+        },
+        "webhook_base": {
+          "async-stripe-shared": 31
+        },
+        "webhook_charge": {
+          "async-stripe-core": 97,
+          "async-stripe-shared": 50
+        }
+      },
+      "opaque_legacy": {
+        "base": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 51
+        },
+        "card_decoder": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 199
+        },
+        "charge": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 167
+        },
+        "charge_only": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 147
+        },
+        "customer": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 447
+        },
+        "ideal_decoder": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 154
+        },
+        "payment_intent": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 383
+        },
+        "payment_method": {
+          "async-stripe-payment": 0,
+          "async-stripe-shared": 53
+        },
+        "treasury_transaction": {
+          "async-stripe-shared": 31,
+          "async-stripe-treasury": 32
+        },
+        "webhook_base": {
+          "async-stripe-shared": 31
+        },
+        "webhook_charge": {
+          "async-stripe-shared": 147
+        }
+      }
+    },
+    "physical_fields_per_package": {
+      "concrete": {
+        "async-stripe-billing": 265,
+        "async-stripe-checkout": 0,
+        "async-stripe-connect": 134,
+        "async-stripe-core": 81,
+        "async-stripe-fraud": 110,
+        "async-stripe-issuing": 0,
+        "async-stripe-misc": 648,
+        "async-stripe-payment": 295,
+        "async-stripe-product": 18,
+        "async-stripe-reserve": 54,
+        "async-stripe-shared": 4863,
+        "async-stripe-terminal": 192,
+        "async-stripe-treasury": 326
+      },
+      "opaque_consumer_layout": {
+        "async-stripe-billing": 717,
+        "async-stripe-checkout": 347,
+        "async-stripe-connect": 540,
+        "async-stripe-core": 975,
+        "async-stripe-fraud": 125,
+        "async-stripe-issuing": 447,
+        "async-stripe-misc": 622,
+        "async-stripe-payment": 1331,
+        "async-stripe-product": 106,
+        "async-stripe-reserve": 51,
+        "async-stripe-shared": 656,
+        "async-stripe-terminal": 173,
+        "async-stripe-treasury": 302
+      },
+      "opaque_legacy": {
+        "async-stripe-billing": 253,
+        "async-stripe-checkout": 0,
+        "async-stripe-connect": 134,
+        "async-stripe-core": 81,
+        "async-stripe-fraud": 100,
+        "async-stripe-issuing": 0,
+        "async-stripe-misc": 622,
+        "async-stripe-payment": 227,
+        "async-stripe-product": 16,
+        "async-stripe-reserve": 51,
+        "async-stripe-shared": 4433,
+        "async-stripe-terminal": 173,
+        "async-stripe-treasury": 302
+      }
+    },
+    "physical_totals": {
+      "concrete": 6986,
+      "opaque_consumer_layout": 6392,
+      "opaque_legacy": 6392
+    },
+    "scope": "Canonical structs with generated miniserde deserialization; raw JSON contents, request-only fields, IDs, and enum variants excluded.",
+    "source_counter_matches_both_canonical_opaque_manifests_per_file": true
+  },
+  "evidence_archive": {
+    "bytes": 368488,
+    "path": "openapi/tests/expandable_landing_evidence.tar.gz",
+    "sha256": "fbc32cbabe80f46ccbcc44f5b2f4882d623acbb4cbdb89c260ba49dadbcddd86"
+  },
+  "feature_reference": {
+    "branch": "expt/codegen-opaque-slice",
+    "comparison_base": "26a95664feb378b48423c35e22a67e08a5639ae3",
+    "tip": "176c3f588c4e1553cad274c90f2f1a4a28e41772"
+  },
+  "input": {
+    "api_revision": "2026-09-30.endive",
+    "cache_annotation": "info.x-stripeTag=v2578",
+    "cached_sha256": "fd7610800bd48c50bfb37ec4ce34f4d05020a2b98301fda4493995ab94e039f3",
+    "commit": "b4012451284a3a421dbf43ed37ac00957170bc4b",
+    "fixtures_sha256": "c2544d6185074fbcd1f8e0087303fb3bfcb2384303d9927a6cc4f09135c462bb",
+    "raw_sha256": "622e04fb9ae98eb28b5a67c7c885af52a71ffa60e9230b2197f5b3e136651b1d",
+    "release": "v2578",
+    "tag_object": "92885a373043dc9ae77d2a5a1b3627509f7ca96f",
+    "url": "https://raw.githubusercontent.com/stripe/openapi/b4012451284a3a421dbf43ed37ac00957170bc4b/openapi/spec3.sdk.json"
+  },
+  "installation": {
+    "concrete_install_into_opaque_rejected_before_mutation": true,
+    "input": "final release generator output with opaque + consumer layout",
+    "real_installer_files_identical_to_staging": 1995,
+    "staging_tree_sha256": "5e3aa7fc51710efcadab18d9d850f363f28dd0194b87dacfdab818c4bdc62627"
+  },
+  "neutral_base": "4a483d791bf58cadf45968d4e6de02fb832ab0de",
+  "out_of_scope": [
+    "schema pin update",
+    "v2",
+    "default production layout change",
+    "upstream publication"
+  ],
+  "sdk_mode": {
+    "consumer_layout": "generate --opaque --consumer-layout",
+    "default_and_checked_in_sdk": "concrete",
+    "full_v1": "generate --opaque",
+    "installation": "supported; --no-install stages only"
+  },
+  "source_commit": "b0d5e889ce9fc73a41295c02887f16b91a476f85",
+  "toolchain": {
+    "rustc": "rustc 1.89.0 (29483883e 2025-08-04)",
+    "rustfmt": "rustfmt 1.11.0-nightly (c1070d6938 2026-09-28)"
+  }
+}

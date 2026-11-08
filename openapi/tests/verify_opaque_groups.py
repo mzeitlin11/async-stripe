@@ -15,6 +15,12 @@ import re
 import shutil
 import subprocess
 import tempfile
+import sys
+
+# Importing the shared verifier must not create files in the source checkout.
+sys.dont_write_bytecode = True
+
+from verify_generated_workspace import compiled_generated_sources_from_messages as compiled_generated_sources
 
 
 REPO = Path(__file__).resolve().parents[2]
@@ -48,34 +54,6 @@ def run(work, name, command, cwd, env, expect_success=True):
         raise AssertionError(f"{name}: unexpected exit {result.returncode}\n{result.stderr[-6000:]}")
     return result
 
-
-def compiled_generated_sources(stdout, workspace):
-    artifacts = []
-    for line in stdout.splitlines():
-        try:
-            message = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        source = message.get("target", {}).get("src_path", "")
-        if message.get("reason") == "compiler-artifact" and source.startswith(str(workspace / "generated") + "/"):
-            artifacts.extend(message["filenames"])
-    assert artifacts, "Cargo reported no compiled generated artifact"
-    info = set()
-    for filename in artifacts:
-        artifact = Path(filename)
-        dep_info = artifact.with_name(artifact.name.removeprefix("lib").rsplit(".", 1)[0] + ".d")
-        if dep_info.is_file():
-            info.add(dep_info.read_text())
-    assert info, "generated crate dependency information was not found"
-    contents = "\n".join(info)
-    sources = []
-    for source in (workspace / "generated").rglob("*.rs"):
-        escaped = str(source).replace(" ", "\\ ")
-        relative = str(source.relative_to(workspace))
-        if str(source) in contents or escaped in contents or relative in contents or relative.replace(" ", "\\ ") in contents:
-            sources.append(str(source.relative_to(workspace)))
-    assert sources, "dependency information contains no generated sources"
-    return sorted(sources)
 
 
 def main():

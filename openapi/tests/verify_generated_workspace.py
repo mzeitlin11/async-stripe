@@ -66,9 +66,14 @@ def run(work, name, command, cwd, env):
 
 
 def compiled_generated_sources(log, workspace):
-    """Read rustc dep-info for generated packages, excluding runtime packages."""
+    return compiled_generated_sources_from_messages(log.read_text(errors="replace"), workspace)
+
+
+def compiled_generated_sources_from_messages(messages, workspace):
+    """Read actual rustc inputs and reject artifacts built from another SDK tree."""
+    workspace = workspace.resolve()
     artifacts = []
-    for line in log.read_text(errors="replace").splitlines():
+    for line in messages.splitlines():
         try:
             message = json.loads(line)
         except json.JSONDecodeError:
@@ -76,7 +81,11 @@ def compiled_generated_sources(log, workspace):
         if not isinstance(message, dict):
             continue
         source = message.get("target", {}).get("src_path", "")
-        if message.get("reason") == "compiler-artifact" and source.startswith(str(workspace / "generated") + "/"):
+        if message.get("reason") == "compiler-artifact" and source:
+            try:
+                Path(source).resolve().relative_to(workspace / "generated")
+            except ValueError:
+                continue
             artifacts.extend(message["filenames"])
     dependency_files = set()
     for filename in artifacts:
@@ -85,18 +94,31 @@ def compiled_generated_sources(log, workspace):
         if dep_info.is_file():
             dependency_files.add(dep_info)
     if not dependency_files:
-        raise RuntimeError(f"no generated-package rustc dep-info found from {log}")
-    dependencies = "\n".join(path.read_text() for path in dependency_files)
-    sources = []
-    for source in (workspace / "generated").rglob("*.rs"):
-        relative = source.relative_to(workspace)
-        # Selected workspace packages use relative paths; dependency builds can
-        # use absolute paths. Dep-info escapes spaces in either representation.
-        paths = [str(source), str(relative)]
-        if any(path in dependencies or path.replace(" ", "\\ ") in dependencies for path in paths):
-            sources.append(str(relative))
+        raise RuntimeError("no generated-package rustc dep-info found")
+    packages = {path.name for path in (workspace / "generated").iterdir() if path.is_dir()}
+    sources = set()
+    for dep_info in dependency_files:
+        contents = dep_info.read_text().replace("\\\n", "")
+        # Makefile paths escape whitespace and backslashes, rather than using
+        # shell quoting. Keep absolute and workspace-relative paths equivalent.
+        for token in re.findall(r"(?:\\.|[^\s\\])+", contents):
+            token = re.sub(r"\\(.)", r"\1", token)
+            token = token.removesuffix(":")
+            if not token.endswith(".rs"):
+                continue
+            source = Path(token)
+            source = (source if source.is_absolute() else workspace / source).resolve()
+            try:
+                relative = source.relative_to(workspace)
+            except ValueError:
+                parts = source.parts
+                if any(parts[i] == "generated" and parts[i + 1] in packages for i in range(len(parts) - 1)):
+                    raise RuntimeError(f"rustc dep-info refers to another generated SDK: {source}; clean SDK artifacts before switching workspaces")
+                continue
+            if relative.parts[0] == "generated" and source.is_file():
+                sources.add(str(relative))
     if not sources:
-        raise RuntimeError(f"rustc dep-info contains no generated source files: {log}")
+        raise RuntimeError("rustc dep-info contains no generated source files")
     return sorted(sources)
 
 

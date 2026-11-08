@@ -103,3 +103,8 @@ fixes remain part of the landing base.
 Broader reports and the additive `analyze` command are a separate follow-up.
 Historical v2494 validation records and archives remain on fork commit
 `1fa2b9c0850d43b8f5e692b1f57afdb64fa1a624`; their original provenance is preserved.
+
+Two inherited property-analysis corrections (`Box<T>` Copy and borrowed-map Eq)
+remain separately identifiable in commit `b741b237`. Invalid configurations and
+unsupported layouts receive earlier errors. These generator changes are
+distinguished from the byte-preserving SDK refactor.

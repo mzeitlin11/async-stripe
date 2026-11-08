@@ -1,0 +1,185 @@
+{
+  "date": "2026-11-08",
+  "upstream_base": "e71ca4a890ca0221e88a64e7b4dfcebe8c0e8f72",
+  "core_implementation_commit": "289b969405d51b32078c4dea1b678547804ed6c4",
+  "original_refactor_preserved_at": "1fa2b9c0850d43b8f5e692b1f57afdb64fa1a624",
+  "schema": {
+    "release": "v2578",
+    "tag_object": "92885a373043dc9ae77d2a5a1b3627509f7ca96f",
+    "commit": "b4012451284a3a421dbf43ed37ac00957170bc4b",
+    "url": "https://raw.githubusercontent.com/stripe/openapi/b4012451284a3a421dbf43ed37ac00957170bc4b/openapi/spec3.sdk.json",
+    "raw_sha256": "622e04fb9ae98eb28b5a67c7c885af52a71ffa60e9230b2197f5b3e136651b1d",
+    "cached_sha256": "fd7610800bd48c50bfb37ec4ce34f4d05020a2b98301fda4493995ab94e039f3",
+    "cache_annotation": "info.x-stripeTag=v2578",
+    "api_revision": "2026-09-30.endive"
+  },
+  "input_sha256": {
+    "spec3.sdk.json": "fd7610800bd48c50bfb37ec4ce34f4d05020a2b98301fda4493995ab94e039f3",
+    "fixtures.json": "c2544d6185074fbcd1f8e0087303fb3bfcb2384303d9927a6cc4f09135c462bb",
+    "version.json": "d654b985bff39bd9cb874e39f26917422a1ea0497abd5555db17914f3e486880",
+    "Cargo.lock": "2238e84db392e53c1b9e224ae600b4c82b6f9c31a2c8ddf2e917533b6109e815"
+  },
+  "library_version": "1.0.0-rc.10",
+  "rustc": "rustc 1.89.0 (29483883e 2025-08-04)",
+  "rustfmt": "rustfmt 1.11.0-nightly (c1070d6938 2026-09-28)",
+  "sdk_artifact_parity": {
+    "before_files": 1850,
+    "after_files": 1850,
+    "removed": [],
+    "added": [],
+    "changed": [],
+    "before_tree_sha256": "ef5f7fbc95ab3cdcf8644899d0dede03c993c88661c89a67288b37f48ad4ba64",
+    "after_tree_sha256": "ef5f7fbc95ab3cdcf8644899d0dede03c993c88661c89a67288b37f48ad4ba64",
+    "equal": true
+  },
+  "complete_staging_comparison": {
+    "before_files": 1850,
+    "after_files": 1851,
+    "removed": [],
+    "added": [
+      ".async-stripe-codegen-output"
+    ],
+    "changed": [],
+    "before_tree_sha256": "ef5f7fbc95ab3cdcf8644899d0dede03c993c88661c89a67288b37f48ad4ba64",
+    "after_tree_sha256": "d9c71581e1e8a9c8b178671fc93f45c2a7f45c55a79f622f986df6e21b549298",
+    "equal": false
+  },
+  "staging_metadata_exception": "Only .async-stripe-codegen-output is added. The raw comparison is retained; SDK parity removes only this marker in a separate task-owned candidate copy.",
+  "legacy_graphs": {
+    "components_graph.txt": {
+      "equal": true,
+      "sha256": "4f673eac2eb0119fd923a50e881b36191789b8be462320b5131227e79c200c15"
+    },
+    "crate_graph.txt": {
+      "equal": true,
+      "sha256": "54127d38f63713a2535d0d5eba96fbbdb461e029d8fbbf833afd6505ccba3d71"
+    }
+  },
+  "nonempty_legacy_warnings": {
+    "equal": true,
+    "sha256": "10c5c5a67d7cbc423e82b1f3aef83226ba7e378439f583d0d5c1af30ab9f2253",
+    "bytes": 1892
+  },
+  "generator_library_tests": 85,
+  "generator_cli_tests": 1,
+  "comparator_tests": 3,
+  "strict_generator_clippy": "passed",
+  "sdk_verification": {
+    "toolchain": "1.89.0",
+    "completed_checks": [
+      "generation",
+      "format",
+      "format-check",
+      "minimal-runtime-check",
+      "narrow-v1-check",
+      "generated-and-webhook-check",
+      "webhook-tests",
+      "fixtures",
+      "deserialization-tests",
+      "parser-tests"
+    ],
+    "source_unchanged": true,
+    "success": true,
+    "generated_packages": [
+      "async-stripe-billing",
+      "async-stripe-checkout",
+      "async-stripe-connect",
+      "async-stripe-core",
+      "async-stripe-fraud",
+      "async-stripe-issuing",
+      "async-stripe-misc",
+      "async-stripe-payment",
+      "async-stripe-product",
+      "async-stripe-reserve",
+      "async-stripe-shared",
+      "async-stripe-terminal",
+      "async-stripe-treasury"
+    ],
+    "compiled_generated_crate_source_files": 1834,
+    "compiled_generated_crate_source_files_by_package": {
+      "async-stripe-billing": 115,
+      "async-stripe-checkout": 3,
+      "async-stripe-connect": 66,
+      "async-stripe-core": 71,
+      "async-stripe-fraud": 41,
+      "async-stripe-issuing": 17,
+      "async-stripe-misc": 183,
+      "async-stripe-payment": 60,
+      "async-stripe-product": 26,
+      "async-stripe-reserve": 10,
+      "async-stripe-shared": 1099,
+      "async-stripe-terminal": 59,
+      "async-stripe-treasury": 84
+    },
+    "workspace_retained": true
+  },
+  "preserved_upstream_behavior": [
+    "Incomplete generated objects produce a miniserde error.",
+    "Missing optional JSON fields use the upstream serde default.",
+    "Upstream union payload naming regressions pass with catalog identities.",
+    "Runtime, generated bindings, pins, manifests, and CI retain the upstream base."
+  ],
+  "review_scope": {
+    "core": "Generation, canonical finalization, placement, represented dependencies, staging safety, and verification.",
+    "separate_followup": "Additive analyze command, reports, manifest-owned report materialization, report workflow changes, and historical evidence bundles.",
+    "observable_generator_changes": [
+      "Validated malformed configurations/layouts fail early.",
+      "Custom output directories are honored and formatted without installation.",
+      "Duplicate artifact writes retain the original content."
+    ],
+    "independent_property_fixes_commit": "b741b237",
+    "feature_code_in_core": false
+  },
+  "code_sha256": {
+    "openapi/src/codegen.rs": "20eeb112f52df0b74e848d9ae650ca713d53d9b484d53bd386f18b1db34f1ecf",
+    "openapi/src/component_catalog.rs": "f7f6b11f8d5b6afd186181e8a4a560c9756289b472c13eca74e89870dc7ad705",
+    "openapi/src/components.rs": "3ae4204afb7bd055a4154569ee3d0593942e0cf405e4dfe2b1d3779005c22f9d",
+    "openapi/src/crate_dependencies.rs": "7225cab08275c2ed95879345a69a1108a959a77062fb7814cd3f12f615bba6b9",
+    "openapi/src/crate_inference.rs": "3023df8a3c3d4f9ea71af8ec80a57aed1e8e297b7639a708ff6ce10c92bf8974",
+    "openapi/src/crate_table.rs": "4ac68f692e7eaf17d8c48c30a3d626703ec5235b6364a2ba3d53f8a5bd6fadbd",
+    "openapi/src/crates.rs": "deca4232a187047b6794ba58fe438703f2397dc2200017ec65993382dcb9cf61",
+    "openapi/src/deduplication.rs": "1b43b1a97a4059b7d37a1f0d15d8e9b40f33156a42cd9e3bf01fef05e2c10453",
+    "openapi/src/dependencies.rs": "88876120bf805f8bd29fafa2235e84719d18343a86855a76a61cc9c3732e102a",
+    "openapi/src/exports.rs": "25625fe53464d9c2f7a3fc61a60f7d9b5cadb92b1f379ec51430a55fe6dbf705",
+    "openapi/src/graph.rs": "284d12fcea2fa9415581614ffb7298b23564a84df4b6f765ad759d7218bd0ddc",
+    "openapi/src/item_catalog/dependency_tests.rs": "c35fbdc4974d49d33f9411a7f14d1ef8e4e6b5bf6a0a67fa67fcb123935c870b",
+    "openapi/src/item_catalog/emission_tests.rs": "ce70c71f8ecdc0bee4ed5573dee022fd31ae2dad44589a6674c94284c386718c",
+    "openapi/src/item_catalog/finalization_tests.rs": "a0b29c989e743036b28e0df89ea3a05926019dc9a1356a9787526fd33249596f",
+    "openapi/src/item_catalog.rs": "73c63f1152650a831569683aba50ec2263122b2ba4eb0bc739ad2b5eeb254457",
+    "openapi/src/item_layout.rs": "16b8d63179572ac98849c839e8ea3a1c2af539216cc328fc1860ac2dc47de559",
+    "openapi/src/item_origin.rs": "2efc63915047c11921f3fe2dd8d747179ce0ec7bd67f8230701bc7ba49179ad9",
+    "openapi/src/item_properties.rs": "04c23db519f93ce46ce56abb6373ad49e6c332b14474af485e8ba4d23c306df0",
+    "openapi/src/layout.rs": "06aeb052079f736cc5d07822f4ba06a049933b15267822c941fd1900b681ca93",
+    "openapi/src/lib.rs": "b2d41177cf0df3b432d3acbf2530fb8de7fafe01a99ec2326c5569625b75983b",
+    "openapi/src/main.rs": "25cafc812eda55eb64760845a123a073b23d0f051424669ade981c56b93013a4",
+    "openapi/src/module_dependencies.rs": "cfef46ad075ff0c7e47808a2fb7e05bcab014546d9f0037739031e24410c6da4",
+    "openapi/src/object_writing.rs": "7240e31047337c0d7609a352bb3edbde657cbed5e65398b24417a643362bf6b7",
+    "openapi/src/operations.rs": "3bf85fc97fa922e0af6a0e54389d38efcf5f17d03daf56f6e8e83c4f0715a91d",
+    "openapi/src/output.rs": "19ab6c9cedd38c2e350dbf15bdcbb8ebc9833af1d0676096dbfb23fd76cfe4ac",
+    "openapi/src/output_locations.rs": "5d63539b281a502bac653d5d4bdff569f9798a68f2107e454f37a0672f127f4e",
+    "openapi/src/overrides.rs": "927c770a6e3d30a8f8c95ab234f37a0060a5c8dd38a7811a5041ddbbe43ccbc8",
+    "openapi/src/render.rs": "447f4af1becbd5128437d21674b423734e17c78d8d908c919102e24c6eccf1a9",
+    "openapi/src/request_model.rs": "bb1ea295460366b78e13f2aa27515eec0dbefec23a845f47e628d4755d2d76d6",
+    "openapi/src/requests.rs": "5b3523d4b1ba25cc74abd9ed3810419a593e381d5b6dbfd1a1ffe7a55e6f826e",
+    "openapi/src/rust_model.rs": "23f33f9626539845b8fa6b729377c6a080e47b8bdae38ce90203c54991d6d0be",
+    "openapi/src/rust_object.rs": "0a1db711c66d955c2574db88b179ef3fdcabd576ef287e5b536f18cae25d1899",
+    "openapi/src/rust_type.rs": "1bb967eaaecf198f5a8ef2ddd93a0e12ff864aa4283c108e628d4bd1437ab3b6",
+    "openapi/src/spec.rs": "0b72eed0feef6b133a0ba5360d702f42f6500d40dad6f6928ac7bdf9b4a260a9",
+    "openapi/src/spec_fetch.rs": "ad7755068c13d7a6f291fa43ee769ee4d7f26224cf379e43a66da7f1205eb842",
+    "openapi/src/spec_inference.rs": "2be4660c2c93ed3c3006f36590edd1ab36ab4010524061220a2c3ec195061f89",
+    "openapi/src/stripe_object.rs": "a41aa65e26d1c0a62d1915453f27f4d6060891a9c0d166d83a730aa0d37c791d",
+    "openapi/src/templates/cargo_toml.rs": "990c49f002806f39243dcd69172ce4ee4ecd94365c57b857bfc13076358e65a5",
+    "openapi/src/templates/enums.rs": "14bb340c1ba56eecb64a9a5df71b2e3cf7540d3a8ad16b418c6edfb8cc5835cd",
+    "openapi/src/templates/miniserde.rs": "0baea72b20f225f8430b53c28e65a596df08475d000c2001e1f9d4e7ec4dcd01",
+    "openapi/src/templates/mod.rs": "c3b5665fd879c5ac47be452c582034699361be63add4eefade46318babb6e2a0",
+    "openapi/src/templates/object_trait.rs": "9560b2aaa34f5b77354399e50c23e187028595e935f116c6e939a58918571215",
+    "openapi/src/templates/object_writer.rs": "931bd75ddd26de8e2bd6f322a08f5a053994296e5073c7528bfd92f74b788f95",
+    "openapi/src/templates/requests.rs": "b1ec881dfe13b04db44426e5384e465cbf0f94f4726f011fb3e5acafd5a6bb9f",
+    "openapi/src/templates/structs.rs": "7e382e8d6c4bd77f135b975dca798459485776f76b67c35db7b1d165e299d9e8",
+    "openapi/src/templates/utils.rs": "268c228cde821b3a95ddf666fa07768cce049fb336d3254209cef5d3984722ac",
+    "openapi/src/types.rs": "1ffd5a087ca930292a4506dfd1d76268e7ecdfe4cdea0576cf356845ef2e740e",
+    "openapi/src/url_finder.rs": "2339fd0e8f72d4d54dbb4124d23cfe4b497eab5a85aea2c76e55c8c3bce2b013",
+    "openapi/src/visitor.rs": "4dfb48c7dd30b146e6ec20cd7bf316d1be73e10ed1c9f5d45e29304e24f1e7c3",
+    "openapi/src/webhook.rs": "fc853e3c1a9eeb34ec3ad34c4017e94e3214dc47c4c4c95c291be85eccb2ec05"
+  }
+}

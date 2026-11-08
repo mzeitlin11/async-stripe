@@ -554,11 +554,11 @@ mod tests {
         }
     }
 
-    #[cfg(feature = "deserialize")]
+    // These cases need both payment/setup intent models as well as the envelope.
+    #[cfg(all(feature = "deserialize", feature = "full"))]
     mod optional_json {
-        use stripe_shared::{
-            NotificationEventData, PaymentIntentNextAction, SetupIntentNextAction,
-        };
+        use stripe_core::{PaymentIntentNextAction, SetupIntentNextAction};
+        use stripe_shared::NotificationEventData;
 
         use super::*;
 

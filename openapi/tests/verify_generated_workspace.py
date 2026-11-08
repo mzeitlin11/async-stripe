@@ -2,7 +2,7 @@
 """Generate bindings and verify them in an isolated SDK workspace.
 
 Requires Python 3.11+, the selected Rust toolchain, nightly rustfmt, and cached
-Cargo dependencies/spec data. Logs and analysis reports survive successful runs.
+Cargo dependencies/spec data. Logs survive successful runs.
 Source files are never installed. Failed workspaces remain available for review.
 """
 
@@ -143,13 +143,13 @@ def main():
     if not marker.is_file() and any(work.iterdir()):
         parser.error(f"verification work directory must be empty or managed: {work}")
     marker.write_text("async-stripe generated workspace verification\n")
-    workspace, output, reports = work / "workspace", work / "generated-output", work / "analysis"
+    workspace, output = work / "workspace", work / "generated-output"
     target = (args.target_dir or work / "sdk-target").resolve()
     generator_target = (args.generator_target_dir or work / "generator-target").resolve()
     for cache in [target, generator_target]:
-        for owned in [workspace, output, reports]:
+        for owned in [workspace, output]:
             if cache.is_relative_to(owned) or owned.is_relative_to(cache):
-                parser.error(f"build cache overlaps disposable source/report directory: {cache}")
+                parser.error(f"build cache overlaps disposable source directory: {cache}")
     # Only our marked work directory owns disposable SDK sources. Codegen
     # independently checks its staging marker before replacing generated output.
     remove_directory(workspace)
@@ -159,7 +159,7 @@ def main():
     try:
         cargo = ["cargo", f"+{args.toolchain}"]
         generator_env = dict(os.environ, CARGO_TARGET_DIR=str(generator_target))
-        run(work, "generation", cargo + ["run", "--locked", "--offline", "--", "generate", "--no-install", "--out", str(output), "--report-dir", str(reports)], REPO / "openapi", generator_env)
+        run(work, "generation", cargo + ["run", "--locked", "--offline", "--", "generate", "--no-install", "--out", str(output)], REPO / "openapi", generator_env)
         summary["completed_checks"].append("generation")
         configuration = tomllib.loads((REPO / "openapi/gen_crates.toml").read_text())
         packages = sorted(f"async-stripe-{crate['name']}" for crate in configuration["crates"])
@@ -221,7 +221,7 @@ def main():
     for explicit, cache in [(args.target_dir, target), (args.generator_target_dir, generator_target)]:
         if explicit is None and not any(path.is_relative_to(cache) for path in retained):
             remove_directory(cache)
-    print(f"Verified {len(packages)} generated crates, webhook, fixtures, and parser. Reports and logs: {work}", flush=True)
+    print(f"Verified {len(packages)} generated crates, webhook, fixtures, and parser. Logs: {work}", flush=True)
     return 0
 
 

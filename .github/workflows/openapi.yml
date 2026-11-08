@@ -15,23 +15,17 @@ jobs:
           components: rustfmt
 
       - name: Run Codegen
-        run: cargo run --release -- generate --update-spec latest --report-dir out/analysis
+        run: cargo run --release -- generate --update-spec latest --emit-warnings
         working-directory: openapi
 
       - name: Check for crate inference warnings
         id: warnings
-        shell: bash
         run: |
-          warnings_file=openapi/out/analysis/crate-inference-warnings.csv
-          if [[ "$(wc -l < "$warnings_file")" -gt 1 ]]; then
+          if [ -f openapi/out/crate_warnings.md ]; then
             echo "has_warnings=true" >> "$GITHUB_OUTPUT"
             {
               echo 'body<<WARNINGS_EOF'
-              echo '## Crate inference warnings'
-              echo
-              echo '```csv'
-              cat "$warnings_file"
-              echo '```'
+              cat openapi/out/crate_warnings.md
               echo 'WARNINGS_EOF'
             } >> "$GITHUB_OUTPUT"
           else

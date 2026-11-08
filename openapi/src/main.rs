@@ -3,7 +3,6 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result, bail};
 use clap::{Args, Parser, Subcommand};
-use stripe_openapi_codegen::analysis::GraphDetail;
 use stripe_openapi_codegen::codegen::{CodeGen, EdgePolicy};
 use stripe_openapi_codegen::crate_inference::CrateInferenceWarning;
 use stripe_openapi_codegen::crates::CrateConfig;
@@ -14,7 +13,7 @@ use stripe_openapi_codegen::url_finder::{UrlFinder, update_api_doc_data};
 use tracing::info;
 
 #[derive(Debug, Parser)]
-#[command(about = "Generate and analyze async-stripe's OpenAPI bindings")]
+#[command(about = "Generate async-stripe's OpenAPI bindings and dependency graphs")]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -24,8 +23,6 @@ struct Cli {
 enum Command {
     /// Generate, format, and install bindings into the repository.
     Generate(GenerateArgs),
-    /// Analyze the API model and write reports without installing generated files.
-    Analyze(AnalyzeArgs),
     /// Write the original component and crate graphs to out/graphs.
     Graph(VersionArgs),
     /// Refresh the Stripe documentation URL mapping.
@@ -52,27 +49,9 @@ struct GenerateArgs {
     /// Generate and format staging output without installing it into the repository.
     #[arg(long, alias = "dry-run")]
     no_install: bool,
-    /// Write detailed analysis reports to this directory.
-    #[arg(long)]
-    report_dir: Option<PathBuf>,
     /// Write crate inference warnings to <out>/crate_warnings.md.
     #[arg(long)]
     emit_warnings: bool,
-}
-
-#[derive(Debug, Args)]
-struct AnalyzeArgs {
-    #[command(flatten)]
-    version: VersionArgs,
-    /// Graph detail to include in the analysis bundle.
-    #[arg(long, value_enum, default_value_t)]
-    graphs: GraphDetail,
-    /// Analysis-only counterfactual: do not use Expandable<T> references for placement.
-    #[arg(long)]
-    without_expandables: bool,
-    /// Directory for reports.
-    #[arg(long, default_value = "out/analysis")]
-    report_dir: PathBuf,
 }
 
 #[derive(Debug, Args)]
@@ -87,7 +66,6 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
         Command::Generate(args) => run_generate(args),
-        Command::Analyze(args) => run_analyze(args),
         Command::Graph(args) => {
             let spec = Spec::new(spec_fetch::load_pinned_spec()?);
             let codegen = build_codegen(args.version, EdgePolicy::current_layout(), spec)?;
@@ -108,27 +86,10 @@ fn run_generate(args: GenerateArgs) -> Result<()> {
     if args.emit_warnings {
         write_crate_inference_warnings(codegen.crate_inference_warnings(), &args.out)?;
     }
-    if let Some(report_dir) = args.report_dir {
-        codegen.analysis_bundle(GraphDetail::Default).write_to(&report_dir)?;
-    }
     if !args.no_install {
         install_to_repository(&args.out, Path::new(".."), codegen.crate_config())?;
         info!("Installed generated files into the repository");
     }
-    Ok(())
-}
-
-fn run_analyze(args: AnalyzeArgs) -> Result<()> {
-    let policy = if args.without_expandables {
-        EdgePolicy::without_expandables()
-    } else {
-        EdgePolicy::current_layout()
-    };
-    let spec = Spec::new(spec_fetch::load_pinned_spec()?);
-    let codegen = build_codegen(args.version.version, policy, spec)?;
-    print_summary(&codegen);
-    codegen.analysis_bundle(args.graphs).write_to(&args.report_dir)?;
-    println!("Analysis written to {}", args.report_dir.display());
     Ok(())
 }
 

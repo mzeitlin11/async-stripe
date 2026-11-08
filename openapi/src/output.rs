@@ -52,50 +52,6 @@ impl ArtifactSet {
         self.write_files(root)
     }
 
-    /// Materialize a file set without taking ownership of the entire root.
-    ///
-    /// The manifest records exactly which paths belonged to the preceding run,
-    /// allowing stale owned files to be removed without touching unrelated files
-    /// in a user-selected report directory.
-    pub fn materialize_owned(&self, root: &Path, manifest_name: &str) -> anyhow::Result<()> {
-        ensure!(!root.as_os_str().is_empty(), "output root cannot be empty");
-        ensure!(root != Path::new("/"), "refusing to use the filesystem root as output");
-        let manifest_path = normalized_relative_path(Path::new(manifest_name))?;
-        ensure!(
-            !self.files.contains_key(&manifest_path),
-            "artifact set contains its ownership manifest: {}",
-            manifest_path.display()
-        );
-        fs::create_dir_all(root)
-            .with_context(|| format!("could not create output directory {}", root.display()))?;
-
-        let previous_manifest = root.join(&manifest_path);
-        if previous_manifest.exists() {
-            let previous: Vec<String> = serde_json::from_slice(&fs::read(&previous_manifest)?)
-                .with_context(|| {
-                    format!("could not parse ownership manifest {}", previous_manifest.display())
-                })?;
-            for previous in previous {
-                let previous = normalized_relative_path(Path::new(&previous))?;
-                if self.files.contains_key(&previous) {
-                    continue;
-                }
-                let destination = root.join(previous);
-                if destination.symlink_metadata().is_ok() {
-                    fs::remove_file(&destination).with_context(|| {
-                        format!("could not remove stale artifact {}", destination.display())
-                    })?;
-                }
-            }
-        }
-
-        self.write_files(root)?;
-        let owned_paths =
-            self.files.keys().map(|path| path.to_string_lossy().into_owned()).collect::<Vec<_>>();
-        fs::write(previous_manifest, serde_json::to_vec_pretty(&owned_paths)?)?;
-        Ok(())
-    }
-
     fn write_files(&self, root: &Path) -> anyhow::Result<()> {
         for (path, content) in &self.files {
             let destination = root.join(path);
@@ -351,25 +307,5 @@ mod tests {
         fs::write(first.join("src/mod.rs"), "// existing").unwrap();
         assert!(install_to_repository(&staging, &repository, config).is_err());
         assert_eq!(fs::read_to_string(first.join("src/mod.rs")).unwrap(), "// existing");
-    }
-
-    #[test]
-    fn owned_materialization_removes_only_stale_owned_files() {
-        let directory = TestDirectory::new();
-        let root = &directory.0;
-        fs::write(root.join("unrelated.txt"), "keep me").unwrap();
-
-        let mut first = ArtifactSet::default();
-        first.write("summary.md", "first").unwrap();
-        first.write("graphs/full.dot", "graph").unwrap();
-        first.materialize_owned(root, ".manifest.json").unwrap();
-
-        let mut second = ArtifactSet::default();
-        second.write("summary.md", "second").unwrap();
-        second.materialize_owned(root, ".manifest.json").unwrap();
-
-        assert_eq!(fs::read_to_string(root.join("summary.md")).unwrap(), "second");
-        assert!(!root.join("graphs/full.dot").exists());
-        assert_eq!(fs::read_to_string(root.join("unrelated.txt")).unwrap(), "keep me");
     }
 }

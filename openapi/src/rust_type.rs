@@ -248,6 +248,8 @@ pub enum Container {
     Slice(Box<RustType>),
     /// Expandable<{typ}>
     Expandable(Box<RustType>),
+    /// ID plus retained JSON, independent of the target DTO.
+    OpaqueExpandable(Box<RustType>),
     /// Option<{typ}>
     Option(Box<RustType>),
     /// Box<{typ}>
@@ -270,7 +272,7 @@ impl Container {
             SearchList(typ) => typ,
             Vec(typ) => typ,
             Slice(typ) => typ,
-            Expandable(typ) => typ,
+            Expandable(typ) | OpaqueExpandable(typ) => typ,
             Option(typ) => typ,
             Box(typ) => typ,
             Map { value, .. } => value,
@@ -285,7 +287,7 @@ impl Container {
             SearchList(typ) => typ,
             Vec(typ) => typ,
             Slice(typ) => typ,
-            Expandable(typ) => typ,
+            Expandable(typ) | OpaqueExpandable(typ) => typ,
             Option(typ) => typ,
             Box(typ) => typ,
             Map { value, .. } => value,

@@ -18,7 +18,9 @@ impl RustModel {
         components: &Components,
         component_metadata: impl Fn(ComponentId) -> ItemMetadata,
     ) -> anyhow::Result<Self> {
-        Self::from_draft(components, ItemCatalogDraft::build(components, component_metadata)?)
+        let mut draft = ItemCatalogDraft::build(components, component_metadata)?;
+        draft.opaque_charge_customer(components)?;
+        Self::from_draft(components, draft)
     }
 
     /// Finalize representation-dependent properties and canonical requests

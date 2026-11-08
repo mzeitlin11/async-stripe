@@ -1111,3 +1111,5 @@ mod tests {
         assert!(error.to_string().contains("inline object remained"));
     }
 }
+
+mod opaque_landing_slice;

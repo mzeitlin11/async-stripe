@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-08",
+  "purpose": "Bounded feature-author check of the final draft/finalization APIs; not part of the neutral core.",
+  "schema_provenance": {
+    "release": "v2578",
+    "tag_object": "92885a373043dc9ae77d2a5a1b3627509f7ca96f",
+    "commit": "b4012451284a3a421dbf43ed37ac00957170bc4b",
+    "url": "https://raw.githubusercontent.com/stripe/openapi/b4012451284a3a421dbf43ed37ac00957170bc4b/openapi/spec3.sdk.json",
+    "raw_sha256": "622e04fb9ae98eb28b5a67c7c885af52a71ffa60e9230b2197f5b3e136651b1d",
+    "cached_sha256": "fd7610800bd48c50bfb37ec4ce34f4d05020a2b98301fda4493995ab94e039f3",
+    "cache_annotation": "info.x-stripeTag=v2578",
+    "api_revision": "2026-09-30.endive"
+  },
+  "runtime_source": {
+    "branch": "expt/codegen-opaque-slice",
+    "commit": "176c3f588c4e1553cad274c90f2f1a4a28e41772",
+    "extract": "ObjectValue and ExpandableValue; opaque model macros and availability/layout planners omitted."
+  },
+  "representation": {
+    "field": "charge.customer",
+    "before": "Option<Expandable<Customer>>",
+    "after": "Option<ExpandableValue<CustomerId>>",
+    "input_relationship_retained": true,
+    "placement": "unchanged legacy policy"
+  },
+  "finalization": "Transform ItemCatalogDraft, then RustModel::from_draft; no caller property/request recomputation.",
+  "generated_output_comparison": {
+    "before_files": 1851,
+    "after_files": 1851,
+    "removed": [],
+    "added": [],
+    "changed": [
+      "crates/async-stripe-shared/src/charge.rs"
+    ],
+    "before_tree_sha256": "d9c71581e1e8a9c8b178671fc93f45c2a7f45c55a79f622f986df6e21b549298",
+    "after_tree_sha256": "e71e4a9eda94ea3c15c52382eebed215e04aef481e37df8746cc8d1209747c0d",
+    "equal": false
+  },
+  "verification": {
+    "success": true,
+    "source_unchanged": true,
+    "field": "charge.customer",
+    "tests": 4,
+    "runtime_source_commit": "176c3f588c4e1553cad274c90f2f1a4a28e41772"
+  },
+  "generator_clippy": "passed",
+  "consumer_clippy": "passed",
+  "limitations": [
+    "Only one real field is transformed.",
+    "JSON is parsed eagerly; concrete Customer decoding is optional.",
+    "The typed decoding adapter is local to the consumer, not a generated availability layer.",
+    "No compile-time or physical-crate-size improvement is claimed."
+  ]
+}

@@ -249,6 +249,11 @@ fn fmt_container(
             fmt_type(f, context, inner, nested_use)?;
             f.write_char('>')?;
         }
+        Container::OpaqueExpandable(inner) => {
+            write!(f, "{STRIPE_TYPES}::ExpandableValue<")?;
+            fmt_type(f, context, inner, nested_use)?;
+            f.write_char('>')?;
+        }
         Container::Option(inner) => {
             f.write_str("Option<")?;
             fmt_type(f, context, inner, nested_use)?;

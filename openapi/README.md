@@ -100,3 +100,18 @@ python3 tests/verify_generated_workspace.py
 ```
 
 This generates without installing, checks the generated crates and webhooks, and runs the existing fixture and parser tests. Logs are retained. Add `--keep-workspace` to inspect formatted output; explicit `--target-dir` and `--generator-target-dir` paths retain caller-owned build caches. The source worktree must remain unchanged. This checks the current concrete API without requiring any experimental representation or feature planner.
+
+## Opaque landing probe
+
+This experimental branch changes only `Charge.customer` to
+`Option<ExpandableValue<CustomerId>>`. The runtime implementation is a bounded
+extract from opaque experiment commit `176c3f58`. JSON is parsed eagerly and
+retained; optional concrete decoding belongs to a local consumer adapter.
+The transform runs on `ItemCatalogDraft` before `RustModel::from_draft`, with no
+post-build repair of properties or requests and no production placement change.
+
+Run `python3 openapi/tests/verify_opaque_landing_slice.py WORK GENERATOR_TARGET SDK_TARGET`
+from the repository root. Verification generates and stages an SDK outside the
+checkout, then checks ID/null values, expanded payload retention and typed
+decoding, unknown tags, and malformed objects with both decoders. The neutral
+landing branch contains none of this experimental runtime or representation code.

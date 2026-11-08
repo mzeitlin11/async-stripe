@@ -7,12 +7,14 @@ mod currency;
 mod error;
 mod expandable;
 mod ids;
+mod object_value;
 mod pagination;
 mod params;
 
 pub use currency::Currency;
 pub use error::StripeParseError;
 pub use expandable::*;
+pub use object_value::*;
 pub use pagination::*;
 pub use params::*;
 pub use serde_helpers::{with_serde_json, with_serde_json_opt};

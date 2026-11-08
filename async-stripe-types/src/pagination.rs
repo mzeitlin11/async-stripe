@@ -8,6 +8,13 @@ pub trait FromCursor {
     fn from_cursor(val: &str) -> Option<Self>
     where
         Self: Sized;
+
+    fn from_missing_id() -> Option<Self>
+    where
+        Self: Sized,
+    {
+        None
+    }
 }
 
 impl FromCursor for smol_str::SmolStr {

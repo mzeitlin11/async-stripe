@@ -4,17 +4,25 @@
 #![forbid(unsafe_code)]
 
 mod currency;
+mod deferred_fields;
 mod error;
 mod expandable;
+mod expanded_value;
 mod ids;
+mod object_value;
 mod pagination;
 mod params;
+mod record_value;
 
 pub use currency::Currency;
+pub use deferred_fields::DeferredFields;
 pub use error::StripeParseError;
 pub use expandable::*;
+pub use expanded_value::ExpandedValue;
+pub use object_value::{ExpandableValue, ObjectDecodeError, ObjectType, ObjectValue};
 pub use pagination::*;
 pub use params::*;
+pub use record_value::{RecordDecodeError, RecordValue};
 pub use serde_helpers::{with_serde_json, with_serde_json_opt};
 
 miniserde::make_place!(Place);

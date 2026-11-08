@@ -8,6 +8,14 @@ pub trait FromCursor {
     fn from_cursor(val: &str) -> Option<Self>
     where
         Self: Sized;
+
+    /// Construct an identity for an object with an absent or null ID.
+    fn from_missing_id() -> Option<Self>
+    where
+        Self: Sized,
+    {
+        None
+    }
 }
 
 impl FromCursor for smol_str::SmolStr {
@@ -18,7 +26,11 @@ impl FromCursor for smol_str::SmolStr {
 
 impl<T: FromCursor> FromCursor for Option<T> {
     fn from_cursor(val: &str) -> Option<Self> {
-        Some(T::from_cursor(val))
+        Some(Some(T::from_cursor(val)?))
+    }
+
+    fn from_missing_id() -> Option<Self> {
+        Some(None)
     }
 }
 

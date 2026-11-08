@@ -4,7 +4,7 @@ use std::mem;
 use std::str::FromStr;
 
 use miniserde::Deserialize;
-use miniserde::de::Visitor;
+use miniserde::de::{Map, Visitor};
 use miniserde::json::{Number, Object, Value};
 
 use crate::Currency;
@@ -29,6 +29,12 @@ impl ObjectBuilderInner {
         Ok(Deserialize::begin(&mut self.value))
     }
 
+    /// Finish the pending field and take the raw object without checking a tag.
+    pub fn take_object(&mut self) -> Object {
+        self.shift();
+        mem::take(&mut self.object)
+    }
+
     pub fn finish_inner(&mut self) -> Option<(String, Object)> {
         self.shift();
         let object_key = self.object.get("object").and_then(|o| match o {
@@ -48,6 +54,10 @@ pub struct MaybeDeletedBuilderInner {
 }
 
 impl MaybeDeletedBuilderInner {
+    pub fn from_object(object: Object) -> Self {
+        Self { object, ..Self::default() }
+    }
+
     pub fn shift(&mut self) {
         if let (Some(k), Some(v)) = (self.key.take(), self.value.take()) {
             self.object.insert(k, v);
@@ -79,6 +89,29 @@ pub trait FromValueOpt {
     fn from_value(v: Value) -> Option<Self>
     where
         Self: Sized;
+}
+
+/// Build a JSON object before converting it through `FromValueOpt`.
+/// Used by opaque object newtypes without instantiating any concrete model.
+pub fn object_value_map<T: FromValueOpt>(out: &mut Option<T>) -> Box<dyn Map + '_> {
+    Box::new(ObjectValueMap { out, inner: ObjectBuilderInner::default() })
+}
+
+struct ObjectValueMap<'a, T> {
+    out: &'a mut Option<T>,
+    inner: ObjectBuilderInner,
+}
+
+impl<T: FromValueOpt> Map for ObjectValueMap<'_, T> {
+    fn key(&mut self, key: &str) -> miniserde::Result<&mut dyn Visitor> {
+        self.inner.key_inner(key)
+    }
+
+    fn finish(&mut self) -> miniserde::Result<()> {
+        let object = self.inner.take_object();
+        *self.out = Some(T::from_value(Value::Object(object)).ok_or(miniserde::Error)?);
+        Ok(())
+    }
 }
 
 impl FromValueOpt for bool {

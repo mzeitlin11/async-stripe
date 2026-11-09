@@ -100,3 +100,7 @@ python3 tests/verify_generated_workspace.py
 ```
 
 This generates without installing, checks the generated crates and webhooks, and runs the existing fixture and parser tests. Logs are retained. Add `--keep-workspace` to inspect formatted output; explicit `--target-dir` and `--generator-target-dir` paths retain caller-owned build caches. The source worktree must remain unchanged. This checks the current concrete API without requiring any experimental representation or feature planner.
+
+## Lazy expandable experiment
+
+The [expandable-only experiment](experiments/lazy-expandables/README.md) adds opt-in `generate --lazy-expandables` on the neutral refactor base. It changes only expandable storage and decoding, preserving ordinary unions, nested details, diagnostics, and the existing crate/feature policy. Use `tests/verify_generated_workspace.py --lazy-expandables` for isolated full-SDK and consumer checks.

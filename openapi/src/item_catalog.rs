@@ -303,6 +303,24 @@ impl ItemCatalogDraft {
         let mut ids = HashMap::new();
         for (item, record) in self.catalog.iter() {
             let Some(object) = record.object() else { continue };
+            // A tagged union need not be a resource family: response-local
+            // unions can also contain objects without IDs. The nominal raw
+            // family requires a string ID for every variant, so keep unions
+            // with missing or optional identities concrete.
+            if let Some(EnumOfObjects::ObjectUnion(members)) = &object.enum_of_objects
+                && !members.values().all(|component| {
+                    matches!(
+                        self.catalog
+                            .get(self.catalog.component_root(*component))
+                            .object()
+                            .and_then(|member| member.identity.as_ref()),
+                        Some(ObjectIdentity::IdType(RustType::Item(id)))
+                            if matches!(self.catalog.get(*id).item, RustItem::IdNewtype)
+                    )
+                })
+            {
+                continue;
+            }
             // Value-backed objects require the tagged Stripe envelope. Some
             // expandable resources have an ID but no `object` discriminator.
             let tagged = match &object.enum_of_objects {
@@ -345,9 +363,9 @@ impl ItemCatalogDraft {
         let deferred = self
             .catalog
             .iter()
-            .map(|(item, _)| polymorphism::deferred_fields(&self.catalog, item))
+            .map(|(item, _)| (item, polymorphism::deferred_fields(&self.catalog, item)))
             .collect::<Vec<_>>();
-        for (record, fields) in self.catalog.items.iter_mut().zip(deferred) {
+        for (record, (item, fields)) in self.catalog.items.iter_mut().zip(deferred) {
             let diagnostic = matches!(&record.origin.type_root,
                 TypeRoot::Declaration(DeclarationRoot::Component(component))
                 if components.component_name(*component).as_ref() == "api_errors");
@@ -359,6 +377,9 @@ impl ItemCatalogDraft {
                 let RustObject::Struct(strukt) = &mut object.definition else { unreachable!() };
                 let only_type = record.children.is_empty()
                     && object.identity.is_none()
+                    // Tagged records retain their object metadata so enclosing
+                    // concrete unions can still discriminate their variants.
+                    && strukt.object_field.is_none()
                     && strukt.fields.len() == fields.len() + 1
                     && strukt.fields.iter().any(|field| {
                         field.wire_name() == "type"
@@ -381,6 +402,7 @@ impl ItemCatalogDraft {
             // A live/deleted pair adds only the small deleted model beside its
             // live counterpart. Keep that distinction concrete and matchable.
             if matches!(object.enum_of_objects, Some(EnumOfObjects::ObjectUnion(_)))
+                && ids.contains_key(&item)
                 && !object.usage.used_as_request_param
             {
                 anyhow::ensure!(
@@ -535,7 +557,7 @@ impl ItemCatalog {
         Ok(())
     }
 
-    pub(crate) fn analyze_properties(&mut self) -> anyhow::Result<()> {
+    fn analyze_properties(&mut self) -> anyhow::Result<()> {
         let (inferred, rounds) = crate::item_properties::infer(&self.items)?;
         self.properties = inferred;
         self.property_analysis_rounds = rounds;
@@ -726,7 +748,10 @@ fn lower_opaque_type(
             };
             *typ = RustType::Container(container);
         }
-        RustType::Item(item) if diagnostic && ids.get(item).is_some_and(|(_, tagged)| *tagged) => {
+        RustType::Item(item)
+            if diagnostic
+                && ids.get(item).is_some_and(|(id, tagged)| *tagged && !id.is_option()) =>
+        {
             // Error context can contain resources from many API families. Keep
             // the error's scalar fields typed without requiring every model.
             *typ = RustType::External(ExternalType::ObjectValue);

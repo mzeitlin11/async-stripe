@@ -1,6 +1,6 @@
 use indexmap::IndexMap;
 
-use super::{CatalogBuilder, ItemCatalog, ItemMetadata, RustItem};
+use super::{CatalogBuilder, ItemCatalog, ItemId, ItemMetadata, RustItem};
 use crate::component_catalog::{ComponentCatalog, ComponentId};
 use crate::components::Components;
 use crate::crate_dependencies::{crate_dependencies, validate_crate_dependencies};
@@ -289,6 +289,7 @@ fn nominal_object_families_emit_without_importing_their_concrete_variants() {
     fixture.items.use_opaque_relationships(&fixture.components).unwrap();
     let layout = fixture.layout(true);
     let source = fixture.items.component_root(fixture.source);
+    fixture.items.items[source.index()].metadata.doc = Some("A retained response family.".into());
     let config = crate::crates::test_config();
     let mut emitter = ItemEmitter::new(
         &fixture.items,
@@ -301,9 +302,154 @@ fn nominal_object_families_emit_without_importing_their_concrete_variants() {
         output.contents("crates/async-stripe-shared/src/source_family.rs").unwrap(),
     )
     .unwrap();
-    assert!(emitted.contains("def_object_value!(SourceFamily)"));
+    assert!(emitted.contains("def_object_value!(\n/// A retained response family.\nSourceFamily)"));
     assert!(!emitted.contains("Charge"));
     assert!(!emitted.contains("Customer"));
+}
+
+/// Each entry is absent, an optional ID, or a required ID respectively.
+fn local_union_fixture(id_fields: [Option<bool>; 2]) -> (Components, ItemCatalog, [ItemId; 4]) {
+    let catalog = ComponentCatalog::from_names(
+        ["api_errors", "first", "second"].map(|name| ComponentName::new(name.into())),
+    )
+    .unwrap();
+    let owner = catalog.id_str("api_errors").unwrap();
+    let first = catalog.id_str("first").unwrap();
+    let second = catalog.id_str("second").unwrap();
+    let objects = catalog
+        .iter()
+        .map(|(component, name)| {
+            let mut schema = if component == owner {
+                serde_json::json!({
+                    "type":"object", "properties":{
+                        "payload":{"oneOf":[
+                            {"$ref":"#/components/schemas/first"},
+                            {"$ref":"#/components/schemas/second"}
+                        ]},
+                        "first":{"$ref":"#/components/schemas/first"},
+                        "second":{"$ref":"#/components/schemas/second"}
+                    }, "required":["payload", "first", "second"]
+                })
+            } else {
+                serde_json::json!({
+                    "type":"object", "properties":{
+                        "object":{"type":"string", "enum":[name.as_ref()]}
+                    }, "required":["object"]
+                })
+            };
+            if component != owner
+                && let Some(required) = id_fields[usize::from(component == second)]
+            {
+                schema["properties"]["id"] = serde_json::json!({
+                    "type":"string", "description":"Unique identifier for the object."
+                });
+                if required {
+                    schema["required"].as_array_mut().unwrap().push("id".into());
+                }
+            }
+            let schema = serde_json::from_value(schema).unwrap();
+            let resource = StripeResource::from_schema(&schema, name.clone()).unwrap();
+            (component, StripeObject::from_schema(&schema, &resource, &catalog))
+        })
+        .collect();
+    let mut operations = OperationCatalog::from_operations(
+        catalog.iter().map(|(component, _)| (component, &[] as &[StripeOperation])),
+    )
+    .unwrap();
+    for (component, _) in catalog.iter() {
+        operations.attach_requests(component, vec![]).unwrap();
+    }
+    let components = Components::for_test(catalog, objects, operations);
+    let items = ItemCatalog::build(&components, |component| {
+        ItemMetadata::new(components.get_by_id(component).ident().clone())
+    })
+    .unwrap();
+    let owner = items.component_root(owner);
+    let union = items
+        .get(owner)
+        .object()
+        .unwrap()
+        .definition
+        .get_struct_field("payload")
+        .unwrap()
+        .item_id()
+        .unwrap();
+    let roots = [owner, union, items.component_root(first), items.component_root(second)];
+    (components, items, roots)
+}
+
+#[test]
+fn tagged_unions_with_missing_or_optional_ids_keep_their_concrete_variants() {
+    for id_fields in
+        [[None, None], [Some(true), None], [Some(true), Some(false)], [Some(false), Some(false)]]
+    {
+        let (components, mut items, [owner, union, first, second]) = local_union_fixture(id_fields);
+        items.use_opaque_relationships(&components).unwrap();
+        let object = items.get(union).object().expect("non-resource union must remain concrete");
+        assert!(matches!(
+            object.enum_of_objects,
+            Some(crate::rust_object::EnumOfObjects::ObjectUnion(_))
+        ));
+        let mut uses = Vec::new();
+        items
+            .get(union)
+            .visit_type_uses(|typ| {
+                uses.push(typ.item_id().unwrap());
+                Ok(())
+            })
+            .unwrap();
+        assert_eq!(uses, [first, second]);
+        // The surrounding diagnostic record must not invent a required ID
+        // for this union either.
+        assert_eq!(
+            items
+                .get(owner)
+                .object()
+                .unwrap()
+                .definition
+                .get_struct_field("payload")
+                .unwrap()
+                .item_id(),
+            Some(union)
+        );
+    }
+
+    let (components, mut items, [_, union, _, _]) = local_union_fixture([Some(true), Some(true)]);
+    items.use_opaque_relationships(&components).unwrap();
+    assert!(matches!(items.get(union).item, RustItem::OpaqueObject));
+}
+
+#[test]
+fn diagnostic_references_keep_optional_identity_models_typed() {
+    let (components, mut items, [owner, _, first, _]) =
+        local_union_fixture([Some(false), Some(true)]);
+    items.use_opaque_relationships(&components).unwrap();
+    let diagnostic = items.get(owner).object().unwrap();
+    assert_eq!(diagnostic.definition.get_struct_field("first").unwrap().item_id(), Some(first));
+    assert_eq!(
+        diagnostic.definition.get_struct_field("second"),
+        Some(&RustType::External(ExternalType::ObjectValue))
+    );
+}
+
+#[test]
+fn tagged_polymorphic_records_keep_the_tag_used_by_enclosing_unions() {
+    let (components, mut items, [_, union, first, second]) = local_union_fixture([None, None]);
+    let RustItem::Object(object) = &mut items.items[first.index()].item else { panic!() };
+    let RustObject::Struct(record) = &mut object.definition else { panic!() };
+    record.fields.extend([
+        StructField::new("type", RustType::string()).required(true),
+        StructField::new("second", RustType::option(RustType::Item(second))),
+    ]);
+    items.use_opaque_relationships(&components).unwrap();
+    let first = items.get(first).object().expect("tagged record must retain its object metadata");
+    assert_eq!(first.deferred_fields.len(), 1);
+    let RustObject::Struct(record) = &first.definition else { panic!() };
+    assert_eq!(record.object_field.as_deref(), Some("first"));
+    assert!(matches!(
+        items.get(union).object().unwrap().enum_of_objects,
+        Some(crate::rust_object::EnumOfObjects::ObjectUnion(_))
+    ));
 }
 
 #[test]

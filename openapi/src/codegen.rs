@@ -13,7 +13,7 @@ use crate::crate_table::generate_crate_table;
 use crate::crates::{Crate, CrateConfig};
 pub use crate::dependencies::EdgePolicy;
 use crate::exports::legacy_facade_dependencies;
-use crate::item_catalog::{ItemCatalog, ItemMetadata};
+use crate::item_catalog::{ItemCatalog, ItemCatalogDraft, ItemMetadata};
 use crate::item_layout::{EmissionSite, ItemAddress, ItemLayout};
 use crate::item_origin::TypeRoot;
 use crate::layout::ComponentLayout;
@@ -61,6 +61,29 @@ impl CodeGen {
         edge_policy: EdgePolicy,
         config: CrateConfig,
     ) -> anyhow::Result<Self> {
+        Self::build(spec, url_finder, version, edge_policy, config, false)
+    }
+
+    /// Generate the normal SDK with lazy storage only for expandable references.
+    /// Crate placement, feature policy, and ordinary object unions are unchanged.
+    pub fn with_lazy_expandable_config(
+        spec: Spec,
+        url_finder: UrlFinder,
+        version: String,
+        edge_policy: EdgePolicy,
+        config: CrateConfig,
+    ) -> anyhow::Result<Self> {
+        Self::build(spec, url_finder, version, edge_policy, config, true)
+    }
+
+    fn build(
+        spec: Spec,
+        url_finder: UrlFinder,
+        version: String,
+        edge_policy: EdgePolicy,
+        config: CrateConfig,
+        lazy_expandables: bool,
+    ) -> anyhow::Result<Self> {
         let (mut components, mut request_owners) = infer_components(&spec, &config)?;
         components.filter_unused_components();
         components.validate_catalog()?;
@@ -83,12 +106,16 @@ impl CodeGen {
             }
         }
 
-        let model = RustModel::build(&components, |component| {
+        let mut draft = ItemCatalogDraft::build(&components, |component| {
             let object = components.get_by_id(component);
             let schema = spec.get_component_schema(object.path());
             let doc_comment = infer_doc_comment(schema, object.stripe_doc_url.as_deref());
             ItemMetadata::new(object.ident().clone()).doc(doc_comment)
         })?;
+        if lazy_expandables {
+            draft.use_lazy_expandables()?;
+        }
+        let model = RustModel::from_draft(&components, draft)?;
         let component_layout =
             components.legacy_model_layout(request_owners, edge_policy, &config)?;
         let item_layout = ItemLayout::from_component_layout(

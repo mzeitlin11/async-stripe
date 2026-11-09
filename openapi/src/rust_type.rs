@@ -248,6 +248,8 @@ pub enum Container {
     Slice(Box<RustType>),
     /// Expandable<{typ}>
     Expandable(Box<RustType>),
+    /// LazyExpandable<{id_type}>; the concrete model is not a storage dependency.
+    LazyExpandable(Box<RustType>),
     /// Option<{typ}>
     Option(Box<RustType>),
     /// Box<{typ}>
@@ -271,6 +273,7 @@ impl Container {
             Vec(typ) => typ,
             Slice(typ) => typ,
             Expandable(typ) => typ,
+            LazyExpandable(typ) => typ,
             Option(typ) => typ,
             Box(typ) => typ,
             Map { value, .. } => value,
@@ -286,6 +289,7 @@ impl Container {
             Vec(typ) => typ,
             Slice(typ) => typ,
             Expandable(typ) => typ,
+            LazyExpandable(typ) => typ,
             Option(typ) => typ,
             Box(typ) => typ,
             Map { value, .. } => value,
@@ -371,6 +375,7 @@ impl Display for IntType {
 /// A symbolic type defined outside of codegen.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ExternalType {
+    SmolStr,
     Currency,
     RangeQueryTs,
     Timestamp,
@@ -384,6 +389,7 @@ impl ExternalType {
     /// deliberately owned by the rendering layer.
     pub const fn display_name(self) -> &'static str {
         match self {
+            Self::SmolStr => "SmolStr",
             Self::Currency => "Currency",
             Self::RangeQueryTs => "RangeQueryTs",
             Self::Timestamp => "Timestamp",
@@ -393,7 +399,7 @@ impl ExternalType {
     }
 
     pub const fn is_copy(self) -> bool {
-        !matches!(self, Self::Value | Self::Currency)
+        !matches!(self, Self::Value | Self::Currency | Self::SmolStr)
     }
 
     pub const fn is_eq(self) -> bool {

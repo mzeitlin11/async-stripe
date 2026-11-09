@@ -134,6 +134,7 @@ def main():
     parser.add_argument("--generator-target-dir", type=Path, help="reusable generator build cache; retained after success")
     parser.add_argument("--toolchain", default="1.89.0", help="Rust toolchain for generation and SDK validation (default: %(default)s)")
     parser.add_argument("--keep-workspace", action="store_true", help="retain formatted SDK sources after success")
+    parser.add_argument("--lazy-expandables", action="store_true", help="verify the expandable-only representation experiment")
     args = parser.parse_args()
     work = (args.work_dir or Path(tempfile.mkdtemp(prefix="async-stripe-generated-check-"))).resolve()
     if work.is_relative_to(REPO) or REPO.is_relative_to(work):
@@ -154,12 +155,15 @@ def main():
     # independently checks its staging marker before replacing generated output.
     remove_directory(workspace)
     before = source_snapshot()
-    summary = {"toolchain": args.toolchain, "completed_checks": [], "source_unchanged": False, "success": False}
+    summary = {"toolchain": args.toolchain, "lazy_expandables": args.lazy_expandables, "completed_checks": [], "source_unchanged": False, "success": False}
     error = None
     try:
         cargo = ["cargo", f"+{args.toolchain}"]
         generator_env = dict(os.environ, CARGO_TARGET_DIR=str(generator_target))
-        run(work, "generation", cargo + ["run", "--locked", "--offline", "--", "generate", "--no-install", "--out", str(output)], REPO / "openapi", generator_env)
+        generation = cargo + ["run", "--locked", "--offline", "--", "generate", "--no-install", "--out", str(output)]
+        if args.lazy_expandables:
+            generation.append("--lazy-expandables")
+        run(work, "generation", generation, REPO / "openapi", generator_env)
         summary["completed_checks"].append("generation")
         configuration = tomllib.loads((REPO / "openapi/gen_crates.toml").read_text())
         packages = sorted(f"async-stripe-{crate['name']}" for crate in configuration["crates"])
@@ -172,6 +176,10 @@ def main():
                     raise RuntimeError(f"generated package is incomplete: {package}/{relative}")
         summary["generated_packages"] = packages
         stage_workspace(workspace, output)
+        if args.lazy_expandables:
+            fixture = Path("openapi/tests/fixtures/lazy-expandable-consumer")
+            shutil.copytree(REPO / fixture, workspace / fixture, ignore=shutil.ignore_patterns("target", "Cargo.lock"))
+            shutil.copyfile(REPO / "Cargo.lock", workspace / fixture / "Cargo.lock")
         env = dict(os.environ, CARGO_TARGET_DIR=str(target), CARGO_PROFILE_DEV_DEBUG="0", CARGO_INCREMENTAL="0", CARGO_BUILD_JOBS="2")
         selected = [argument for package in packages + ["async-stripe-webhook"] for argument in ["-p", package]]
         commands = [
@@ -185,6 +193,8 @@ def main():
             ("deserialization-tests", cargo + ["test", "--offline", "-p", "async-stripe-tests", "--test", "it", "deser::", "--", "--nocapture"]),
             ("parser-tests", cargo + ["test", "--offline", "-p", "async-stripe-parser"]),
         ]
+        if args.lazy_expandables:
+            commands.append(("lazy-expandable-consumer", cargo + ["test", "--offline", "--manifest-path", str(workspace / fixture / "Cargo.toml")]))
         for name, command in commands:
             run(work, name, command, workspace, env)
             summary["completed_checks"].append(name)

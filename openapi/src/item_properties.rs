@@ -116,7 +116,7 @@ pub(crate) fn resolve(
                 }
                 Container::Vec(_) | Container::Box(_) => result.is_copy = false,
                 Container::Slice(_) => result.is_copy = true,
-                Container::Expandable(_) => {
+                Container::Expandable(_) | Container::LazyExpandable(_) => {
                     result.is_copy = false;
                     result.is_eq = false;
                 }

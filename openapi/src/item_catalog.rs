@@ -10,6 +10,8 @@ use crate::rust_object::{
 use crate::rust_type::{DeclarationRoot, RustType};
 use crate::types::RustIdent;
 
+mod lazy_expandables;
+
 /// Dense, run-local identity for a canonical Rust declaration.
 ///
 /// IDs are allocated after overrides and deduplication, so one ID corresponds

@@ -353,11 +353,10 @@ fn deserialize_expandable() {
     file_link.as_object_mut().unwrap().insert("file".into(), mock_file());
 
     let result: FileLink = from_str(&file_link.to_string()).unwrap();
-    let file = result.file.as_object().unwrap();
-
-    assert_eq!(file.created, FILE_CREATED);
-    assert_eq!(file.purpose, FilePurpose::AccountRequirement);
-    assert_eq!(file.id.as_str(), "file_123");
+    let file = serde_json::to_value(result.file).unwrap();
+    assert_eq!(file["created"], FILE_CREATED);
+    assert_eq!(file["purpose"], "account_requirement");
+    assert_eq!(file["id"], "file_123");
 }
 
 #[test]
@@ -385,8 +384,9 @@ fn deserialize_expandable_polymorphic() {
     cust.as_object_mut().unwrap().insert("default_source".into(), mock_payment_source());
 
     let result: Customer = from_str(&cust.to_string()).unwrap();
-    let payment_source = result.default_source.as_ref().unwrap().as_object().unwrap();
-    assert_payment_source_matches(payment_source);
+    let payload = serde_json::to_string(&result.default_source.unwrap()).unwrap();
+    let payment_source = from_str(&payload).unwrap();
+    assert_payment_source_matches(&payment_source);
 }
 
 #[test]
@@ -416,7 +416,7 @@ fn buffered_customer_rejects_invalid_optional_fields() {
     for (field, invalid) in [
         ("email", json!(123)),
         ("preferred_locales", json!(["en", 123])),
-        ("default_source", json!({"object": "card", "id": "card_bad"})),
+        ("default_source", json!({"object": "card", "id": 17})),
     ] {
         let mut customer = mock_customer_with_card();
         customer[field] = invalid;

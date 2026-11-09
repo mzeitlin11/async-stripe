@@ -1,0 +1,17 @@
+[package]
+name = "lazy-expandable-consumer"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[workspace]
+
+[dependencies]
+stripe = { package = "async-stripe", path = "../../../../async-stripe", default-features = false }
+stripe-core = { package = "async-stripe-core", path = "../../../../generated/async-stripe-core", features = ["balance_transaction", "charge", "customer"] }
+stripe-shared = { package = "async-stripe-shared", path = "../../../../generated/async-stripe-shared", features = ["serialize", "deserialize"] }
+stripe-types = { package = "async-stripe-types", path = "../../../../async-stripe-types", features = ["deserialize"] }
+stripe-client-core = { package = "async-stripe-client-core", path = "../../../../async-stripe-client-core" }
+bytes = "1.6.0"
+miniserde = "0.1.34"
+serde_json = "1"

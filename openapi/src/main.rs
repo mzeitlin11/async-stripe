@@ -52,6 +52,9 @@ struct GenerateArgs {
     /// Write crate inference warnings to <out>/crate_warnings.md.
     #[arg(long)]
     emit_warnings: bool,
+    /// Retain expanded JSON and decode expandable resource models on demand.
+    #[arg(long)]
+    lazy_expandables: bool,
 }
 
 #[derive(Debug, Args)]
@@ -77,7 +80,20 @@ fn main() -> Result<()> {
 
 fn run_generate(args: GenerateArgs) -> Result<()> {
     let spec = Spec::new(spec_fetch::load_generation_spec(args.update_spec)?);
-    let codegen = build_codegen(args.version.version, EdgePolicy::current_layout(), spec)?;
+    let urls = UrlFinder::new().context("could not initialize URL finder")?;
+    let version = args.version.version.map_or_else(parse_workspace_version, Ok)?;
+    let config = CrateConfig::load(Path::new("gen_crates.toml"))?;
+    let codegen = if args.lazy_expandables {
+        CodeGen::with_lazy_expandable_config(
+            spec,
+            urls,
+            version,
+            EdgePolicy::current_layout(),
+            config,
+        )?
+    } else {
+        CodeGen::with_config(spec, urls, version, EdgePolicy::current_layout(), config)?
+    };
     let workspace = codegen.render_workspace()?;
     print_summary(&codegen);
 

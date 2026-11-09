@@ -61,7 +61,11 @@ impl DisplayType<'_, '_> {
                 || !matches!(
                     self.typ,
                     RustType::Reference(_)
-                        | RustType::Container(Container::Slice(_) | Container::Expandable(_))
+                        | RustType::Container(
+                            Container::Slice(_)
+                                | Container::Expandable(_)
+                                | Container::LazyExpandable(_)
+                        )
                 ),
         };
         self
@@ -193,6 +197,7 @@ fn fmt_item(
 
 fn fmt_external(f: &mut Formatter<'_>, typ: ExternalType) -> std::fmt::Result {
     let (module, ident) = match typ {
+        ExternalType::SmolStr => ("smol_str", "SmolStr"),
         ExternalType::Currency => (STRIPE_TYPES, "Currency"),
         ExternalType::RangeQueryTs => (STRIPE_TYPES, "RangeQueryTs"),
         ExternalType::Timestamp => (STRIPE_TYPES, "Timestamp"),
@@ -246,6 +251,11 @@ fn fmt_container(
         }
         Container::Expandable(inner) => {
             write!(f, "{STRIPE_TYPES}::Expandable<")?;
+            fmt_type(f, context, inner, nested_use)?;
+            f.write_char('>')?;
+        }
+        Container::LazyExpandable(inner) => {
+            write!(f, "{STRIPE_TYPES}::LazyExpandable<")?;
             fmt_type(f, context, inner, nested_use)?;
             f.write_char('>')?;
         }

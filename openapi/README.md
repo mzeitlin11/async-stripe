@@ -130,7 +130,7 @@ Add `--keep-workspace` to retain the formatted SDK sources for reviewing the act
 
 This candidate keeps the existing package names, request ownership, and domain reexports. It assigns model modules to a single consuming domain when possible, with cross-domain support remaining shared. Consumer sets propagate through actual model dependencies and retained domain exports before placement. Optional decoder methods live in facade extension traits and do not couple model placement. It requires the complete supported surface so changing a consumer's feature selection does not change the inferred organization.
 
-Full v1 generation selects every resource with a wire object tag or identity, plus components with HTTP operations. Supporting schemas follow their actual dependencies rather than receiving an individual public feature. Fixture validation deliberately enables all selected groups and follows canonical model names through the retained service exports. The staged test manifest declares its representation-specific test feature; normal tests keep their concrete behavior, including under `--all-features`.
+Full v1 generation retains every resource and endpoint group. Concrete models and HTTP operations receive selectable groups; IDs and raw reference families remain unconditional without no-op flags. Supporting schemas follow their actual dependencies rather than receiving an individual public feature. Fixture validation deliberately enables all selected groups and follows canonical model names through the retained service exports. The staged test manifest declares its representation-specific test feature; normal tests keep their concrete behavior, including under `--all-features`.
 
 For selecting a smaller development surface or inspecting unformatted output:
 
@@ -176,3 +176,7 @@ The default opaque layout keeps the current crate map; consumer placement change
 After installing opaque output, regenerate it with `generate --opaque` (and the same layout flag). Concrete installation requires concrete runtime manifests; the installer rejects mixing those modes before replacing any files. Use separate source checkouts to compare concrete and opaque SDKs. The isolated verifiers handle this automatically.
 
 Reuse an SDK target cache for one generated workspace path at a time. Across workspace paths or layouts, use separate SDK targets or clean local SDK packages between runs. The compiler-source collector rejects artifacts from another generated workspace. Default verifier-owned caches are isolated automatically.
+
+Borrowed conversions use to_typed / to_expanded_as and do not require cloneable IDs. They clone the retained JSON for each decode; the consuming into_ variants avoid that clone. Generic field_as accepts dynamically chosen field names.
+
+Model-only webhook flags activate stored DTO dependencies. HTTP resource flags also enable their endpoint parameter/return models through model flags, without enabling those models' own endpoints. Public facade exports include those API return types. See the [detailed review results](experiments/expandables/README.md#additional-detailed-review) for the checks and bounded simplifications.

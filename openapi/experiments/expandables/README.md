@@ -46,3 +46,17 @@ Final mode checks run sequentially, cleaning local SDK artifacts between modes. 
 The Customer checks request the Customer surface in each representation; the opaque API deliberately defers retained subtrees. These are field/input observations, not matched decoding semantics or measured speedups. Charge-only compiles 147 generated deserializable fields in either opaque layout.
 
 Build caches belong to one generated workspace at a time. For different workspace paths or layouts, use separate SDK targets or clean local SDK packages between runs. The evidence archive includes the sequential cleanup driver used here. No target directories are inside source workspaces.
+
+## Additional detailed review
+
+The runtime, generator construction, and availability/packaging were reviewed independently by three agents. The neutral base remains unchanged; its canonical references, one-time finalization, placement/address separation, and shared Rust-use traversal already support this feature. No additional stage wrapper or feature solver was added.
+
+The follow-up adds borrowed to_typed / to_expanded_as decoding without requiring cloneable IDs, and dynamic field_as names whose error strings are owned only on failure. The raw JSON is cloned when borrowing for typed decoding; results are not cached. Consuming conversions retain their existing behavior.
+
+Decoder selection is now independent of owner ordering: payment_method_details_card_present works through both PaymentMethodDetails and CardGeneratedFromPaymentMethodDetails. Anonymous/private record owners and inline payload declarations stay typed when public decoder addressing would add machinery or erase no module dependency. Generated struct and builder visibility agree.
+
+Model-only flags close the stored model graph. HTTP flags additionally activate the DTOs their signatures need through those DTOs' model flags, without enabling their endpoints. Public facade exports retain the full selected API surface. Customer's model-only webhook compiles 385 generated deserializable fields and excludes PaymentMethod, funding instructions, and balance-transaction models required only by Customer endpoints. The Customer HTTP family still compiles 447 fields, as before.
+
+Three requestless raw-family flags were removed because their types are already always available: balance_transaction_source, deleted_external_account, and deleted_payment_source. The largest manifest now has 288 features, down from 290 despite adding the missing CardPresent decoder. Duplicate crate-graph computation, dense HashMap bookkeeping, an unused counter, and repeated namespace lookup were removed.
+
+Both full layouts and a selected development slice pass the SDK/fixture checks. The final anonymous-owner guard changes none of the pinned artifacts in either opaque layout. Concrete generation still matches all 1,851 neutral staging files. See the [review validation record](../../tests/expandable_review_validation.json) and adjacent archive for the exact tests and compiler source lists; the first-delivery validation record remains historical evidence.

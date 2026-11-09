@@ -1,0 +1,397 @@
+{
+  "checks": {
+    "concrete_byte_identical_staging_files": 1851,
+    "final_owner_guard_byte_identical_to_verified_opaque_output": {
+      "consumer": {
+        "byte_equal": true,
+        "staged_files": 1997
+      },
+      "legacy": {
+        "byte_equal": true,
+        "staged_files": 1997
+      }
+    },
+    "generator_cli_tests": 2,
+    "generator_library_tests": 145,
+    "local_sdk_artifacts_cleaned_between_workspaces": true,
+    "modes": {
+      "consumer-layout": {
+        "base_generated_source_files": 165,
+        "base_shared_source_files": 162,
+        "card_decoder_generated_source_files": 188,
+        "card_decoder_shared_source_files": 166,
+        "card_present_decoder_generated_source_files": 165,
+        "card_present_decoder_shared_source_files": 161,
+        "charge_absent_from_base": true,
+        "charge_generated_source_files": 180,
+        "charge_only_generated_source_files": 176,
+        "charge_only_shared_source_files": 165,
+        "charge_shared_source_files": 167,
+        "consumer_layout": true,
+        "customer_generated_source_files": 249,
+        "customer_shared_source_files": 235,
+        "detail_decoders_compile_independently": true,
+        "full_v1": true,
+        "ideal_decoder_generated_source_files": 178,
+        "ideal_decoder_shared_source_files": 165,
+        "maximum_published_feature_count": 288,
+        "payment_intent_generated_source_files": 264,
+        "payment_intent_shared_source_files": 216,
+        "payment_method_generated_source_files": 167,
+        "payment_method_shared_source_files": 164,
+        "source_unchanged": true,
+        "treasury_transaction_generated_source_files": 169,
+        "treasury_transaction_shared_source_files": 160,
+        "webhook_base_generated_source_files": 160,
+        "webhook_base_shared_source_files": 160,
+        "webhook_charge_does_not_compile_requests_or_client_interfaces": true,
+        "webhook_charge_generated_source_files": 175,
+        "webhook_charge_shared_source_files": 165,
+        "webhook_customer_excludes_endpoint_return_models": true,
+        "webhook_customer_generated_source_files": 236,
+        "webhook_customer_shared_source_files": 228,
+        "workspace_retained": true
+      },
+      "full-v1": {
+        "base_generated_source_files": 165,
+        "base_shared_source_files": 162,
+        "card_decoder_generated_source_files": 186,
+        "card_decoder_shared_source_files": 183,
+        "card_present_decoder_generated_source_files": 164,
+        "card_present_decoder_shared_source_files": 164,
+        "charge_absent_from_base": true,
+        "charge_generated_source_files": 179,
+        "charge_only_generated_source_files": 175,
+        "charge_only_shared_source_files": 172,
+        "charge_shared_source_files": 174,
+        "consumer_layout": false,
+        "customer_generated_source_files": 246,
+        "customer_shared_source_files": 243,
+        "detail_decoders_compile_independently": true,
+        "full_v1": true,
+        "ideal_decoder_generated_source_files": 176,
+        "ideal_decoder_shared_source_files": 173,
+        "maximum_published_feature_count": 288,
+        "payment_intent_generated_source_files": 263,
+        "payment_intent_shared_source_files": 260,
+        "payment_method_generated_source_files": 167,
+        "payment_method_shared_source_files": 164,
+        "source_unchanged": true,
+        "treasury_transaction_generated_source_files": 169,
+        "treasury_transaction_shared_source_files": 160,
+        "webhook_base_generated_source_files": 160,
+        "webhook_base_shared_source_files": 160,
+        "webhook_charge_does_not_compile_requests_or_client_interfaces": true,
+        "webhook_charge_generated_source_files": 172,
+        "webhook_charge_shared_source_files": 172,
+        "webhook_customer_excludes_endpoint_return_models": true,
+        "webhook_customer_generated_source_files": 233,
+        "webhook_customer_shared_source_files": 233,
+        "workspace_retained": true
+      },
+      "selected": {
+        "base_generated_source_files": 165,
+        "base_shared_source_files": 162,
+        "card_decoder_generated_source_files": 186,
+        "card_decoder_shared_source_files": 183,
+        "card_present_decoder_generated_source_files": 164,
+        "card_present_decoder_shared_source_files": 164,
+        "charge_absent_from_base": true,
+        "charge_generated_source_files": 179,
+        "charge_only_generated_source_files": 175,
+        "charge_only_shared_source_files": 172,
+        "charge_shared_source_files": 174,
+        "consumer_layout": false,
+        "customer_generated_source_files": 246,
+        "customer_shared_source_files": 243,
+        "detail_decoders_compile_independently": true,
+        "full_v1": false,
+        "ideal_decoder_generated_source_files": 176,
+        "ideal_decoder_shared_source_files": 173,
+        "maximum_published_feature_count": 105,
+        "payment_intent_generated_source_files": 263,
+        "payment_intent_shared_source_files": 260,
+        "payment_method_generated_source_files": 167,
+        "payment_method_shared_source_files": 164,
+        "source_unchanged": true,
+        "treasury_transaction_generated_source_files": 169,
+        "treasury_transaction_shared_source_files": 160,
+        "webhook_base_generated_source_files": 160,
+        "webhook_base_shared_source_files": 160,
+        "webhook_charge_does_not_compile_requests_or_client_interfaces": true,
+        "webhook_charge_generated_source_files": 172,
+        "webhook_charge_shared_source_files": 172,
+        "webhook_customer_excludes_endpoint_return_models": true,
+        "webhook_customer_generated_source_files": 233,
+        "webhook_customer_shared_source_files": 233,
+        "workspace_retained": true
+      }
+    },
+    "python_tests": 8,
+    "release_build": true,
+    "runtime_all_features_tests": 65,
+    "runtime_default_tests": 53,
+    "sdk_verification_commit": "6d5c5f94adf7308c424fbac5ecef959548bd82bf",
+    "selected_sdk_facade_strict_clippy": true,
+    "strict_generator_and_runtime_clippy": true
+  },
+  "deserialization_fields": {
+    "consumer-layout": {
+      "compiled_fields_per_consumer": {
+        "base": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 51
+        },
+        "card_decoder": {
+          "async-stripe-core": 97,
+          "async-stripe-payment": 49,
+          "async-stripe-shared": 53
+        },
+        "card_present_decoder": {
+          "async-stripe-payment": 37,
+          "async-stripe-shared": 33
+        },
+        "charge": {
+          "async-stripe-core": 97,
+          "async-stripe-shared": 70
+        },
+        "charge_only": {
+          "async-stripe-core": 97,
+          "async-stripe-shared": 50
+        },
+        "customer": {
+          "async-stripe-core": 69,
+          "async-stripe-shared": 378
+        },
+        "ideal_decoder": {
+          "async-stripe-core": 97,
+          "async-stripe-payment": 7,
+          "async-stripe-shared": 50
+        },
+        "payment_intent": {
+          "async-stripe-core": 220,
+          "async-stripe-shared": 163
+        },
+        "payment_method": {
+          "async-stripe-payment": 0,
+          "async-stripe-shared": 53
+        },
+        "treasury_transaction": {
+          "async-stripe-shared": 31,
+          "async-stripe-treasury": 32
+        },
+        "webhook_base": {
+          "async-stripe-shared": 31
+        },
+        "webhook_charge": {
+          "async-stripe-core": 97,
+          "async-stripe-shared": 50
+        },
+        "webhook_customer": {
+          "async-stripe-core": 44,
+          "async-stripe-shared": 341
+        }
+      },
+      "physical_fields_per_package": {
+        "async-stripe-billing": 717,
+        "async-stripe-checkout": 347,
+        "async-stripe-connect": 540,
+        "async-stripe-core": 975,
+        "async-stripe-fraud": 125,
+        "async-stripe-issuing": 447,
+        "async-stripe-misc": 622,
+        "async-stripe-payment": 1331,
+        "async-stripe-product": 106,
+        "async-stripe-reserve": 51,
+        "async-stripe-shared": 656,
+        "async-stripe-terminal": 173,
+        "async-stripe-treasury": 302
+      },
+      "scope": "Canonical structs with generated miniserde deserialization; raw JSON contents, request-only fields, IDs, and enum variants excluded."
+    },
+    "full-v1": {
+      "compiled_fields_per_consumer": {
+        "base": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 51
+        },
+        "card_decoder": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 199
+        },
+        "card_present_decoder": {
+          "async-stripe-shared": 70
+        },
+        "charge": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 167
+        },
+        "charge_only": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 147
+        },
+        "customer": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 447
+        },
+        "ideal_decoder": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 154
+        },
+        "payment_intent": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 383
+        },
+        "payment_method": {
+          "async-stripe-payment": 0,
+          "async-stripe-shared": 53
+        },
+        "treasury_transaction": {
+          "async-stripe-shared": 31,
+          "async-stripe-treasury": 32
+        },
+        "webhook_base": {
+          "async-stripe-shared": 31
+        },
+        "webhook_charge": {
+          "async-stripe-shared": 147
+        },
+        "webhook_customer": {
+          "async-stripe-shared": 385
+        }
+      },
+      "physical_fields_per_package": {
+        "async-stripe-billing": 253,
+        "async-stripe-checkout": 0,
+        "async-stripe-connect": 134,
+        "async-stripe-core": 81,
+        "async-stripe-fraud": 100,
+        "async-stripe-issuing": 0,
+        "async-stripe-misc": 622,
+        "async-stripe-payment": 227,
+        "async-stripe-product": 16,
+        "async-stripe-reserve": 51,
+        "async-stripe-shared": 4433,
+        "async-stripe-terminal": 173,
+        "async-stripe-treasury": 302
+      },
+      "scope": "Canonical structs with generated miniserde deserialization; raw JSON contents, request-only fields, IDs, and enum variants excluded."
+    },
+    "selected": {
+      "compiled_fields_per_consumer": {
+        "base": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 51
+        },
+        "card_decoder": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 199
+        },
+        "card_present_decoder": {
+          "async-stripe-shared": 70
+        },
+        "charge": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 167
+        },
+        "charge_only": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 147
+        },
+        "customer": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 447
+        },
+        "ideal_decoder": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 154
+        },
+        "payment_intent": {
+          "async-stripe-core": 0,
+          "async-stripe-shared": 383
+        },
+        "payment_method": {
+          "async-stripe-payment": 0,
+          "async-stripe-shared": 53
+        },
+        "treasury_transaction": {
+          "async-stripe-shared": 31,
+          "async-stripe-treasury": 32
+        },
+        "webhook_base": {
+          "async-stripe-shared": 31
+        },
+        "webhook_charge": {
+          "async-stripe-shared": 147
+        },
+        "webhook_customer": {
+          "async-stripe-shared": 385
+        }
+      },
+      "physical_fields_per_package": {
+        "async-stripe-billing": 253,
+        "async-stripe-checkout": 0,
+        "async-stripe-connect": 134,
+        "async-stripe-core": 81,
+        "async-stripe-fraud": 100,
+        "async-stripe-issuing": 0,
+        "async-stripe-misc": 622,
+        "async-stripe-payment": 227,
+        "async-stripe-product": 16,
+        "async-stripe-reserve": 51,
+        "async-stripe-shared": 4433,
+        "async-stripe-terminal": 173,
+        "async-stripe-treasury": 302
+      },
+      "scope": "Canonical structs with generated miniserde deserialization; raw JSON contents, request-only fields, IDs, and enum variants excluded."
+    }
+  },
+  "evidence_archive": {
+    "bytes": 454958,
+    "path": "openapi/tests/expandable_review_evidence.tar.gz",
+    "sha256": "13d8bb062e729fc2d6cad30b01b18fb0147d077f32b4f98d733cdab78e232b71"
+  },
+  "feature_flags": {
+    "added_independent_decoder": "payment_method_details_card_present",
+    "maximum_published_package_feature_count": 288,
+    "prior_maximum": 290,
+    "removed_noop_flags": [
+      "balance_transaction_source",
+      "deleted_external_account",
+      "deleted_payment_source"
+    ]
+  },
+  "implemented_findings": [
+    "Borrowed typed decoding without I: Clone; dynamic retained field names with owned errors only on failure.",
+    "Deterministic specific CardPresent decoder across owners.",
+    "Separate stored-model and HTTP API availability; forward required model flags without activating their endpoints.",
+    "Conservative eligibility for inline/private owners and inline payloads; preserve struct/builder visibility.",
+    "Remove requestless foundation flags, duplicate dependency calculation, dense HashMap bookkeeping and unused counter.",
+    "Share destination-crate namespace resolution and verification path preflight; reject before mutation."
+  ],
+  "input": {
+    "api_revision": "2026-09-30.endive",
+    "cache_annotation": "info.x-stripeTag=v2578",
+    "cached_sha256": "fd7610800bd48c50bfb37ec4ce34f4d05020a2b98301fda4493995ab94e039f3",
+    "commit": "b4012451284a3a421dbf43ed37ac00957170bc4b",
+    "fixtures_sha256": "c2544d6185074fbcd1f8e0087303fb3bfcb2384303d9927a6cc4f09135c462bb",
+    "raw_sha256": "622e04fb9ae98eb28b5a67c7c885af52a71ffa60e9230b2197f5b3e136651b1d",
+    "release": "v2578",
+    "tag_object": "92885a373043dc9ae77d2a5a1b3627509f7ca96f",
+    "url": "https://raw.githubusercontent.com/stripe/openapi/b4012451284a3a421dbf43ed37ac00957170bc4b/openapi/spec3.sdk.json"
+  },
+  "neutral_base": "4a483d791bf58cadf45968d4e6de02fb832ab0de",
+  "neutral_base_changed": false,
+  "review_base": "3fe2ca8ca62b7edfdf09cd77586c27936051d26a",
+  "review_scopes": [
+    "runtime and API ergonomics",
+    "model construction and neutral boundaries",
+    "availability, facades and packaging"
+  ],
+  "scope": "Pinned v2578 v1. No new default layout, schema update, v2 change, or compilation timing claim.",
+  "source_commit": "3e417f6bbe981234dbe8c9025a0b0f189534634a",
+  "toolchain": {
+    "rustc": "rustc 1.89.0 (29483883e 2025-08-04)",
+    "rustfmt": "rustfmt 1.11.0-nightly (c1070d6938 2026-09-28)"
+  }
+}

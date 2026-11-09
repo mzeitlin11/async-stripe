@@ -4,7 +4,10 @@ use super::{RecordDecodeError, RecordValue};
 use crate::ObjectValue;
 use crate::miniserde_helpers::FromValueOpt;
 
-crate::def_record_value!(PaymentMethodDetails);
+crate::def_record_value!(
+    /// Test record retaining its schema documentation.
+    PaymentMethodDetails
+);
 
 #[derive(Debug, Eq, PartialEq, miniserde::Deserialize)]
 struct Card {

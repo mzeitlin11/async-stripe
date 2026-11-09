@@ -151,8 +151,9 @@ impl miniserde::de::Visitor for crate::Place<RecordValue> {
 #[macro_export]
 #[allow(clippy::crate_in_macro_def)]
 macro_rules! def_record_value {
-    ($struct_name:ident) => {
+    ($(#[$meta:meta])* $struct_name:ident) => {
         /// A Stripe record with optional typed field decoding.
+        $(#[$meta])*
         #[derive(Clone, Debug)]
         pub struct $struct_name($crate::RecordValue);
 

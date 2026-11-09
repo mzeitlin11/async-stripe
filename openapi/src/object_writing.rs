@@ -27,24 +27,19 @@ impl RenderContext<'_> {
         self.assert_emits(item);
         let record = self.item(item);
         match &record.item {
-            RustItem::Object(object) if !object.deferred_fields.is_empty() => {
+            RustItem::OpaqueObject | RustItem::OpaqueRecord(_) => {
+                let macro_name = if matches!(record.item, RustItem::OpaqueObject) {
+                    "def_object_value"
+                } else {
+                    "def_record_value"
+                };
+                let _ = writeln!(out, "{STRIPE_TYPES}::{macro_name}!(");
+                // Macro input attributes are forwarded to the declaration.
+                // Attributes on the invocation itself would be discarded.
                 if let Some(doc) = &record.metadata.doc {
                     out.push_str(&write_doc_comment(doc, 0));
                 }
-                let RustObject::Struct(strukt) = &object.definition else { unreachable!() };
-                ObjectWriter::new(*self, &record.metadata.ident, object.usage)
-                    .write_polymorphic_struct(out, strukt);
-            }
-            RustItem::OpaqueObject => {
-                let _ =
-                    writeln!(out, "{STRIPE_TYPES}::def_object_value!({});", record.metadata.ident);
-            }
-            RustItem::OpaqueRecord(_) => {
-                if let Some(doc) = &record.metadata.doc {
-                    out.push_str(&write_doc_comment(doc, 0));
-                }
-                let _ =
-                    writeln!(out, "{STRIPE_TYPES}::def_record_value!({});", record.metadata.ident);
+                let _ = writeln!(out, "{});", record.metadata.ident);
             }
             RustItem::Object(object) => {
                 if let Some(doc) = &record.metadata.doc {
@@ -59,6 +54,12 @@ impl RenderContext<'_> {
                     .lifetime(lifetime)
                     .derive_copy(properties.is_copy)
                     .derive_eq(properties.is_eq);
+
+                if !object.deferred_fields.is_empty() {
+                    let RustObject::Struct(strukt) = &object.definition else { unreachable!() };
+                    writer.write_polymorphic_struct(out, strukt);
+                    return;
+                }
 
                 match &object.definition {
                     RustObject::Struct(struct_) => {

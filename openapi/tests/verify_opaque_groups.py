@@ -7,11 +7,9 @@ caches and are retained. No product files are installed.
 """
 
 import argparse
-import hashlib
 import json
 import os
 from pathlib import Path
-import re
 import shutil
 import subprocess
 import tempfile
@@ -23,31 +21,14 @@ sys.dont_write_bytecode = True
 from verify_generated_workspace import (
     compiled_generated_sources_from_messages as compiled_generated_sources,
     remove_directory,
+    replace_array,
+    source_snapshot,
     validate_verification_paths,
 )
 
 
 REPO = Path(__file__).resolve().parents[2]
 MEMBERS = ["async-stripe-types", "async-stripe-client-core", "async-stripe", "async-stripe-webhook", "async-stripe-parser", "generated/*"]
-
-
-def source_snapshot():
-    names = subprocess.check_output(
-        ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"], cwd=REPO
-    ).split(b"\0")
-    return {
-        os.fsdecode(name): hashlib.sha256((REPO / os.fsdecode(name)).read_bytes()).hexdigest()
-        for name in names
-        if name and (REPO / os.fsdecode(name)).is_file()
-    }
-
-
-def replace_array(manifest, key, values):
-    start = re.search(rf"(?m)^{re.escape(key)}\s*=\s*\[", manifest)
-    if start is None:
-        raise AssertionError(f"workspace manifest lacks {key}")
-    end = manifest.index("]", start.end()) + 1
-    return manifest[: start.start()] + f"{key} = {json.dumps(values)}" + manifest[end:]
 
 
 def run(work, name, command, cwd, env, expect_success=True):

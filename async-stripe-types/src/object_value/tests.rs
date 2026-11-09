@@ -6,7 +6,10 @@ use crate::FromCursor;
 use crate::miniserde_helpers::FromValueOpt;
 
 crate::def_id!(TestId);
-crate::def_object_value!(PaymentSource);
+crate::def_object_value!(
+    /// Test object family retaining its schema documentation.
+    PaymentSource
+);
 
 #[derive(Debug, miniserde::Deserialize)]
 struct Charge {

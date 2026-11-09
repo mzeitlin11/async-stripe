@@ -407,8 +407,9 @@ mod miniserde_impl {
 #[macro_export]
 #[allow(clippy::crate_in_macro_def)]
 macro_rules! def_object_value {
-    ($struct_name:ident) => {
+    ($(#[$meta:meta])* $struct_name:ident) => {
         /// A polymorphic Stripe object with optional typed decoding.
+        $(#[$meta])*
         #[derive(Clone, Debug)]
         pub struct $struct_name($crate::ObjectValue);
 

@@ -46,3 +46,11 @@ See [validation.json](validation.json) and its evidence archive for exact proven
 The final verification passes 87 generator library tests, one CLI test, 18 default/22 all-feature runtime tests, three Python tests, strict generator/runtime/consumer Clippy, a release build, the full SDK checks, and all six focused consumer tests.
 
 All concrete models remain present, and IDs remain in their existing model modules. Physical field counts and the full compiler source closure therefore stay unchanged: all-feature compilation uses the same 1,834 generated source files as the neutral base. This experiment isolates lazy expandable storage and decoding; no compilation speedup or packaging reduction is claimed.
+
+## Focused review
+
+The follow-up review at `6278757ec3c7b43cbfaa8ec4b531cacb75fe6184` removes identity inference from live/deleted return-union classification. Only the metadata that generates an `Object` implementation can grant an expandable target its identity. Unsupported targets now fail during the transform instead of producing a lazy relationship that the typed conversion API cannot decode. Ordinary matchable return unions remain supported in their existing positions.
+
+Regression coverage checks that classification cannot invent an identity and that request signatures receive the finalized lazy representation. CLI configuration, version, and documentation-map loading now use one shared path. Runtime storage, conversion, optional-ID behavior, cloning, serialization, and redaction were reviewed without requiring changes.
+
+All 89 generator library tests, the CLI test, strict generator Clippy, and the release build pass. Both concrete and lazy generation match all 1,851 files from the earlier verified outputs byte for byte. The prior full SDK/runtime/consumer results remain applicable; those suites were not rebuilt in this pass. See [review-validation.json](review-validation.json) and its small evidence archive. The original validation record remains historical evidence.

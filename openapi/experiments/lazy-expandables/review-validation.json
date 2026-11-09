@@ -1,0 +1,34 @@
+{
+  "review_base": "30f542142e975eb9fd7e7de8cecc2617115abf25",
+  "source_commit": "6278757ec3c7b43cbfaa8ec4b531cacb75fe6184",
+  "previous_validation": "validation.json",
+  "findings": [
+    "Use only declared Object identity; remove the unsupported live/deleted return-union identity fallback.",
+    "Prove request signatures receive the transformed types through normal canonical finalization.",
+    "Share CLI configuration initialization rather than duplicating it for generation."
+  ],
+  "runtime_changed": false,
+  "checks": {
+    "generator_library_tests": 89,
+    "generator_cli_tests": 1,
+    "strict_generator_clippy": "passed",
+    "release_build": "passed"
+  },
+  "artifact_parity": {
+    "concrete": {
+      "staged_files": 1851,
+      "byte_equal_to_previous_verified_sdk": true
+    },
+    "lazy": {
+      "staged_files": 1851,
+      "byte_equal_to_previous_verified_sdk": true
+    },
+    "runtime_changed": false
+  },
+  "reused_validation": "The unchanged runtime and byte-identical generated outputs reuse the previous SDK/runtime/consumer validation. These suites were not rebuilt in this review.",
+  "evidence": {
+    "path": "review-evidence.tar.gz",
+    "bytes": 3422,
+    "sha256": "3de377db60ac303a05d287f0a17edae6d6ed822833fc5ada97237d19a46f13c6"
+  }
+}

@@ -52,10 +52,10 @@ impl ItemCatalogDraft {
 fn lower(typ: &mut RustType, ids: &HashMap<ItemId, RustType>) -> anyhow::Result<()> {
     match typ {
         RustType::Container(Container::Expandable(target)) => {
-            let item = target.item_id().ok_or_else(|| {
-                anyhow::anyhow!("expandable target has no canonical declaration: {target:?}")
-            })?;
-            let id = ids.get(&item).ok_or_else(|| {
+            let RustType::Item(item) = &**target else {
+                anyhow::bail!("expandable target must be a direct object declaration: {target:?}");
+            };
+            let id = ids.get(item).ok_or_else(|| {
                 anyhow::anyhow!("expandable target has no canonical identity: {item:?}")
             })?;
             *typ = RustType::Container(Container::LazyExpandable(Box::new(id.clone())));

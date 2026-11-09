@@ -259,3 +259,37 @@ fn request_signatures_use_the_finalized_expandable_representation() {
         RustType::Container(Container::LazyExpandable(Box::new(id)))
     );
 }
+
+#[test]
+fn wrappers_inside_an_expandable_cannot_be_erased_to_their_inner_object() {
+    let (_, draft, [_, customer, _, _]) = fixture();
+    let id = draft
+        .catalog
+        .get(customer)
+        .object()
+        .unwrap()
+        .identity
+        .as_ref()
+        .unwrap()
+        .id_type()
+        .unwrap()
+        .clone();
+    let ids = [(customer, id)].into_iter().collect();
+    for target in [
+        RustType::option(RustType::Item(customer)),
+        RustType::vec(RustType::Item(customer)),
+        RustType::boxed(RustType::Item(customer)),
+        RustType::reference(RustType::Item(customer)),
+        RustType::expandable(RustType::Item(customer)),
+    ] {
+        let mut typ = RustType::expandable(target);
+        let original = typ.clone();
+        assert!(
+            lower(&mut typ, &ids)
+                .unwrap_err()
+                .to_string()
+                .contains("expandable target must be a direct object declaration")
+        );
+        assert_eq!(typ, original);
+    }
+}

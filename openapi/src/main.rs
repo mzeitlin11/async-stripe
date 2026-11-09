@@ -71,7 +71,7 @@ fn main() -> Result<()> {
         Command::Generate(args) => run_generate(args),
         Command::Graph(args) => {
             let spec = Spec::new(spec_fetch::load_pinned_spec()?);
-            let codegen = build_codegen(args.version, EdgePolicy::current_layout(), spec)?;
+            let codegen = build_codegen(args.version, EdgePolicy::current_layout(), spec, false)?;
             codegen.legacy_graphs()?.materialize(Path::new("out"))
         }
         Command::UpdateApiDocs(args) => run_update_api_docs(args),
@@ -80,20 +80,12 @@ fn main() -> Result<()> {
 
 fn run_generate(args: GenerateArgs) -> Result<()> {
     let spec = Spec::new(spec_fetch::load_generation_spec(args.update_spec)?);
-    let urls = UrlFinder::new().context("could not initialize URL finder")?;
-    let version = args.version.version.map_or_else(parse_workspace_version, Ok)?;
-    let config = CrateConfig::load(Path::new("gen_crates.toml"))?;
-    let codegen = if args.lazy_expandables {
-        CodeGen::with_lazy_expandable_config(
-            spec,
-            urls,
-            version,
-            EdgePolicy::current_layout(),
-            config,
-        )?
-    } else {
-        CodeGen::with_config(spec, urls, version, EdgePolicy::current_layout(), config)?
-    };
+    let codegen = build_codegen(
+        args.version.version,
+        EdgePolicy::current_layout(),
+        spec,
+        args.lazy_expandables,
+    )?;
     let workspace = codegen.render_workspace()?;
     print_summary(&codegen);
 
@@ -111,20 +103,21 @@ fn run_generate(args: GenerateArgs) -> Result<()> {
 
 fn run_update_api_docs(args: UpdateApiDocsArgs) -> Result<()> {
     let spec = Spec::new(spec_fetch::load_pinned_spec()?);
-    let codegen = build_codegen(None, EdgePolicy::current_layout(), spec)?;
+    let codegen = build_codegen(None, EdgePolicy::current_layout(), spec, false)?;
     update_api_doc_data(&args.api_docs_url, codegen.components())
 }
 
-fn build_codegen(version: Option<String>, edge_policy: EdgePolicy, spec: Spec) -> Result<CodeGen> {
+fn build_codegen(
+    version: Option<String>,
+    edge_policy: EdgePolicy,
+    spec: Spec,
+    lazy_expandables: bool,
+) -> Result<CodeGen> {
     let url_finder = UrlFinder::new().context("could not initialize URL finder")?;
     let version = version.map_or_else(parse_workspace_version, Ok)?;
-    CodeGen::with_config(
-        spec,
-        url_finder,
-        version,
-        edge_policy,
-        CrateConfig::load(Path::new("gen_crates.toml"))?,
-    )
+    let build =
+        if lazy_expandables { CodeGen::with_lazy_expandable_config } else { CodeGen::with_config };
+    build(spec, url_finder, version, edge_policy, CrateConfig::load(Path::new("gen_crates.toml"))?)
 }
 
 fn materialize_and_format(

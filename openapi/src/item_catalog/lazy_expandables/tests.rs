@@ -2,10 +2,13 @@ use super::*;
 use crate::component_catalog::ComponentCatalog;
 use crate::components::Components;
 use crate::item_catalog::{ItemCatalog, ItemMetadata};
-use crate::operations::{OperationCatalog, StripeOperation};
-use crate::rust_object::{ObjectUsage, StructField};
+use crate::operations::{
+    MethodType, OperationCatalog, OperationType, RequestSpec, StripeOperation,
+};
+use crate::rust_model::RustModel;
+use crate::rust_object::{EnumOfObjects, MaybeDeleted, ObjectUsage, StructField};
 use crate::stripe_object::{StripeObject, StripeResource};
-use crate::types::ComponentName;
+use crate::types::{ComponentName, RustIdent};
 
 fn fixture() -> (Components, ItemCatalogDraft, [ItemId; 4]) {
     let catalog = ComponentCatalog::from_names(
@@ -31,12 +34,35 @@ fn fixture() -> (Components, ItemCatalogDraft, [ItemId; 4]) {
             (component, StripeObject::from_schema(&schema, &resource, &catalog))
         })
         .collect();
-    let mut operations = OperationCatalog::from_operations(
-        catalog.iter().map(|(component, _)| (component, &[] as &[StripeOperation])),
-    )
+    let owner = catalog.id_str("api_errors").unwrap();
+    let customer = catalog.id_str("customer").unwrap();
+    let operation = StripeOperation {
+        method_name: "retrieve".into(),
+        method_type: MethodType::Retrieve,
+        method_on: "service".into(),
+        operation_type: OperationType::Get,
+        path: "/v1/example".into(),
+    };
+    let mut operations = OperationCatalog::from_operations(catalog.iter().map(|(component, _)| {
+        (component, if component == owner { std::slice::from_ref(&operation) } else { &[] })
+    }))
     .unwrap();
     for (component, _) in catalog.iter() {
-        operations.attach_requests(component, vec![]).unwrap();
+        let requests = if component == owner {
+            vec![RequestSpec {
+                operation_id: operations.for_component(owner)[0],
+                ident: RustIdent::create("retrieve_example"),
+                path_params: vec![],
+                params: None,
+                method_type: OperationType::Get,
+                returned: RustType::expandable(RustType::component(customer)),
+                doc_comment: None,
+                req_path: "/example".into(),
+            }]
+        } else {
+            vec![]
+        };
+        operations.attach_requests(component, requests).unwrap();
     }
     let components = Components::for_test(catalog, objects, operations);
     let mut draft = ItemCatalogDraft::build(&components, |component| {
@@ -191,5 +217,45 @@ fn optional_target_identity_survives_lowering() {
             .id_type()
             .unwrap()
             .is_option()
+    );
+}
+
+#[test]
+fn union_classification_does_not_invent_an_object_identity() {
+    let (_, mut draft, [_, _, _, family]) = fixture();
+    let RustItem::Object(object) = &mut draft.catalog.items[family.index()].item else { panic!() };
+    let Some(EnumOfObjects::ObjectUnion(members)) = &object.enum_of_objects else { panic!() };
+    // Return unions have no Object impl even when their classification names
+    // a base resource with an ID. Classification must not grant that impl.
+    object.enum_of_objects = Some(EnumOfObjects::MaybeDeleted(MaybeDeleted {
+        base: members["customer"],
+        deleted: members["other"],
+    }));
+    object.identity = None;
+    let error = draft.use_lazy_expandables().unwrap_err();
+    assert!(error.to_string().contains("expandable target has no canonical identity"));
+}
+
+#[test]
+fn request_signatures_use_the_finalized_expandable_representation() {
+    let (components, mut draft, [_, customer, _, _]) = fixture();
+    let id = draft
+        .catalog
+        .get(customer)
+        .object()
+        .unwrap()
+        .identity
+        .as_ref()
+        .unwrap()
+        .id_type()
+        .unwrap()
+        .clone();
+    let (&owner, _) =
+        components.components.iter().find(|(_, object)| object.mod_path() == "api_errors").unwrap();
+    draft.use_lazy_expandables().unwrap();
+    let model = RustModel::from_draft(&components, draft).unwrap();
+    assert_eq!(
+        model.requests_for_component(owner)[0].returned.typ,
+        RustType::Container(Container::LazyExpandable(Box::new(id)))
     );
 }

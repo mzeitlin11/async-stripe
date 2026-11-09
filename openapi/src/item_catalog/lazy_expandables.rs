@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::{ItemCatalogDraft, ItemId, RustItem};
-use crate::rust_object::{EnumOfObjects, ObjectIdentity, RustObject};
+use crate::rust_object::{ObjectIdentity, RustObject};
 use crate::rust_type::{Container, ExternalType, RustType};
 
 impl ItemCatalogDraft {
@@ -13,22 +13,12 @@ impl ItemCatalogDraft {
             .iter()
             .filter_map(|(item, record)| {
                 let object = record.object()?;
-                let id = match &object.identity {
-                    Some(ObjectIdentity::IdType(id)) => Some(id.clone()),
-                    Some(ObjectIdentity::ObjectUnion) => {
-                        Some(RustType::External(ExternalType::SmolStr))
-                    }
-                    None => match &object.enum_of_objects {
-                        Some(EnumOfObjects::MaybeDeleted(pair)) => self
-                            .catalog
-                            .get(self.catalog.component_root(pair.base))
-                            .object()
-                            .and_then(|base| base.identity.as_ref())
-                            .and_then(ObjectIdentity::id_type)
-                            .cloned(),
-                        _ => None,
-                    },
-                }?;
+                // The same metadata drives the generated Object impl. Enum
+                // classification alone does not give a return union an identity.
+                let id = match object.identity.as_ref()? {
+                    ObjectIdentity::IdType(id) => id.clone(),
+                    ObjectIdentity::ObjectUnion => RustType::External(ExternalType::SmolStr),
+                };
                 Some((item, id))
             })
             .collect::<HashMap<_, _>>();

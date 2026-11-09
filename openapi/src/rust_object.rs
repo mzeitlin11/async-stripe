@@ -24,7 +24,7 @@ pub enum RustObject {
 pub enum ObjectIdentity {
     /// A struct whose `id` field has this type.
     IdType(RustType),
-    /// A polymorphic object enum whose variants expose their underlying IDs.
+    /// A polymorphic object enum exposing its variants' IDs as `smol_str::SmolStr`.
     ObjectUnion,
 }
 

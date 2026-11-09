@@ -7,12 +7,14 @@ mod currency;
 mod error;
 mod expandable;
 mod ids;
+mod lazy_expandable;
 mod pagination;
 mod params;
 
 pub use currency::Currency;
 pub use error::StripeParseError;
 pub use expandable::*;
+pub use lazy_expandable::{LazyExpandable, LazyExpandableError};
 pub use pagination::*;
 pub use params::*;
 pub use serde_helpers::{with_serde_json, with_serde_json_opt};

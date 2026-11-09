@@ -38,6 +38,11 @@ impl ObjectBuilderInner {
         let final_object = mem::replace(&mut self.object, Object::new());
         Some((object_key, final_object))
     }
+
+    pub(crate) fn take_object(&mut self) -> Object {
+        self.shift();
+        mem::take(&mut self.object)
+    }
 }
 
 #[derive(Default)]

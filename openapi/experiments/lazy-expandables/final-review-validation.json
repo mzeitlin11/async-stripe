@@ -1,0 +1,30 @@
+{
+  "review_base": "ba4eb7092b3bfffb995f000b0ea4ae383442ed55",
+  "source_commit": "7b993287472638a939c11c18a143d15cc3a76f51",
+  "original_sdk_validation": "validation.json",
+  "finding": "Require a direct object declaration as the expandable target; reject wrappers inside that target rather than silently erasing them.",
+  "checks": {
+    "generator_library_tests": 90,
+    "generator_cli_tests": 1,
+    "strict_generator_clippy": "passed",
+    "release_build": "passed"
+  },
+  "artifact_parity": {
+    "concrete": {
+      "staged_files": 1851,
+      "byte_equal_to_original_verified_output": true
+    },
+    "lazy": {
+      "staged_files": 1851,
+      "byte_equal_to_original_verified_output": true
+    },
+    "runtime_unchanged": true
+  },
+  "reused_validation": "Runtime unchanged; both generated outputs byte-identical to the original verified SDKs. Prior full SDK/runtime/consumer checks remain applicable and were not rebuilt.",
+  "scope": "Expandable-only experiment; no further functionality or architecture change required.",
+  "evidence": {
+    "path": "final-review-evidence.tar.gz",
+    "bytes": 3471,
+    "sha256": "6abe5344f547431e0a571a6be6295c08d7b2762744633a78078135313d8ff5f9"
+  }
+}

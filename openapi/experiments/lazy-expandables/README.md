@@ -43,7 +43,7 @@ Start with the consumer tests, then [runtime storage](../../../async-stripe-type
 
 See [validation.json](validation.json) and its evidence archive for exact provenance. Default generation matches all 1,851 neutral staging files byte for byte. Lazy generation changes 169 Rust files, exclusively in expandable type expressions and rustfmt formatting; manifests, exports, layout, requests, and generated fixture declarations are byte-identical. The rendered expressions occur in fields and generated decoder/builder code, so their occurrence count is not a DTO field count.
 
-The final verification passes 87 generator library tests, one CLI test, 18 default/22 all-feature runtime tests, three Python tests, strict generator/runtime/consumer Clippy, a release build, the full SDK checks, and all six focused consumer tests.
+The initial full verification passed 87 generator library tests, one CLI test, 18 default/22 all-feature runtime tests, three Python tests, strict generator/runtime/consumer Clippy, a release build, the full SDK checks, and all six focused consumer tests.
 
 All concrete models remain present, and IDs remain in their existing model modules. Physical field counts and the full compiler source closure therefore stay unchanged: all-feature compilation uses the same 1,834 generated source files as the neutral base. This experiment isolates lazy expandable storage and decoding; no compilation speedup or packaging reduction is claimed.
 
@@ -54,3 +54,9 @@ The follow-up review at `6278757ec3c7b43cbfaa8ec4b531cacb75fe6184` removes ident
 Regression coverage checks that classification cannot invent an identity and that request signatures receive the finalized lazy representation. CLI configuration, version, and documentation-map loading now use one shared path. Runtime storage, conversion, optional-ID behavior, cloning, serialization, and redaction were reviewed without requiring changes.
 
 All 89 generator library tests, the CLI test, strict generator Clippy, and the release build pass. Both concrete and lazy generation match all 1,851 files from the earlier verified outputs byte for byte. The prior full SDK/runtime/consumer results remain applicable; those suites were not rebuilt in this pass. See [review-validation.json](review-validation.json) and its small evidence archive. The original validation record remains historical evidence.
+
+## Final review
+
+The final review at `7b993287472638a939c11c18a143d15cc3a76f51` requires an expandable target to be a direct canonical object declaration. Wrappers around an expandable remain supported; wrappers inside its target cannot be silently discarded. A regression test covers optional, collection, boxed, borrowed, and nested-expandable targets. No further runtime or architectural change was warranted.
+
+All 90 generator library tests, the CLI test, strict generator Clippy, and the release build pass. Both modes remain byte-identical to the original verified outputs, with 1,851 staged files each. The unchanged runtime and SDK outputs retain the earlier full validation. See [final-review-validation.json](final-review-validation.json) for the final check and its evidence archive.

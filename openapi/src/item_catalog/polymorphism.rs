@@ -8,18 +8,32 @@ use crate::rust_type::{Container, DeclarationRoot, RustType};
 /// Identify response record fields selected by a sibling string discriminator.
 /// Common fields keep their ordinary types; request construction stays eager.
 pub(super) fn deferred_fields(items: &ItemCatalog, item: ItemId) -> Vec<StructField> {
-    let Some(object) = items.get(item).object() else { return Vec::new() };
+    let declaration = items.get(item);
+    // Local and private records have no public receiver address for optional
+    // decoder traits. Keep them typed rather than promoting their visibility.
+    if !declaration.origin.path.is_empty()
+        || !matches!(
+            declaration.origin.type_root,
+            TypeRoot::Declaration(DeclarationRoot::Component(_))
+        )
+    {
+        return Vec::new();
+    }
+    let Some(object) = declaration.object() else { return Vec::new() };
     if object.usage.used_as_request_param || object.usage.kind == ObjectKind::RequestParam {
         return Vec::new();
     }
     let RustObject::Struct(record) = &object.definition else { return Vec::new() };
+    if !record.vis.is_public() {
+        return Vec::new();
+    }
     let mut selected = HashSet::new();
     for discriminator in &record.fields {
         let typ = discriminator.rust_type.with_option_stripped();
         // These schemas list their discriminator states only in prose.
         // Keep the relationships explicit rather than guessing free strings.
         let known_open_payloads: &[&str] =
-            match (items.get(item).metadata.ident.as_ref(), discriminator.wire_name()) {
+            match (declaration.metadata.ident.as_ref(), discriminator.wire_name()) {
                 ("Source", "flow") => &["redirect", "receiver", "code_verification"],
                 ("TaxProductResourceTaxAssociationTransactionAttempts", "status") => {
                     &["committed", "errored"]
@@ -235,6 +249,45 @@ mod tests {
             }, "required":["type"]
         }));
         assert_eq!(fields(&items, owner), ["bank".to_string()].into());
+    }
+
+    #[test]
+    fn inline_owners_keep_named_payload_fields_typed() {
+        let (items, root) = catalog(serde_json::json!({
+            "type":"object", "properties": {
+                "details":{
+                    "type":"object", "properties":{
+                        "type":{"type":"string", "enum":["card","bank"]},
+                        "card":{"$ref":"#/components/schemas/payload_a"},
+                        "bank":{"$ref":"#/components/schemas/payload_b"}
+                    }, "required":["type"]
+                }
+            }, "required":["details"]
+        }));
+        let owner = items
+            .get(root)
+            .children
+            .iter()
+            .copied()
+            .find(|item| {
+                matches!(
+                    items.get(*item).object().map(|object| &object.definition),
+                    Some(RustObject::Struct(_))
+                )
+            })
+            .unwrap();
+        assert!(!items.get(owner).origin.path.is_empty());
+        assert!(fields(&items, owner).is_empty());
+    }
+
+    #[test]
+    fn private_owners_keep_named_payload_fields_typed() {
+        let (mut items, owner) = catalog(schema("type", Some(&["card", "bank"])));
+        assert!(!fields(&items, owner).is_empty());
+        let RustItem::Object(object) = &mut items.items[owner.index()].item else { panic!() };
+        let RustObject::Struct(record) = &mut object.definition else { panic!() };
+        record.vis = Visibility::Private;
+        assert!(fields(&items, owner).is_empty());
     }
 
     #[test]

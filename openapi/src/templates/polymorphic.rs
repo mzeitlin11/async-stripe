@@ -10,6 +10,7 @@ impl ObjectWriter<'_> {
     /// Keep common fields typed and preserve every other field for lazy decoding.
     pub(crate) fn write_polymorphic_struct(&self, out: &mut String, record: &Struct) {
         let name = self.ident;
+        let visibility = record.vis;
         write_derives_line(out, self.derives.copy(false).eq(false));
         let _ = writeln!(out, "{} struct {name} {{", record.vis);
         for field in &record.fields {
@@ -89,7 +90,7 @@ impl<'de> serde::Deserialize<'de> for {name} {{
 }}
 #[doc(hidden)]
 #[derive(Default)]
-pub struct {name}Builder {{ fields: stripe_types::miniserde_helpers::ObjectBuilderInner }}
+{visibility} struct {name}Builder {{ fields: stripe_types::miniserde_helpers::ObjectBuilderInner }}
 impl stripe_types::MapBuilder for {name}Builder {{
     type Out = {name};
     fn deser_default() -> Self {{ Self::default() }}
